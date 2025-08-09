@@ -17,6 +17,4 @@
 
 package com.percussion.utils.container;
 
-public interface ConfigurationCtx {
-
-}
+public interface ConfigurationCtx {}

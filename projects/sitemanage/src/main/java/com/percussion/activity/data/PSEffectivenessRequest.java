@@ -24,39 +24,39 @@ import java.util.Optional;
 
 /**
  * A request object used for getting the effectiveness data from the rest service.  Extends the content activity
- * request by adding additional fields for usage and threshold. 
+ * request by adding additional fields for usage and threshold.
  */
 @JsonRootName(value = "EffectivenessRequest")
 public class PSEffectivenessRequest extends PSContentActivityRequest {
 
-    private PSUsageEnum usage;
-    private int threshold;
+  private PSUsageEnum usage;
+  private int threshold;
 
-    /**
-     * @return the usage metric to use when calculating effectiveness.
-     */
-    public Optional<PSUsageEnum> getUsage() {
-        return Optional.ofNullable(usage);
-    }
+  /**
+   * @return the usage metric to use when calculating effectiveness.
+   */
+  public Optional<PSUsageEnum> getUsage() {
+    return Optional.ofNullable(usage);
+  }
 
-    /**
-     * @param usage the usage to set.
-     */
-    public void setUsage(PSUsageEnum usage) {
-        this.usage = usage;
-    }
+  /**
+   * @param usage the usage to set.
+   */
+  public void setUsage(PSUsageEnum usage) {
+    this.usage = usage;
+  }
 
-    /**
-     * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
-     */
-    public int getThreshold() {
-        return threshold;
-    }
+  /**
+   * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
+   */
+  public int getThreshold() {
+    return threshold;
+  }
 
-    /**
-     * @param threshold the threshold to set.
-     */
-    public void setThreshold(int threshold) {
-        this.threshold = threshold;
-    }
+  /**
+   * @param threshold the threshold to set.
+   */
+  public void setThreshold(int threshold) {
+    this.threshold = threshold;
+  }
 }

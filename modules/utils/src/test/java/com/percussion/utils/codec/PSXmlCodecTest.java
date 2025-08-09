@@ -17,24 +17,23 @@
 package com.percussion.utils.codec;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
 /**
  * Tester for xml codecs
- * 
+ *
  * @author dougrand
  */
-public class PSXmlCodecTest
-{
-   /**
-    * @throws Exception
-    */
-    @Test
-   public void testDecode() throws Exception
-   {
-      PSXmlDecoder dec = new PSXmlDecoder();
-      String input = "&lt;a&#64;b&gt;";
-      String output = (String) dec.encode(input);
-      assertEquals(output, "<a@b>");
-   }
+public class PSXmlCodecTest {
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testDecode() throws Exception {
+    PSXmlDecoder dec = new PSXmlDecoder();
+    String input = "&lt;a&#64;b&gt;";
+    String output = (String) dec.encode(input);
+    assertEquals(output, "<a@b>");
+  }
 }

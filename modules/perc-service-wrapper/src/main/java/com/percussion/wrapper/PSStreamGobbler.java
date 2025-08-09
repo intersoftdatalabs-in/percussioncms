@@ -17,14 +17,13 @@
 
 package com.percussion.wrapper;
 
+import static com.percussion.wrapper.JettyStartUtils.error;
+import static com.percussion.wrapper.JettyStartUtils.info;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import static com.percussion.wrapper.JettyStartUtils.error;
-import static com.percussion.wrapper.JettyStartUtils.info;
-import static com.percussion.wrapper.JettyStartUtils.debug;
 
 /**
  * Empties stream passed into it in a separate thread line by line and
@@ -35,59 +34,58 @@ import static com.percussion.wrapper.JettyStartUtils.debug;
  */
 class PSStreamGobbler extends Thread {
 
-    /**
-     * The stream to read.
-     */
-    private final InputStream m_in;
-    private final String startupString;
-    private final String name;
-    private final Runnable startedCallback;
-    private volatile boolean waitForStartString = false;
+  /**
+   * The stream to read.
+   */
+  private final InputStream m_in;
 
-    /**
-     * Creates new stream gobbler.
-     *
-     * @param in the stream to copy to the console.
-     *           Assumed not <code>null</code>.
-     */
-    PSStreamGobbler(String name, InputStream in) {
-        this(name, in, null, null);
-    }
+  private final String startupString;
+  private final String name;
+  private final Runnable startedCallback;
+  private volatile boolean waitForStartString = false;
 
-    public PSStreamGobbler(String name, InputStream in, String startupString, Runnable startedCallback) {
-        this.name = name;
-        this.waitForStartString = (startupString!=null);
-        this.m_in = in;
-        this.startupString = startupString;
-        this.startedCallback = startedCallback;
-    }
+  /**
+   * Creates new stream gobbler.
+   *
+   * @param in the stream to copy to the console.
+   *           Assumed not <code>null</code>.
+   */
+  PSStreamGobbler(String name, InputStream in) {
+    this(name, in, null, null);
+  }
 
-    /**
-     * Reads the stream provided in the constructor and prints it line-by-line
-     * to the console. The method finishes when the stream is empty.
-     *
-     * @see Runnable#run()
-     */
-    @Override
-    public void run() {
-        try {
-            try(final BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(m_in))) {
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    info("{%s} %s", name, line);
-                    // TODO: line.contains should probably be changed to a regex
-                    // to detect INFO: bla bla Server startup in...
-                    if (waitForStartString && line.contains(startupString)) {
-                        this.startedCallback.run();
-                        waitForStartString = false;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            error("Error writing to stream",e);
+  public PSStreamGobbler(
+      String name, InputStream in, String startupString, Runnable startedCallback) {
+    this.name = name;
+    this.waitForStartString = (startupString != null);
+    this.m_in = in;
+    this.startupString = startupString;
+    this.startedCallback = startedCallback;
+  }
+
+  /**
+   * Reads the stream provided in the constructor and prints it line-by-line
+   * to the console. The method finishes when the stream is empty.
+   *
+   * @see Runnable#run()
+   */
+  @Override
+  public void run() {
+    try {
+      try (final BufferedReader reader = new BufferedReader(new InputStreamReader(m_in))) {
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+          info("{%s} %s", name, line);
+          // TODO: line.contains should probably be changed to a regex
+          // to detect INFO: bla bla Server startup in...
+          if (waitForStartString && line.contains(startupString)) {
+            this.startedCallback.run();
+            waitForStartString = false;
+          }
         }
+      }
+    } catch (IOException e) {
+      error("Error writing to stream", e);
     }
-
-
+  }
 }

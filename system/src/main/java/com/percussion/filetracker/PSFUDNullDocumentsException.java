@@ -21,24 +21,21 @@
  */
 package com.percussion.filetracker;
 
-public class PSFUDNullDocumentsException extends Exception
-{
-   /**
-    * Default constructor
-    */
-   public PSFUDNullDocumentsException()
-   {
-      super();
-   }
+public class PSFUDNullDocumentsException extends Exception {
+  /**
+   * Default constructor
+   */
+  public PSFUDNullDocumentsException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the message as a parameter.
-    *
-    * @param msg as String
-    *
-    */
-   public PSFUDNullDocumentsException(String msg)
-   {
-      super(msg);
-   }
+  /**
+   * Constructor that takes the message as a parameter.
+   *
+   * @param msg as String
+   *
+   */
+  public PSFUDNullDocumentsException(String msg) {
+    super(msg);
+  }
 }

@@ -20,14 +20,13 @@ import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.container.jboss.PSJbossProperties;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Updates the spring configuration file
@@ -65,119 +64,88 @@ import java.io.IOException;
  * &lt/property&gt
  */
 // REFACTORED: CP-JAVA11
-public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin
-{
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      FileInputStream in = null;
-      FileOutputStream out = null;
-      
-      File rxRoot = new File(RxUpgrade.getRxRoot());
-      File serverBeans = new File(rxRoot, PSJbossProperties.SPRING_CONFIG_FILE);
-      RxFileManager fileMgr = new RxFileManager(rxRoot.getAbsolutePath());
-      File serverPropsFile = new File(fileMgr.getServerPropertiesFile());
-            
-      try
-      {
-         PSProperties serverProps = new PSProperties(
-               serverPropsFile.getAbsolutePath());
-         String serverType = serverProps.getProperty("ServerType");
-         boolean isSystemMaster = serverType.equals(
-               PSServerConfiguration.XML_ATTR_TYPE_SYSTEM_MASTER);
-                  
-         in = new FileInputStream(serverBeans);
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-         in.close();
-         
-         NodeList beans = doc.getElementsByTagName("bean");
-         for (int i = 0; i < beans.getLength(); i++)
-         {
-            Element bean = (Element) beans.item(i);
-            if (bean.getAttribute("id").equals("sys_beanConfiguration"))
-            {
-               String msg = "Adding quartz properties for ";
-               msg += isSystemMaster ? 
-                     PSServerConfiguration.XML_ATTR_TYPE_SYSTEM_MASTER :
-                        PSServerConfiguration.XML_ATTR_TYPE_PUBLISHING_HUB;
-               config.getLogStream().println(msg);
-               
-               Element property = PSXmlDocumentBuilder.addEmptyElement(
-                     doc,
-                     bean,
-                     XML_PROPERTY_ELEM);
-               property.setAttribute(XML_ATTR_NAME, "quartzProperties");
-               
-               Element props = PSXmlDocumentBuilder.addEmptyElement(
-                     doc,
-                     property,
-                     XML_PROPS_ELEM);
-               
-               Element prop = PSXmlDocumentBuilder.addElement(
-                     doc,
-                     props,
-                     XML_PROP_ELEM,
-                     isSystemMaster ? "false" : "true");
-               prop.setAttribute(XML_ATTR_KEY,
-                     "org.quartz.jobStore.isClustered");
-                              
-               prop = PSXmlDocumentBuilder.addElement(
-                     doc,
-                     props,
-                     XML_PROP_ELEM,
-                     isSystemMaster ? "SystemMaster" : "PublishingHub");
-               prop.setAttribute(XML_ATTR_KEY,
-                     "org.quartz.scheduler.instanceName");
-                        
-               break;
-            }
-         }
-         
-         out = new FileOutputStream(serverBeans);
-         PSXmlDocumentBuilder.write(doc, out);
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace(config.getLogStream());
-         return new PSPluginResponse(PSPluginResponse.EXCEPTION, e
-               .getLocalizedMessage());
-      }
-      finally
-      {
-         if (in != null)
-         {
-            try
-            {
-               in.close();
-            }
-            catch (IOException e)
-            {
-               
-            }
-         }
-         
-         if (out != null)
-         {
-            try
-            {
-               out.close();
-            }
-            catch (IOException e)
-            {
-               
-            }
-         }
+public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin {
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    FileInputStream in = null;
+    FileOutputStream out = null;
+
+    File rxRoot = new File(RxUpgrade.getRxRoot());
+    File serverBeans = new File(rxRoot, PSJbossProperties.SPRING_CONFIG_FILE);
+    RxFileManager fileMgr = new RxFileManager(rxRoot.getAbsolutePath());
+    File serverPropsFile = new File(fileMgr.getServerPropertiesFile());
+
+    try {
+      PSProperties serverProps = new PSProperties(serverPropsFile.getAbsolutePath());
+      String serverType = serverProps.getProperty("ServerType");
+      boolean isSystemMaster = serverType.equals(PSServerConfiguration.XML_ATTR_TYPE_SYSTEM_MASTER);
+
+      in = new FileInputStream(serverBeans);
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+      in.close();
+
+      NodeList beans = doc.getElementsByTagName("bean");
+      for (int i = 0; i < beans.getLength(); i++) {
+        Element bean = (Element) beans.item(i);
+        if (bean.getAttribute("id").equals("sys_beanConfiguration")) {
+          String msg = "Adding quartz properties for ";
+          msg +=
+              isSystemMaster
+                  ? PSServerConfiguration.XML_ATTR_TYPE_SYSTEM_MASTER
+                  : PSServerConfiguration.XML_ATTR_TYPE_PUBLISHING_HUB;
+          config.getLogStream().println(msg);
+
+          Element property = PSXmlDocumentBuilder.addEmptyElement(doc, bean, XML_PROPERTY_ELEM);
+          property.setAttribute(XML_ATTR_NAME, "quartzProperties");
+
+          Element props = PSXmlDocumentBuilder.addEmptyElement(doc, property, XML_PROPS_ELEM);
+
+          Element prop =
+              PSXmlDocumentBuilder.addElement(
+                  doc, props, XML_PROP_ELEM, isSystemMaster ? "false" : "true");
+          prop.setAttribute(XML_ATTR_KEY, "org.quartz.jobStore.isClustered");
+
+          prop =
+              PSXmlDocumentBuilder.addElement(
+                  doc, props, XML_PROP_ELEM, isSystemMaster ? "SystemMaster" : "PublishingHub");
+          prop.setAttribute(XML_ATTR_KEY, "org.quartz.scheduler.instanceName");
+
+          break;
+        }
       }
 
-      return new PSPluginResponse(PSPluginResponse.SUCCESS, "Success");
-   }
+      out = new FileOutputStream(serverBeans);
+      PSXmlDocumentBuilder.write(doc, out);
+    } catch (Exception e) {
+      e.printStackTrace(config.getLogStream());
+      return new PSPluginResponse(PSPluginResponse.EXCEPTION, e.getLocalizedMessage());
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
 
-   /**
-    * Xml constants.
-    */
-   private static final String XML_PROPERTY_ELEM = "property";
-   private static final String XML_PROPS_ELEM = "props";
-   private static final String XML_PROP_ELEM = "prop";
-   private static final String XML_ATTR_NAME = "name";
-   private static final String XML_ATTR_KEY = "key";
-   
+        }
+      }
+
+      if (out != null) {
+        try {
+          out.close();
+        } catch (IOException e) {
+
+        }
+      }
+    }
+
+    return new PSPluginResponse(PSPluginResponse.SUCCESS, "Success");
+  }
+
+  /**
+   * Xml constants.
+   */
+  private static final String XML_PROPERTY_ELEM = "property";
+
+  private static final String XML_PROPS_ELEM = "props";
+  private static final String XML_PROP_ELEM = "prop";
+  private static final String XML_ATTR_NAME = "name";
+  private static final String XML_ATTR_KEY = "key";
 }

@@ -19,7 +19,6 @@ package com.percussion.data;
 
 import com.percussion.error.PSErrorException;
 import com.percussion.error.PSIllegalArgumentException;
-
 import java.sql.SQLException;
 
 /**
@@ -30,7 +29,7 @@ import java.sql.SQLException;
  * array of objects implementing IPSExecutionStep. This allows the
  * Query Handler (PSQueryHandler) to execute the plan without regard for
  * what the underlying step is actually doing.
- * 
+ *
  * @see PSQueryHandler
  * @see PSQueryOptimizer
  *
@@ -39,21 +38,18 @@ import java.sql.SQLException;
  * @since      1.0
  */
 public interface IPSExecutionStep {
-   /**
-    * Execute this step in the execution plan.
-    *
-    * @param data execution data is a container for the input data
-    *             as well as a collection of result sets generated
-    *             by queries. May not be {@code null}.
-    *
-    * @throws SQLException if a SQL error occurs
-    * @throws PSIllegalArgumentException if the data parameter is invalid
-    * @throws PSDataExtractionException if data extraction fails
-    * @throws PSErrorException if any other error occurs
-    */
-   void execute(PSExecutionData data)
-      throws SQLException,
-             PSIllegalArgumentException,
-             PSDataExtractionException,
-             PSErrorException;
+  /**
+   * Execute this step in the execution plan.
+   *
+   * @param data execution data is a container for the input data
+   *             as well as a collection of result sets generated
+   *             by queries. May not be {@code null}.
+   *
+   * @throws SQLException if a SQL error occurs
+   * @throws PSIllegalArgumentException if the data parameter is invalid
+   * @throws PSDataExtractionException if data extraction fails
+   * @throws PSErrorException if any other error occurs
+   */
+  void execute(PSExecutionData data)
+      throws SQLException, PSIllegalArgumentException, PSDataExtractionException, PSErrorException;
 }

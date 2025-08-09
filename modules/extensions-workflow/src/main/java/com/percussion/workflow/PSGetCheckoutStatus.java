@@ -17,7 +17,6 @@
 
 package com.percussion.workflow;
 
-
 import com.percussion.cms.IPSConstants;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSDataExtractionException;
@@ -27,13 +26,12 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.IPSServerErrors;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.naming.NamingException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.naming.NamingException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * This class implements the UDF processor interface, so it can be used as a
@@ -60,116 +58,101 @@ import java.sql.SQLException;
  * archive (com/percussion/cx/images/iconkey.gif). It is recommended that the
  * images match the normal icon images in the content explorer.
  */
-public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension
-   implements IPSUdfProcessor
-{
-   /**
-    * Determines the image url to use.
-    * 
-    * @param params The request parameters, never <code>null</code>.  See class
-    * description for more info.
-    * @param request The current request, guaranteed not <code>null</code> by
-    * the interface.
-    * 
-    * @return The correct image, never <code>null</code>, may be empty if all 3 
-    * image params were not supplied.
-    * 
-    * @throws PSConversionException if there are any errors.
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      if ( null == params || params.length < 1 || null == params[0]
-         || 0 == params[0].toString().trim().length()||!StringUtils.isNumeric(params[0].toString().trim()))
-         return "";
+public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /**
+   * Determines the image url to use.
+   *
+   * @param params The request parameters, never <code>null</code>.  See class
+   * description for more info.
+   * @param request The current request, guaranteed not <code>null</code> by
+   * the interface.
+   *
+   * @return The correct image, never <code>null</code>, may be empty if all 3
+   * image params were not supplied.
+   *
+   * @throws PSConversionException if there are any errors.
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    if (null == params
+        || params.length < 1
+        || null == params[0]
+        || 0 == params[0].toString().trim().length()
+        || !StringUtils.isNumeric(params[0].toString().trim())) return "";
 
+    String contentid = params[0].toString().trim();
+    String result = "Default";
 
-      String contentid = params[0].toString().trim();
-      String result = "Default";
+    PSConnectionMgr connectionMgr = null;
+    PSContentStatusContext csc = null;
 
-      PSConnectionMgr connectionMgr = null;
-      PSContentStatusContext csc = null;
+    try {
+      connectionMgr = new PSConnectionMgr();
+    } catch (SQLException e) {
+      log.error(
+          "Error getting JDBC Connection Manager. Error: {}", PSExceptionUtils.getMessageForLog(e));
+      throw new PSConversionException(e);
+    }
 
-      try{
-         connectionMgr = new PSConnectionMgr();
-      } catch (SQLException e) {
-         log.error("Error getting JDBC Connection Manager. Error: {}",PSExceptionUtils.getMessageForLog(e));
-         throw new PSConversionException(e);
-      }
+    try (Connection conn = connectionMgr.getConnection()) {
+      int iContentId = Integer.parseInt(contentid);
 
-      try(Connection conn = connectionMgr.getConnection())
-      {
-         int iContentId = Integer.parseInt(contentid);
+      csc = new PSContentStatusContext(conn, iContentId);
+      String checkoutuser = csc.getContentCheckedOutUserName();
+      result = getCheckoutStatus(checkoutuser, params, request);
+    } catch (PSException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
+    } catch (SQLException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSConversionException(
+          IPSServerErrors.SQL_PROBLEM, PSExceptionUtils.getMessageForLog(e));
+    } catch (NamingException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSConversionException(e);
+    }
 
-         csc = new PSContentStatusContext(conn, iContentId);
-         String checkoutuser = csc.getContentCheckedOutUserName();
-         result = getCheckoutStatus(checkoutuser, params, request);
-      }
-      catch (PSException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new PSConversionException(e.getErrorCode(),
-            e.getErrorArguments());
-      }
-      catch (SQLException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new PSConversionException(IPSServerErrors.SQL_PROBLEM, PSExceptionUtils.getMessageForLog(e));
-      }
-      catch (NamingException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new PSConversionException(e);
-      }
-      
-      return result;
-   }
-   
-   /**
-    * Determine checkout status based on the name of the checked out user.
-    * 
-    * @param checkoutUser The name of the user that current has the item 
-    * checked out, assumed not <code>null</code>, may be empty.
-    * @param params The request params supplied to this udf, see 
-    * <code>processUdf()</code> for more info.
-    * @param request The current request context, used to determine the current
-    * user, assumed not <code>null</code>.
-    * 
-    * @return The image to use, never <code>null</code>, may be empty.
-    * 
-    * @throws PSDataExtractionException if the current user cannot be 
-    * determined.
-    */
-   protected static String getCheckoutStatus(String checkoutUser, 
-      Object[] params, IPSRequestContext request) 
-         throws PSDataExtractionException
-   {
-      String userName = request.getUserContextInformation(
-         "User/Name", "unknown").toString();
-      
-      String somebodyImage = IPSConstants.CHECKOUT_STATUS_SOMEONEELSE;
-      String nobodyImage = IPSConstants.CHECKOUT_STATUS_NOBODY;
-      String myselfImage = IPSConstants.CHECKOUT_STATUS_MYSELF;
-      
-      if(params.length > 1 && params[1].toString().trim().length()>0)
-         nobodyImage = params[1].toString();
-      if(params.length > 2 && params[2].toString().trim().length()>0)
-         somebodyImage = params[2].toString();
-      if(params.length > 3 && params[3].toString().trim().length()>0)
-         myselfImage = params[3].toString();
+    return result;
+  }
 
-      String result;
-      if(checkoutUser.trim().length() < 1)
-         result = nobodyImage;
-      else if(checkoutUser.equalsIgnoreCase(userName))
-         result = myselfImage;
-      else
-         result = somebodyImage;
-      
-      return result;
-   }
+  /**
+   * Determine checkout status based on the name of the checked out user.
+   *
+   * @param checkoutUser The name of the user that current has the item
+   * checked out, assumed not <code>null</code>, may be empty.
+   * @param params The request params supplied to this udf, see
+   * <code>processUdf()</code> for more info.
+   * @param request The current request context, used to determine the current
+   * user, assumed not <code>null</code>.
+   *
+   * @return The image to use, never <code>null</code>, may be empty.
+   *
+   * @throws PSDataExtractionException if the current user cannot be
+   * determined.
+   */
+  protected static String getCheckoutStatus(
+      String checkoutUser, Object[] params, IPSRequestContext request)
+      throws PSDataExtractionException {
+    String userName = request.getUserContextInformation("User/Name", "unknown").toString();
 
-    protected static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
+    String somebodyImage = IPSConstants.CHECKOUT_STATUS_SOMEONEELSE;
+    String nobodyImage = IPSConstants.CHECKOUT_STATUS_NOBODY;
+    String myselfImage = IPSConstants.CHECKOUT_STATUS_MYSELF;
 
+    if (params.length > 1 && params[1].toString().trim().length() > 0)
+      nobodyImage = params[1].toString();
+    if (params.length > 2 && params[2].toString().trim().length() > 0)
+      somebodyImage = params[2].toString();
+    if (params.length > 3 && params[3].toString().trim().length() > 0)
+      myselfImage = params[3].toString();
+
+    String result;
+    if (checkoutUser.trim().length() < 1) result = nobodyImage;
+    else if (checkoutUser.equalsIgnoreCase(userName)) result = myselfImage;
+    else result = somebodyImage;
+
+    return result;
+  }
+
+  protected static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 }
-

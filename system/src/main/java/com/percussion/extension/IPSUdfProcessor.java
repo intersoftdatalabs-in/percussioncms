@@ -46,24 +46,22 @@ import com.percussion.server.IPSRequestContext;
  * @author     Tas Giakouminakis
  * @version    1.0
  * @since      1.0
- * 
+ *
  */
-public interface IPSUdfProcessor extends IPSExtension
-{
-   /**
-    * Executes the UDF with the specified parameters and request context.
-    *
-    * @param params The parameter values supplied with the request in the
-    * appropriate order, as specified by the runtime parameter definitions
-    * returned by IPSExtensionDef associated with this UDF.
-    *
-    * @param request The current request context.
-    *
-    * @throws PSConversionException If an error occurred during data
-    * conversion. This exception takes two parameters, a message code and
-    * an argument.  You should always pass in zero (0) for the 
-    * message code.
-    */
-   Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException;
+public interface IPSUdfProcessor extends IPSExtension {
+  /**
+   * Executes the UDF with the specified parameters and request context.
+   *
+   * @param params The parameter values supplied with the request in the
+   * appropriate order, as specified by the runtime parameter definitions
+   * returned by IPSExtensionDef associated with this UDF.
+   *
+   * @param request The current request context.
+   *
+   * @throws PSConversionException If an error occurred during data
+   * conversion. This exception takes two parameters, a message code and
+   * an argument.  You should always pass in zero (0) for the
+   * message code.
+   */
+  Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException;
 }

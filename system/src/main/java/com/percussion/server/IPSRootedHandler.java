@@ -36,77 +36,75 @@ import java.util.stream.Stream;
  * "http://myserver:9992/Rhythmyx/foo/images/bar.gif", "foo" is the request
  * root.
  */
-public interface IPSRootedHandler extends IPSRequestHandler
-{
-   /**
-    * Get the name of the rooted handler. Used by the server to identify the
-    * handler during initialization and when reporting information about all
-    * rooted handlers. All rooted handlers will be served by rhythmyx at
-    * runtime.
-    *
-    * @return the handler name, should be unique across all rooted
-    *    handlers, never {@code null} or empty. If {@code null}
-    *    or empty the server will ignore this handler. If not unique, the
-    *    results will be unpredictable as to which handler will receive the
-    *    request for processing.
-    */
-   String getName();
+public interface IPSRootedHandler extends IPSRequestHandler {
+  /**
+   * Get the name of the rooted handler. Used by the server to identify the
+   * handler during initialization and when reporting information about all
+   * rooted handlers. All rooted handlers will be served by rhythmyx at
+   * runtime.
+   *
+   * @return the handler name, should be unique across all rooted
+   *    handlers, never {@code null} or empty. If {@code null}
+   *    or empty the server will ignore this handler. If not unique, the
+   *    results will be unpredictable as to which handler will receive the
+   *    request for processing.
+   */
+  String getName();
 
-   /**
-    * Get all request roots of the rooted handler. Called by the server when
-    * it is initializing the handler.
-    *
-    * @return an iterator over one or more request roots as Strings. The
-    *    iterator must contain at least one entry, and should not contain
-    *    duplicates. Never {@code null} or empty. If {@code null} or
-    *    empty the server will ignore this handler.
-    */
-   Iterator<String> getRequestRoots();
+  /**
+   * Get all request roots of the rooted handler. Called by the server when
+   * it is initializing the handler.
+   *
+   * @return an iterator over one or more request roots as Strings. The
+   *    iterator must contain at least one entry, and should not contain
+   *    duplicates. Never {@code null} or empty. If {@code null} or
+   *    empty the server will ignore this handler.
+   */
+  Iterator<String> getRequestRoots();
 
-   /**
-    * Default method to get request roots as a Collection for more convenient access.
-    * This provides a more modern alternative to the Iterator-based method.
-    *
-    * @return a Collection of request roots as Strings, never {@code null} or empty.
-    * Default implementation collects from the iterator.
-    */
-   default Collection<String> getRequestRootsCollection() {
-      return Stream.generate(() -> null)
-         .takeWhile(x -> getRequestRoots().hasNext())
-         .map(x -> getRequestRoots().next())
-         .toList();
-   }
+  /**
+   * Default method to get request roots as a Collection for more convenient access.
+   * This provides a more modern alternative to the Iterator-based method.
+   *
+   * @return a Collection of request roots as Strings, never {@code null} or empty.
+   * Default implementation collects from the iterator.
+   */
+  default Collection<String> getRequestRootsCollection() {
+    return Stream.generate(() -> null)
+        .takeWhile(x -> getRequestRoots().hasNext())
+        .map(x -> getRequestRoots().next())
+        .toList();
+  }
 
-   /**
-    * Default method to get the handler name as an Optional for null-safe access.
-    *
-    * @return Optional containing the handler name if present and non-empty,
-    * empty Optional otherwise.
-    */
-   default Optional<String> getNameOptional() {
-      var name = getName();
-      return Optional.ofNullable(name)
-         .filter(n -> !n.trim().isEmpty());
-   }
+  /**
+   * Default method to get the handler name as an Optional for null-safe access.
+   *
+   * @return Optional containing the handler name if present and non-empty,
+   * empty Optional otherwise.
+   */
+  default Optional<String> getNameOptional() {
+    var name = getName();
+    return Optional.ofNullable(name).filter(n -> !n.trim().isEmpty());
+  }
 
-   /**
-    * Default method to check if this handler can handle a specific request root.
-    *
-    * @param requestRoot the request root to check, may be {@code null}
-    * @return {@code true} if this handler can handle the specified request root,
-    * {@code false} otherwise
-    */
-   default boolean canHandle(String requestRoot) {
-      if (requestRoot == null || requestRoot.trim().isEmpty()) {
-         return false;
-      }
-
-      var iterator = getRequestRoots();
-      while (iterator.hasNext()) {
-         if (requestRoot.equals(iterator.next())) {
-            return true;
-         }
-      }
+  /**
+   * Default method to check if this handler can handle a specific request root.
+   *
+   * @param requestRoot the request root to check, may be {@code null}
+   * @return {@code true} if this handler can handle the specified request root,
+   * {@code false} otherwise
+   */
+  default boolean canHandle(String requestRoot) {
+    if (requestRoot == null || requestRoot.trim().isEmpty()) {
       return false;
-   }
+    }
+
+    var iterator = getRequestRoots();
+    while (iterator.hasNext()) {
+      if (requestRoot.equals(iterator.next())) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -23,10 +23,9 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
+import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.File;
 
 /**
  * This extension returns the value of a counter obtained using
@@ -34,29 +33,27 @@ import java.io.File;
  * @deprecated Use PSExitNextNumber
  */
 @Deprecated
-public class PSExitNextNumberMaxPP implements IPSRequestPreProcessor
-{
+public class PSExitNextNumberMaxPP implements IPSRequestPreProcessor {
 
-   private static PSExitNextNumber newNextNumberExt = new PSExitNextNumber();
-   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
+  private static PSExitNextNumber newNextNumberExt = new PSExitNextNumber();
+  private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
+  /**************  IPSExtension Interface Implementation ************* */
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    newNextNumberExt.init(extensionDef, file);
+  }
 
-   /**************  IPSExtension Interface Implementation ************* */
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-      newNextNumberExt.init(extensionDef, file);
-   }
+  // This is the main request processing handler (see IPSRequestPreProcessor)
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+    log.warn(
+        "Extension {} is deprecated and may produce false results, please update references to use"
+            + " PSExitNextNumber.",
+        ms_exitName);
+    log.warn("Invoking PSExitNextNumber instead...");
 
-   // This is the main request processing handler (see IPSRequestPreProcessor)
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-      throws PSExtensionProcessingException, PSParameterMismatchException
-   {
-      log.warn("Extension {} is deprecated and may produce false results, please update references to use PSExitNextNumber.",ms_exitName);
-      log.warn("Invoking PSExitNextNumber instead...");
+    newNextNumberExt.preProcessRequest(params, request);
+  }
 
-      newNextNumberExt.preProcessRequest(params, request);
-   }
-
-   private static String ms_exitName = "PSExitNextNumberMaxPP";
+  private static String ms_exitName = "PSExitNextNumberMaxPP";
 }

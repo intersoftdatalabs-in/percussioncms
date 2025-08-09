@@ -27,74 +27,66 @@ package com.percussion.install;
  * <code>so.1</code> for Solaris.
  *
  * Now that we use InstallShield, a wizard panel will be doing the loading.
- * 
+ *
  */
-public class PSSystem
-{
-   /**
-    * Get the number of a local machine's processors.
-    * @return  the number of processors
-    */
-   public static int getNumberOfProcessors()
-   {
-      return getProcessors();
-   }
+public class PSSystem {
+  /**
+   * Get the number of a local machine's processors.
+   * @return  the number of processors
+   */
+  public static int getNumberOfProcessors() {
+    return getProcessors();
+  }
 
-   /**
-    * Determine whether a local computer rebooted successfully or not.
-    * @return  <code>true</code> if rebooted, or <code>false</code> if not
-    */
-   public static boolean rebootMachine()
-   {
-      return reboot();
-   }
-   
-   /**
-    * Return the short path for Windows
-    * @param inPath long path name with spaces
-    * @return ShortPath
-    */
-   public static String jniGetShortPathName(String inPath)
-   {
-      return getShortPathName(inPath);
-   }
+  /**
+   * Determine whether a local computer rebooted successfully or not.
+   * @return  <code>true</code> if rebooted, or <code>false</code> if not
+   */
+  public static boolean rebootMachine() {
+    return reboot();
+  }
 
-/**
-    * Set console handler
-    * @return void
-    */
-   public static void  jniSetConsoleCtrlHandler()
-   {
-      setConsoleCtrlHandler();
-   }
+  /**
+   * Return the short path for Windows
+   * @param inPath long path name with spaces
+   * @return ShortPath
+   */
+  public static String jniGetShortPathName(String inPath) {
+    return getShortPathName(inPath);
+  }
 
-   /******************For unix, comment out the following*****************/
+  /**
+   * Set console handler
+   * @return void
+   */
+  public static void jniSetConsoleCtrlHandler() {
+    setConsoleCtrlHandler();
+  }
 
-   /**
-    * Get the number of a local machine's processors.
-    * @return  the number of processors
-    */
-   private static native int getProcessors();
+  /******************For unix, comment out the following*****************/
 
-   /**
-    * Determine whether a local computer is in reboot status.
-    * @return  <code>true</code> if in reboot status, or <code>false</code> if not
-    */
-   private static native boolean reboot();
+  /**
+   * Get the number of a local machine's processors.
+   * @return  the number of processors
+   */
+  private static native int getProcessors();
 
-   /**
-    * Return the short path for Windows
-    * @param inPath long path name with spaces
-    * @return ShortPath
-    */
-   private static native String getShortPathName(String inPath);
-   
-   /**
-    * Console handler for the java process so that it masks get logoff events
-    * @return void
-    */
-   private static native void setConsoleCtrlHandler();
+  /**
+   * Determine whether a local computer is in reboot status.
+   * @return  <code>true</code> if in reboot status, or <code>false</code> if not
+   */
+  private static native boolean reboot();
 
-}   
+  /**
+   * Return the short path for Windows
+   * @param inPath long path name with spaces
+   * @return ShortPath
+   */
+  private static native String getShortPathName(String inPath);
 
-
+  /**
+   * Console handler for the java process so that it masks get logoff events
+   * @return void
+   */
+  private static native void setConsoleCtrlHandler();
+}

@@ -19,9 +19,7 @@ package com.percussion.error;
 
 import com.percussion.data.IPSBackEndErrors;
 import com.percussion.log.PSLogSubMessage;
-
 import java.util.Locale;
-
 
 /**
  * The PSLargeBackEndRequestQueueError class is used to report large
@@ -36,80 +34,71 @@ import java.util.Locale;
  * @version    1.0
  * @since      1.0
  */
-public class PSLargeBackEndRequestQueueError extends PSLargeRequestQueueError
-{
-   /**
-    * Report a large back-end request queue.
-    * <p>
-    * The application id is most commonly obtained by calling
-    * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-    * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-    * <p>
-    * The session id can be obtained from the
-    * {@link com.percussion.server.PSUserSession PSUserSession} object
-    * contained in the
-    * {@link com.percussion.server.PSRequest PSRequest} object.
-    *
-    * @param      applId         the id of the application that generated
-    *                            the error
-    *
-    * @param      sessionId      the session id of the user making the
-    *                            request
-    *
-    * @param      driver         the back-end driver with the large
-    *                            request queue
-    *
-    * @param      server         the back-end server with the large
-    *                            request queue
-    *
-    * @param      size           the current size of the request queue
-    */
-   public PSLargeBackEndRequestQueueError(int applId,
-                                          java.lang.String sessionId,
-                                          java.lang.String driver,
-                                          java.lang.String server,
-                                          int size)
-   {
-      super(applId, sessionId, size);
+public class PSLargeBackEndRequestQueueError extends PSLargeRequestQueueError {
+  /**
+   * Report a large back-end request queue.
+   * <p>
+   * The application id is most commonly obtained by calling
+   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
+   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   * <p>
+   * The session id can be obtained from the
+   * {@link com.percussion.server.PSUserSession PSUserSession} object
+   * contained in the
+   * {@link com.percussion.server.PSRequest PSRequest} object.
+   *
+   * @param      applId         the id of the application that generated
+   *                            the error
+   *
+   * @param      sessionId      the session id of the user making the
+   *                            request
+   *
+   * @param      driver         the back-end driver with the large
+   *                            request queue
+   *
+   * @param      server         the back-end server with the large
+   *                            request queue
+   *
+   * @param      size           the current size of the request queue
+   */
+  public PSLargeBackEndRequestQueueError(
+      int applId,
+      java.lang.String sessionId,
+      java.lang.String driver,
+      java.lang.String server,
+      int size) {
+    super(applId, sessionId, size);
 
-      if (driver == null)
-         m_driver = "";
-      else
-         m_driver = driver;
+    if (driver == null) m_driver = "";
+    else m_driver = driver;
 
-      if (server == null)
-         m_server = "";
-      else
-         m_server = server;
-   }
+    if (server == null) m_server = "";
+    else m_server = server;
+  }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      PSLogSubMessage[] msgs = new PSLogSubMessage[1];
+  /**
+   * sublcasses must override this to build the messages in the
+   * specified locale
+   */
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    PSLogSubMessage[] msgs = new PSLogSubMessage[1];
 
-      /* use IPSBackEndErrors.REQUEST_QUEUE_FULL along with:
-       *    [0] = m_sessId
-       *    [1] = m_size
-       *    [2] = m_driver
-       *    [3] = m_server
-       * to format the the submessage text
-       */
-      Object[] args = { m_sessId, new Integer(m_size), m_driver, m_server };
-      msgs[0]   = new PSLogSubMessage(
-                              IPSBackEndErrors.REQUEST_QUEUE_FULL,
-                              PSErrorManager.createMessage(
-                                    IPSBackEndErrors.REQUEST_QUEUE_FULL,
-                                    args, loc));
+    /* use IPSBackEndErrors.REQUEST_QUEUE_FULL along with:
+     *    [0] = m_sessId
+     *    [1] = m_size
+     *    [2] = m_driver
+     *    [3] = m_server
+     * to format the the submessage text
+     */
+    Object[] args = {m_sessId, new Integer(m_size), m_driver, m_server};
+    msgs[0] =
+        new PSLogSubMessage(
+            IPSBackEndErrors.REQUEST_QUEUE_FULL,
+            PSErrorManager.createMessage(IPSBackEndErrors.REQUEST_QUEUE_FULL, args, loc));
 
-      return msgs;
-   }
+    return msgs;
+  }
 
-
-   private String   m_driver;
-   private String   m_server;
+  private String m_driver;
+  private String m_server;
 }
-

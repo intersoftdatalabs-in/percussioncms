@@ -22,17 +22,16 @@ import com.percussion.data.PSExecutionData;
 /**
  * This interface must be implemented for each macro extractor.
  */
-public interface IPSMacroExtractor
-{
-   /**
-    * Extract a data value using the run-time data.
-    *
-    * @param execData the execution data associated with this request. This 
-    *    includes all context data, result sets, etc.
-    * @return the associated value, may be <code>null</code>.
-    * @throws PSDataExtractionException if an error condition causes the 
-    *    extraction to fail. This is not thrown if the requested data does 
-    *    not exist.
-    */
-   public Object extract(PSExecutionData data) throws PSDataExtractionException;
+public interface IPSMacroExtractor {
+  /**
+   * Extract a data value using the run-time data.
+   *
+   * @param execData the execution data associated with this request. This
+   *    includes all context data, result sets, etc.
+   * @return the associated value, may be <code>null</code>.
+   * @throws PSDataExtractionException if an error condition causes the
+   *    extraction to fail. This is not thrown if the requested data does
+   *    not exist.
+   */
+  public Object extract(PSExecutionData data) throws PSDataExtractionException;
 }

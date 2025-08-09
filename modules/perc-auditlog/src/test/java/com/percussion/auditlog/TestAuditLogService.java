@@ -21,10 +21,8 @@ import org.junit.jupiter.api.Test;
 
 public class TestAuditLogService {
 
-    public TestAuditLogService(){}
+  public TestAuditLogService() {}
 
-    @Test
-    public void testContentEvent(){
-
-    }
+  @Test
+  public void testContentEvent() {}
 }

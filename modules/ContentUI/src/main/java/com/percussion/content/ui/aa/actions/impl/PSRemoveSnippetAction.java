@@ -26,7 +26,6 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import java.util.Map;
  * This action is used to remove snippet/s. It removes active assembly
  * relationships corresponding to the comma separated list of relationship ids
  * specified in the (required) <code>relationshipIds</code> parameter.
- * 
+ *
  * <p>
  * Expects the following parameters:
  * </p>
@@ -51,42 +50,33 @@ import java.util.Map;
  * </tr>
  * </tbody> </table>
  */
-public class PSRemoveSnippetAction extends PSAAActionBase
-{
+public class PSRemoveSnippetAction extends PSAAActionBase {
 
-   /* (non-Javadoc)
-    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
-    */
-   public PSActionResponse execute(Map<String, Object> params)
-            throws PSAAClientActionException
-   {
-      String ridParam = (String) getParameterRqd(params, RELATIONSHIP_IDS);
-      String[] rids = ridParam.split(",");
-      List<IPSGuid> ids = new ArrayList<IPSGuid>();
-      IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
-      for (String rid : rids)
-      {
-         ids.add(mgr.makeGuid(rid,PSTypeEnum.RELATIONSHIP));
-      }
-      IPSSystemWs service = PSSystemWsLocator.getSystemWebservice();
-      try
-      {
-         service.deleteRelationships(ids);
-      }
-      catch (PSErrorsException es)
-      {
-         throw createException(es);
-      }
-      catch (PSErrorException e)
-      {
-         throw createException(e);
-      }
-      
-      return new PSActionResponse(SUCCESS, PSActionResponse.RESPONSE_TYPE_PLAIN);
-   }
-   
-   /**
-    * The name of the parameter to specify the to be removed relationship ids.
-    */
-   public static String RELATIONSHIP_IDS = "relationshipIds";
+  /* (non-Javadoc)
+   * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
+   */
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    String ridParam = (String) getParameterRqd(params, RELATIONSHIP_IDS);
+    String[] rids = ridParam.split(",");
+    List<IPSGuid> ids = new ArrayList<IPSGuid>();
+    IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
+    for (String rid : rids) {
+      ids.add(mgr.makeGuid(rid, PSTypeEnum.RELATIONSHIP));
+    }
+    IPSSystemWs service = PSSystemWsLocator.getSystemWebservice();
+    try {
+      service.deleteRelationships(ids);
+    } catch (PSErrorsException es) {
+      throw createException(es);
+    } catch (PSErrorException e) {
+      throw createException(e);
+    }
+
+    return new PSActionResponse(SUCCESS, PSActionResponse.RESPONSE_TYPE_PLAIN);
+  }
+
+  /**
+   * The name of the parameter to specify the to be removed relationship ids.
+   */
+  public static String RELATIONSHIP_IDS = "relationshipIds";
 }

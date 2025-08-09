@@ -56,7 +56,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.Permission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

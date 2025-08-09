@@ -16,35 +16,33 @@
  */
 package com.percussion.taxonomy.repository;
 
+import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 import java.util.List;
 
-import com.percussion.taxonomy.domain.*;
+public interface TaxonomyServiceInf {
+  Collection<Taxonomy> getAllTaxonomys();
 
-public interface TaxonomyServiceInf
-{
-   Collection<Taxonomy> getAllTaxonomys();
+  Taxonomy getTaxonomy(int id);
 
-   Taxonomy getTaxonomy(int id);
+  /**
+   * Determines if an taxonomy exists for a given name.
+   * Using case insensitive to compare the names.
+   * @param name the name in question, not empty.
+   * @return <code>true</code> if such taxonomy exist.
+   */
+  boolean doesTaxonomyExists(String name);
 
-   /**
-    * Determines if an taxonomy exists for a given name.
-    * Using case insensitive to compare the names.
-    * @param name the name in question, not empty.
-    * @return <code>true</code> if such taxonomy exist.
-    */
-   boolean doesTaxonomyExists(String name);
+  /**
+   * Removes a taxonomy and all the attributes, nodes and visibilities
+   * associated to it.
+   *
+   * @param taxonomy {@link Taxonomy} to be removed. Must not be
+   *           <code>null</code>.
+   */
+  void removeTaxonomy(Taxonomy taxonomy);
 
-   /**
-    * Removes a taxonomy and all the attributes, nodes and visibilities
-    * associated to it.
-    * 
-    * @param taxonomy {@link Taxonomy} to be removed. Must not be
-    *           <code>null</code>.
-    */
-   void removeTaxonomy(Taxonomy taxonomy);
+  void saveTaxonomy(Taxonomy taxonomy);
 
-   void saveTaxonomy(Taxonomy taxonomy);
-   
-   public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy);
+  public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy);
 }

@@ -17,12 +17,11 @@
 
 package com.percussion.taxonomy.repository;
 
+import java.util.HashMap;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;
-
-import java.util.HashMap;
 
 /**
  * You can pass in a simple Query, or you can pass one in with substitutions defined, and
@@ -30,26 +29,26 @@ import java.util.HashMap;
  */
 public class HibernateQuery implements HibernateCallback {
 
-    private String query;
-    private HashMap<String, String> substitutions;
+  private String query;
+  private HashMap<String, String> substitutions;
 
-    public HibernateQuery(String query) {
-        this.query = query;
-        this.substitutions = null;
-    }
+  public HibernateQuery(String query) {
+    this.query = query;
+    this.substitutions = null;
+  }
 
-    public HibernateQuery(String query, HashMap<String, String> substitutions) {
-        this.query = query;
-        this.substitutions = substitutions;
-    }
+  public HibernateQuery(String query, HashMap<String, String> substitutions) {
+    this.query = query;
+    this.substitutions = substitutions;
+  }
 
-    public Object doInHibernate(Session session) throws HibernateException {
-        Query q = session.createQuery(query);
-        if (substitutions != null) {
-            for (String name : substitutions.keySet()) {
-                q.setText(name, substitutions.get(name));
-            }
-        }
-        return q.list();
+  public Object doInHibernate(Session session) throws HibernateException {
+    Query q = session.createQuery(query);
+    if (substitutions != null) {
+      for (String name : substitutions.keySet()) {
+        q.setText(name, substitutions.get(name));
+      }
     }
+    return q.list();
+  }
 }

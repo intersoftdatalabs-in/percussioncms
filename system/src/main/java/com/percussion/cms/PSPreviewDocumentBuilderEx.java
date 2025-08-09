@@ -20,33 +20,31 @@ package com.percussion.cms;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSField;
-import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-
 
 /**
  * This class just like {@link PSPreviewDocumentBuilder}, except it override
- * the "showInPreview" to "yes". 
+ * the "showInPreview" to "yes".
  */
-public class PSPreviewDocumentBuilderEx extends PSPreviewDocumentBuilder
-{
-   /**
-    * Call {@link PSPreviewDocumentBuilder#PSPreviewDocumentBuilder(
-    * PSContentEditor, PSEditorDocumentContext, PSDisplayMapper, int, boolean)}
-    */
-   public PSPreviewDocumentBuilderEx( PSContentEditor ce,
-         PSEditorDocumentContext ctx, PSDisplayMapper dispMapper, int pageId,
-         boolean isError )
-      throws PSExtensionException, PSNotFoundException, PSSystemValidationException
-   {
-      super( ce, ctx, dispMapper, pageId, isError );
-   }
+public class PSPreviewDocumentBuilderEx extends PSPreviewDocumentBuilder {
+  /**
+   * Call {@link PSPreviewDocumentBuilder#PSPreviewDocumentBuilder(
+   * PSContentEditor, PSEditorDocumentContext, PSDisplayMapper, int, boolean)}
+   */
+  public PSPreviewDocumentBuilderEx(
+      PSContentEditor ce,
+      PSEditorDocumentContext ctx,
+      PSDisplayMapper dispMapper,
+      int pageId,
+      boolean isError)
+      throws PSExtensionException, PSNotFoundException, PSSystemValidationException {
+    super(ce, ctx, dispMapper, pageId, isError);
+  }
 
-
-   // see base for desc
-   boolean showField( PSField field )
-   {
-      return true; 
-   }
+  // see base for desc
+  boolean showField(PSField field) {
+    return true;
+  }
 }

@@ -19,10 +19,8 @@
 package com.percussion.data;
 
 import com.percussion.server.PSRequest;
-import org.w3c.dom.Document;
-
 import java.io.OutputStream;
-
+import org.w3c.dom.Document;
 
 /**
  * The IPSStyleSheetMerger interface must be implemented by all
@@ -38,30 +36,29 @@ import java.io.OutputStream;
  *   <tr><td>CSS1</td>            <td>PSCss1StyleSheetMerger</td></tr>
  *   <tr><td>CSS2</td>            <td>PSCss2StyleSheetMerger</td></tr>
  * </table>
- * 
+ *
  * @author     Tas Giakouminakis
  * @version    1.0
  * @since      1.0
  */
 public interface IPSStyleSheetMerger {
-   /**
-    * Merge the style sheet defined in the XML document to generate
-    * HTML output. The <code>stylesheet</code> processing instruction
-    * must exist in the XML document and define the style sheet to use.
-    *
-    * @param   req         the request document which may provide additional
-    *                        context information required by the processor
-    *
-    * @param   doc         the XML document to be processed
-    *
-    * @param   out         the output stream to which the results will be
-    *                        written
-    *
-    * @exception   PSUnsupportedConversionException
-    *                        if the style sheet defined in the XML document
-    *                        is of an unsupported type
-    */
-   public void merge(PSRequest req, Document doc, OutputStream out)
+  /**
+   * Merge the style sheet defined in the XML document to generate
+   * HTML output. The <code>stylesheet</code> processing instruction
+   * must exist in the XML document and define the style sheet to use.
+   *
+   * @param   req         the request document which may provide additional
+   *                        context information required by the processor
+   *
+   * @param   doc         the XML document to be processed
+   *
+   * @param   out         the output stream to which the results will be
+   *                        written
+   *
+   * @exception   PSUnsupportedConversionException
+   *                        if the style sheet defined in the XML document
+   *                        is of an unsupported type
+   */
+  public void merge(PSRequest req, Document doc, OutputStream out)
       throws PSConversionException, PSUnsupportedConversionException;
 }
-

@@ -24,19 +24,17 @@ package com.percussion.i18n.tmxdom;
  * </p>
  * @see IPSTmxDtdConstants
  */
-public interface IPSTmxProperty
-   extends IPSTmxNote
-{
-   /**
-    * Method to get the type attribute of this node.
-    * @return value of the 'type' attribute, never <code>null</code>
-    * or <code>empty</code>
-    */
-   public String getType();
+public interface IPSTmxProperty extends IPSTmxNote {
+  /**
+   * Method to get the type attribute of this node.
+   * @return value of the 'type' attribute, never <code>null</code>
+   * or <code>empty</code>
+   */
+  public String getType();
 
-   /**
-    * Sets type attribute for this node
-    * @param    type if <code>null</code>, assumed <code>empty</code>.
-    */
-   public void setType(String type);
+  /**
+   * Sets type attribute for this node
+   * @param    type if <code>null</code>, assumed <code>empty</code>.
+   */
+  public void setType(String type);
 }

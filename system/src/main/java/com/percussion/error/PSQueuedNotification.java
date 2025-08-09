@@ -29,87 +29,87 @@ import com.percussion.mail.PSMailMessage;
  * @since 1.0
  */
 public class PSQueuedNotification extends PSMailMessage {
-   /**
-    * Construct an empty notification.
-    */
-   public PSQueuedNotification() {
-      super();
-   }
+  /**
+   * Construct an empty notification.
+   */
+  public PSQueuedNotification() {
+    super();
+  }
 
-   /**
-    * Appends the body text to the e-mail message.
-    *
-    * @param text the text to append
-    */
-   public void appendBodyText(String text) {
-      try {
-         super.appendBodyText(text + "\r\n\n");
-      } catch (java.io.IOException e) {
-         // this cannot happen based on our use of the message
-         // (we don't mix streams with text data)
-      }
-   }
+  /**
+   * Appends the body text to the e-mail message.
+   *
+   * @param text the text to append
+   */
+  public void appendBodyText(String text) {
+    try {
+      super.appendBodyText(text + "\r\n\n");
+    } catch (java.io.IOException e) {
+      // this cannot happen based on our use of the message
+      // (we don't mix streams with text data)
+    }
+  }
 
-   /**
-    * Reset the e-mail body to empty after the message has been sent out.
-    */
-   public void resetBodyText() {
-      super.resetBodyText();
-   }
+  /**
+   * Reset the e-mail body to empty after the message has been sent out.
+   */
+  public void resetBodyText() {
+    super.resetBodyText();
+  }
 
-   /**
-    * Add the counter by one for general error count.
-    */
-   public void addGeneralErrorCountByOne() {
-      m_generalErrorCount += 1;
-   }
+  /**
+   * Add the counter by one for general error count.
+   */
+  public void addGeneralErrorCountByOne() {
+    m_generalErrorCount += 1;
+  }
 
-   /**
-    * Get the counter for general error count.
-    */
-   public int getGeneralErrorCount() {
-      return m_generalErrorCount;
-   }
+  /**
+   * Get the counter for general error count.
+   */
+  public int getGeneralErrorCount() {
+    return m_generalErrorCount;
+  }
 
-   /**
-    * Set the counter for general error count.
-    */
-   public void setGeneralErrorCount(int count) {
-      m_generalErrorCount = count;
-   }
+  /**
+   * Set the counter for general error count.
+   */
+  public void setGeneralErrorCount(int count) {
+    m_generalErrorCount = count;
+  }
 
-   /**
-    * Get the general error's occur time before notifying the administrator.
-    * The time unit is in milliseconds.
-    */
-   public long getGeneralErrorInterval() {
-      return m_generalErrorInterval;
-   }
+  /**
+   * Get the general error's occur time before notifying the administrator.
+   * The time unit is in milliseconds.
+   */
+  public long getGeneralErrorInterval() {
+    return m_generalErrorInterval;
+  }
 
-   /**
-    * Set the general error's occur time before notifying the administrator.
-    * The time unit is in milliseconds.
-    */
-   public void setGeneralErrorInterval(long interval) {
-      m_generalErrorInterval = interval;
-   }
+  /**
+   * Set the general error's occur time before notifying the administrator.
+   * The time unit is in milliseconds.
+   */
+  public void setGeneralErrorInterval(long interval) {
+    m_generalErrorInterval = interval;
+  }
 
-   /**
-    * Get the initial date.
-    */
-   public java.util.Date getInitDate() {
-      return m_initTime;
-   }
+  /**
+   * Get the initial date.
+   */
+  public java.util.Date getInitDate() {
+    return m_initTime;
+  }
 
-   /**
-    * Set the initial date.
-    */
-   public void setInitDate(java.util.Date now) {
-      m_initTime = now;
-   }
+  /**
+   * Set the initial date.
+   */
+  public void setInitDate(java.util.Date now) {
+    m_initTime = now;
+  }
 
-   private int m_generalErrorCount = 0;
-   private long m_generalErrorInterval = 0; // milliseconds
+  private int m_generalErrorCount = 0;
+  private long m_generalErrorInterval = 0; // milliseconds
 
-   private java.util.Date m_initTime = new java.util.Date();
+  private java.util.Date m_initTime = new java.util.Date();
 }

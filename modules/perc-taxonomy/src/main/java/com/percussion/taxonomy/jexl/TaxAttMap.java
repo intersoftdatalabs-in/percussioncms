@@ -18,35 +18,30 @@
 package com.percussion.taxonomy.jexl;
 
 import com.percussion.taxonomy.domain.Attribute_lang;
-
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * This class Wraps a HashMap to provide extra functions to the Jexl author
- * 
+ *
  * @author stephenbolton
- * 
+ *
  */
-public class TaxAttMap extends HashMap<String, TaxAttribute>
-{
-   public TaxAttMap()
-   {
-      super();
-   }
+public class TaxAttMap extends HashMap<String, TaxAttribute> {
+  public TaxAttMap() {
+    super();
+  }
 
-   /**
-    * Generate the hash map from the Hibernate object
-    * @param attLangs
-    */
-   public TaxAttMap(List<Attribute_lang> attLangs)
-   {
-      super();
+  /**
+   * Generate the hash map from the Hibernate object
+   * @param attLangs
+   */
+  public TaxAttMap(List<Attribute_lang> attLangs) {
+    super();
 
-      for (Attribute_lang attLang : attLangs)
-      {
-         TaxAttribute att = new TaxAttribute(attLang);
-         this.put(attLang.getName(), att);
-      }
-   }
+    for (Attribute_lang attLang : attLangs) {
+      TaxAttribute att = new TaxAttribute(attLang);
+      this.put(attLang.getName(), att);
+    }
+  }
 }

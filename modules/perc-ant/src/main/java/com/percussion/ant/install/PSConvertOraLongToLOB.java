@@ -22,8 +22,6 @@ import com.percussion.install.PSOraConvertLONG2LOBTool;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,170 +59,131 @@ import java.util.Properties;
  * </pre>
  *
  */
-public class PSConvertOraLongToLOB extends PSAction
-{
-   // see base class
-   
-   @Override
-   public void execute()
-   {
-      FileInputStream in = null;
-      Connection conn = null;
-      ByteArrayOutputStream baos = null;
-      PrintStream ps = null;
+public class PSConvertOraLongToLOB extends PSAction {
+  // see base class
 
-      try
-      {
-         String propFile = getRootDir() + File.separator
-         + "rxconfig/Installer/rxrepository.properties";
+  @Override
+  public void execute() {
+    FileInputStream in = null;
+    Connection conn = null;
+    ByteArrayOutputStream baos = null;
+    PrintStream ps = null;
 
-         File f = new File(propFile);
-         if (!(f.exists() && f.isFile()))
-            return;
+    try {
+      String propFile =
+          getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
 
-         in = new FileInputStream(f);
-         Properties props = new Properties();
-         props.load(in);
+      File f = new File(propFile);
+      if (!(f.exists() && f.isFile())) return;
 
-         props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-         PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      in = new FileInputStream(f);
+      Properties props = new Properties();
+      props.load(in);
 
-         String driver = dbmsDef.getDriver();
-         if (!driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY))
-            return;
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
 
-         conn = RxLogTables.createConnection(props);
-         
-         PSLogger.logInfo("Converting LONG column to LOB column for tables : ");
-         for (int i = 0; i < tableNames.length; i++)
-            PSLogger.logInfo(tableNames[i]);
+      String driver = dbmsDef.getDriver();
+      if (!driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY)) return;
 
-         baos = new ByteArrayOutputStream();
-         ps = new PrintStream(baos);
+      conn = RxLogTables.createConnection(props);
 
-         PSOraConvertLONG2LOBTool oraConvert =
-            new PSOraConvertLONG2LOBTool(conn, dbmsDef, ps);
+      PSLogger.logInfo("Converting LONG column to LOB column for tables : ");
+      for (int i = 0; i < tableNames.length; i++) PSLogger.logInfo(tableNames[i]);
 
-         String[] convertTables =
-            oraConvert.filterTablesToConvert(tableNames);
+      baos = new ByteArrayOutputStream();
+      ps = new PrintStream(baos);
 
-         if ((convertTables == null) || (convertTables.length == 0))
-         {
-            PSLogger.logInfo(
-            "Tables already converted from LONG column to LOB column");
-            return;
-         }
-         else
-         {
-            PSLogger.logInfo(
-            "Tables which need conversion from LONG column to LOB column : ");
-            for (int i = 0; i < convertTables.length; i++)
-               PSLogger.logInfo(convertTables[i]);
-         }
+      PSOraConvertLONG2LOBTool oraConvert = new PSOraConvertLONG2LOBTool(conn, dbmsDef, ps);
 
-         oraConvert.executeConversion(convertTables);
+      String[] convertTables = oraConvert.filterTablesToConvert(tableNames);
 
-         PSLogger.logInfo("Finished conversion of LONG column to LOB column.");
-         PSLogger.logInfo(baos.toString());
+      if ((convertTables == null) || (convertTables.length == 0)) {
+        PSLogger.logInfo("Tables already converted from LONG column to LOB column");
+        return;
+      } else {
+        PSLogger.logInfo("Tables which need conversion from LONG column to LOB column : ");
+        for (int i = 0; i < convertTables.length; i++) PSLogger.logInfo(convertTables[i]);
       }
-      catch (Exception ex)
-      {
-         PSLogger.logInfo("ERROR : " + ex.getMessage());
-         PSLogger.logInfo(ex);
+
+      oraConvert.executeConversion(convertTables);
+
+      PSLogger.logInfo("Finished conversion of LONG column to LOB column.");
+      PSLogger.logInfo(baos.toString());
+    } catch (Exception ex) {
+      PSLogger.logInfo("ERROR : " + ex.getMessage());
+      PSLogger.logInfo(ex);
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception e) {
+        }
       }
-      finally
-      {
-         if (in != null)
-         {
-            try
-            {
-               in.close();
-            }
-            catch(Exception e)
-            {
-            }
-         }
-         if (conn != null)
-         {
-            try
-            {
-               conn.close();
-            }
-            catch (SQLException e)
-            {
-            }
-         }
-         if (baos != null)
-         {
-            try
-            {
-               baos.close();
-            }
-            catch(Exception e)
-            {
-            }
-         }
-         if (ps != null)
-         {
-            try
-            {
-               ps.close();
-            }
-            catch(Exception e)
-            {
-            }
-         }
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
       }
-   }
+      if (baos != null) {
+        try {
+          baos.close();
+        } catch (Exception e) {
+        }
+      }
+      if (ps != null) {
+        try {
+          ps.close();
+        } catch (Exception e) {
+        }
+      }
+    }
+  }
 
-   /*******************************************************************
-    * Private functions.
-    *******************************************************************/
+  /*******************************************************************
+   * Private functions.
+   *******************************************************************/
 
+  /*******************************************************************
+   * Property accessors and mutators.
+   *******************************************************************/
 
-   /*******************************************************************
-    * Property accessors and mutators.
-    *******************************************************************/
+  /**
+   * Returns the names of tables which have a LONG column and the column needs
+   * to be converted into LOB column.
+   *
+   * @return names of tables which have a LONG column and the column needs to
+   * be converted into LOB column, never <code>null</code>, may be empty
+   */
+  public String[] getTableNames() {
+    return tableNames;
+  }
 
-   /**
-    * Returns the names of tables which have a LONG column and the column needs
-    * to be converted into LOB column.
-    *
-    * @return names of tables which have a LONG column and the column needs to
-    * be converted into LOB column, never <code>null</code>, may be empty
-    */
-   public String[] getTableNames()
-   {
-      return tableNames;
-   }
+  /**
+   * Sets the names of tables which have a LONG column and the column needs to
+   * be converted into LOB column.
+   *
+   * @param tableNames names of tables which have a LONG column and the column
+   * needs to be converted into LOB column, may be <code>null</code> or empty,
+   * if <code>null</code> then set to empty array.
+   */
+  public void setTableNames(String tableNames) {
+    this.tableNames = convertToArray(tableNames);
+  }
 
-   /**
-    * Sets the names of tables which have a LONG column and the column needs to
-    * be converted into LOB column.
-    *
-    * @param tableNames names of tables which have a LONG column and the column
-    * needs to be converted into LOB column, may be <code>null</code> or empty,
-    * if <code>null</code> then set to empty array.
-    */
-   public void setTableNames(String tableNames)
-   {
-      this.tableNames = convertToArray(tableNames);
-   }
+  /*******************************************************************
+   * Properties
+   *******************************************************************/
 
-   /*******************************************************************
-    * Properties
-    *******************************************************************/
+  /**
+   * names of tables which have a LONG column and the column needs to be
+   * converted into LOB column, never <code>null</code>, may be empty.
+   */
+  private String[] tableNames = new String[0];
 
-   /**
-    * names of tables which have a LONG column and the column needs to be
-    * converted into LOB column, never <code>null</code>, may be empty.
-    */
-   private String[] tableNames = new String[0];
-
-   /*******************************************************************
-    * Member variables
-    *******************************************************************/
+  /*******************************************************************
+   * Member variables
+   *******************************************************************/
 
 }
-
-

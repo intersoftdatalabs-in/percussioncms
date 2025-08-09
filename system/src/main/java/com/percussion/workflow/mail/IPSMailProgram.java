@@ -35,41 +35,36 @@ package com.percussion.workflow.mail;
  *</ul>
  *
  */
-public interface IPSMailProgram
-{
-   /**
-    * This method can be used to initialize the mail program. Called by
-    * workflow engine only once in the Object's life time.
-    *
-    * @throws PSMailException when initialization of the mail program fails.
-    *
-    */
-    void init()
-      throws PSMailException;
+public interface IPSMailProgram {
+  /**
+   * This method can be used to initialize the mail program. Called by
+   * workflow engine only once in the Object's life time.
+   *
+   * @throws PSMailException when initialization of the mail program fails.
+   *
+   */
+  void init() throws PSMailException;
 
-   /**
-    * This is the method that must be implemented by the implementing class
-    * (plugin) that should actually send the message as per the data supplied
-    * via IPSMailMessageContext object.
-    *
-    * @param mesageContext object storing all the data required for sending the
-    * mail. Never be <code>null</code>.
-    *
-    * @throws PSMailException when message cannnot be sent for any reason.
-    *
-    */
-   void sendMessage(IPSMailMessageContext mesageContext)
-      throws PSMailException;
+  /**
+   * This is the method that must be implemented by the implementing class
+   * (plugin) that should actually send the message as per the data supplied
+   * via IPSMailMessageContext object.
+   *
+   * @param mesageContext object storing all the data required for sending the
+   * mail. Never be <code>null</code>.
+   *
+   * @throws PSMailException when message cannnot be sent for any reason.
+   *
+   */
+  void sendMessage(IPSMailMessageContext mesageContext) throws PSMailException;
 
-   /**
-    * This method can be used to cleanup the resources used by the mail program.
-    * Workflow engine calls this method just before this object looses its
-    * scope (before its death).
-    *
-    * @throws PSMailException when termination is smooth.
-    *
-    */
-    void terminate()
-      throws PSMailException;
-
+  /**
+   * This method can be used to cleanup the resources used by the mail program.
+   * Workflow engine calls this method just before this object looses its
+   * scope (before its death).
+   *
+   * @throws PSMailException when termination is smooth.
+   *
+   */
+  void terminate() throws PSMailException;
 }

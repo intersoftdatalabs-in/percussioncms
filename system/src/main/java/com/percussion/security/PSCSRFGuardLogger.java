@@ -25,87 +25,86 @@ import org.owasp.csrfguard.log.LogLevel;
 /**
  * Wrapper log class for owasp csrf gaurd logging.  Is referenced in owaspcsrfguard.properties.
  */
-public class PSCSRFGuardLogger implements org.owasp.csrfguard.log.ILogger{
+public class PSCSRFGuardLogger implements org.owasp.csrfguard.log.ILogger {
 
   private static final Logger log = LogManager.getLogger(PSCSRFGuardLogger.class);
 
-    /**
-     * Log a message
-     *
-     * @param msg
-     */
-    @Override
-    public void log(String msg) {
+  /**
+   * Log a message
+   *
+   * @param msg
+   */
+  @Override
+  public void log(String msg) {
+    log.info(msg);
+  }
+
+  /**
+   * TODO document
+   *
+   * @param level
+   * @param msg
+   */
+  @Override
+  public void log(LogLevel level, String msg) {
+
+    switch (level) {
+      case Info:
         log.info(msg);
+        break;
+      case Debug:
+        log.debug(msg);
+        break;
+      case Error:
+        log.error(msg);
+        break;
+      case Fatal:
+        log.fatal(msg);
+        break;
+      case Trace:
+        log.trace(msg);
+        break;
+      default:
+        log.warn(msg);
     }
+  }
 
-    /**
-     * TODO document
-     *
-     * @param level
-     * @param msg
-     */
-    @Override
-    public void log(LogLevel level, String msg) {
+  /**
+   * TODO document
+   *
+   * @param exception
+   */
+  @Override
+  public void log(Exception exception) {
+    log.error(PSExceptionUtils.getMessageForLog(exception));
+  }
 
-        switch (level){
-            case Info:
-                log.info(msg);
-                break;
-            case Debug:
-                log.debug(msg);
-                break;
-            case Error:
-                log.error(msg);
-                break;
-            case Fatal:
-                log.fatal(msg);
-                break;
-            case Trace:
-                log.trace(msg);
-                break;
-            default:
-                    log.warn(msg);
-        }
-
-    }
-
-    /**
-     * TODO document
-     *
-     * @param exception
-     */
-    @Override
-    public void log(Exception exception) {
+  /**
+   * TODO document
+   *
+   * @param level
+   * @param exception
+   */
+  @Override
+  public void log(LogLevel level, Exception exception) {
+    switch (level) {
+      case Info:
+        log.info(PSExceptionUtils.getMessageForLog(exception));
+        break;
+      case Debug:
+        log.debug(PSExceptionUtils.getMessageForLog(exception));
+        break;
+      case Error:
         log.error(PSExceptionUtils.getMessageForLog(exception));
+        break;
+      case Fatal:
+        log.fatal(PSExceptionUtils.getMessageForLog(exception));
+        break;
+      case Trace:
+        log.trace(PSExceptionUtils.getMessageForLog(exception));
+        break;
+      default:
+        log.warn(PSExceptionUtils.getMessageForLog(exception));
     }
-
-    /**
-     * TODO document
-     *
-     * @param level
-     * @param exception
-     */
-    @Override
-    public void log(LogLevel level, Exception exception) {
-        switch (level){
-            case Info:
-                log.info(PSExceptionUtils.getMessageForLog(exception));
-                break;
-            case Debug:
-                log.debug(PSExceptionUtils.getMessageForLog(exception));
-                break;
-            case Error:
-                log.error(PSExceptionUtils.getMessageForLog(exception));
-                break;
-            case Fatal:
-                log.fatal(PSExceptionUtils.getMessageForLog(exception));
-                break;
-            case Trace:
-                log.trace(PSExceptionUtils.getMessageForLog(exception));
-                break;
-            default:
-                log.warn(PSExceptionUtils.getMessageForLog(exception));
-        }
-    }
+  }
 }

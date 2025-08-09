@@ -22,35 +22,34 @@ import org.junit.jupiter.api.Test;
 
 public class JexlScriptFixesTest {
 
-    @Test
-    public void fixScript() {
+  @Test
+  public void fixScript() {
 
-        String testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg";
-        String result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
-        System.out.println(testScript +" ----> "+result);
+    String testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg";
+    String result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
+    Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
+    System.out.println(testScript + " ----> " + result);
 
-        testScript = "if ( !$test )";
-        result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        System.out.println(testScript +" ----> "+result);
-        Assertions.assertEquals("if ( ! $test )", result);
+    testScript = "if ( !$test )";
+    result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
+    System.out.println(testScript + " ----> " + result);
+    Assertions.assertEquals("if ( ! $test )", result);
 
+    testScript = "if ( $ref1=$ref2 )";
+    result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
+    System.out.println(testScript + " ----> " + result);
+    Assertions.assertEquals("if ( $ref1 = $ref2 )", result);
 
-        testScript = "if ( $ref1=$ref2 )";
-        result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        System.out.println(testScript +" ----> "+result);
-        Assertions.assertEquals("if ( $ref1 = $ref2 )", result);
+    testScript = "$params=$rx.string.stringToMap(null);";
+    result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
+    System.out.println(testScript + " ----> " + result);
+    Assertions.assertEquals("$params = $rx.string.stringToMap(null);", result);
 
-
-        testScript = "$params=$rx.string.stringToMap(null);";
-        result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        System.out.println(testScript +" ----> "+result);
-        Assertions.assertEquals("$params = $rx.string.stringToMap(null);", result);
-
-
-        testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg sdfgsdfg foreach($item in list ) sdfgsdfg";
-        result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        System.out.println(testScript +" ----> "+result);
-        Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg sdfgsdfg for($item : list) sdfgsdfg", result);
-    }
+    testScript =
+        "sdfgsdfg foreach($item in list ) sdfgsdfg sdfgsdfg foreach($item in list ) sdfgsdfg";
+    result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
+    System.out.println(testScript + " ----> " + result);
+    Assertions.assertEquals(
+        "sdfgsdfg for($item : list) sdfgsdfg sdfgsdfg for($item : list) sdfgsdfg", result);
+  }
 }

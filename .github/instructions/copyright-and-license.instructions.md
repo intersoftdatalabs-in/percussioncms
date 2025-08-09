@@ -1,7 +1,10 @@
 ---
+
 applyTo: "**/*.java"
----
+--------------------
+
 # Source Code License Header and Copyright
+
 All source files must include the standard Percussion CMS license header at the top.
 Ensure copyright years are updated to the current year, 2025 in the example below.
 This is important for compliance and clarity on ownership and licensing terms.
@@ -26,3 +29,4 @@ The license header should look like this:
  * limitations under the License.
  */
 ```
+

@@ -25,20 +25,25 @@ package com.percussion.apibridge;
  */
 public final class DefaultWorkflowStates {
 
-    /** The "Live" workflow state. */
-    public static final String LIVE = "Live";
-    /** The "Quick Edit" workflow state. */
-    public static final String QUICK_EDIT = "Quick Edit";
-    /** The "Draft" workflow state. */
-    public static final String DRAFT = "Draft";
-    /** The "Archive" workflow state. */
-    public static final String ARCHIVE = "Archive";
-    /** The "Review" workflow state. */
-    public static final String REVIEW = "Review";
-    /** The "Pending" workflow state. */
-    public static final String PENDING = "Pending";
+  /** The "Live" workflow state. */
+  public static final String LIVE = "Live";
 
-    private DefaultWorkflowStates() {
-        // Utility class; prevent instantiation.
-    }
+  /** The "Quick Edit" workflow state. */
+  public static final String QUICK_EDIT = "Quick Edit";
+
+  /** The "Draft" workflow state. */
+  public static final String DRAFT = "Draft";
+
+  /** The "Archive" workflow state. */
+  public static final String ARCHIVE = "Archive";
+
+  /** The "Review" workflow state. */
+  public static final String REVIEW = "Review";
+
+  /** The "Pending" workflow state. */
+  public static final String PENDING = "Pending";
+
+  private DefaultWorkflowStates() {
+    // Utility class; prevent instantiation.
+  }
 }

@@ -24,7 +24,6 @@ import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
-
 import java.io.File;
 
 /**
@@ -46,37 +45,28 @@ import java.io.File;
  * <td>The test expression, may use $value to represent the passed value</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
  */
-public class PSJexlInputTranslation implements IPSFieldInputTransformer
-{
+public class PSJexlInputTranslation implements IPSFieldInputTransformer {
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      Object value = ep.getUncheckedParam(0);
-      String expression = ep.getStringParam(1, null, true);
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    Object value = ep.getUncheckedParam(0);
+    String expression = ep.getStringParam(1, null, true);
 
-      PSJexlEvaluator eval = new PSJexlEvaluator();
-      eval.bind("$value", value);
-      try
-      {
-          IPSScript e = PSJexlEvaluator.createScript(expression);
-         return eval.evaluate(e);
-      }
-      catch (Exception e1)
-      {
-         throw new IllegalArgumentException("Problem evaluating expression: "
-               + expression);
-      }
-   }
+    PSJexlEvaluator eval = new PSJexlEvaluator();
+    eval.bind("$value", value);
+    try {
+      IPSScript e = PSJexlEvaluator.createScript(expression);
+      return eval.evaluate(e);
+    } catch (Exception e1) {
+      throw new IllegalArgumentException("Problem evaluating expression: " + expression);
+    }
+  }
 
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      //
-   }
-
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    //
+  }
 }

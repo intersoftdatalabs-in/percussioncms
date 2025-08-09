@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <groupId>com.percussion</groupId>
     <artifactId>tlsutils</artifactId>
-
     <properties>
+        <maven.compiler.release>11</maven.compiler.release>
         <!-- Java 11 compatibility -->
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -36,9 +30,8 @@
             <artifactId>perc-i18n</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <!-- Test dependencies -->
-          <dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
@@ -56,7 +49,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -76,12 +68,10 @@
                 <version>3.0.0</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <argLine>
-                        --add-opens java.base/java.lang=ALL-UNNAMED
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/sun.security.ssl=ALL-UNNAMED
-                        --add-opens java.base/sun.security.util=ALL-UNNAMED
-                    </argLine>
+                        --add-opens java.base/sun.security.util=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>

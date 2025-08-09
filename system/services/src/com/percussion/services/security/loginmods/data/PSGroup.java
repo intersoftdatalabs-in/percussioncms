@@ -18,7 +18,7 @@ package com.percussion.services.security.loginmods.data;
 
 import java.io.Serializable;
 import java.security.Principal;
-import java.security.acl.Group;
+import com.percussion.security.Group;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Objects;

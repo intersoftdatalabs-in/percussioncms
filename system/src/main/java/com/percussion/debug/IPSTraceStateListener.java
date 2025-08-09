@@ -24,28 +24,27 @@ import com.percussion.design.objectstore.PSTraceInfo;
  */
 // REFACTORED: CP-JAVA11
 public interface IPSTraceStateListener {
-   
-   /**
-    * Used to notify listeners when tracing has been enabled.
-    * 
-    * @param traceInfo the PSTraceInfo object that has been enabled
-    * @roseuid 39F84A1A008C
-    */
-   public void traceStarted(PSTraceInfo traceInfo);
-   
-   /**
-    * Used to notify listeners when tracing has been disabled.
-    * 
-    * @param traceInfo the PSTraceInfo object that has been disabled
-    * @roseuid 39F84A86030D
-    */
-   public void traceStopped(PSTraceInfo traceInfo);
 
-   /**
-    * Used to notify listeners when tracing has been restarted.
-    *
-    * @param traceInfo the PSTraceInfo object that has been re-enabled
-    */
-   public void traceRestarted(PSTraceInfo traceInfo);
+  /**
+   * Used to notify listeners when tracing has been enabled.
+   *
+   * @param traceInfo the PSTraceInfo object that has been enabled
+   * @roseuid 39F84A1A008C
+   */
+  public void traceStarted(PSTraceInfo traceInfo);
 
+  /**
+   * Used to notify listeners when tracing has been disabled.
+   *
+   * @param traceInfo the PSTraceInfo object that has been disabled
+   * @roseuid 39F84A86030D
+   */
+  public void traceStopped(PSTraceInfo traceInfo);
+
+  /**
+   * Used to notify listeners when tracing has been restarted.
+   *
+   * @param traceInfo the PSTraceInfo object that has been re-enabled
+   */
+  public void traceRestarted(PSTraceInfo traceInfo);
 }

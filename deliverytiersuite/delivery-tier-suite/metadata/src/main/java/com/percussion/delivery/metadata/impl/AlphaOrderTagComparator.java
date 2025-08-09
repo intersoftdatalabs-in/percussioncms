@@ -17,36 +17,30 @@
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.error.PSExceptionUtils;
+import java.util.Comparator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Comparator;
-
 /**
  * @author davidpardini
- * 
  */
-public class AlphaOrderTagComparator implements Comparator<JSONObject>
-{
-    private static final Logger log = LogManager.getLogger(AlphaOrderTagComparator.class);
+public class AlphaOrderTagComparator implements Comparator<JSONObject> {
+  private static final Logger log = LogManager.getLogger(AlphaOrderTagComparator.class);
 
-    public int compare(JSONObject o1, JSONObject o2)
-    {
-        JSONObject ob1 = o1;
-        JSONObject ob2 = o2;
-        int returnCompare = 0;
-        try
-        {
-            returnCompare = ((String) ob1.get(PSMetadataTagsHelper.TAG_NAME)).compareTo((String) ob2
-                    .get(PSMetadataTagsHelper.TAG_NAME));
-        }
-        catch (JSONException e)
-        {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-        return returnCompare;
+  public int compare(JSONObject o1, JSONObject o2) {
+    JSONObject ob1 = o1;
+    JSONObject ob2 = o2;
+    int returnCompare = 0;
+    try {
+      returnCompare =
+          ((String) ob1.get(PSMetadataTagsHelper.TAG_NAME))
+              .compareTo((String) ob2.get(PSMetadataTagsHelper.TAG_NAME));
+    } catch (JSONException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+    return returnCompare;
+  }
 }

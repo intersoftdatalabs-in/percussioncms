@@ -34,96 +34,83 @@ import org.w3c.dom.Element;
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceSessionInfo extends PSTraceMessage {
-   
-   /**
-    * Constructor for this class.
-    *
-    * @param typeFlag the type of trace message this object will generate
-    * @roseuid 39FDD65F0186
-    */
-   public PSTraceSessionInfo(int typeFlag)
-   {
-      super(typeFlag);
-   }
 
-   //see parent class for javadoc
-   protected String getMessageHeader()
-   {
-      return ms_bundle.getString("traceSessionInfo_dispname");
-   }
+  /**
+   * Constructor for this class.
+   *
+   * @param typeFlag the type of trace message this object will generate
+   * @roseuid 39FDD65F0186
+   */
+  public PSTraceSessionInfo(int typeFlag) {
+    super(typeFlag);
+  }
 
-   /**
-    * Formats the output for the body of the message, extracting the information
-    * required from the source object.
-    * 
-    * @param source a PSRequest object containing the information required for the
-    * trace message.  Two different cases handled:
-    * Trace if enabled/exists
-    * - Boolean traceSession = false, request
-    * Trace session info
-    * - Boolean traceSession = true, request
-    *
-    * @return the message body
-    * @roseuid 39FEE2F302FD
-    */
-   protected String getMessageBody(Object source)
-   {
-      // validate inputs
-      Object[] args = (Object[])source;
-      if (args.length != 2)
-         throw new IllegalArgumentException("Invalid source arguments");
+  // see parent class for javadoc
+  protected String getMessageHeader() {
+    return ms_bundle.getString("traceSessionInfo_dispname");
+  }
 
-      if (!(args[0] instanceof Boolean))
-         throw new IllegalArgumentException(
-            "source[0] must be instance of Boolean");
+  /**
+   * Formats the output for the body of the message, extracting the information
+   * required from the source object.
+   *
+   * @param source a PSRequest object containing the information required for the
+   * trace message.  Two different cases handled:
+   * Trace if enabled/exists
+   * - Boolean traceSession = false, request
+   * Trace session info
+   * - Boolean traceSession = true, request
+   *
+   * @return the message body
+   * @roseuid 39FEE2F302FD
+   */
+  protected String getMessageBody(Object source) {
+    // validate inputs
+    Object[] args = (Object[]) source;
+    if (args.length != 2) throw new IllegalArgumentException("Invalid source arguments");
 
-      if (!(args[1] instanceof PSRequest))
-         throw new IllegalArgumentException(
-            "source[1] must be instance of PSRequest");
+    if (!(args[0] instanceof Boolean))
+      throw new IllegalArgumentException("source[0] must be instance of Boolean");
 
-      boolean traceSession = ((Boolean)args[0]).booleanValue();
-      PSRequest request = (PSRequest)args[1];
+    if (!(args[1] instanceof PSRequest))
+      throw new IllegalArgumentException("source[1] must be instance of PSRequest");
 
-      //construct the message
-      StringBuilder buf = new StringBuilder();
+    boolean traceSession = ((Boolean) args[0]).booleanValue();
+    PSRequest request = (PSRequest) args[1];
 
-      if (!traceSession)
-      {
-         // don't print session, just if enabled and if exists
-         boolean enabled = PSUserSessionManager.areSessionsEnabled();
-         boolean exists =
-            (enabled ? PSUserSessionManager.doesSessionExist(request) : false);
+    // construct the message
+    StringBuilder buf = new StringBuilder();
 
-         if (!enabled)
-            buf.append(ms_bundle.getString("traceSessionInfo_notenabled"));
-         else if (!exists)
-            buf.append(
-               ms_bundle.getString("traceSessionInfo_enablednotexists"));
-         else
-            buf.append(ms_bundle.getString("traceSessionInfo_enabledexists"));
+    if (!traceSession) {
+      // don't print session, just if enabled and if exists
+      boolean enabled = PSUserSessionManager.areSessionsEnabled();
+      boolean exists = (enabled ? PSUserSessionManager.doesSessionExist(request) : false);
+
+      if (!enabled) buf.append(ms_bundle.getString("traceSessionInfo_notenabled"));
+      else if (!exists) buf.append(ms_bundle.getString("traceSessionInfo_enablednotexists"));
+      else buf.append(ms_bundle.getString("traceSessionInfo_enabledexists"));
+    } else {
+      // print out whatever the session is
+
+      // get the xml
+      Element el = PSUserContextExtractor.toXml(request);
+
+      // extract session data
+      if (el == null) {
+        throw new IllegalArgumentException("source XML malformed");
       }
-      else
-      {
-         // print out whatever the session is
-         
-         // get the xml
-         Element el = PSUserContextExtractor.toXml(request);
 
-         // extract session data
-         if (el == null){
-            throw new IllegalArgumentException("source XML malformed");}
-
-         // make sure we got the correct type node
-         if (!PSUserContextExtractor.NODE_NAME.equals(
-                  el.getNodeName())){
-            throw new IllegalArgumentException("source XML malformed");}
-
-         PSXmlTreeWalker tree = new PSXmlTreeWalker(el);
-
-         // add whatever session info we get back
-         buf.append(NEW_LINE);
-         buf.append(PSXmlDocumentBuilder.toString(el));
+      // make sure we got the correct type node
+      if (!PSUserContextExtractor.NODE_NAME.equals(el.getNodeName())) {
+        throw new IllegalArgumentException("source XML malformed");
       }
-      return new String(buf);
-   }
+
+      PSXmlTreeWalker tree = new PSXmlTreeWalker(el);
+
+      // add whatever session info we get back
+      buf.append(NEW_LINE);
+      buf.append(PSXmlDocumentBuilder.toString(el));
+    }
+    return new String(buf);
+  }
 }

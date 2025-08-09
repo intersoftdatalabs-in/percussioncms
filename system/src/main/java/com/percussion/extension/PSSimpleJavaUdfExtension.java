@@ -28,30 +28,27 @@ import java.io.File;
  * @version    2.0
  * @since      1.1
  */
-public abstract class PSSimpleJavaUdfExtension implements IPSUdfProcessor
-{
-   /**
-    * This is a default implementation that does nothing except save the input
-    * values in protected local storage for use by derived classes.
-    * <p>
-    * See {@link IPSExtension#init(IPSExtensionDef, File) init} for details.
-    */
-   public void init( IPSExtensionDef def, File codeRoot )
-      throws PSExtensionException
-   {}
+public abstract class PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /**
+   * This is a default implementation that does nothing except save the input
+   * values in protected local storage for use by derived classes.
+   * <p>
+   * See {@link IPSExtension#init(IPSExtensionDef, File) init} for details.
+   */
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-   /**
-    * This is the definition for this extension. You may want to use it for
-    * validation purposes in the <code>processUdf</code> method.
-    */
-   protected IPSExtensionDef m_def;
+  /**
+   * This is the definition for this extension. You may want to use it for
+   * validation purposes in the <code>processUdf</code> method.
+   */
+  protected IPSExtensionDef m_def;
 
-   /**
-    * This value contains the 'root' directory for this extension. When
-    * installed, all files are installed relative to this location. Files can
-    * be loaded from anywhere under this directory and no where else (by
-    * default, the actual security policy may vary). This object could be used
-    * to load a property file when executing the UDF.
-    */
-   protected File m_codeRoot;
+  /**
+   * This value contains the 'root' directory for this extension. When
+   * installed, all files are installed relative to this location. Files can
+   * be loaded from anywhere under this directory and no where else (by
+   * default, the actual security policy may vary). This object could be used
+   * to load a property file when executing the UDF.
+   */
+  protected File m_codeRoot;
 }

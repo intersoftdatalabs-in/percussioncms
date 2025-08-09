@@ -19,26 +19,24 @@ package com.percussion.security.shim.acl;
 import java.security.Principal;
 import java.util.Enumeration;
 
-/**
- * Minimal compatibility interface mirroring java.security.acl.AclEntry used by legacy code.
- */
+/** Minimal compatibility interface mirroring java.security.acl.AclEntry used by legacy code. */
 public interface AclEntry {
 
-    boolean setPrincipal(Principal user);
+  boolean setPrincipal(Principal user);
 
-    Principal getPrincipal();
+  Principal getPrincipal();
 
-    void setNegativePermissions();
+  void setNegativePermissions();
 
-    boolean isNegative();
+  boolean isNegative();
 
-    boolean addPermission(Permission permission);
+  boolean addPermission(Permission permission);
 
-    boolean removePermission(Permission permission);
+  boolean removePermission(Permission permission);
 
-    boolean checkPermission(Permission permission);
+  boolean checkPermission(Permission permission);
 
-    Enumeration<Permission> permissions();
+  Enumeration<Permission> permissions();
 
-    String toString();
+  String toString();
 }

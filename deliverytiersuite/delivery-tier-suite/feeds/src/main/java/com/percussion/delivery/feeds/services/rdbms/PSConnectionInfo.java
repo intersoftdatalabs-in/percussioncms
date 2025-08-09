@@ -17,7 +17,6 @@
 package com.percussion.delivery.feeds.services.rdbms;
 
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,172 +29,145 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "PERC_CONNECTION_INFO")
-public class PSConnectionInfo implements IPSConnectionInfo
-{
-    @Id
-    private long id = 1; // this will always be one as there will only be one info entry in table
-    
-    @Basic
-    private String url;
-    
-    @Basic
-    private String username;
-    
-    @Basic
-    private String password;
-    
-    @Basic
-    private String encrypted;
-    
-    
-    public PSConnectionInfo()
-    {
-        
+public class PSConnectionInfo implements IPSConnectionInfo {
+  @Id private long id = 1; // this will always be one as there will only be one info entry in table
+
+  @Basic private String url;
+
+  @Basic private String username;
+
+  @Basic private String password;
+
+  @Basic private String encrypted;
+
+  public PSConnectionInfo() {}
+
+  /**
+   * @param url
+   * @param user
+   * @param password
+   * @param encrypted
+   */
+  public PSConnectionInfo(String url, String user, String password, boolean encrypted) {
+    this.url = url;
+    this.username = user;
+    this.password = password;
+    this.encrypted = Boolean.toString(encrypted);
+  }
+
+  /**
+   * @return the url
+   */
+  public String getUrl() {
+    return url;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUrl(java.lang.String)
+   */
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  /**
+   * @return the user
+   */
+  public String getUsername() {
+    return username;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUser(java.lang.String)
+   */
+  public void setUsername(String user) {
+    this.username = user;
+  }
+
+  /**
+   * @return the password
+   */
+  public String getPassword() {
+    return password;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setPassword(java.lang.String)
+   */
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  /**
+   * @return the encrypted
+   */
+  public String getEncrypted() {
+    return encrypted;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setEncrypted(java.lang.String)
+   */
+  public void setEncrypted(String encrypted) {
+    this.encrypted = encrypted;
+  }
+
+  /**
+   * @return the id
+   */
+  public long getId() {
+    return id;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setId(long)
+   */
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, url, username, password, encrypted);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    PSConnectionInfo that = (PSConnectionInfo) obj;
+    return id == that.id
+        && Objects.equals(url, that.url)
+        && Objects.equals(username, that.username)
+        && Objects.equals(password, that.password)
+        && Objects.equals(encrypted, that.encrypted);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("PSConnectionInfo [id=");
+    builder.append(id);
+    builder.append(", ");
+    if (url != null) {
+      builder.append("url=");
+      builder.append(url);
+      builder.append(", ");
     }
-
-    /**
-     * @param url
-     * @param user
-     * @param password
-     * @param encrypted
-     */
-    public PSConnectionInfo(String url, String user, String password, boolean encrypted)
-    {
-        this.url = url;
-        this.username = user;
-        this.password = password;
-        this.encrypted = Boolean.toString(encrypted);
+    if (username != null) {
+      builder.append("username=");
+      builder.append(username);
+      builder.append(", ");
     }
-
-    /**
-     * @return the url
-     */
-    public String getUrl()
-    {
-        return url;
+    if (password != null) {
+      builder.append("password=");
+      builder.append(password);
+      builder.append(", ");
     }
-
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUrl(java.lang.String)
-     */
-    public void setUrl(String url)
-    {
-        this.url = url;
+    if (encrypted != null) {
+      builder.append("encrypted=");
+      builder.append(encrypted);
     }
-
-    /**
-     * @return the user
-     */
-    public String getUsername()
-    {
-        return username;
-    }
-
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUser(java.lang.String)
-     */
-    public void setUsername(String user)
-    {
-        this.username = user;
-    }
-
-    /**
-     * @return the password
-     */
-    public String getPassword()
-    {
-        return password;
-    }
-
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setPassword(java.lang.String)
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    /**
-     * @return the encrypted
-     */
-    public String getEncrypted()
-    {
-        return encrypted;
-    }
-
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setEncrypted(java.lang.String)
-     */
-    public void setEncrypted(String encrypted)
-    {
-        this.encrypted = encrypted;
-    }
-
-    /**
-     * @return the id
-     */
-    public long getId()
-    {
-        return id;
-    }
-
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setId(long)
-     */
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, url, username, password, encrypted);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		PSConnectionInfo that = (PSConnectionInfo) obj;
-		return id == that.id &&
-				Objects.equals(url, that.url) &&
-				Objects.equals(username, that.username) &&
-				Objects.equals(password, that.password) &&
-				Objects.equals(encrypted, that.encrypted);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PSConnectionInfo [id=");
-		builder.append(id);
-		builder.append(", ");
-		if (url != null) {
-			builder.append("url=");
-			builder.append(url);
-			builder.append(", ");
-		}
-		if (username != null) {
-			builder.append("username=");
-			builder.append(username);
-			builder.append(", ");
-		}
-		if (password != null) {
-			builder.append("password=");
-			builder.append(password);
-			builder.append(", ");
-		}
-		if (encrypted != null) {
-			builder.append("encrypted=");
-			builder.append(encrypted);
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-    
-    
-    
-    
+    builder.append("]");
+    return builder.toString();
+  }
 }

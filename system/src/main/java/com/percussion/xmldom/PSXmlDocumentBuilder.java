@@ -20,7 +20,4 @@ package com.percussion.xmldom;
 /**
  * @deprecated Use com.percussion.xml.PSXmlDocumentBuilder instead
  */
-public class PSXmlDocumentBuilder
-   extends com.percussion.xml.PSXmlDocumentBuilder
-{
-}
+public class PSXmlDocumentBuilder extends com.percussion.xml.PSXmlDocumentBuilder {}

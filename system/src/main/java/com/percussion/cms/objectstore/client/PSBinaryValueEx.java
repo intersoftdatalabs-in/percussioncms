@@ -17,107 +17,95 @@
 package com.percussion.cms.objectstore.client;
 
 import com.percussion.cms.objectstore.PSBinaryValue;
-
 import java.io.IOException;
 import java.io.InputStream;
-
 
 /**
  * This class holds the value as binary.  Once the value is set via constructor
  * or setData, the arguments are immediately converted to a <code>byte[]</code>.
  * Also hold binary file meta data such as filename and content type.
  */
-public class PSBinaryValueEx extends PSBinaryValue
-{
-   /**
-    * Creates an instance with the binary <code>content</code> as its value.
-    *
-    * @param content - the bytes to be the value.  This class takes ownership
-    * of the array.  If <code>null</code>, a new empty array will be created.
-    * 
-    * @param filename the filename for this binary. May be <code>null</code>.
-    * 
-    * @param contentType the content type for this binary. 
-    * May be <code>null</code>.
-    */
-   public PSBinaryValueEx(byte[] content, String filename, String contentType)
-   {
-      super(content);
-      m_filename = filename;
-      m_contentType = contentType;
-   }
+public class PSBinaryValueEx extends PSBinaryValue {
+  /**
+   * Creates an instance with the binary <code>content</code> as its value.
+   *
+   * @param content - the bytes to be the value.  This class takes ownership
+   * of the array.  If <code>null</code>, a new empty array will be created.
+   *
+   * @param filename the filename for this binary. May be <code>null</code>.
+   *
+   * @param contentType the content type for this binary.
+   * May be <code>null</code>.
+   */
+  public PSBinaryValueEx(byte[] content, String filename, String contentType) {
+    super(content);
+    m_filename = filename;
+    m_contentType = contentType;
+  }
 
-   /**
-    * Creates an instance with the <code>InputStream</code> <code>content</code>
-    * as its value.
-    *
-    * @param content - the InputStream to be used as the value.  Must not be
-    * <code>null</code>.  This method assumes ownership of the stream and is
-    * 
-    * responsible for closing it.
-    * @param the filename for this binary. May be <code>null</code>.
-    * 
-    * @param contentType the content type for this binary. 
-    * May be <code>null</code>.
-    * 
-    * @throws IOException if there is a problem with the stream.
-    */
-   public PSBinaryValueEx(
-      InputStream content, String filename, String contentType)
-      throws IOException
-   {
-      super(content);
-      m_filename = filename;
-      m_contentType = contentType;      
-   }
-  
-  
-   /**
-    * Returns the content type for this binary.
-    * @return the content type for this binary. May be <code>null</code>.
-    */
-   public String getContentType()
-   {
-      return m_contentType;
-   }
+  /**
+   * Creates an instance with the <code>InputStream</code> <code>content</code>
+   * as its value.
+   *
+   * @param content - the InputStream to be used as the value.  Must not be
+   * <code>null</code>.  This method assumes ownership of the stream and is
+   *
+   * responsible for closing it.
+   * @param the filename for this binary. May be <code>null</code>.
+   *
+   * @param contentType the content type for this binary.
+   * May be <code>null</code>.
+   *
+   * @throws IOException if there is a problem with the stream.
+   */
+  public PSBinaryValueEx(InputStream content, String filename, String contentType)
+      throws IOException {
+    super(content);
+    m_filename = filename;
+    m_contentType = contentType;
+  }
 
-   /**
-    * Returns the filename for this binary.
-    * @return the filename for this binary. May be <code>null</code>.
-    */
-   public String getFilename()
-   {
-      return m_filename;
-   }
+  /**
+   * Returns the content type for this binary.
+   * @return the content type for this binary. May be <code>null</code>.
+   */
+  public String getContentType() {
+    return m_contentType;
+  }
 
-   /**
-    * Sets the content type for this binary.
-    * @param the content type for this binary. May be <code>null</code>.
-    */
-   public void setContentType(String string)
-   {
-      m_contentType = string;
-   }
+  /**
+   * Returns the filename for this binary.
+   * @return the filename for this binary. May be <code>null</code>.
+   */
+  public String getFilename() {
+    return m_filename;
+  }
 
-   /**
-    * Sets the filename for this binary.
-    * @param the filename for this binary. May be <code>null</code>.
-    */
-   public void setFilename(String string)
-   {
-      m_filename = string;
-   }   
-   
-   /**
-    * The filename for this binary. May be <code>null</code>.
-    * Initialized in the ctor.
-    */
-   private String m_filename;
-   
-   /**
-    * The content type for this binary. May be <code>null</code>.
-    * Initialized in the ctor.
-    */
-   private String m_contentType;   
+  /**
+   * Sets the content type for this binary.
+   * @param the content type for this binary. May be <code>null</code>.
+   */
+  public void setContentType(String string) {
+    m_contentType = string;
+  }
 
+  /**
+   * Sets the filename for this binary.
+   * @param the filename for this binary. May be <code>null</code>.
+   */
+  public void setFilename(String string) {
+    m_filename = string;
+  }
+
+  /**
+   * The filename for this binary. May be <code>null</code>.
+   * Initialized in the ctor.
+   */
+  private String m_filename;
+
+  /**
+   * The content type for this binary. May be <code>null</code>.
+   * Initialized in the ctor.
+   */
+  private String m_contentType;
 }

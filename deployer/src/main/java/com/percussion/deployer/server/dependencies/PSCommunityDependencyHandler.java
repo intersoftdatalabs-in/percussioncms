@@ -16,90 +16,82 @@
  */
 package com.percussion.deployer.server.dependencies;
 
-
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
-
 /**
  * Class to handle packaging and deploying a community deployable element.
  */
-public class PSCommunityDependencyHandler extends PSElementDependencyHandler
-{
+public class PSCommunityDependencyHandler extends PSElementDependencyHandler {
 
-   /**
-    * Construct the dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public PSCommunityDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap)
-   {
-      super(def, dependencyMap);
-   }
+  /**
+   * Construct the dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public PSCommunityDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
+    super(def, dependencyMap);
+  }
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>CommunityDef</li>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   @Override
-   public Iterator<String> getChildTypes() {
-      return ms_childTypes.iterator();
-   }
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * The child types supported by this handler are:
+   * <ol>
+   * <li>CommunityDef</li>
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code>
+   * objects, never <code>null</code>, does not contain <code>null</code> or
+   * empty entries.
+   */
+  @Override
+  public Iterator<String> getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
-   // see base class
-   @Override
-   public String getType() {
-      return DEPENDENCY_TYPE;
-   }
+  // see base class
+  @Override
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   // see base class
-   @Override
-   protected PSDependencyHandler getChildHandler() {
-      if (m_cdHandler == null) {
-         m_cdHandler = getDependencyHandler(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
-      }
-      return m_cdHandler;
-   }
+  // see base class
+  @Override
+  protected PSDependencyHandler getChildHandler() {
+    if (m_cdHandler == null) {
+      m_cdHandler = getDependencyHandler(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
+    }
+    return m_cdHandler;
+  }
 
-   /**
-    * Constant for this handler's supported type
-    */
-   public final static String DEPENDENCY_TYPE = "Community";
+  /**
+   * Constant for this handler's supported type
+   */
+  public static final String DEPENDENCY_TYPE = "Community";
 
-   /**
-    * The community definition handler, initialized by
-    * <code>getChildHandler()</code> if it is <code>null</code>, will never
-    * be <code>null</code> after that.
-    */
-   private PSDependencyHandler m_cdHandler = null;
+  /**
+   * The community definition handler, initialized by
+   * <code>getChildHandler()</code> if it is <code>null</code>, will never
+   * be <code>null</code> after that.
+   */
+  private PSDependencyHandler m_cdHandler = null;
 
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List ms_childTypes = new ArrayList();
+  /**
+   * List of child types supported by this handler, it will never be
+   * <code>null</code> or empty.
+   */
+  private static List ms_childTypes = new ArrayList();
 
-   static
-   {
-      ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+  static {
+    ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
+  }
 }

@@ -22,10 +22,15 @@ package com.percussion.delivery.polls.data;
  * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
  */
 public interface IPSPollAnswer {
-    long getId();
-    void setId(long id);
-    String getAnswer();
-    void setAnswer(String answer);
-    int getCount();
-    void setCount(int count);
+  long getId();
+
+  void setId(long id);
+
+  String getAnswer();
+
+  void setAnswer(String answer);
+
+  int getCount();
+
+  void setCount(int count);
 }

@@ -23,7 +23,6 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.IPSServerErrors;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -47,48 +46,38 @@ import java.net.URLDecoder;
  * <td>The map, encoded using URL encoding</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
- * 
+ *
  */
-public class PSMapInputValue implements IPSFieldInputTransformer
-{
+public class PSMapInputValue implements IPSFieldInputTransformer {
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      String value = ep.getStringParam(0, null, true);
-      String urlmap = ep.getStringParam(1, null, true);
-      String pairs[] = urlmap.split("&");
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+    String urlmap = ep.getStringParam(1, null, true);
+    String pairs[] = urlmap.split("&");
 
-      try
-      {
-         for (int i = 0; i < pairs.length; i++)
-         {
-            String parts[] = pairs[i].split("=");
-            String key = URLDecoder.decode(parts[0], "UTF8");
-            if (value.equals(key))
-            {
-               String res = parts.length > 1 ? URLDecoder.decode(parts[1],
-                     "UTF8") : "";
-               return res;
-            }
-         }
+    try {
+      for (int i = 0; i < pairs.length; i++) {
+        String parts[] = pairs[i].split("=");
+        String key = URLDecoder.decode(parts[0], "UTF8");
+        if (value.equals(key)) {
+          String res = parts.length > 1 ? URLDecoder.decode(parts[1], "UTF8") : "";
+          return res;
+        }
       }
-      catch (UnsupportedEncodingException e)
-      {
-         throw new PSConversionException(IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, "Unsupported encoding", null);
-      }
+    } catch (UnsupportedEncodingException e) {
+      throw new PSConversionException(
+          IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, "Unsupported encoding", null);
+    }
 
-      return null;
-   }
+    return null;
+  }
 
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      // TODO Auto-generated method stub
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // TODO Auto-generated method stub
 
-   }
-
+  }
 }

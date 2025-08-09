@@ -26,220 +26,193 @@ import com.percussion.taxonomy.repository.NodeServiceInf;
 import com.percussion.taxonomy.repository.TaxonomyDAO;
 import com.percussion.taxonomy.repository.TaxonomyServiceInf;
 import com.percussion.taxonomy.repository.VisibilityServiceInf;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.HibernateException;
 
-public class TaxonomyService implements TaxonomyServiceInf
-{
-   /**
-    * Auto wired by spring framework.
-    * 
-    * @param taxonomyDAO the taxonomy DAO service, not <code>null</code>.
-    * @param visibilityService the visibility service, not <code>null</code>.
-    * @param nodeService the node service, not <code>null</code>.
-    * @param attributeService the attribute service, not <code>null</code>.
-    */
-   public TaxonomyService(TaxonomyDAO taxonomyDAO, VisibilityServiceInf visibilityService, NodeServiceInf nodeService, AttributeServiceInf attributeService)
-   {
-      this.taxonomyDAO = taxonomyDAO;
-      this.visibilityService = visibilityService;
-      this.nodeService = nodeService;
-      this.attributeService = attributeService;
-   }
-   
-   public Collection<Taxonomy> getAllTaxonomys()
-   {
-      try
-      {
-         return taxonomyDAO.getAllTaxonomys();
-      }
-      catch (HibernateException e)
-      {
-         throw new HibernateException(e);
-      }
-   }
+public class TaxonomyService implements TaxonomyServiceInf {
+  /**
+   * Auto wired by spring framework.
+   *
+   * @param taxonomyDAO the taxonomy DAO service, not <code>null</code>.
+   * @param visibilityService the visibility service, not <code>null</code>.
+   * @param nodeService the node service, not <code>null</code>.
+   * @param attributeService the attribute service, not <code>null</code>.
+   */
+  public TaxonomyService(
+      TaxonomyDAO taxonomyDAO,
+      VisibilityServiceInf visibilityService,
+      NodeServiceInf nodeService,
+      AttributeServiceInf attributeService) {
+    this.taxonomyDAO = taxonomyDAO;
+    this.visibilityService = visibilityService;
+    this.nodeService = nodeService;
+    this.attributeService = attributeService;
+  }
 
-   public Taxonomy getTaxonomy(int id)
-   {
-      return taxonomyDAO.getTaxonomy(id);
-   }
+  public Collection<Taxonomy> getAllTaxonomys() {
+    try {
+      return taxonomyDAO.getAllTaxonomys();
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-   public boolean doesTaxonomyExists(String name)
-   {
-      List<Taxonomy> result = taxonomyDAO.getTaxonomy(name);
-      for (Taxonomy t : result)
-      {
-         if (name.equalsIgnoreCase(t.getName()))
-            return true;
-      }
-      return false;
-   }
+  public Taxonomy getTaxonomy(int id) {
+    return taxonomyDAO.getTaxonomy(id);
+  }
 
-   public int getTaxonomyIdByName(String name)
-   {
-      List<Integer> result = taxonomyDAO.getTaxonomyIdForName(name);
-      return (result.size()>0) ? result.get(0) : -1;
-   }
-   
-   public void removeTaxonomy(Taxonomy taxonomy)
-   {
-      notNull(taxonomy);
-      
-      removeTaxonomyNodes(taxonomy);
+  public boolean doesTaxonomyExists(String name) {
+    List<Taxonomy> result = taxonomyDAO.getTaxonomy(name);
+    for (Taxonomy t : result) {
+      if (name.equalsIgnoreCase(t.getName())) return true;
+    }
+    return false;
+  }
 
-      for (Attribute attribute : taxonomy.getAttributes())
-      {
-         attributeService.removeAttribute(attribute);
-      }
+  public int getTaxonomyIdByName(String name) {
+    List<Integer> result = taxonomyDAO.getTaxonomyIdForName(name);
+    return (result.size() > 0) ? result.get(0) : -1;
+  }
 
-      visibilityService.removeVisibilities(taxonomy.getVisibilities());
+  public void removeTaxonomy(Taxonomy taxonomy) {
+    notNull(taxonomy);
 
-      taxonomyDAO.removeTaxonomy(taxonomy);
-   }
+    removeTaxonomyNodes(taxonomy);
 
-   public void saveTaxonomy(Taxonomy taxonomy)
-   {
-      taxonomyDAO.saveTaxonomy(taxonomy);
-   }
+    for (Attribute attribute : taxonomy.getAttributes()) {
+      attributeService.removeAttribute(attribute);
+    }
 
-   /**
-    * Removes all nodes associated to the given taxonomy.
-    * 
-    * @param taxonomy {@link Taxonomy} to get the nodes from. Must not be
-    *           <code>null</code>.
-    */
-   private void removeTaxonomyNodes(Taxonomy taxonomy)
-   {
-      for (Node node : getNodesInDeletionOrder(taxonomy))
-      {
-         nodeService.deleteNodeAndFriends(node.getId(), taxonomy.getId());
-      }
-   }
+    visibilityService.removeVisibilities(taxonomy.getVisibilities());
 
-   /**
-    * Iterates over the node list and gets the nodes ordered from root parent to
-    * the leaf level nodes. First node is the root, then all its childrens, and
-    * so on.
-    * 
-    * @param taxonomy the {@link Taxonomy} object, must not be <code>null</code>
-    * @return {@link List}<{@link Node}> never <code>null</code> but may be
-    *         empty.
-    */
-   public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy)
-   {
-      notNull(taxonomy);
-      
-      if (taxonomy.getNodes() == null)
-      {
-         return new ArrayList<Node>();
-      }
+    taxonomyDAO.removeTaxonomy(taxonomy);
+  }
 
-      Map<Integer, List<Node>> mapLevelToNodes = buildLevelToNodesMap(taxonomy);
-      return getOrderedList(mapLevelToNodes);
-   }
+  public void saveTaxonomy(Taxonomy taxonomy) {
+    taxonomyDAO.saveTaxonomy(taxonomy);
+  }
 
-   /**
-    * Builds a map where the key is the level of a node, and the value is a list of nodes that are in that level.
-    * @param taxonomy {@link Taxonomy} object to get the nodes from. Must not be <code>null</code>.
-    * @return {@link Map}<{@link Integer}, {@link List}<{@link Node}>> 
-    */
-   private Map<Integer, List<Node>> buildLevelToNodesMap(Taxonomy taxonomy)
-   {
-      int nodesToOrder = taxonomy.getNodes().size();
-      int level = 0;
-      Map<Integer, List<Node>> mapLevelToNodes = new HashMap<Integer, List<Node>>();
+  /**
+   * Removes all nodes associated to the given taxonomy.
+   *
+   * @param taxonomy {@link Taxonomy} to get the nodes from. Must not be
+   *           <code>null</code>.
+   */
+  private void removeTaxonomyNodes(Taxonomy taxonomy) {
+    for (Node node : getNodesInDeletionOrder(taxonomy)) {
+      nodeService.deleteNodeAndFriends(node.getId(), taxonomy.getId());
+    }
+  }
 
-      List<Node> rootNodes = getRootNodes(taxonomy.getNodes());
-      mapLevelToNodes.put(level, rootNodes);
-      nodesToOrder -= rootNodes.size();
+  /**
+   * Iterates over the node list and gets the nodes ordered from root parent to
+   * the leaf level nodes. First node is the root, then all its childrens, and
+   * so on.
+   *
+   * @param taxonomy the {@link Taxonomy} object, must not be <code>null</code>
+   * @return {@link List}<{@link Node}> never <code>null</code> but may be
+   *         empty.
+   */
+  public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy) {
+    notNull(taxonomy);
 
-      while (nodesToOrder > 0)
-      {
-         // get all the nodes in the following level
-         List<Node> innerLevelList = new ArrayList<Node>();
+    if (taxonomy.getNodes() == null) {
+      return new ArrayList<Node>();
+    }
 
-         for (Node innerRoot : mapLevelToNodes.get(level))
-         {
-            List<Node> innerChildren = getChildrenForNode(innerRoot, taxonomy.getNodes());
-            innerLevelList.addAll(innerChildren);
-            nodesToOrder -= innerChildren.size();
-         }
+    Map<Integer, List<Node>> mapLevelToNodes = buildLevelToNodesMap(taxonomy);
+    return getOrderedList(mapLevelToNodes);
+  }
 
-         // add them to the map
-         level++;
-         mapLevelToNodes.put(level, innerLevelList);
+  /**
+   * Builds a map where the key is the level of a node, and the value is a list of nodes that are in that level.
+   * @param taxonomy {@link Taxonomy} object to get the nodes from. Must not be <code>null</code>.
+   * @return {@link Map}<{@link Integer}, {@link List}<{@link Node}>>
+   */
+  private Map<Integer, List<Node>> buildLevelToNodesMap(Taxonomy taxonomy) {
+    int nodesToOrder = taxonomy.getNodes().size();
+    int level = 0;
+    Map<Integer, List<Node>> mapLevelToNodes = new HashMap<Integer, List<Node>>();
+
+    List<Node> rootNodes = getRootNodes(taxonomy.getNodes());
+    mapLevelToNodes.put(level, rootNodes);
+    nodesToOrder -= rootNodes.size();
+
+    while (nodesToOrder > 0) {
+      // get all the nodes in the following level
+      List<Node> innerLevelList = new ArrayList<Node>();
+
+      for (Node innerRoot : mapLevelToNodes.get(level)) {
+        List<Node> innerChildren = getChildrenForNode(innerRoot, taxonomy.getNodes());
+        innerLevelList.addAll(innerChildren);
+        nodesToOrder -= innerChildren.size();
       }
 
-      return mapLevelToNodes;
-   }
+      // add them to the map
+      level++;
+      mapLevelToNodes.put(level, innerLevelList);
+    }
 
-   private List<Node> getOrderedList(Map<Integer, List<Node>> mapLevelToNodes)
-   {
-      List<Node> ordered = new ArrayList<Node>();
-      List<Integer> orderedLevels = new ArrayList<Integer>(mapLevelToNodes.keySet());
+    return mapLevelToNodes;
+  }
 
-      // order from lower to major and then revert it
-      Collections.sort(orderedLevels);
-      Collections.reverse(orderedLevels);
+  private List<Node> getOrderedList(Map<Integer, List<Node>> mapLevelToNodes) {
+    List<Node> ordered = new ArrayList<Node>();
+    List<Integer> orderedLevels = new ArrayList<Integer>(mapLevelToNodes.keySet());
 
-      for (Integer level : orderedLevels)
-      {
-         ordered.addAll(mapLevelToNodes.get(level));
+    // order from lower to major and then revert it
+    Collections.sort(orderedLevels);
+    Collections.reverse(orderedLevels);
+
+    for (Integer level : orderedLevels) {
+      ordered.addAll(mapLevelToNodes.get(level));
+    }
+    return ordered;
+  }
+
+  private List<Node> getChildrenForNode(Node root, Collection<Node> nodes) {
+    List<Node> children = new ArrayList<Node>();
+
+    for (Node node : nodes) {
+      if (node.getParent() != null && node.getParent().getId() == root.getId()) {
+        children.add(node);
       }
-      return ordered;
-   }
+    }
+    return children;
+  }
 
-   private List<Node> getChildrenForNode(Node root, Collection<Node> nodes)
-   {
-      List<Node> children = new ArrayList<Node>();
-
-      for (Node node : nodes)
-      {
-         if (node.getParent() != null && node.getParent().getId() == root.getId())
-         {
-            children.add(node);
-         }
+  private List<Node> getRootNodes(Collection<Node> nodes) {
+    List<Node> rootNodes = new ArrayList<Node>();
+    for (Node node : nodes) {
+      if (node.getParent() == null) {
+        rootNodes.add(node);
       }
-      return children;
-   }
+    }
+    return rootNodes;
+  }
 
-   private List<Node> getRootNodes(Collection<Node> nodes)
-   {
-      List<Node> rootNodes = new ArrayList<Node>();
-      for (Node node : nodes)
-      {
-         if (node.getParent() == null)
-         {
-            rootNodes.add(node);
-         }
-      }
-      return rootNodes;
-   }
+  /**
+   * Taxonomy DAO service, initialized by constructor, auto wired by spring framework
+   */
+  private TaxonomyDAO taxonomyDAO;
 
-   /**
-    * Taxonomy DAO service, initialized by constructor, auto wired by spring framework
-    */
-   private TaxonomyDAO taxonomyDAO;
+  /**
+   * Visibility service, initialized by constructor, auto wired by spring framework
+   */
+  private VisibilityServiceInf visibilityService;
 
-   /**
-    * Visibility service, initialized by constructor, auto wired by spring framework
-    */
-   private VisibilityServiceInf visibilityService;
+  /**
+   * Node service, initialized by constructor, auto wired by spring framework
+   */
+  private NodeServiceInf nodeService;
 
-   /**
-    * Node service, initialized by constructor, auto wired by spring framework
-    */
-   private NodeServiceInf nodeService;
-
-   /**
-    * Attribute service, initialized by constructor, auto wired by spring framework
-    */
-   private AttributeServiceInf attributeService;
+  /**
+   * Attribute service, initialized by constructor, auto wired by spring framework
+   */
+  private AttributeServiceInf attributeService;
 }

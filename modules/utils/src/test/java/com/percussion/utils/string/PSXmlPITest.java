@@ -16,85 +16,83 @@
  */
 package com.percussion.utils.string;
 
-import com.percussion.utils.string.PSXmlPIUtils.Action;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.utils.string.PSXmlPIUtils.Action;
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.utils.types.PSPair;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.w3c.dom.Document;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 @Tag("UnitTest")
-public class PSXmlPITest
-{
-   static String ms_test1 = "<doc><el><%active%><?php phpcode?></el><%active2%></doc>";
+public class PSXmlPITest {
+  static String ms_test1 = "<doc><el><%active%><?php phpcode?></el><%active2%></doc>";
 
-   static String ms_encode = "<doc><el><!-- @psx_activetag_0 --><!-- @psx_activetag_1 --></el><!-- @psx_activetag_2 --></doc>";
+  static String ms_encode =
+      "<doc><el><!-- @psx_activetag_0 --><!-- @psx_activetag_1 --></el><!-- @psx_activetag_2"
+          + " --></doc>";
 
-   static String ms_result1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-         + "<doc>\n"
-         + "   <el><?psx-activetag <%active%>?><?php phpcode?></el><?psx-activetag <%active2%>?>\n"
-         + "</doc>";
+  static String ms_result1 =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<doc>\n"
+          + "   <el><?psx-activetag <%active%>?><?php phpcode?></el><?psx-activetag <%active2%>?>\n"
+          + "</doc>";
 
-   @Test
-   public void testEncode() throws Exception
-   {
-      PSStopwatch sw = new PSStopwatch();
+  @Test
+  public void testEncode() throws Exception {
+    PSStopwatch sw = new PSStopwatch();
 
-      sw.start();
-      PSPair<Map<Integer, PSPair<Action, String>>, String> result = PSXmlPIUtils
-            .encodeTags(ms_test1);
+    sw.start();
+    PSPair<Map<Integer, PSPair<Action, String>>, String> result = PSXmlPIUtils.encodeTags(ms_test1);
+    sw.stop();
+    System.out.println("Encode took " + sw);
+    assertEquals(ms_encode, result.getSecond());
+    assertEquals(3, result.getFirst().size());
+    assertEquals("<%active%>", result.getFirst().get(0).getSecond());
+    assertEquals("<?php phpcode?>", result.getFirst().get(1).getSecond());
+    assertEquals("<%active2%>", result.getFirst().get(2).getSecond());
+    assertEquals(Action.QUOTE, result.getFirst().get(0).getFirst());
+    assertEquals(Action.PHP, result.getFirst().get(1).getFirst());
+    assertEquals(Action.QUOTE, result.getFirst().get(2).getFirst());
+
+    // Dom handling
+    sw.start();
+    try (InputStream stream =
+        new ByteArrayInputStream(result.getSecond().getBytes(StandardCharsets.UTF_8))) {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(stream, false);
+      PSXmlPIUtils.substitutePIs(doc, result.getFirst());
+      String str = PSXmlDocumentBuilder.toString(doc);
       sw.stop();
-      System.out.println("Encode took " + sw);
-      assertEquals(ms_encode, result.getSecond());
-      assertEquals(3, result.getFirst().size());
-      assertEquals("<%active%>", result.getFirst().get(0).getSecond());
-      assertEquals("<?php phpcode?>", result.getFirst().get(1).getSecond());
-      assertEquals("<%active2%>", result.getFirst().get(2).getSecond());
-      assertEquals(Action.QUOTE, result.getFirst().get(0).getFirst());
-      assertEquals(Action.PHP, result.getFirst().get(1).getFirst());
-      assertEquals(Action.QUOTE, result.getFirst().get(2).getFirst());
-      
+      System.out.println("DOM took " + sw);
+      assertEquals(ms_result1, str);
+    }
+  }
 
-      // Dom handling
-      sw.start();
-      try(InputStream stream = new ByteArrayInputStream(result.getSecond().getBytes(StandardCharsets.UTF_8))) {
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(stream, false);
-         PSXmlPIUtils.substitutePIs(doc, result.getFirst());
-         String str = PSXmlDocumentBuilder.toString(doc);
-         sw.stop();
-         System.out.println("DOM took " + sw);
-         assertEquals(ms_result1, str);
-      }
-   }
+  @Test
+  public void testEncode2() throws Exception {
+    testEncode(); // Just run again for timings
+  }
 
-   @Test
-   public void testEncode2() throws Exception
-   {
-      testEncode(); // Just run again for timings
-   }   
+  static String ms_result2 =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<doc>\n"
+          + "   <el><%active%><?php phpcode?></el><%active2%>\n"
+          + "</doc>";
 
-   static String ms_result2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-         + "<doc>\n" + "   <el><%active%><?php phpcode?></el><%active2%>\n" + "</doc>";
+  @Test
+  public void testStrip() throws Exception {
+    PSStopwatch sw = new PSStopwatch();
 
-   @Test
-   public void testStrip() throws Exception
-   {
-      PSStopwatch sw = new PSStopwatch();
-
-      sw.start();
-      String out = PSXmlPIUtils.removePI(ms_result1);
-      sw.stop();
-      System.out.println("Remove took " + sw);
-      assertEquals(ms_result2, out);
-   }
-
+    sw.start();
+    String out = PSXmlPIUtils.removePI(ms_result1);
+    sw.stop();
+    System.out.println("Remove took " + sw);
+    assertEquals(ms_result2, out);
+  }
 }

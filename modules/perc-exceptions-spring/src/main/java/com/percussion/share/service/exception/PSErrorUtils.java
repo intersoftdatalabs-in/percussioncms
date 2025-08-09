@@ -23,83 +23,71 @@ import com.percussion.share.validation.PSErrors.PSObjectError;
 import org.apache.commons.lang3.Validate;
 
 /**
- * 
+ *
  * Utilities for create {@link PSErrors} objects.
- * 
+ *
  * @author adamgent
  *
  */
-public class PSErrorUtils
-{
-    
-    public static PSErrors createErrorsFromException(Throwable exception) {
-        Validate.notNull(exception);
-        PSErrors errors = new PSErrors();
-        PSObjectError oe = new PSObjectError();
+public class PSErrorUtils {
 
-        if(exception instanceof IPSException){
-            oe.setCode(
-                    Integer.toString(
-                            ((IPSException) exception).getErrorCode()));
-        }else {
-            oe.setCode(exception.getClass().getCanonicalName());
-        }
-        String cause = exception.getMessage();
-        if(exception.getCause() != null ){
-            if( exception.getCause().getLocalizedMessage() != null) {
-                cause = exception.getCause().getLocalizedMessage();
-            }else if (exception.getCause().getMessage() != null){
-                cause = exception.getCause().getMessage();
-            }
-        }
-        if(cause == null || cause.isEmpty()){
-            cause = "Server error processing request, see log for details.";
-        }
-        oe.setDefaultMessage(cause);
-        oe.setCause(new PSErrorCause(exception));
-        errors.setGlobalError(oe);
-        return errors;
+  public static PSErrors createErrorsFromException(Throwable exception) {
+    Validate.notNull(exception);
+    PSErrors errors = new PSErrors();
+    PSObjectError oe = new PSObjectError();
+
+    if (exception instanceof IPSException) {
+      oe.setCode(Integer.toString(((IPSException) exception).getErrorCode()));
+    } else {
+      oe.setCode(exception.getClass().getCanonicalName());
     }
-    
-    public static RuntimeException createExceptionFromErrors(PSErrors errors) {
-        Validate.notNull(errors);
-        return new PSProxyException(errors);
+    String cause = exception.getMessage();
+    if (exception.getCause() != null) {
+      if (exception.getCause().getLocalizedMessage() != null) {
+        cause = exception.getCause().getLocalizedMessage();
+      } else if (exception.getCause().getMessage() != null) {
+        cause = exception.getCause().getMessage();
+      }
     }
-    
-    
-    public static class PSProxyException extends RuntimeException
-    {
+    if (cause == null || cause.isEmpty()) {
+      cause = "Server error processing request, see log for details.";
+    }
+    oe.setDefaultMessage(cause);
+    oe.setCause(new PSErrorCause(exception));
+    errors.setGlobalError(oe);
+    return errors;
+  }
 
-        private static final long serialVersionUID = 1L;
-        private String message;
-        protected PSErrors errors;
-        
-        
-        
-        public PSProxyException(PSErrors errors)
-        {
-            super();
-            this.errors = errors;
-        }
+  public static RuntimeException createExceptionFromErrors(PSErrors errors) {
+    Validate.notNull(errors);
+    return new PSProxyException(errors);
+  }
 
-        protected void convert(PSErrors errors) {
-            this.errors = errors;
-            Validate.notNull(errors);
-            PSObjectError oe = errors.getGlobalError();
-            setMessage(oe.getDefaultMessage());
-        }
+  public static class PSProxyException extends RuntimeException {
 
-        @Override
-        public String getMessage()
-        {
-            return message;
-        }
-        
-        protected void setMessage(String message)
-        {
-            this.message = message;
-        }
+    private static final long serialVersionUID = 1L;
+    private String message;
+    protected PSErrors errors;
+
+    public PSProxyException(PSErrors errors) {
+      super();
+      this.errors = errors;
     }
 
+    protected void convert(PSErrors errors) {
+      this.errors = errors;
+      Validate.notNull(errors);
+      PSObjectError oe = errors.getGlobalError();
+      setMessage(oe.getDefaultMessage());
+    }
+
+    @Override
+    public String getMessage() {
+      return message;
+    }
+
+    protected void setMessage(String message) {
+      this.message = message;
+    }
+  }
 }
-

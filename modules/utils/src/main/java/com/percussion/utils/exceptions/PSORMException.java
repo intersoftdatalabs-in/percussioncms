@@ -20,36 +20,38 @@ package com.percussion.utils.exceptions;
  * Represent problems with the data layer in object persistence
  * @author dougrand
  */
-public class PSORMException extends Exception
-{
-   /**
-    * 
-    */
-   private static final long serialVersionUID = 3256441387154159155L;
-   
-   /**
-    * 
-    */
-   public PSORMException() {
-      super();
-   }
-   /**
-    * @param message
-    */
-   public PSORMException(String message) {
-      super(message);
-   }
-   /**
-    * @param message
-    * @param cause
-    */
-   public PSORMException(String message, Throwable cause) {
-      super(message, cause);
-   }
-   /**
-    * @param cause
-    */
-   public PSORMException(Throwable cause) {
-      super(cause);
-   }
+public class PSORMException extends Exception {
+  /**
+   *
+   */
+  private static final long serialVersionUID = 3256441387154159155L;
+
+  /**
+   *
+   */
+  public PSORMException() {
+    super();
+  }
+
+  /**
+   * @param message
+   */
+  public PSORMException(String message) {
+    super(message);
+  }
+
+  /**
+   * @param message
+   * @param cause
+   */
+  public PSORMException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  /**
+   * @param cause
+   */
+  public PSORMException(Throwable cause) {
+    super(cause);
+  }
 }

@@ -19,8 +19,8 @@ package com.percussion.services.security;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 
-import java.security.acl.AclEntry;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.AclEntry;
+import com.percussion.security.shim.acl.Permission;
 
 /**
  * This interface extends {@link AclEntry} to suport the type of the ACL entry.

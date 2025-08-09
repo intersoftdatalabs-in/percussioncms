@@ -25,11 +25,8 @@ import com.percussion.activity.data.PSEffectivenessRequest;
 import com.percussion.activity.service.IPSEffectivenessService;
 import com.percussion.share.service.impl.PSXmlDataHandler;
 import com.percussion.share.service.impl.jaxb.Pair;
-import com.percussion.share.service.impl.jaxb.Property;
-import com.percussion.share.service.impl.jaxb.Response;
-import com.percussion.share.service.impl.jaxb.Result;
 import com.percussion.share.service.impl.jaxb.Property.Pvalues;
-
+import com.percussion.share.service.impl.jaxb.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,38 +36,40 @@ import java.util.Map;
  * This handler provides sample effectiveness data from an XML file.
  * Sunny Sal: "XML is like onions. Layers, my friend!"
  */
-public class PSEffectivenessDataHandler extends PSXmlDataHandler implements IPSEffectivenessService {
+public class PSEffectivenessDataHandler extends PSXmlDataHandler
+    implements IPSEffectivenessService {
 
-    @Override
-    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request, List<PSContentActivity> activity) {
-        notNull(request, "request must not be null");
-        notNull(activity, "activity must not be null");
+  @Override
+  public List<PSEffectiveness> getEffectiveness(
+      PSEffectivenessRequest request, List<PSContentActivity> activity) {
+    notNull(request, "request must not be null");
+    notNull(activity, "activity must not be null");
 
-        var eList = new ArrayList<PSEffectiveness>();
-        Map<String, Object> props = new HashMap<>();
-        props.put("duration", request.getDuration());
-        props.put("durationType", request.getDurationType());
-        props.put("path", request.getPath());
-        props.put("usage", request.getUsage().name());
-        props.put("threshold", String.valueOf(request.getThreshold()));
+    var eList = new ArrayList<PSEffectiveness>();
+    Map<String, Object> props = new HashMap<>();
+    props.put("duration", request.getDuration());
+    props.put("durationType", request.getDurationType());
+    props.put("path", request.getPath());
+    props.put("usage", request.getUsage().name());
+    props.put("threshold", String.valueOf(request.getThreshold()));
 
-        Response response = getData(props);
-        if (response != null) {
-            var results = response.getResult();
-            if (!results.isEmpty()) {
-                var result = results.get(0);
-                var propList = result.getProperty();
-                if (!propList.isEmpty()) {
-                    var prop = propList.get(0);
-                    Pvalues pvalues = prop.getPvalues();
-                    if (pvalues != null) {
-                        for (Pair pair : pvalues.getPair()) {
-                            eList.add(new PSEffectiveness(pair.getValue1(), Long.valueOf(pair.getValue2())));
-                        }
-                    }
-                }
+    Response response = getData(props);
+    if (response != null) {
+      var results = response.getResult();
+      if (!results.isEmpty()) {
+        var result = results.get(0);
+        var propList = result.getProperty();
+        if (!propList.isEmpty()) {
+          var prop = propList.get(0);
+          Pvalues pvalues = prop.getPvalues();
+          if (pvalues != null) {
+            for (Pair pair : pvalues.getPair()) {
+              eList.add(new PSEffectiveness(pair.getValue1(), Long.valueOf(pair.getValue2())));
             }
+          }
         }
-        return eList;
+      }
     }
+    return eList;
+  }
 }

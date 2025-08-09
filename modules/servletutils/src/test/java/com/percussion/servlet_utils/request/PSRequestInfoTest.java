@@ -20,69 +20,55 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.utils.request.PSRequestInfo;
 import java.util.HashMap;
 import java.util.Map;
-
-
-import org.junit.jupiter.api.Test;
-
-
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
-import com.percussion.utils.request.PSRequestInfo;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
  * Test request info
- * 
+ *
  * @author dougrand
  */
 @Tag("IntegrationTest")
 @TestMethodOrder(MethodName.class)
-public class PSRequestInfoTest
-{
+public class PSRequestInfoTest {
 
-   /**
-    * @param arg0
-    */
-   public PSRequestInfoTest() {
-      
-   }
-   
-   
-   @Test
-   public void test10Basic()
-   {
-      try
-      {
-         PSRequestInfo.setRequestInfo("FOO", "BAR");
-         assertTrue(false, "No exception where expected");
-      }
-      catch(Exception e)
-      {
-         // OK
-      }
-      
-      PSRequestInfo.initRequestInfo((Map<String,Object>) null);
-      String value = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertNull(value);
-      
-      PSRequestInfo.setRequestInfo("FOO", "YES");
-      value = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertEquals("YES", value);
-      
-      PSRequestInfo.resetRequestInfo();     
-   }
-   
-   @Test
-   public void test20Initial()
-   {
-      Map<String,Object> initial = new HashMap<String,Object>();
-      initial.put("FOO", "BAR");
-      
-      PSRequestInfo.initRequestInfo(initial);
-      String v = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertEquals("BAR", v);      
-   }
+  /**
+   * @param arg0
+   */
+  public PSRequestInfoTest() {}
 
+  @Test
+  public void test10Basic() {
+    try {
+      PSRequestInfo.setRequestInfo("FOO", "BAR");
+      assertTrue(false, "No exception where expected");
+    } catch (Exception e) {
+      // OK
+    }
+
+    PSRequestInfo.initRequestInfo((Map<String, Object>) null);
+    String value = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertNull(value);
+
+    PSRequestInfo.setRequestInfo("FOO", "YES");
+    value = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertEquals("YES", value);
+
+    PSRequestInfo.resetRequestInfo();
+  }
+
+  @Test
+  public void test20Initial() {
+    Map<String, Object> initial = new HashMap<String, Object>();
+    initial.put("FOO", "BAR");
+
+    PSRequestInfo.initRequestInfo(initial);
+    String v = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertEquals("BAR", v);
+  }
 }

@@ -18,38 +18,31 @@
 package com.percussion.server;
 
 /**
-* This class was previously used to check to see if the product has a valid brand code
-* and if the product has timed out. (The real code is in PSServerBrand.prod
-* We don't want to brand anymore, so this code will be left for anything still checking.
-*/
+ * This class was previously used to check to see if the product has a valid brand code
+ * and if the product has timed out. (The real code is in PSServerBrand.prod
+ * We don't want to brand anymore, so this code will be left for anything still checking.
+ */
+public class PSServerBrand {
+  public PSServerBrand() {}
 
-public class PSServerBrand
-{
-   public PSServerBrand()
-   {
-   }
+  /*just return true - PSServerBrand.prod has the real stuff and will be put
+  in during manufacturing*/
+  public boolean isValidCode() {
+    return (true);
+  }
 
-   /*just return true - PSServerBrand.prod has the real stuff and will be put
-   in during manufacturing*/
-   public boolean isValidCode()
-   {
-      return(true);
-   }
+  /*just return false - PSServerBrand.prod has the real stuff and will be put
+  in during manufacturing*/
+  public boolean hasTimedOut() {
+    return (false);
+  }
 
-   /*just return false - PSServerBrand.prod has the real stuff and will be put
-   in during manufacturing*/
-   public boolean hasTimedOut()
-   {
-      return(false);
-   }
-
-   /**
-    * Always returns <code>true</code>.
-    * @param componentId not used.
-    * @return Always returns <code>true</code>.
-    */
-   public boolean isComponentLicensed(int componentId)
-   {
-      return true;
-   }
+  /**
+   * Always returns <code>true</code>.
+   * @param componentId not used.
+   * @return Always returns <code>true</code>.
+   */
+  public boolean isComponentLicensed(int componentId) {
+    return true;
+  }
 }

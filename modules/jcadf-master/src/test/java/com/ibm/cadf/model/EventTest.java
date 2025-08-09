@@ -19,63 +19,77 @@ package com.ibm.cadf.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import com.ibm.cadf.EventFactory;
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
-public class EventTest
-{
+public class EventTest {
 
-    @Test
-    public void testEventPositive() throws CADFException, IOException
-    {
+  @Test
+  public void testEventPositive() throws CADFException, IOException {
 
-        String initiatorId = Identifier.generateUniqueId();
-        Resource initiator = new Resource(initiatorId);
-        initiator.setTypeURI("/testcase");
-        initiator.setName("AuditLoggerTest");
+    String initiatorId = Identifier.generateUniqueId();
+    Resource initiator = new Resource(initiatorId);
+    initiator.setTypeURI("/testcase");
+    initiator.setName("AuditLoggerTest");
 
-        String targetId = Identifier.generateUniqueId();
-        Resource target = new Resource(targetId);
-        target.setTypeURI("/configurator");
-        target.setName("Configuration Component");
+    String targetId = Identifier.generateUniqueId();
+    Resource target = new Resource(targetId);
+    target.setTypeURI("/configurator");
+    target.setName("Configuration Component");
 
-        String observerId = Identifier.generateUniqueId();
-        Resource observer = new Resource(observerId);
-        observer.setTypeURI("/management");
-        observer.setName("Management Component");
+    String observerId = Identifier.generateUniqueId();
+    Resource observer = new Resource(observerId);
+    observer.setTypeURI("/management");
+    observer.setName("Management Component");
 
-        Event event = EventFactory.getEventInstance(CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
-                                                    Identifier.generateUniqueId(), "Send File", "successful",
-                                                    initiator, null, target, null, observer, null);
-        assertEquals(true, event.isValid());
-    }
+    Event event =
+        EventFactory.getEventInstance(
+            CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
+            Identifier.generateUniqueId(),
+            "Send File",
+            "successful",
+            initiator,
+            null,
+            target,
+            null,
+            observer,
+            null);
+    assertEquals(true, event.isValid());
+  }
 
-    @Test
-    public void testEventNegative() throws CADFException, IOException
-    {
+  @Test
+  public void testEventNegative() throws CADFException, IOException {
 
-        String initiatorId = Identifier.generateUniqueId();
-        Resource initiator = new Resource(initiatorId);
-        initiator.setTypeURI("/testcase");
-        initiator.setName("AuditLoggerTest");
+    String initiatorId = Identifier.generateUniqueId();
+    Resource initiator = new Resource(initiatorId);
+    initiator.setTypeURI("/testcase");
+    initiator.setName("AuditLoggerTest");
 
-        String targetId = Identifier.generateUniqueId();
-        Resource target = new Resource(targetId);
-        target.setTypeURI("/configurator");
-        target.setName("Configuration Component");
+    String targetId = Identifier.generateUniqueId();
+    Resource target = new Resource(targetId);
+    target.setTypeURI("/configurator");
+    target.setName("Configuration Component");
 
-        String observerId = Identifier.generateUniqueId();
-        Resource observer = new Resource(observerId);
-        observer.setTypeURI("/management");
-        observer.setName("Management Component");
+    String observerId = Identifier.generateUniqueId();
+    Resource observer = new Resource(observerId);
+    observer.setTypeURI("/management");
+    observer.setName("Management Component");
 
-        Event event = EventFactory.getEventInstance(CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(), "", "Send File", "successful",
-                                                    initiator, null, target, null, observer, null);
-        event.isValid();
-        assertEquals(false, event.isValid());
-    }
+    Event event =
+        EventFactory.getEventInstance(
+            CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
+            "",
+            "Send File",
+            "successful",
+            initiator,
+            null,
+            target,
+            null,
+            observer,
+            null);
+    event.isValid();
+    assertEquals(false, event.isValid());
+  }
 }

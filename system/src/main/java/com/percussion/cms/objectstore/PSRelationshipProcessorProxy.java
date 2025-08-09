@@ -20,7 +20,6 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
-
 import java.util.List;
 
 /**
@@ -77,343 +76,245 @@ import java.util.List;
  * @version 1.0
  */
 public class PSRelationshipProcessorProxy extends PSProcessorProxy
-   implements IPSRelationshipProcessor
-{
-   /**
-    * Delegates to the base class. See 
-    * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
-    * super(location, ctx)} for more information.
-    */
-   public PSRelationshipProcessorProxy(String location, Object ctx)
-      throws PSCmsException
-   {
-      super(location, ctx);
-   }
+    implements IPSRelationshipProcessor {
+  /**
+   * Delegates to the base class. See
+   * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
+   * super(location, ctx)} for more information.
+   */
+  public PSRelationshipProcessorProxy(String location, Object ctx) throws PSCmsException {
+    super(location, ctx);
+  }
 
-   /**
-    * Delegates to the base class. See 
-    * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
-    * super(location, ctx)} for more information.
-    * 
-    * @param componentType name of the component the processor is used to 
-    *    manipulate. This must match an entry in the configuration document. 
-    *    Not <code>null</code> or empty.
-    */
-   public PSRelationshipProcessorProxy(String location, Object ctx,
-      String componentType)
-      throws PSCmsException
-   {
-      super(location, ctx);
-      
-      if (componentType == null)
-         throw new IllegalArgumentException("componentType cannpt be null");
-         
-      componentType = componentType.trim();
-      if (componentType.length() == 0)
-         throw new IllegalArgumentException("componentType cannpt be empty");
-         
-      m_componentType = componentType;
-   }
+  /**
+   * Delegates to the base class. See
+   * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
+   * super(location, ctx)} for more information.
+   *
+   * @param componentType name of the component the processor is used to
+   *    manipulate. This must match an entry in the configuration document.
+   *    Not <code>null</code> or empty.
+   */
+  public PSRelationshipProcessorProxy(String location, Object ctx, String componentType)
+      throws PSCmsException {
+    super(location, ctx);
 
-   //see interface for description
-   public void add(
-      String componentType,
-      String relationshipType,
-      List children,
-      PSKey targetParent)
-      throws PSCmsException
-   {
-      getProcessor(componentType).add(
-         componentType,
-         relationshipType,
-         children,
-         targetParent);
-   }
+    if (componentType == null) throw new IllegalArgumentException("componentType cannpt be null");
 
-   //see interface for description
-   public void add(
-      String relationshipType,
-      List children,
-      PSLocator targetParent)
-      throws PSCmsException
-   {
-      getProcessor(m_componentType).add(
-         relationshipType,
-         children,
-         targetParent);
-   }
+    componentType = componentType.trim();
+    if (componentType.length() == 0)
+      throw new IllegalArgumentException("componentType cannpt be empty");
 
-   //see interface for description
-   public void move(
-      String relationshipType,
-      PSKey sourceParent,
-      List children,
-      PSKey targetParent)
-      throws PSCmsException
-   {
-      getProcessor(m_componentType).move(
-         relationshipType,
-         sourceParent,
-         children,
-         targetParent);
-   }
+    m_componentType = componentType;
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#copy(
-    * java.lang.String, java.util.List, com.percussion.cms.objectstore.PSKey)
-    */
-   public void copy(String relationshipType, List children, PSKey targetParent)
-      throws PSCmsException
-   {
-      getProcessor(m_componentType).copy(
-         relationshipType,
-         children,
-         targetParent);
-   }
+  // see interface for description
+  public void add(String componentType, String relationshipType, List children, PSKey targetParent)
+      throws PSCmsException {
+    getProcessor(componentType).add(componentType, relationshipType, children, targetParent);
+  }
 
-   //see interface for description
-   public void delete(
-      String relationshipType,
-      PSKey sourceParent,
-      List children)
-      throws PSCmsException
-   {
-      getProcessor(m_componentType).delete(
-         relationshipType,
-         sourceParent,
-         children);
-   }
+  // see interface for description
+  public void add(String relationshipType, List children, PSLocator targetParent)
+      throws PSCmsException {
+    getProcessor(m_componentType).add(relationshipType, children, targetParent);
+  }
 
-   //see interface for description
-   public PSComponentSummary[] getChildren(String componentType, PSKey parent)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getChildren(componentType, parent);
-   }
+  // see interface for description
+  public void move(String relationshipType, PSKey sourceParent, List children, PSKey targetParent)
+      throws PSCmsException {
+    getProcessor(m_componentType).move(relationshipType, sourceParent, children, targetParent);
+  }
 
-   //see interface for description
-   public PSComponentSummary[] getChildren(
-      String componentType,
-      String relationshipType,
-      PSKey parent)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getChildren(componentType, relationshipType, parent);
-   } 
-   
-   //see interface for description
-   public PSComponentSummary[] getParents(
-      String componentType,
-      String relationshipType,
-      PSKey parent)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getParents(componentType, relationshipType, parent);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#copy(
+   * java.lang.String, java.util.List, com.percussion.cms.objectstore.PSKey)
+   */
+  public void copy(String relationshipType, List children, PSKey targetParent)
+      throws PSCmsException {
+    getProcessor(m_componentType).copy(relationshipType, children, targetParent);
+  }
 
-   /**
-    * Helper method that overrides the base class version to return a specfic
-    * type of processor (relationship processor) object from the configuration.
-    * 
-    * @param componentType component type for the processor, not
-    *    <code>null</code> or empty.
-    * @return IPSRelationshipProcessor the requested relationship processor, 
-    *    never <code>null</code>.
-    * @throws PSCmsException if no processor was found for the supplied
-    *    component type.
-    */
-   public IPSRelationshipProcessor getProcessor(String componentType)
-      throws PSCmsException
-   {
-      if (componentType == null)
-         throw new IllegalArgumentException("componentType cannot be null");
-      
-      componentType = componentType.trim();
-      if (componentType.length() == 0)
-         throw new IllegalArgumentException("componentType cannot be empty");
+  // see interface for description
+  public void delete(String relationshipType, PSKey sourceParent, List children)
+      throws PSCmsException {
+    getProcessor(m_componentType).delete(relationshipType, sourceParent, children);
+  }
 
-      return (IPSRelationshipProcessor) m_processorConfig.getProcessor(
-         componentType);
-   }
+  // see interface for description
+  public PSComponentSummary[] getChildren(String componentType, PSKey parent)
+      throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getChildren(componentType, parent);
+  }
 
-   /**
-    * Get current component type for relationship processor.
-    * 
-    * @return the component type for the relationship processor, never 
-    *    <code>null</code> or empty. The value set in the constructor or
-    *    defaults to <code>RELATIONSHIP_COMPTYPE</code> is not supplied.
-    */
-   public String getComponentType()
-   {
-      return m_componentType;
-   }
+  // see interface for description
+  public PSComponentSummary[] getChildren(
+      String componentType, String relationshipType, PSKey parent) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getChildren(componentType, relationshipType, parent);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#delete(
-    * com.percussion.cms.objectstore.PSKey, java.util.List)
-    */
-   public void delete(PSKey sourceParent, List children) throws PSCmsException
-   {
-      getProcessor(m_componentType).delete(null, sourceParent, children);
-   }
+  // see interface for description
+  public PSComponentSummary[] getParents(
+      String componentType, String relationshipType, PSKey parent) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getParents(componentType, relationshipType, parent);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
-    * getRelationships(java.lang.String, com.percussion.design.objectstore.
-    * PSLocator, boolean)
-    */
-   public PSRelationshipSet getRelationships(
-      String relationshipType,
-      PSLocator locator,
-      boolean owner)
-      throws PSCmsException
-   {
-      return getProcessor(m_componentType).getRelationships(
-         relationshipType,
-         locator,
-         owner);
-   }
+  /**
+   * Helper method that overrides the base class version to return a specfic
+   * type of processor (relationship processor) object from the configuration.
+   *
+   * @param componentType component type for the processor, not
+   *    <code>null</code> or empty.
+   * @return IPSRelationshipProcessor the requested relationship processor,
+   *    never <code>null</code>.
+   * @throws PSCmsException if no processor was found for the supplied
+   *    component type.
+   */
+  public IPSRelationshipProcessor getProcessor(String componentType) throws PSCmsException {
+    if (componentType == null) throw new IllegalArgumentException("componentType cannot be null");
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#move(com.
-    * percussion.design.objectstore.PSLocator, java.util.List, com.percussion.
-    * design.objectstore.PSLocator)
-    */
-   public void move(
-      String relationshipType,
-      PSLocator sourceParent,
-      List children,
-      PSLocator targetParent)
-      throws PSCmsException
-   {
-      getProcessor(m_componentType).move(
-         relationshipType,
-         sourceParent,
-         children,
-         targetParent);
-   }
+    componentType = componentType.trim();
+    if (componentType.length() == 0)
+      throw new IllegalArgumentException("componentType cannot be empty");
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
-    * getRelationships(com.percussion.cms.objectstore.PSRelationshipFilter)
-    */
-   public PSRelationshipSet getRelationships(PSRelationshipFilter filter)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(m_componentType);
-      return proc.getRelationships(filter);
-   }
+    return (IPSRelationshipProcessor) m_processorConfig.getProcessor(componentType);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#getSummaries
-    * (com.percussion.cms.objectstore.PSRelationshipFilter, boolean)
-    */
-   public PSComponentSummaries getSummaries(PSRelationshipFilter filter, 
-   boolean owner) throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(m_componentType);
-      return proc.getSummaries(filter, owner); 
-   }
+  /**
+   * Get current component type for relationship processor.
+   *
+   * @return the component type for the relationship processor, never
+   *    <code>null</code> or empty. The value set in the constructor or
+   *    defaults to <code>RELATIONSHIP_COMPTYPE</code> is not supplied.
+   */
+  public String getComponentType() {
+    return m_componentType;
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#save(
-    * com.percussion.design.objectstore.PSRelationshipSet)
-    */
-   public void save(PSRelationshipSet relationships) throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(m_componentType);
-      proc.save(relationships);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#delete(
+   * com.percussion.cms.objectstore.PSKey, java.util.List)
+   */
+  public void delete(PSKey sourceParent, List children) throws PSCmsException {
+    getProcessor(m_componentType).delete(null, sourceParent, children);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#remove(com.
-    * percussion.design.objectstore.PSRelationshipSet)
-    */
-   public void delete(PSRelationshipSet relationships) throws PSCmsException
-   {
-      getProcessor(m_componentType).delete(relationships);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
+   * getRelationships(java.lang.String, com.percussion.design.objectstore.
+   * PSLocator, boolean)
+   */
+  public PSRelationshipSet getRelationships(
+      String relationshipType, PSLocator locator, boolean owner) throws PSCmsException {
+    return getProcessor(m_componentType).getRelationships(relationshipType, locator, owner);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#getConfig(
-    * java.lang.String)
-    */
-   public PSRelationshipConfig getConfig(String relationshipTypeName) 
-      throws PSCmsException
-   {
-      return getProcessor(m_componentType).getConfig(relationshipTypeName);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#move(com.
+   * percussion.design.objectstore.PSLocator, java.util.List, com.percussion.
+   * design.objectstore.PSLocator)
+   */
+  public void move(
+      String relationshipType, PSLocator sourceParent, List children, PSLocator targetParent)
+      throws PSCmsException {
+    getProcessor(m_componentType).move(relationshipType, sourceParent, children, targetParent);
+  }
 
-   /*
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
+   * getRelationships(com.percussion.cms.objectstore.PSRelationshipFilter)
+   */
+  public PSRelationshipSet getRelationships(PSRelationshipFilter filter) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(m_componentType);
+    return proc.getRelationships(filter);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#getSummaries
+   * (com.percussion.cms.objectstore.PSRelationshipFilter, boolean)
+   */
+  public PSComponentSummaries getSummaries(PSRelationshipFilter filter, boolean owner)
+      throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(m_componentType);
+    return proc.getSummaries(filter, owner);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#save(
+   * com.percussion.design.objectstore.PSRelationshipSet)
+   */
+  public void save(PSRelationshipSet relationships) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(m_componentType);
+    proc.save(relationships);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#remove(com.
+   * percussion.design.objectstore.PSRelationshipSet)
+   */
+  public void delete(PSRelationshipSet relationships) throws PSCmsException {
+    getProcessor(m_componentType).delete(relationships);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#getConfig(
+   * java.lang.String)
+   */
+  public PSRelationshipConfig getConfig(String relationshipTypeName) throws PSCmsException {
+    return getProcessor(m_componentType).getConfig(relationshipTypeName);
+  }
+
+  /*
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor
    * #getSummaryByPath(java.lang.String, java.lang.String)
    */
-   public PSComponentSummary getSummaryByPath(
-      String componentType,
-      String path, 
-      String relationshipTypeName) throws PSCmsException 
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getSummaryByPath(componentType, path, relationshipTypeName); 
-   }
+  public PSComponentSummary getSummaryByPath(
+      String componentType, String path, String relationshipTypeName) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getSummaryByPath(componentType, path, relationshipTypeName);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
-    * getRelationshipOwnerPaths(java.lang.String, com.percussion.design.
-    * objectstore.PSLocator, java.lang.String)
-    */
-   public String[] getRelationshipOwnerPaths(
-      String componentType,
-      PSLocator locator,
-      String relationshipTypeName)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getRelationshipOwnerPaths(
-         componentType,
-         locator,
-         relationshipTypeName);
-   }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
-    * isDescendent(java.lang.String, com.percussion.design.objectstore.PSLocator, 
-    * com.percussion.design.objectstore.PSLocator, java.lang.String)
-    */
-   public boolean isDescendent(
-      String componentType,
-      PSLocator parent,
-      PSLocator child,
-      String relationshipTypeName) throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      
-      return proc.isDescendent(componentType, parent, child, 
-         relationshipTypeName);
-   }
-   
-   // see interface for description
-   public PSKey[] getDescendentsLocators(
-      String componentType,
-      String relationshipType,
-      PSKey parent)
-      throws PSCmsException
-   {
-      IPSRelationshipProcessor proc = getProcessor(componentType);
-      return proc.getDescendentsLocators(
-         componentType, relationshipType, parent);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
+   * getRelationshipOwnerPaths(java.lang.String, com.percussion.design.
+   * objectstore.PSLocator, java.lang.String)
+   */
+  public String[] getRelationshipOwnerPaths(
+      String componentType, PSLocator locator, String relationshipTypeName) throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getRelationshipOwnerPaths(componentType, locator, relationshipTypeName);
+  }
 
-   /**
-    * The component type to locate the appropriate processor from the 
-    * configuration document. Default is  
-    * {@link PSProcessorProxy#RELATIONSHIP_COMPTYPE}. This can be 
-    * set in one of the constructors. Note: Currently we have only one 
-    * relationship processor and hence the default is the only one component 
-    * type used for relationship processing until we have another one.
-    */
-   private String m_componentType = RELATIONSHIP_COMPTYPE;
+  /* (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#
+   * isDescendent(java.lang.String, com.percussion.design.objectstore.PSLocator,
+   * com.percussion.design.objectstore.PSLocator, java.lang.String)
+   */
+  public boolean isDescendent(
+      String componentType, PSLocator parent, PSLocator child, String relationshipTypeName)
+      throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+
+    return proc.isDescendent(componentType, parent, child, relationshipTypeName);
+  }
+
+  // see interface for description
+  public PSKey[] getDescendentsLocators(String componentType, String relationshipType, PSKey parent)
+      throws PSCmsException {
+    IPSRelationshipProcessor proc = getProcessor(componentType);
+    return proc.getDescendentsLocators(componentType, relationshipType, parent);
+  }
+
+  /**
+   * The component type to locate the appropriate processor from the
+   * configuration document. Default is
+   * {@link PSProcessorProxy#RELATIONSHIP_COMPTYPE}. This can be
+   * set in one of the constructors. Note: Currently we have only one
+   * relationship processor and hence the default is the only one component
+   * type used for relationship processing until we have another one.
+   */
+  private String m_componentType = RELATIONSHIP_COMPTYPE;
 }

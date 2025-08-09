@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 // REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
@@ -28,56 +27,53 @@ import com.percussion.security.PSAuthorizationException;
 
 /**
  * Interface for executing modify steps as part of a {@link PSModifyPlan}.
- * Steps are executed by making requests to an internal request handler.  
+ * Steps are executed by making requests to an internal request handler.
  */
-public interface IPSModifyStep
-{
-   /**
-    * Executes the request against an internal resource handler.
-    *
-    * @param data The execution data.  May not be <code>null</code>.
-    *
-    * @throws PSAuthorizationException if the user is not authorized to
-    * perform the step.
-    * @throws PSAuthenticationFailedException if the user cannot be
-    * authenticated.
-    * @throws PSSystemValidationException if the step does any validation and the
-    * validation fails.
-    * @throws PSInternalRequestCallException if there are any other errors.
-    * @throws IllegalArgumentException if data is <code>null</code>.
-    * @throws IllegalStateException if a handler has not been set.
-    */
-   public void execute(PSExecutionData data)
-      throws PSInternalRequestCallException, PSAuthorizationException,
-      PSAuthenticationFailedException, PSSystemValidationException;
+public interface IPSModifyStep {
+  /**
+   * Executes the request against an internal resource handler.
+   *
+   * @param data The execution data.  May not be <code>null</code>.
+   *
+   * @throws PSAuthorizationException if the user is not authorized to
+   * perform the step.
+   * @throws PSAuthenticationFailedException if the user cannot be
+   * authenticated.
+   * @throws PSSystemValidationException if the step does any validation and the
+   * validation fails.
+   * @throws PSInternalRequestCallException if there are any other errors.
+   * @throws IllegalArgumentException if data is <code>null</code>.
+   * @throws IllegalStateException if a handler has not been set.
+   */
+  public void execute(PSExecutionData data)
+      throws PSInternalRequestCallException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSSystemValidationException;
 
+  /**
+   * Sets the handler on this step.
+   *
+   * @param handler The resource handler for this type.  May not be <code>
+   * null</code>.
+   *
+   * @throws IllegalArgumentException if handler is <code>null</code>, or if a
+   * handler has already been set on this step.
+   */
+  public void setHandler(IPSInternalRequestHandler handler);
 
-   /**
-    * Sets the handler on this step.
-    *
-    * @param handler The resource handler for this type.  May not be <code>
-    * null</code>.
-    *
-    * @throws IllegalArgumentException if handler is <code>null</code>, or if a
-    * handler has already been set on this step.
-    */
-   public void setHandler(IPSInternalRequestHandler handler);
+  /**
+   * Gets the handler that has been set on this step.
+   *
+   * @return The handler, or <code>null</code> if one has not been set.
+   */
+  public IPSInternalRequestHandler getHandler();
 
-   /**
-    * Gets the handler that has been set on this step.
-    *
-    * @return The handler, or <code>null</code> if one has not been set.
-    */
-   public IPSInternalRequestHandler getHandler();
-
-
-   /**
-    * Returns the request name used to retrieve the handler.
-    *
-    * @return The request name associated with the handler used by this step.
-    * Never <code>null</code>.
-    */
-   public String getName();
-
-
+  /**
+   * Returns the request name used to retrieve the handler.
+   *
+   * @return The request name associated with the handler used by this step.
+   * Never <code>null</code>.
+   */
+  public String getName();
 }

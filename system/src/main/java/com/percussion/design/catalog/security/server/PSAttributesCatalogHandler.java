@@ -25,14 +25,12 @@ import com.percussion.security.PSSecurityProviderPool;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.sql.ResultSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.sql.ResultSet;
-
-
 /**
- * The PSAttributesCatalogHandler class implements cataloging of 
+ * The PSAttributesCatalogHandler class implements cataloging of
  * attributes. This request type is used to locate the attributes
  * associated with an object defined in the specified security provider.
  * <p>
@@ -45,7 +43,7 @@ import java.sql.ResultSet;
  *     --&gt;
  *    &lt;!ELEMENT instanceName      (#PCDATA)&gt;
  *
- *    &lt;-- 
+ *    &lt;--
  *       the type of object to locate attributes for. By specifying
  *         multiple objectType elements, the attribute list for multiple
  *       object types can be retrieved.
@@ -64,7 +62,7 @@ import java.sql.ResultSet;
  *
  *    &lt;!ELEMENT Attributes         (name*)&gt;
  *
- *    &lt;-- 
+ *    &lt;--
  *       objectType - the type of security object the attributes are for.
  *     --&gt;
  *    &lt;!ATTLIST Attributes
@@ -81,134 +79,122 @@ import java.sql.ResultSet;
  * @since      1.0
  */
 public class PSAttributesCatalogHandler
-   extends com.percussion.design.catalog.PSCatalogRequestHandler
-   implements com.percussion.design.catalog.IPSCatalogRequestHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSAttributesCatalogHandler()
-   {
-      super();
-   }
+    extends com.percussion.design.catalog.PSCatalogRequestHandler
+    implements com.percussion.design.catalog.IPSCatalogRequestHandler {
+  /**
+   * Constructs an instance of this handler.
+   */
+  public PSAttributesCatalogHandler() {
+    super();
+  }
 
+  /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
-   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
+  /**
+   * Get the request type(s) (XML document types) supported by this
+   * handler.
+   *
+   * @return      the supported request type(s)
+   */
+  public String[] getSupportedRequestTypes() {
+    return new String[] {ms_RequestDTD};
+  }
 
-   /**
-    * Get the request type(s) (XML document types) supported by this
-    * handler.
-    * 
-    * @return      the supported request type(s)
-    */
-   public String[] getSupportedRequestTypes()
-   {
-      return new String[] { ms_RequestDTD };
-   }
+  /* ************ IPSRequestHandler Interface Implementation ************ */
 
+  /**
+   * Process the catalog request. This uses the XML document sent as the
+   * input data. The results are written to the specified output
+   * stream using the appropriate XML document format.
+   *
+   * @param   request     the request object containing all context
+   *                      data associated with the request
+   */
+  public void processRequest(PSRequest request) {
+    Document doc = request.getInputDocument();
+    Element root = null;
+    if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
+      Object[] args = {ms_RequestCategory, ms_RequestType, ms_RequestDTD};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+      return;
+    }
 
-   /* ************ IPSRequestHandler Interface Implementation ************ */
+    /* verify this is the appropriate request type */
+    if (!ms_RequestDTD.equals(root.getTagName())) {
+      Object[] args = {ms_RequestDTD, root.getTagName()};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+      return;
+    }
 
-   /**
-    * Process the catalog request. This uses the XML document sent as the
-    * input data. The results are written to the specified output
-    * stream using the appropriate XML document format.
-    *
-    * @param   request     the request object containing all context
-    *                      data associated with the request
-    */
-   public void processRequest(PSRequest request)
-   {
-      Document doc = request.getInputDocument();
-      Element root = null;
-      if (   (doc == null) ||
-            ((root = doc.getDocumentElement()) == null) ) {
-         Object[] args = { ms_RequestCategory, ms_RequestType, ms_RequestDTD };
-         createErrorResponse(
-            request, new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_MISSING, args));
-         return;
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
+
+    String instanceName = tree.getElementData("instanceName");
+
+    /* parse the tableType string and build an array from it */
+    java.util.ArrayList typeList = new java.util.ArrayList();
+    while (tree.getNextElement("objectType", true, false) != null) {
+      typeList.add(tree.getElementData((Element) tree.getCurrent()));
+    }
+    String[] objectTypes = null;
+    final int typeListSize = typeList.size();
+    if (typeListSize != 0) {
+      objectTypes = new String[typeListSize];
+      typeList.toArray(objectTypes);
+    }
+
+    Document retDoc = PSXmlDocumentBuilder.createXmlDocument();
+
+    root = PSXmlDocumentBuilder.createRoot(retDoc, (ms_RequestDTD + "Results"));
+
+    if (instanceName != null)
+      PSXmlDocumentBuilder.addElement(retDoc, root, "instanceName", instanceName);
+
+    if (objectTypes != null) {
+      for (int i = 0; i < objectTypes.length; i++)
+        PSXmlDocumentBuilder.addElement(retDoc, root, "objectType", objectTypes[i]);
+    }
+
+    ResultSet rs = null;
+    try {
+      PSSecurityProvider sp = PSSecurityProviderPool.getProvider(instanceName);
+      if (sp != null) {
+        IPSSecurityProviderMetaData meta = sp.getMetaData();
+        rs = meta.getAttributes(objectTypes);
+        while (rs.next()) {
+          String objectType = rs.getString(1);
+          String attrName = rs.getString(2);
+
+          Element attrNode = PSXmlDocumentBuilder.addEmptyElement(retDoc, root, "Attributes");
+          attrNode.setAttribute("type", objectType);
+          PSXmlDocumentBuilder.addElement(retDoc, attrNode, "name", attrName);
+        }
       }
 
-      /* verify this is the appropriate request type */
-      if (!ms_RequestDTD.equals(root.getTagName())) {
-         Object[] args = { ms_RequestDTD, root.getTagName() };
-         createErrorResponse(
-            request, new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
-         return;
+      /* and send the result to the caller */
+      sendXmlData(request, retDoc);
+    } catch (java.sql.SQLException e) {
+      createErrorResponse(request, e);
+    } finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        } catch (java.sql.SQLException e) {
+          /* ignore this */
+        }
       }
+    }
+  }
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
+  /**
+   * Shutdown the request handler, freeing any associated resources.
+   */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 
-      String instanceName = tree.getElementData("instanceName");
-
-      /* parse the tableType string and build an array from it */
-      java.util.ArrayList typeList = new java.util.ArrayList();
-      while (tree.getNextElement("objectType", true, false) != null) {
-         typeList.add(tree.getElementData((Element)tree.getCurrent()));
-      }
-      String[] objectTypes = null;
-      final int typeListSize = typeList.size();
-      if (typeListSize != 0)
-      {
-         objectTypes = new String[typeListSize];
-         typeList.toArray(objectTypes);
-      }
-
-      Document   retDoc = PSXmlDocumentBuilder.createXmlDocument();
-
-      root = PSXmlDocumentBuilder.createRoot(retDoc, (ms_RequestDTD + "Results"));
-
-      if (instanceName != null)
-         PSXmlDocumentBuilder.addElement(retDoc, root, "instanceName", instanceName);
-
-      if (objectTypes != null) {
-         for (int i = 0; i < objectTypes.length; i++)
-            PSXmlDocumentBuilder.addElement(retDoc, root, "objectType", objectTypes[i]);
-      }
-
-      ResultSet rs = null;
-      try {
-         PSSecurityProvider sp
-            = PSSecurityProviderPool.getProvider(instanceName);
-         if (sp != null) {
-            IPSSecurityProviderMetaData meta = sp.getMetaData();
-            rs = meta.getAttributes(objectTypes);
-            while (rs.next()) {
-               String objectType = rs.getString(1);
-               String attrName = rs.getString(2);
-
-               Element attrNode = PSXmlDocumentBuilder.addEmptyElement(
-                  retDoc, root, "Attributes");
-               attrNode.setAttribute("type", objectType);
-               PSXmlDocumentBuilder.addElement(
-                  retDoc, attrNode, "name", attrName);
-            }
-         }
-
-         /* and send the result to the caller */
-         sendXmlData(request, retDoc);
-      } catch (java.sql.SQLException e) {
-         createErrorResponse(request, e);
-      } finally {
-         if (rs != null) {
-            try { rs.close(); }
-            catch (java.sql.SQLException e) { /* ignore this */ }
-         }
-      }
-   }
-
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
-
-   private static final String   ms_RequestCategory   = "security";
-   private static final String   ms_RequestType         = "Attributes";
-   private static final String   ms_RequestDTD         = "PSXSecurityAttributesCatalog";
+  private static final String ms_RequestCategory = "security";
+  private static final String ms_RequestType = "Attributes";
+  private static final String ms_RequestDTD = "PSXSecurityAttributesCatalog";
 }
-

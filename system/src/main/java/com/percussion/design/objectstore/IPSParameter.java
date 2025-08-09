@@ -21,29 +21,26 @@ package com.percussion.design.objectstore;
  * This interface represents a parameter whose value is represented by a
  * <code>IPSReplacementValue</code>.
  */
-public interface IPSParameter extends Cloneable
-{
-   /**
-    * Gets the value associated with this parameter.
-    *
-    * @return this parameter's value, never <code>null</code>.
-    */
-   public IPSReplacementValue getValue();
-   
- 
-   /**
-    * Sets the value associated with this parameter.
-    *
-    * @param value the new parameter value, not <code>null</code>.
-    * @throws IllegalArgumentException if the value is <code>null</code>.
-    */
-   public void setValue(IPSReplacementValue value);
-   
-   
-   /**
-    * Creates a new instance of this object, deep copying all member variables.
-    * @return a clone of this instance.
-    */
-   @Deprecated
-   public Object clone();
+public interface IPSParameter extends Cloneable {
+  /**
+   * Gets the value associated with this parameter.
+   *
+   * @return this parameter's value, never <code>null</code>.
+   */
+  public IPSReplacementValue getValue();
+
+  /**
+   * Sets the value associated with this parameter.
+   *
+   * @param value the new parameter value, not <code>null</code>.
+   * @throws IllegalArgumentException if the value is <code>null</code>.
+   */
+  public void setValue(IPSReplacementValue value);
+
+  /**
+   * Creates a new instance of this object, deep copying all member variables.
+   * @return a clone of this instance.
+   */
+  @Deprecated
+  public Object clone();
 }

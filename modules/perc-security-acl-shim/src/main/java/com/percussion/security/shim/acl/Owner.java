@@ -18,14 +18,13 @@ package com.percussion.security.shim.acl;
 
 import java.security.Principal;
 
-/**
- * Minimal compatibility interface mirroring java.security.acl.Owner.
- */
+/** Minimal compatibility interface mirroring java.security.acl.Owner. */
 public interface Owner {
 
-    boolean addOwner(Principal caller, Principal owner) throws NotOwnerException;
+  boolean addOwner(Principal caller, Principal owner) throws NotOwnerException;
 
-    boolean deleteOwner(Principal caller, Principal owner) throws NotOwnerException, LastOwnerException;
+  boolean deleteOwner(Principal caller, Principal owner)
+      throws NotOwnerException, LastOwnerException;
 
-    boolean isOwner(Principal owner);
+  boolean isOwner(Principal owner);
 }

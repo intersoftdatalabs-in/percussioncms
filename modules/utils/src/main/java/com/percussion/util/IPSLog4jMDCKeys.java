@@ -16,7 +16,6 @@
  */
 package com.percussion.util;
 
-
 /**
  * Defines MDC keys.
  * Custom keys can also be supplied in the log4j config, ie:
@@ -33,24 +32,22 @@ package com.percussion.util;
  * The actual values are automatically introspected, so there is no need
  * to modify anything else.
  */
-public interface IPSLog4jMDCKeys
-{
-   public final static String MDC_KEY_VERSION = "version";
-   public final static String MDC_KEY_DATE = "date";
+public interface IPSLog4jMDCKeys {
+  public static final String MDC_KEY_VERSION = "version";
+  public static final String MDC_KEY_DATE = "date";
 
-   public final static String MDC_KEY_PUB_PUBLISHER_ID = "publisherId";
-   public final static String MDC_KEY_PUB_PUBLICATION_ID = "publicationId";
-   public final static String MDC_KEY_PUB_SITE_ID = "siteId";
-   public final static String MDC_KEY_PUB_EDITION_ID = "editionId";
-   public final static String MDC_KEY_PUB_CLIST_ID = "clistId";
-   public final static String MDC_KEY_PUB_CONTENT_TYPE_ID = "ctypeId";
-   public final static String MDC_KEY_PUB_CONTENT_ID = "contentId";
-   public final static String MDC_KEY_PUB_ACTION = "action";
-   public final static String MDC_KEY_PUB_STATUS = "status";
-   public final static String MDC_KEY_PUB_ITEMS_Inserted = "inserted";
-   public final static String MDC_KEY_PUB_ITEMS_Updated = "updated";
-   public final static String MDC_KEY_PUB_ITEMS_Skipped = "skipped";
-   public final static String MDC_KEY_PUB_ITEMS_Failed = "failed";
-   public final static String MDC_KEY_PUB_ITEMS_Unpublished = "unpublished";
-
+  public static final String MDC_KEY_PUB_PUBLISHER_ID = "publisherId";
+  public static final String MDC_KEY_PUB_PUBLICATION_ID = "publicationId";
+  public static final String MDC_KEY_PUB_SITE_ID = "siteId";
+  public static final String MDC_KEY_PUB_EDITION_ID = "editionId";
+  public static final String MDC_KEY_PUB_CLIST_ID = "clistId";
+  public static final String MDC_KEY_PUB_CONTENT_TYPE_ID = "ctypeId";
+  public static final String MDC_KEY_PUB_CONTENT_ID = "contentId";
+  public static final String MDC_KEY_PUB_ACTION = "action";
+  public static final String MDC_KEY_PUB_STATUS = "status";
+  public static final String MDC_KEY_PUB_ITEMS_Inserted = "inserted";
+  public static final String MDC_KEY_PUB_ITEMS_Updated = "updated";
+  public static final String MDC_KEY_PUB_ITEMS_Skipped = "skipped";
+  public static final String MDC_KEY_PUB_ITEMS_Failed = "failed";
+  public static final String MDC_KEY_PUB_ITEMS_Unpublished = "unpublished";
 }

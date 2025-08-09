@@ -16,8 +16,6 @@
  */
 package com.percussion.install;
 
-import org.w3c.dom.Element;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import org.w3c.dom.Element;
+
 /**
  * This plugin has been written to add the DocType to the ContentEditorSystemDef
  * XML file. The upgrade process updates this file and by doing so, it is
@@ -33,81 +33,70 @@ import java.io.PrintWriter;
  */
 
 // REFACTORED: CP-JAVA11
-public class PSUpgradePluginAddDocTypeCEDef implements IPSUpgradePlugin
-{
-   /**
-    * Default constructor
-    */
-   public PSUpgradePluginAddDocTypeCEDef()
-   {
-   }
+public class PSUpgradePluginAddDocTypeCEDef implements IPSUpgradePlugin {
+  /**
+   * Default constructor
+   */
+  public PSUpgradePluginAddDocTypeCEDef() {}
 
-   /**
-    * Implements the process function of IPSUpgardePlugin.
-    * @param config PSUpgradeModule object.
-    * @param elemData We do not use this element in this function.
-    * @return <code>null</code>
-    */
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
+  /**
+   * Implements the process function of IPSUpgardePlugin.
+   * @param config PSUpgradeModule object.
+   * @param elemData We do not use this element in this function.
+   * @return <code>null</code>
+   */
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
 
-      config.getLogStream().println("Adding DOCTYPE to file " +
-         "ContentEditorSystemdef.xml...");
+    config.getLogStream().println("Adding DOCTYPE to file " + "ContentEditorSystemdef.xml...");
 
-      File file = null;
-      PrintWriter pw = null;
-      ByteArrayOutputStream bos = null;
-      FileInputStream fis = null;
-      try
-      {
-         file = new File(RxUpgrade.getRxRoot() +
-            "rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml");
+    File file = null;
+    PrintWriter pw = null;
+    ByteArrayOutputStream bos = null;
+    FileInputStream fis = null;
+    try {
+      file =
+          new File(
+              RxUpgrade.getRxRoot() + "rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml");
 
-         fis = new FileInputStream(file);
-         bos = new ByteArrayOutputStream();
-         copyStream(fis, bos);
-         String docStr = bos.toString();
-         
-         docStr = InstallUtil.addDocType(docStr, "ContentEditorSystemDef",
-               "SYSTEM", "sys_ContentEditorSystemDef.dtd");
-         pw = new PrintWriter(new FileOutputStream(file));
-         pw.write(docStr);
-         file =  new File(RxUpgrade.getRxRoot() +
-         "rxconfig/Server/ContentEditors/DTD/sys_ContentEditorSystemDef.dtd");
-         if(file.exists())
-         {
-            file.delete();
-         }
-         file =  new File(RxUpgrade.getRxRoot() +
-            "rxconfig/Server/ContentEditors/DTD/sys_BasicObjects.dtd");
-         if(file.exists())
-         {
-            file.delete();
-         }
+      fis = new FileInputStream(file);
+      bos = new ByteArrayOutputStream();
+      copyStream(fis, bos);
+      String docStr = bos.toString();
+
+      docStr =
+          InstallUtil.addDocType(
+              docStr, "ContentEditorSystemDef", "SYSTEM", "sys_ContentEditorSystemDef.dtd");
+      pw = new PrintWriter(new FileOutputStream(file));
+      pw.write(docStr);
+      file =
+          new File(
+              RxUpgrade.getRxRoot()
+                  + "rxconfig/Server/ContentEditors/DTD/sys_ContentEditorSystemDef.dtd");
+      if (file.exists()) {
+        file.delete();
       }
-      catch(Exception e)
-      {
-         e.printStackTrace(config.getLogStream());
+      file =
+          new File(
+              RxUpgrade.getRxRoot() + "rxconfig/Server/ContentEditors/DTD/sys_BasicObjects.dtd");
+      if (file.exists()) {
+        file.delete();
       }
-      finally
-      {
-         try
-         {
-            if(pw != null)
-            {
-               pw.close();
-               pw =null;
-            }
-         }
-         catch(Throwable t)
-         {
-         }
+    } catch (Exception e) {
+      e.printStackTrace(config.getLogStream());
+    } finally {
+      try {
+        if (pw != null) {
+          pw.close();
+          pw = null;
+        }
+      } catch (Throwable t) {
       }
-      config.getLogStream().println("leaving the process() of the plugin...");
-      return null;
-   }
-   
-   /**
+    }
+    config.getLogStream().println("leaving the process() of the plugin...");
+    return null;
+  }
+
+  /**
    * Method to copy Java InputStream to OutputStream.
    *
    * @param in Input stream tp copy from, never <code>null</code>.
@@ -119,21 +108,19 @@ public class PSUpgradePluginAddDocTypeCEDef implements IPSUpgradePlugin
    * @throws IOException in case of any error while copying.
    *
    */
-   public static long copyStream(InputStream in, OutputStream out)
-      throws IOException
-   {
-      int nCopied = 0;
-      final byte[] buffer = new byte[ DEFAULT_BUFFER_SIZE ];
-      int n = 0;
-      while( -1 != (n = in.read( buffer )) )
-      {
-          out.write( buffer, 0, n );
-          nCopied += n;
-      }
-      return nCopied;
-   }
-   /**
-    * default buffer size
-    */
-   private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+  public static long copyStream(InputStream in, OutputStream out) throws IOException {
+    int nCopied = 0;
+    final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+    int n = 0;
+    while (-1 != (n = in.read(buffer))) {
+      out.write(buffer, 0, n);
+      nCopied += n;
+    }
+    return nCopied;
+  }
+
+  /**
+   * default buffer size
+   */
+  private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 }

@@ -25,13 +25,11 @@ import com.percussion.error.PSException;
  *
  * @author paulhoward
  */
-public class PSAdminLockedException extends PSException
-{
-   /**
-    * Ctor
-    */
-   public PSAdminLockedException()
-   {
-      super(IPSSearchErrors.ADMIN_HANDLER_LOCKED);
-   }
+public class PSAdminLockedException extends PSException {
+  /**
+   * Ctor
+   */
+  public PSAdminLockedException() {
+    super(IPSSearchErrors.ADMIN_HANDLER_LOCKED);
+  }
 }

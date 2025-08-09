@@ -22,5 +22,4 @@ package com.percussion.extension;
  *
  * @author paulhoward
  */
-public interface IPSFieldVisibilityRule extends IPSUdfProcessor
-{}
+public interface IPSFieldVisibilityRule extends IPSUdfProcessor {}

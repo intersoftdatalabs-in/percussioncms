@@ -17,17 +17,14 @@
 
 package com.percussion.utils.container;
 
-
 import java.nio.file.Path;
 import java.util.List;
 
 public interface IPSConnectorInfo<T extends IPSConnector> {
 
-    Path getConnectorFileContext();
+  Path getConnectorFileContext();
 
-    List<T> getConnectors();
+  List<T> getConnectors();
 
-    void setConnectors(List<T> connectors);
-
-
+  void setConnectors(List<T> connectors);
 }

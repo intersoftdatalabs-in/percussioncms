@@ -23,40 +23,35 @@ import java.util.regex.Pattern;
 /**
  * See super class
  */
-public class PSUpdateTomcatPortInTables extends PSExecSQLStmt
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      String sqlStr = getSql();
-      String patternStr = "CATALINA_PORT";
-      Pattern pattern = Pattern.compile(patternStr);
-      Matcher matcher = pattern.matcher(sqlStr);
-      sqlStr = matcher.replaceAll(tomcatPort);
-      setSql(sqlStr);
-      super.execute();   
-   }
-   
-   /**
-    * @return Returns the tomcatPort.
-    */
-   public String getTomcatPort()
-   {
-      return tomcatPort;
-   }
-   /**
-    * @param tokens The tomcatPort to set.
-    */
-   public void setTomcatPort(String token)
-   {
-      this.tomcatPort = token;
-   }
-   
-   /**
-    * Tomcat port from the tomcat panel
-    */
-   protected String tomcatPort = "9992";
+public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
+  // see base class
+  @Override
+  public void execute() {
+    String sqlStr = getSql();
+    String patternStr = "CATALINA_PORT";
+    Pattern pattern = Pattern.compile(patternStr);
+    Matcher matcher = pattern.matcher(sqlStr);
+    sqlStr = matcher.replaceAll(tomcatPort);
+    setSql(sqlStr);
+    super.execute();
+  }
+
+  /**
+   * @return Returns the tomcatPort.
+   */
+  public String getTomcatPort() {
+    return tomcatPort;
+  }
+
+  /**
+   * @param tokens The tomcatPort to set.
+   */
+  public void setTomcatPort(String token) {
+    this.tomcatPort = token;
+  }
+
+  /**
+   * Tomcat port from the tomcat panel
+   */
+  protected String tomcatPort = "9992";
 }
-
-

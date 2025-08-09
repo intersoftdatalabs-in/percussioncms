@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * 
+ *
  */
 package com.percussion.extension;
 
@@ -25,10 +25,10 @@ package com.percussion.extension;
  * <p>
  * The field value is available in a request parameter of the same name and can
  * be obtained either by configuring a Single HTML Parameter replacement value
- * as an input parameter to the extension, or else directly from the request 
+ * as an input parameter to the extension, or else directly from the request
  * context. The <code>processUdf()</code> method must return an object of type
  * <code>Boolean</code> indicating <code>true</code> if the field passed
- * validation, <code>false</code> if not. 
+ * validation, <code>false</code> if not.
  * <p>
  * At run-time, the extension handler that handles this extension will
  * construct an instance of this class. This occurs when Rhythmyx calls
@@ -48,7 +48,4 @@ package com.percussion.extension;
  * <code>java.lang.ThreadLocal</code> to define thread specific
  * copies of the variable.
  */
-public interface IPSFieldValidator extends IPSUdfProcessor
-{
-
-}
+public interface IPSFieldValidator extends IPSUdfProcessor {}

@@ -23,7 +23,6 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
  * This is an abstract class that implements a simple name entry in the
  * database. A name entry has an internal name, external (or display) name
@@ -37,210 +36,168 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSName extends PSDbComponent
-{
-   /**
-    * The only ctor.
-    *
-    * @param key Never <code>null</code>.
-    */
-   protected PSName(PSKey key)
-   {
-      super(key);
-   }
+public class PSName extends PSDbComponent {
+  /**
+   * The only ctor.
+   *
+   * @param key Never <code>null</code>.
+   */
+  protected PSName(PSKey key) {
+    super(key);
+  }
 
-   //*>>>debug
-   protected PSName(PSKey key, String name, String dname, String desc)
-   {
-      super(key);
-      m_name = name;
-      m_displayName = dname;
-      m_description = desc == null ? "" : desc;
-   }
-   //*///<<<debug
+  // *>>>debug
+  protected PSName(PSKey key, String name, String dname, String desc) {
+    super(key);
+    m_name = name;
+    m_displayName = dname;
+    m_description = desc == null ? "" : desc;
+  }
 
-   /**
-    * An internal identifier for this mode. Use getDisplayName() for an
-    * external identifier.
-    *
-    * @return Never <code>null</code> or empty.
-    */
-   public String getName()
-   {
-      return m_name;
-   }
+  // *///<<<debug
 
+  /**
+   * An internal identifier for this mode. Use getDisplayName() for an
+   * external identifier.
+   *
+   * @return Never <code>null</code> or empty.
+   */
+  public String getName() {
+    return m_name;
+  }
 
-   /**
-    * An external identifier for this mode. Use getName() for an internal
-    * identifier.
-    *
-    * @return Never <code>null</code> or empty.
-    */
-   public String getDisplayName()
-   {
-      return m_displayName;
-   }
+  /**
+   * An external identifier for this mode. Use getName() for an internal
+   * identifier.
+   *
+   * @return Never <code>null</code> or empty.
+   */
+  public String getDisplayName() {
+    return m_displayName;
+  }
 
+  // see interface/base class for description
+  public String getDescription() {
+    return m_description;
+  }
 
-   //see interface/base class for description
-   public String getDescription()
-   {
-      return m_description;
-   }
+  /**
+   * See interface/base class for description.
+   * The dtd (based on the base class) is:
+   * <pre><code>
+   *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName(),
+   *       Description?)&gt;
+   *    &lt;!ATTLIST getNodeName()
+   *       state (DBSTATE_xxx)
+   *       name CDATA #REQUIRED
+   *       displayName CDATA #REQUIRED
+   *       &gt;
+   *    &lt;!ELEMENT Description (#PCDATA)&gt;
+   * </code></pre>
+   */
+  public Element toXml(Document doc) {
+    Element root = super.toXml(doc);
+    root.setAttribute(XML_ATTR_NAME, m_name);
+    root.setAttribute(XML_ATTR_DISPLAYNAME, m_displayName);
+    if (m_description.length() > 0) {
+      PSXmlDocumentBuilder.addElement(doc, root, XML_ELEM_DESCRIPTION, m_description);
+    }
+    return root;
+  }
 
+  // see interface/base class for description
+  public void fromXml(Element source) throws PSUnknownNodeTypeException {
+    super.fromXml(source);
+    m_name = PSXMLDomUtil.checkAttribute(source, XML_ATTR_NAME, true);
+    m_displayName = PSXMLDomUtil.checkAttribute(source, XML_ATTR_DISPLAYNAME, true);
 
-   /**
-    * See interface/base class for description.
-    * The dtd (based on the base class) is:
-    * <pre><code>
-    *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName(),
-    *       Description?)&gt;
-    *    &lt;!ATTLIST getNodeName()
-    *       state (DBSTATE_xxx)
-    *       name CDATA #REQUIRED
-    *       displayName CDATA #REQUIRED
-    *       &gt;
-    *    &lt;!ELEMENT Description (#PCDATA)&gt;
-    * </code></pre>
-    */
-   public Element toXml(Document doc)
-   {
-      Element root = super.toXml(doc);
-      root.setAttribute(XML_ATTR_NAME, m_name);
-      root.setAttribute(XML_ATTR_DISPLAYNAME, m_displayName);
-      if (m_description.length() > 0)
-      {
-         PSXmlDocumentBuilder.addElement(doc, root, XML_ELEM_DESCRIPTION,
-               m_description);
-      }
-      return root;
-   }
+    Element kEl = PSXMLDomUtil.getFirstElementChild(source); // skip the key
+    Element el = PSXMLDomUtil.getNextElementSibling(kEl);
+    if (null != el) m_description = PSXMLDomUtil.getElementData(el);
+  }
 
+  // see interface/base class for description
+  public boolean equalsFull(Object obj) {
+    if (!equals(obj)) return false;
+    else if (!super.equalsFull(obj)) return false;
+    return true;
+  }
 
-   //see interface/base class for description
-   public void fromXml(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      super.fromXml(source);
-      m_name = PSXMLDomUtil.checkAttribute(source, XML_ATTR_NAME, true);
-      m_displayName = PSXMLDomUtil.checkAttribute(source, XML_ATTR_DISPLAYNAME,
-            true);
+  // see interface/base class for description
+  public boolean equals(Object obj) {
+    if (!super.equals(obj)) return false;
 
-      Element kEl = PSXMLDomUtil.getFirstElementChild(source); // skip the key
-      Element el = PSXMLDomUtil.getNextElementSibling(kEl);
-      if (null != el)
-         m_description = PSXMLDomUtil.getElementData(el);
-   }
+    PSName other = (PSName) obj;
 
+    if (!m_name.equalsIgnoreCase(other.m_name)) return false;
+    else if (!m_displayName.equalsIgnoreCase(other.m_displayName)) return false;
+    else if (!m_description.equalsIgnoreCase(other.m_description)) return false;
 
-   //see interface/base class for description
-   public boolean equalsFull(Object obj)
-   {
-      if (!equals(obj))
-         return false;
-      else if (!super.equalsFull(obj))
-         return false;
-      return true;
-   }
+    return true;
+  }
 
+  /**
+   * Generates code of the object. Overrides {@link Object#hashCode().
+   */
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
 
-   //see interface/base class for description
-   public boolean equals(Object obj)
-   {
-      if (!super.equals(obj))
-         return false;
+  /**
+   * This class is read-only.
+   *
+   * @throws UnsupportedOperationException Always.
+   */
+  public void setState(String parm1) {
+    throw new UnsupportedOperationException("This object is read only.");
+  }
 
-      PSName other = (PSName) obj;
+  /**
+   * This class never modifies the db, so this action is a noop.
+   */
+  public void setDeleted() {}
 
-      if (!m_name.equalsIgnoreCase(other.m_name))
-         return false;
-      else if (!m_displayName.equalsIgnoreCase(other.m_displayName))
-         return false;
-      else if (!m_description.equalsIgnoreCase(other.m_description))
-         return false;
+  /**
+   * This class never modifies the db, so this action is a noop.
+   */
+  public void setPersisted() throws PSCmsException {}
 
-      return true;
-   }
+  // constants for element/attribute names
+  public static final String XML_ATTR_NAME = "name";
+  public static final String XML_ATTR_DISPLAYNAME = "displayName";
+  public static final String XML_ELEM_DESCRIPTION = "Description";
 
-   /**
-    * Generates code of the object. Overrides {@link Object#hashCode().
-    */
-   @Override
-   public int hashCode()
-   {
-      return super.hashCode();
-   }
+  /**
+   * The internal name for this mode. Never <code>null</code>, empty or
+   * modified after construction.
+   */
+  private String m_name;
 
-   /**
-    * This class is read-only.
-    *
-    * @throws UnsupportedOperationException Always.
-    */
-   public void setState(String parm1)
-   {
-      throw new UnsupportedOperationException("This object is read only.");
-   }
+  /**
+   * The name shown to the implmentors.Never <code>null</code>, empty or
+   * modified after construction.
+   */
+  private String m_displayName;
 
+  /**
+   * How is this mode used. Never <code>null</code> or modified after
+   * construction. May be empty. Defaults to "".
+   */
+  private String m_description = "";
 
-   /**
-    * This class never modifies the db, so this action is a noop.
-    */
-   public void setDeleted()
-   {
-   }
+  /**
+   * Does nothing.
+   */
+  public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
+      throws PSCmsException {}
 
-
-   /**
-    * This class never modifies the db, so this action is a noop.
-    */
-   public void setPersisted()
-      throws PSCmsException
-   {
-   }
-
-
-   //constants for element/attribute names
-   public static final String XML_ATTR_NAME = "name";
-   public static final String XML_ATTR_DISPLAYNAME = "displayName";
-   public static final String XML_ELEM_DESCRIPTION = "Description";
-
-   /**
-    * The internal name for this mode. Never <code>null</code>, empty or
-    * modified after construction.
-    */
-   private String m_name;
-
-   /**
-    * The name shown to the implmentors.Never <code>null</code>, empty or
-    * modified after construction.
-    */
-   private String m_displayName;
-
-   /**
-    * How is this mode used. Never <code>null</code> or modified after
-    * construction. May be empty. Defaults to "".
-    */
-   private String m_description = "";
-
-
-   /**
-    * Does nothing.
-    */
-   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen,
-         PSKey parent)
-      throws PSCmsException
-   {
-   }
-
-
-   /**
-    * This class is read-only.
-    *
-    * @throws UnsupportedOperationException Always.
-    */
-   public void setLocator(PSKey locator)
-   {
-      throw new UnsupportedOperationException("This object is read only.");
-   }
+  /**
+   * This class is read-only.
+   *
+   * @throws UnsupportedOperationException Always.
+   */
+  public void setLocator(PSKey locator) {
+    throw new UnsupportedOperationException("This object is read only.");
+  }
 }

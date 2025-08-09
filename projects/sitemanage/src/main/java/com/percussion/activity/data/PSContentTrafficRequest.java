@@ -24,46 +24,46 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A request object used for getting the content traffic data from the rest service. 
+ * A request object used for getting the content traffic data from the rest service.
  */
 @JsonRootName(value = "ContentTrafficRequest")
 public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String granularity;
-    private List<String> trafficRequested;
+  private String granularity;
+  private List<String> trafficRequested;
 
-    /**
-     * Get granularity of date list.
-     * @return Option returned is DAYS,WEEKS,MONTHS,or YEARS.
-     */
-    public Optional<String> getGranularity() {
-        return Optional.ofNullable(granularity);
-    }
+  /**
+   * Get granularity of date list.
+   * @return Option returned is DAYS,WEEKS,MONTHS,or YEARS.
+   */
+  public Optional<String> getGranularity() {
+    return Optional.ofNullable(granularity);
+  }
 
-    /**
-     * @return trafficRequested list of types of date that is getting requested.
-     * Options are: livePages,pageUpdates,newPages,takeDowns,visits
-     */
-    public Optional<List<String>> getTrafficRequested() {
-        return Optional.ofNullable(trafficRequested);
-    }
+  /**
+   * @return trafficRequested list of types of date that is getting requested.
+   * Options are: livePages,pageUpdates,newPages,takeDowns,visits
+   */
+  public Optional<List<String>> getTrafficRequested() {
+    return Optional.ofNullable(trafficRequested);
+  }
 
-    /**
-     * Sets granularity of date list returned.  Options are DAYS,WEEKS,MONTHS,YEARS.
-     * @param granularity
-     */
-    public void setGranularity(String granularity) {
-        this.granularity = granularity;
-    }
+  /**
+   * Sets granularity of date list returned.  Options are DAYS,WEEKS,MONTHS,YEARS.
+   * @param granularity
+   */
+  public void setGranularity(String granularity) {
+    this.granularity = granularity;
+  }
 
-    /**
-     * List of traffic data types that is getting requested.
-     * Options are: livePages,pageUpdates,newPages,takeDowns,visits
-     * @param trafficRequested
-     */
-    public void setTrafficRequested(List<String> trafficRequested) {
-        this.trafficRequested = trafficRequested;
-    }
+  /**
+   * List of traffic data types that is getting requested.
+   * Options are: livePages,pageUpdates,newPages,takeDowns,visits
+   * @param trafficRequested
+   */
+  public void setTrafficRequested(List<String> trafficRequested) {
+    this.trafficRequested = trafficRequested;
+  }
 }

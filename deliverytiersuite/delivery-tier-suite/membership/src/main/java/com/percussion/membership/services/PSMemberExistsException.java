@@ -16,12 +16,9 @@
  */
 package com.percussion.membership.services;
 
-public class PSMemberExistsException extends Exception
-{
+public class PSMemberExistsException extends Exception {
 
-    public PSMemberExistsException(String userId)
-    {
-        super("User already exists: " + userId);
-    }
-
+  public PSMemberExistsException(String userId) {
+    super("User already exists: " + userId);
+  }
 }

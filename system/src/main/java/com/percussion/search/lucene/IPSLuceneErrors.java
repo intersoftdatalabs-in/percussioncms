@@ -47,121 +47,118 @@ package com.percussion.search.lucene;
  * </TR>
  * </TABLE> The message strings for search messages are stored in the i18n
  * resource bundle, not the error string bundle.
- * 
+ *
  * @author bjoginipally
- * 
+ *
  */
-
-public interface IPSLuceneErrors
-{
-   /**
-    * The search engine failed to start because a property that specifies the
-    * location of the index files was missing or pointing to an 
-    * invalid directory.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the parameter.</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_DIR_PARAM_INVALID_MISSING = 16311;
-   
-   
-   /**
-    * The search engine failed to start because a property that specifies the
-    * location of the index files was missing or pointing to an 
-    * invalid directory.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type id.</TD></TR>
-    * <TR><TD>1</TD><TD>Directory path</TD></TR>
-    * </TABLE>
-    */
-   public static final int INVALID_INDEX_DIRECTORY = 16366;
-   
-   /**
-    * A CorruptIndexException is thrown by the system while accessing or
-    * optimizing or closing during searching process by Lucene Search engine.
+public interface IPSLuceneErrors {
+  /**
+   * The search engine failed to start because a property that specifies the
+   * location of the index files was missing or pointing to an
+   * invalid directory.
    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_CURRUPTED_EXCEPTION_INDEXING = 16402;
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The name of the parameter.</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_DIR_PARAM_INVALID_MISSING = 16311;
 
-   /**
-    * A IOException is thrown by the system while accessing or
-    * optimizing or closing during searching process by Lucene Search engine.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_IO_EXCEPTION_INDEXING = 16403;
-
-   /**
-    * An error is thrown by the system while optimizing the indexes. 
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type ids</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_OPTIMIZATION_ERROR = 16404;
-
-   /**
-    * A CorruptIndexException is thrown by the system while accessing or
-    * optimizing or closing during searching process by Lucene Search engine.
+  /**
+   * The search engine failed to start because a property that specifies the
+   * location of the index files was missing or pointing to an
+   * invalid directory.
    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_CURRUPTED_EXCEPTION_SEARCHING = 16451;
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type id.</TD></TR>
+   * <TR><TD>1</TD><TD>Directory path</TD></TR>
+   * </TABLE>
+   */
+  public static final int INVALID_INDEX_DIRECTORY = 16366;
 
-   /**
-    * A IOException is thrown by the system while accessing or
-    * optimizing or closing during searching process by Lucene Search engine.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-    * </TABLE>
-    */
-   public static final int INDEX_IO_EXCEPTION_SEARCHING = 16452;
+  /**
+   * A CorruptIndexException is thrown by the system while accessing or
+   * optimizing or closing during searching process by Lucene Search engine.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type id</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_CURRUPTED_EXCEPTION_INDEXING = 16402;
 
-   /**
-    * A Repository Exception is thrown by the system while loading the content
-    * types during the search process.
-    */
-   public static final int REPOSITORY_EXCEPTION = 16453;
-   
-   /**
-    * An IOException is thrown by the system while extracting the results from
-    * hits
-    */
-   public static final int HITS_IOEXCEPTION = 16454;
+  /**
+   * A IOException is thrown by the system while accessing or
+   * optimizing or closing during searching process by Lucene Search engine.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type id</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_IO_EXCEPTION_INDEXING = 16403;
 
-   /**
-    * An IOException is thrown by the system while extracting the results from
-    * hits
-    */
-   public static final int SEARCH_QUERY_PARSEEXCEPTION = 16455;
+  /**
+   * An error is thrown by the system while optimizing the indexes.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type ids</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_OPTIMIZATION_ERROR = 16404;
 
-   /**
-    * An IOException is thrown by the system while extracting the results from
-    * hits
-    */
-   public static final int SEARCH_QUERY_MULTISEARCHER = 16456;
+  /**
+   * A CorruptIndexException is thrown by the system while accessing or
+   * optimizing or closing during searching process by Lucene Search engine.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type id</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_CURRUPTED_EXCEPTION_SEARCHING = 16451;
+
+  /**
+   * A IOException is thrown by the system while accessing or
+   * optimizing or closing during searching process by Lucene Search engine.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>Content type id</TD></TR>
+   * </TABLE>
+   */
+  public static final int INDEX_IO_EXCEPTION_SEARCHING = 16452;
+
+  /**
+   * A Repository Exception is thrown by the system while loading the content
+   * types during the search process.
+   */
+  public static final int REPOSITORY_EXCEPTION = 16453;
+
+  /**
+   * An IOException is thrown by the system while extracting the results from
+   * hits
+   */
+  public static final int HITS_IOEXCEPTION = 16454;
+
+  /**
+   * An IOException is thrown by the system while extracting the results from
+   * hits
+   */
+  public static final int SEARCH_QUERY_PARSEEXCEPTION = 16455;
+
+  /**
+   * An IOException is thrown by the system while extracting the results from
+   * hits
+   */
+  public static final int SEARCH_QUERY_MULTISEARCHER = 16456;
 }

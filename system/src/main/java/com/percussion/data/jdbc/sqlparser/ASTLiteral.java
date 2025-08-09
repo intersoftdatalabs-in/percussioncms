@@ -26,14 +26,12 @@ public class ASTLiteral extends SimpleNode {
     super(p, id);
   }
 
-  public void setValue(Comparable value)
-  {
-     m_value = value;
+  public void setValue(Comparable value) {
+    m_value = value;
   }
 
-  public Comparable getValue()
-  {
-     return m_value;
+  public Comparable getValue() {
+    return m_value;
   }
 
   private Comparable m_value;

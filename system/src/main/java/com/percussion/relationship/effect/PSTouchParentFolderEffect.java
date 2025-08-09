@@ -26,16 +26,11 @@ import com.percussion.relationship.IPSExecutionContext;
  * {@link IPSExecutionContext#RS_PRE_UPDATE}.
  * <p>
  * It will only touch the dependents who are in public or
- * quick-edit state. It "touches" the last modified date for the dependents 
- * and their Active Assembly relationship parents, so that they will be picked 
+ * quick-edit state. It "touches" the last modified date for the dependents
+ * and their Active Assembly relationship parents, so that they will be picked
  * up by the next incremental publishing. For folder dependents, it touches
  * all item descendants of the folders, but not the folder themselves.
- * <p> 
+ * <p>
  * @deprecated Please use {@link PSTouchItemsFolderEffect}
  */
-public class PSTouchParentFolderEffect extends PSTouchItemsFolderEffect
-{
-   
-}
-
-
+public class PSTouchParentFolderEffect extends PSTouchItemsFolderEffect {}

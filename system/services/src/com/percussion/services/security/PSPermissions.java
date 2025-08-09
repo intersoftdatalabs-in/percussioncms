@@ -16,7 +16,7 @@
  */
 package com.percussion.services.security;
 
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.Permission;
 
 public enum PSPermissions implements Permission
 {

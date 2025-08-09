@@ -21,9 +21,7 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
-
 import java.util.Locale;
-
 
 /**
  * The PSErrorManager class is used to load the error string resources and
@@ -74,65 +72,47 @@ import java.util.Locale;
 // REFACTORED: CP-JAVA11
 public class PSErrorManagerImpl extends PSErrorManagerDefaultImpl {
 
- @Override
- public String getErrorText( int code,
-                             boolean nullNotFound,
-                             String language) {
+  @Override
+  public String getErrorText(int code, boolean nullNotFound, String language) {
 
     String key = null;
-    try
-    {
-       key = Integer.toString(code);
+    try {
+      key = Integer.toString(code);
+    } catch (Exception e) {
+      // do nothing
     }
-    catch(Exception e)
-    {
-       //do nothing
-    }
-    if(key == null)
-       return null;
-    //Get the string from TMX resource bundle
+    if (key == null) return null;
+    // Get the string from TMX resource bundle
     String result = PSI18nUtils.getString(key, language);
 
-    if(result.equals(key) && nullNotFound) { //resource not found}
-       return super.getErrorText(code,
-       nullNotFound,
-       language);
+    if (result.equals(key) && nullNotFound) { // resource not found}
+      return super.getErrorText(code, nullNotFound, language);
     }
 
     return result;
- }
+  }
 
-    @Override
-   public String getErrorText( int code,
-                               boolean nullNotFound,
-                               Locale loc) {
-          //first look in the i18n resource
-         PSRequest req = null;
+  @Override
+  public String getErrorText(int code, boolean nullNotFound, Locale loc) {
+    // first look in the i18n resource
+    PSRequest req = null;
 
-         if (ms_isServerSide) {
-            String lang = null;
-            if (req != null) {
-               IPSRequestContext ctx = new PSRequestContext(req);
-               lang = ctx.getUserLocale();
-            }
-
-            if (null == lang) {
-               lang = PSI18nUtils.DEFAULT_LANG;
-            }
-
-            String key = String.valueOf(code);
-            String i18nMsg = PSI18nUtils.getString(key, lang);
-            if (i18nMsg != null && !i18nMsg.equals(key))
-               return i18nMsg;
-         }
-
-         return super.getErrorText(code,
-                 nullNotFound,
-                 loc);
+    if (ms_isServerSide) {
+      String lang = null;
+      if (req != null) {
+        IPSRequestContext ctx = new PSRequestContext(req);
+        lang = ctx.getUserLocale();
       }
 
+      if (null == lang) {
+        lang = PSI18nUtils.DEFAULT_LANG;
+      }
 
+      String key = String.valueOf(code);
+      String i18nMsg = PSI18nUtils.getString(key, lang);
+      if (i18nMsg != null && !i18nMsg.equals(key)) return i18nMsg;
+    }
 
-
+    return super.getErrorText(code, nullNotFound, loc);
+  }
 }
-

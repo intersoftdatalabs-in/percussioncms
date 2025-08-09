@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -25,8 +25,8 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/resources</directory>
                 <filtering>true</filtering>
+                <directory>${basedir}/resources</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
@@ -36,15 +36,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>make-a-jar</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <excludes>
                         <exclude>**/perc*.properties</exclude>
@@ -53,24 +44,31 @@
                         <exclude>**/hibernate.cfg.xml</exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-a-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>install</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
+                        <phase>install</phase>
                         <configuration>
                             <packaging>jar</packaging>
                             <artifactId>${project.artifactId}</artifactId>
                             <groupId>${project.groupId}</groupId>
                             <version>${project.version}</version>
-                            <file>
-                                ${project.build.directory}/${project.artifactId}-${project.version}.jar
-                            </file>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
                         </configuration>
                     </execution>
                 </executions>
@@ -92,8 +90,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                    </webResources>
+                    <webResources/>
                     <warName>${project.artifactId}</warName>
                 </configuration>
             </plugin>
@@ -102,5 +99,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

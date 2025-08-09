@@ -18,7 +18,6 @@ package com.percussion.security.shim.acl.impl;
 
 import com.percussion.security.shim.acl.AclEntry;
 import com.percussion.security.shim.acl.Permission;
-
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -28,94 +27,94 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * In-memory implementation of AclEntry with optional negative permissions flag.
- * Mirrors java.security.acl.AclEntry behavior closely for compatibility.
+ * In-memory implementation of AclEntry with optional negative permissions flag. Mirrors
+ * java.security.acl.AclEntry behavior closely for compatibility.
  */
 public class AclEntryImpl implements AclEntry {
 
-    private Principal principal;
-    private final Set<Permission> permissions = new LinkedHashSet<>();
-    private boolean negative;
+  private Principal principal;
+  private final Set<Permission> permissions = new LinkedHashSet<>();
+  private boolean negative;
 
-    @Override
-    public boolean setPrincipal(Principal user) {
-        if (user == null) {
-            // Clearing principal is not typical in java.security.acl.AclEntry, reject nulls explicitly.
-            return false;
-        }
-        if (this.principal != null && !Objects.equals(this.principal, user)) {
-            return false;
-        }
-        this.principal = user;
-        return true;
+  @Override
+  public boolean setPrincipal(Principal user) {
+    if (user == null) {
+      // Clearing principal is not typical in java.security.acl.AclEntry, reject nulls explicitly.
+      return false;
     }
+    if (this.principal != null && !Objects.equals(this.principal, user)) {
+      return false;
+    }
+    this.principal = user;
+    return true;
+  }
 
-    @Override
-    public Principal getPrincipal() {
-        return principal;
-    }
+  @Override
+  public Principal getPrincipal() {
+    return principal;
+  }
 
-    @Override
-    public void setNegativePermissions() {
-        this.negative = true;
-    }
+  @Override
+  public void setNegativePermissions() {
+    this.negative = true;
+  }
 
-    @Override
-    public boolean isNegative() {
-        return negative;
-    }
+  @Override
+  public boolean isNegative() {
+    return negative;
+  }
 
-    @Override
-    public boolean addPermission(Permission permission) {
-        if (permission == null) return false;
-        return permissions.add(permission);
-    }
+  @Override
+  public boolean addPermission(Permission permission) {
+    if (permission == null) return false;
+    return permissions.add(permission);
+  }
 
-    @Override
-    public boolean removePermission(Permission permission) {
-        if (permission == null) return false;
-        return permissions.remove(permission);
-    }
+  @Override
+  public boolean removePermission(Permission permission) {
+    if (permission == null) return false;
+    return permissions.remove(permission);
+  }
 
-    @Override
-    public boolean checkPermission(Permission permission) {
-        if (permission == null) return false;
-        return permissions.contains(permission);
-    }
+  @Override
+  public boolean checkPermission(Permission permission) {
+    if (permission == null) return false;
+    return permissions.contains(permission);
+  }
 
-    @Override
-    public Enumeration<Permission> permissions() {
-        if (permissions.isEmpty()) {
-            return new Vector<Permission>().elements();
-        }
-        return Collections.enumeration(permissions);
+  @Override
+  public Enumeration<Permission> permissions() {
+    if (permissions.isEmpty()) {
+      return new Vector<Permission>().elements();
     }
+    return Collections.enumeration(permissions);
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("AclEntryImpl{");
-        sb.append("principal=").append(principal != null ? principal.getName() : "null");
-        sb.append(", negative=").append(negative);
-        sb.append(", permissions=").append(permissions);
-        sb.append('}');
-        return sb.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("AclEntryImpl{");
+    sb.append("principal=").append(principal != null ? principal.getName() : "null");
+    sb.append(", negative=").append(negative);
+    sb.append(", permissions=").append(permissions);
+    sb.append('}');
+    return sb.toString();
+  }
 
-    @Override
-    public int hashCode() {
-        // Define equality primarily by principal and negative flag and permission set
-        int result = Objects.hash(principal, negative);
-        result = 31 * result + permissions.hashCode();
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    // Define equality primarily by principal and negative flag and permission set
+    int result = Objects.hash(principal, negative);
+    result = 31 * result + permissions.hashCode();
+    return result;
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof AclEntryImpl)) return false;
-        AclEntryImpl other = (AclEntryImpl) obj;
-        return negative == other.negative
-                && Objects.equals(principal, other.principal)
-                && Objects.equals(permissions, other.permissions);
-    }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof AclEntryImpl)) return false;
+    AclEntryImpl other = (AclEntryImpl) obj;
+    return negative == other.negative
+        && Objects.equals(principal, other.principal)
+        && Objects.equals(permissions, other.permissions);
+  }
 }

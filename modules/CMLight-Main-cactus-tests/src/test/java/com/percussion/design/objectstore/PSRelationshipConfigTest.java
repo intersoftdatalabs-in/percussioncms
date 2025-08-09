@@ -18,58 +18,54 @@
 
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Tests for PSRelationshipConfig.
  */
 public class PSRelationshipConfigTest {
 
-    /**
-     * Get the relationship configuration set used for testing purposes.
-     *
-     * @return the relationship configuration set, never <code>null</code> or
-     *    empty.
-     * @throws Exception for any error reading the relationship configuration
-     *    set.
-     */
-    public static PSRelationshipConfigSet getConfigs() throws Exception {
-        final String PATH = "../../testing/relationshipConfigurations.xml";
-        var configXml = loadXmlResource(PATH, PSRelationshipConfigTest.class);
-        return new PSRelationshipConfigSet(configXml, null, null);
-    }
+  /**
+   * Get the relationship configuration set used for testing purposes.
+   *
+   * @return the relationship configuration set, never <code>null</code> or
+   *    empty.
+   * @throws Exception for any error reading the relationship configuration
+   *    set.
+   */
+  public static PSRelationshipConfigSet getConfigs() throws Exception {
+    final String PATH = "../../testing/relationshipConfigurations.xml";
+    var configXml = loadXmlResource(PATH, PSRelationshipConfigTest.class);
+    return new PSRelationshipConfigSet(configXml, null, null);
+  }
 
-    /**
-     * Loads an XML document from a path that is relative to the supplied class.
-     *
-     * @param path the relative path to the specified class, it may not be
-     *    <code>null</code> or empty.
-     * @param cz the class that the above path is relative to, never
-     *    <code>null</code>.
-     *
-     * @return the root element of the document, never <code>null</code>.
-     */
-    public static Element loadXmlResource(String path, Class<?> cz) throws Exception {
-        if (path == null || path.trim().isEmpty())
-            throw new IllegalArgumentException("path may not be null or empty.");
-        if (cz == null)
-            throw new IllegalArgumentException("cz may not be null.");
+  /**
+   * Loads an XML document from a path that is relative to the supplied class.
+   *
+   * @param path the relative path to the specified class, it may not be
+   *    <code>null</code> or empty.
+   * @param cz the class that the above path is relative to, never
+   *    <code>null</code>.
+   *
+   * @return the root element of the document, never <code>null</code>.
+   */
+  public static Element loadXmlResource(String path, Class<?> cz) throws Exception {
+    if (path == null || path.trim().isEmpty())
+      throw new IllegalArgumentException("path may not be null or empty.");
+    if (cz == null) throw new IllegalArgumentException("cz may not be null.");
 
-        try (InputStream in = cz.getResourceAsStream(path)) {
-            if (in == null) {
-                throw new FileNotFoundException(
-                        "Resource \"" + path + "\" was not found from " + cz);
-            }
-            Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-            return doc.getDocumentElement();
-        }
+    try (InputStream in = cz.getResourceAsStream(path)) {
+      if (in == null) {
+        throw new FileNotFoundException("Resource \"" + path + "\" was not found from " + cz);
+      }
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+      return doc.getDocumentElement();
     }
+  }
 }

@@ -30,29 +30,26 @@ import javax.xml.bind.annotation.XmlType;
  * @author davidpardini
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {"likes"})
+@XmlType(
+    name = "",
+    propOrder = {"likes"})
 @XmlRootElement(name = "likes")
-public class PSLikes
-{
+public class PSLikes {
 
-    private List<IPSLikes> likes;
+  private List<IPSLikes> likes;
 
-    public PSLikes()
-    {
-        // Default constructor
+  public PSLikes() {
+    // Default constructor
+  }
+
+  public PSLikes(List<IPSLikes> likes) {
+    this.likes = likes;
+  }
+
+  public List<IPSLikes> getLikes() {
+    if (likes == null) {
+      likes = new ArrayList<>();
     }
-
-    public PSLikes(List<IPSLikes> likes)
-    {
-        this.likes = likes;
-    }
-
-    public List<IPSLikes> getLikes()
-    {
-        if (likes == null)
-        {
-            likes = new ArrayList<>();
-        }
-        return likes;
-    }
+    return likes;
+  }
 }

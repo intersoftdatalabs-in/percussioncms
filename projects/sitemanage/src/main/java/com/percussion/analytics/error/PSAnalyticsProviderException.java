@@ -25,71 +25,71 @@ import com.percussion.share.service.exception.PSDataServiceException;
  */
 public class PSAnalyticsProviderException extends PSDataServiceException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private CAUSETYPE causeType = CAUSETYPE.UNKNOWN;
+  private CAUSETYPE causeType = CAUSETYPE.UNKNOWN;
 
-    public PSAnalyticsProviderException(String message, Throwable cause) {
-        this(message, cause, null);
+  public PSAnalyticsProviderException(String message, Throwable cause) {
+    this(message, cause, null);
+  }
+
+  public PSAnalyticsProviderException(String message, Throwable cause, CAUSETYPE type) {
+    super(message, cause);
+    if (type == null) {
+      type = CAUSETYPE.UNKNOWN;
     }
+    this.causeType = type;
+  }
 
-    public PSAnalyticsProviderException(String message, Throwable cause, CAUSETYPE type) {
-        super(message, cause);
-        if (type == null) {
-            type = CAUSETYPE.UNKNOWN;
-        }
-        this.causeType = type;
-    }
+  public PSAnalyticsProviderException(String message) {
+    this(message, CAUSETYPE.UNKNOWN);
+  }
 
-    public PSAnalyticsProviderException(String message) {
-        this(message, CAUSETYPE.UNKNOWN);
+  public PSAnalyticsProviderException(String message, CAUSETYPE type) {
+    super(message);
+    if (type == null) {
+      type = CAUSETYPE.UNKNOWN;
     }
+    this.causeType = type;
+  }
 
-    public PSAnalyticsProviderException(String message, CAUSETYPE type) {
-        super(message);
-        if (type == null) {
-            type = CAUSETYPE.UNKNOWN;
-        }
-        this.causeType = type;
-    }
+  public PSAnalyticsProviderException(Throwable cause) {
+    this(cause, null);
+  }
 
-    public PSAnalyticsProviderException(Throwable cause) {
-        this(cause, null);
+  public PSAnalyticsProviderException(Throwable cause, CAUSETYPE type) {
+    super(cause);
+    if (type == null) {
+      type = CAUSETYPE.UNKNOWN;
     }
+    this.causeType = type;
+  }
 
-    public PSAnalyticsProviderException(Throwable cause, CAUSETYPE type) {
-        super(cause);
-        if (type == null) {
-            type = CAUSETYPE.UNKNOWN;
-        }
-        this.causeType = type;
-    }
+  /**
+   * Gets the cause type enum value.
+   *
+   * @return the cause type enum value, never null. Defaults to CAUSETYPE.UNKNOWN if not set.
+   */
+  public CAUSETYPE getCauseType() {
+    return causeType;
+  }
 
-    /**
-     * Gets the cause type enum value.
-     *
-     * @return the cause type enum value, never null. Defaults to CAUSETYPE.UNKNOWN if not set.
-     */
-    public CAUSETYPE getCauseType() {
-        return causeType;
-    }
-
-    /**
-     * The cause type enumeration.
-     */
-    public enum CAUSETYPE {
-        ACCOUNT_DELETED,
-        ACCOUNT_DISABLED,
-        ANALYTICS_NOT_CONFIG,
-        AUTHENTICATION_ERROR,
-        NO_PROFILE,
-        NO_ANALYTICS_ACCOUNT,
-        NOT_VERIFIED,
-        INVALID_CREDS,
-        INVALID_DATA,
-        SESSION_EXPIRED,
-        SERVICE_UNAVAILABLE,
-        TERMS_NOT_AGREED,
-        UNKNOWN
-    }
+  /**
+   * The cause type enumeration.
+   */
+  public enum CAUSETYPE {
+    ACCOUNT_DELETED,
+    ACCOUNT_DISABLED,
+    ANALYTICS_NOT_CONFIG,
+    AUTHENTICATION_ERROR,
+    NO_PROFILE,
+    NO_ANALYTICS_ACCOUNT,
+    NOT_VERIFIED,
+    INVALID_CREDS,
+    INVALID_DATA,
+    SESSION_EXPIRED,
+    SERVICE_UNAVAILABLE,
+    TERMS_NOT_AGREED,
+    UNKNOWN
+  }
 }

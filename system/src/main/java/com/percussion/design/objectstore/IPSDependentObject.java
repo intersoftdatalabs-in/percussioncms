@@ -21,30 +21,27 @@ import java.util.Collection;
 
 /**
  * Defines a component that can be used as a content editor dependency object.
- * This component may be associated with a collection of parameters 
+ * This component may be associated with a collection of parameters
  * (<code>IPSParameter</code> objects).
- */ 
-public interface IPSDependentObject extends IPSComponent, IPSReplacementValue
-{
-   /**
-    * Gets the name of this component, unique within a given type. 
-    * @return the name, never <code>null</code> or empty.
-    */ 
-   public String getName();
-   
-   
-   /**
-    * Gets a string representation of the type (class) of this component.
-    * @return the type, never <code>null</code> or empty.
-    */ 
-   public String getType();
-   
-   
-   /**
-    * Gets the parameters associated with this component.
-    * 
-    * @return the parameters as a collection of <code>IPSParameter</code> 
-    * objects, never <code>null</code>, may be empty.
-    */ 
-   public Collection getParameters();
+ */
+public interface IPSDependentObject extends IPSComponent, IPSReplacementValue {
+  /**
+   * Gets the name of this component, unique within a given type.
+   * @return the name, never <code>null</code> or empty.
+   */
+  public String getName();
+
+  /**
+   * Gets a string representation of the type (class) of this component.
+   * @return the type, never <code>null</code> or empty.
+   */
+  public String getType();
+
+  /**
+   * Gets the parameters associated with this component.
+   *
+   * @return the parameters as a collection of <code>IPSParameter</code>
+   * objects, never <code>null</code>, may be empty.
+   */
+  public Collection getParameters();
 }

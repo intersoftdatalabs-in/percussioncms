@@ -22,64 +22,57 @@ package com.percussion.delivery.likes.data;
  *
  * @author davidpardini
  */
-public class PSLikesSummary
-{
+public class PSLikesSummary {
 
-    /**
-     * Total number of likes.
-     */
-    private int total;
+  /**
+   * Total number of likes.
+   */
+  private int total;
 
-    private String likeId;
+  private String likeId;
 
-    public PSLikesSummary()
-    {
-        // Default constructor
-    }
+  public PSLikesSummary() {
+    // Default constructor
+  }
 
-    public PSLikesSummary(int total, String likeId)
-    {
-        this.total = total;
-        this.likeId = likeId;
-    }
+  public PSLikesSummary(int total, String likeId) {
+    this.total = total;
+    this.likeId = likeId;
+  }
 
-    /**
-     * Gets the total number of likes.
-     *
-     * @return the total count.
-     */
-    public int getTotal()
-    {
-        return total;
-    }
+  /**
+   * Gets the total number of likes.
+   *
+   * @return the total count.
+   */
+  public int getTotal() {
+    return total;
+  }
 
-    /**
-     * Sets the total number of likes.
-     *
-     * @param total the total count.
-     */
-    public void setTotal(int total)
-    {
-        this.total = total;
-    }
+  /**
+   * Sets the total number of likes.
+   *
+   * @param total the total count.
+   */
+  public void setTotal(int total) {
+    this.total = total;
+  }
 
-    /**
-     * Gets the like identifier.
-     *
-     * @return the like ID.
-     */
-    public String getLikeId()
-    {
-        return likeId;
-    }
+  /**
+   * Gets the like identifier.
+   *
+   * @return the like ID.
+   */
+  public String getLikeId() {
+    return likeId;
+  }
 
-    /**
-     * Sets the like identifier.
-     *
-     * @param likeId the like ID.
-     */
-    public void setLikeId(String likeId)
-    {
-        this.likeId = likeId;
-    }
+  /**
+   * Sets the like identifier.
+   *
+   * @param likeId the like ID.
+   */
+  public void setLikeId(String likeId) {
+    this.likeId = likeId;
+  }
 }

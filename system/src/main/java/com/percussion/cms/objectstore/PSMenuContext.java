@@ -23,7 +23,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import org.w3c.dom.Element;
 
-
 /**
  * This class provides an object representation of the Context concept for
  * menus. A menu context identifies a logical location within the UI where
@@ -35,80 +34,72 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSMenuContext extends PSName
-{
-   /**
-    * Since this object is read-only, it can only be instantiated from an
-    * existing object, obtained from the processor load method.
-    *
-    * @param src Never <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException See fromXml();
-    */
-   public PSMenuContext(Element src)
-      throws PSUnknownNodeTypeException
-   {
-      super(getKeyDef(-1));
-      fromXml(src);
-   }
+public class PSMenuContext extends PSName {
+  /**
+   * Since this object is read-only, it can only be instantiated from an
+   * existing object, obtained from the processor load method.
+   *
+   * @param src Never <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException See fromXml();
+   */
+  public PSMenuContext(Element src) throws PSUnknownNodeTypeException {
+    super(getKeyDef(-1));
+    fromXml(src);
+  }
 
+  /**
+   * This ctor should only be used for testing and debugging purposes.
+   * @param name
+   * @param dname
+   * @param desc
+   */
+  public PSMenuContext(int id, String name, String dname, String desc) {
+    super(getKeyDef(id), name, dname, desc);
+  }
 
-   /**
-    * This ctor should only be used for testing and debugging purposes.
-    * @param name
-    * @param dname
-    * @param desc
-    */
-   public PSMenuContext(int id, String name, String dname, String desc)
-   {
-      super(getKeyDef(id), name, dname, desc);
-   }
+  /**
+   * Gets the menu context id (which is saved in the repository) from a
+   * GUID object.
+   *
+   * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE}
+   *    type.
+   *
+   * @return the UUID of the guid.
+   */
+  public static int getIdFromGuid(IPSGuid guid) {
+    if (guid.getType() != PSTypeEnum.MENU_CONTEXT.getOrdinal())
+      throw new IllegalArgumentException("guid must be PSTypeEnum.MENU_CONTEXT type.");
 
-   /**
-    * Gets the menu context id (which is saved in the repository) from a
-    * GUID object.
-    * 
-    * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE}
-    *    type.
-    * 
-    * @return the UUID of the guid.
-    */
-   public static int getIdFromGuid(IPSGuid guid)
-   {
-      if (guid.getType() != PSTypeEnum.MENU_CONTEXT.getOrdinal())
-         throw new IllegalArgumentException(
-               "guid must be PSTypeEnum.MENU_CONTEXT type.");
-      
-      return (int) guid.getUUID();
-   }
-      
-   /**
-    * Creates a GUID from an id.
-    * 
-    * @param id the menu context id, which is saved in the repository.
-    * 
-    * @return the created GUID, never <code>null</code>.
-    */
-   public static PSDesignGuid getGuidFromId(int id)
-   {
-      return new PSDesignGuid(new PSGuid(PSTypeEnum.MENU_CONTEXT, id));
-   }   
-   
-   /**
-    * Creates a key containing the proper definition for this object.
-    *
-    * @return Never <code>null</code>.
-    */
-   private static PSKey getKeyDef(int id)
-   {
-      PSKey key = id > 0
-      ? new PSKey(new String[] {PRIMARY_KEY}, new int[]{id},  false)
-         : new PSKey(new String[] {PRIMARY_KEY}, false);
-      return key;
-   }
+    return (int) guid.getUUID();
+  }
 
-   /**
-    * The name of the table column that is the primary key.
-    */
-   static final String PRIMARY_KEY = "UICONTEXTID";
+  /**
+   * Creates a GUID from an id.
+   *
+   * @param id the menu context id, which is saved in the repository.
+   *
+   * @return the created GUID, never <code>null</code>.
+   */
+  public static PSDesignGuid getGuidFromId(int id) {
+    return new PSDesignGuid(new PSGuid(PSTypeEnum.MENU_CONTEXT, id));
+  }
+
+  /**
+   * Creates a key containing the proper definition for this object.
+   *
+   * @return Never <code>null</code>.
+   */
+  private static PSKey getKeyDef(int id) {
+    PSKey key =
+        id > 0
+            ? new PSKey(new String[] {PRIMARY_KEY}, new int[] {id}, false)
+            : new PSKey(new String[] {PRIMARY_KEY}, false);
+    return key;
+  }
+
+  /**
+   * The name of the table column that is the primary key.
+   */
+  static final String PRIMARY_KEY = "UICONTEXTID";
 }

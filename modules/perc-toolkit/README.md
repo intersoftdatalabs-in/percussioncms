@@ -1,12 +1,13 @@
 ## Overview
 
-The perc-toolkit module contains a set of extensions and utilities that have been contributed by professional services team members, customers, and implementors of Percussion that are usefull in implementations. 
+The perc-toolkit module contains a set of extensions and utilities that have been contributed by professional services team members, customers, and implementors of Percussion that are usefull in implementations.
 
 The toolkit was historically called the PSO Toolkit in Percussion implementations.
 
 This package is where experimental extensions / features can and should be implemented / contributed.
 
 ## Upgrade
+
 On upgrade, the core CMS will remove all legacy toolkit filenames that it finds.  They will be replaced by the perc-toolkit-[version].jar package.
 
 ## Contributions Java Package
@@ -29,9 +30,10 @@ There is an experimental folder under the packages folder.  Any packages that yo
 https://www.github.com/percussion/PSOToolkit -> https://www.github.com/percussion/percussioncms/modules/perc-toolkit
 
 ## API Changes
+
 - PSServerFolderProcessor
--- This is now a singleton  PSServerFolderProcessor.getInstance() should be used 
-  
+  -- This is now a singleton  PSServerFolderProcessor.getInstance() should be used
+
 ## Migration Note (July 2025)
 
 ### JMock to Mockito Migration (August 2025)
@@ -42,13 +44,15 @@ https://www.github.com/percussion/PSOToolkit -> https://www.github.com/percussio
 The perc-toolkit module has been successfully migrated from JMock to Mockito for all unit tests. This modernization effort improves test readability, maintainability, and IDE support.
 
 #### Key Changes:
+
 - **Replaced JMock with Mockito 4.11.0** for all test mocking
-- **Migrated to JUnit 5 + MockitoExtension** for modern testing infrastructure  
+- **Migrated to JUnit 5 + MockitoExtension** for modern testing infrastructure
 - **Updated syntax**: From `context.checking(new Expectations(){...})` to `when(...).thenReturn(...)`
 - **Simplified verification**: From `context.assertIsSatisfied()` to `verify(mock).method()`
 - **Modern annotations**: Using `@Mock` and `@ExtendWith(MockitoExtension.class)`
 
 #### Successfully Migrated Files:
+
 **High Priority (Complex JMock Usage):**
 - `PSOAbstractItemValidationExitTest.java` - Complex expectations with multiple mocks
 - `PSOUniqueFieldWithInFoldersValidatorTest.java` - Extensive mocking with sequences  
@@ -63,6 +67,7 @@ The perc-toolkit module has been successfully migrated from JMock to Mockito for
 - `SiteFolderLocationTest.java` - Site folder management
 
 #### Benefits:
+
 - **Better IDE Support**: IntelliJ/Eclipse have excellent Mockito integration
 - **Improved Readability**: Modern `when().thenReturn()` syntax is more intuitive
 - **Type Safety**: Better compile-time checking with Mockito
@@ -70,6 +75,7 @@ The perc-toolkit module has been successfully migrated from JMock to Mockito for
 - **Simplified Setup**: No need for Mockery context management
 
 #### Dependencies Updated:
+
 ```xml
 <dependency>
     <groupId>org.mockito</groupId>
@@ -86,7 +92,9 @@ The perc-toolkit module has been successfully migrated from JMock to Mockito for
 ```
 
 #### Testing Patterns:
+
 **Old JMock Pattern:**
+
 ```java
 @BeforeEach
 void setUp() {
@@ -100,6 +108,7 @@ void setUp() {
 ```
 
 **New Mockito Pattern:**
+
 ```java
 @ExtendWith(MockitoExtension.class)
 class MyTest {
@@ -130,7 +139,6 @@ All classes now use modern Java idioms (var, Optional, Streams where applicable)
 
 See code for details. Migration marker added for future tracking.
 
-
 ### Java 11 Migration: com.percussion.pso.validation
 
 All classes in `com.percussion.pso.validation` have been refactored to use Java 11 features and Google Java Style:
@@ -145,7 +153,6 @@ All classes in `com.percussion.pso.validation` have been refactored to use Java 
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-
 ### Java 11 Migration: com.percussion.pso.tasks
 
 All classes in `com.percussion.pso.tasks` have been refactored to use Java 11 features and Google Java Style:
@@ -153,7 +160,6 @@ All classes in `com.percussion.pso.tasks` have been refactored to use Java 11 fe
 - TrashTask.java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
-
 
 ### Java 11 Migration: com.percussion.pso.restservice
 
@@ -185,6 +191,7 @@ All test files in `modules/perc-toolkit` have been migrated from JMock to Mockit
 - All tests now use JUnit 5 assertions and annotations.
 
 #### Example: Before (JMock)
+
 ```java
 Mockery context = new Mockery();
 final IPSContentWs cws = context.mock(IPSContentWs.class);
@@ -194,6 +201,7 @@ context.checking(new Expectations(){{
 ```
 
 #### After (Mockito)
+
 ```java
 @Mock
 private IPSContentWs cws;
@@ -209,7 +217,6 @@ All migrated tests pass and are fully compatible with Java 11 and modern IDEs.
 - PSEffectLoggingEffect.java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
-
 
 ### Java 11 Migration: com.percussion.pso.workflow
 
@@ -230,7 +237,6 @@ All classes in `com.percussion.pso.workflow` have been refactored to use Java 11
 - QueuedEdition.java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
-
 
 ### Java 11 Migration: com.percussion.soln.jcr
 
@@ -256,7 +262,6 @@ Refactored to Java 11 and Google Java Style. Removed redundant interface, unused
 
 Refactored to Java 11 and Google Java Style. Removed redundant interface and replaced deprecated context checks with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
 
-
 ### Java 11 Migration: com.percussion.pso.utils
 
 All classes in `com.percussion.pso.utils` have been refactored to use Java 11 features and Google Java Style.
@@ -264,9 +269,11 @@ All classes in `com.percussion.pso.utils` have been refactored to use Java 11 fe
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
 ## Editor Custom Controls
+
 Editor custom controls are XSL stylesheets that provide a control for editing specific field types in the Content Editor.
 
 ### Image Cropping Control
+
 The image cropping control stores based x,y,width,height (as well as resize width / height) in a serialized JSON string in a field value.
 
 To utilize the control, name a field based on the name of the image you will be cropping.  Example,

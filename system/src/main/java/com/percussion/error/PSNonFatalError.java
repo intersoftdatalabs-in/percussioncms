@@ -19,7 +19,6 @@ package com.percussion.error;
 
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-
 import java.util.Locale;
 
 /**
@@ -33,61 +32,55 @@ import java.util.Locale;
  * @version      1.0
  * @since      1.0
  */
-public class PSNonFatalError extends PSLogError
-{
-   /**
-    * Report a non-fatal error. The error code and parameters should
-    * clearly define where the error occurred for easy debugging.
-    *
-    * @param      errorCode   the error code describing the type of error
-    *
-    * @param      errorParams   if the error string associated with the
-    *                           error code specifies parameters, this is
-    *                           an array of values to use to fill the string
-    *                           appropriately. Be sure to include the
-    *                           correct arguments in their correct
-    *                           positions!
-    */
-   public PSNonFatalError(int errorCode, Object[] errorParams)
-   {
-      super(0);
-      m_errorCode = errorCode;
-      m_errorArgs = errorParams;
-   }
+public class PSNonFatalError extends PSLogError {
+  /**
+   * Report a non-fatal error. The error code and parameters should
+   * clearly define where the error occurred for easy debugging.
+   *
+   * @param      errorCode   the error code describing the type of error
+   *
+   * @param      errorParams   if the error string associated with the
+   *                           error code specifies parameters, this is
+   *                           an array of values to use to fill the string
+   *                           appropriately. Be sure to include the
+   *                           correct arguments in their correct
+   *                           positions!
+   */
+  public PSNonFatalError(int errorCode, Object[] errorParams) {
+    super(0);
+    m_errorCode = errorCode;
+    m_errorArgs = errorParams;
+  }
 
-   /**
-    * Report a non-fatal error. The error code and parameters should
-    * clearly define where the error occurred for easy debugging.
-    *
-    * @param      errorCode   the error code describing the type of error
-    *
-    *
-    * @param      singleArg   the argument to use as the sole argument in
-    *                           the error message
-    */
-   public PSNonFatalError(int errorCode, Object singleArg)
-   {
-      this(errorCode, new Object[] { singleArg });
-   }
+  /**
+   * Report a non-fatal error. The error code and parameters should
+   * clearly define where the error occurred for easy debugging.
+   *
+   * @param      errorCode   the error code describing the type of error
+   *
+   *
+   * @param      singleArg   the argument to use as the sole argument in
+   *                           the error message
+   */
+  public PSNonFatalError(int errorCode, Object singleArg) {
+    this(errorCode, new Object[] {singleArg});
+  }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      PSLogSubMessage[] msgs = new PSLogSubMessage[1];
+  /**
+   * sublcasses must override this to build the messages in the
+   * specified locale
+   */
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    PSLogSubMessage[] msgs = new PSLogSubMessage[1];
 
-      /* the generic submessage first */
-      msgs[0] = new PSLogSubMessage(
-         m_errorCode,
-         PSErrorManager.createMessage(m_errorCode, m_errorArgs, loc));
+    /* the generic submessage first */
+    msgs[0] =
+        new PSLogSubMessage(
+            m_errorCode, PSErrorManager.createMessage(m_errorCode, m_errorArgs, loc));
 
-      return msgs;
-   }
+    return msgs;
+  }
 
-
-   private int         m_errorCode;
-   private Object[]   m_errorArgs;
+  private int m_errorCode;
+  private Object[] m_errorArgs;
 }
-

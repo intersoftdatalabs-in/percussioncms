@@ -15,166 +15,147 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
+/** */
 package com.percussion.delivery.forms.impl;
 
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
-
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 /**
- * Service for checking recaptcha on form. 
- * 
- * @author natechadwick
+ * Service for checking recaptcha on form.
  *
+ * @author natechadwick
  */
 public class PSRecaptchaService {
 
-    	private final static Logger log = LogManager.getLogger(PSRecaptchaService.class);
+  private static final Logger log = LogManager.getLogger(PSRecaptchaService.class);
 
-		public final static String RECAPTCHA_RESPONSE = "g-recaptcha-response";
-		//Possible errors 
-		public final static String RECAPTCHA_ERR_MISSING_SECRET = "missing-input-secret";//	The secret parameter is missing.
-		public final static String RECAPTCHA_ERR_INVALID_SECRET="invalid-input-secret"; //	The secret parameter is invalid or malformed.
-		public final static String RECAPTCHA_ERR_MISSING_INPUT= "missing-input-response";	//The response parameter is missing.
-		public final static String RECAPTCHA_ERR_INVALID_INPUT = "invalid-input-response"; //	The response parameter is invalid or malformed.
-		public final static String RECAPTCHA_ERR_BAD_REQUEST = "bad-request";	//The request is invalid or malformed.
-		public final static String RECAPTCHA_ERR_TIMEOUT = "timeout-or-duplicate"; //The response is no longer valid: either is too old or has been used previously.
-		
-		private String url = "https://www.google.com/recaptcha/api/siteverify";
-		private String secret;
-		private String userAgent = "Mozilla/5.0";
-		private boolean captchaOn = false;
-		
-		public PSRecaptchaService(boolean captchaOn, String captchaUrl, String secret, String userAgent){
-			this.captchaOn = captchaOn;
-			this.url = captchaUrl;
-			this.secret = secret;
-			this.userAgent = userAgent;
-		}
-		
-		
-		
-		public String getUrl() {
-			return url;
-		}
+  public static final String RECAPTCHA_RESPONSE = "g-recaptcha-response";
+  // Possible errors
+  public static final String RECAPTCHA_ERR_MISSING_SECRET =
+      "missing-input-secret"; //	The secret parameter is missing.
+  public static final String RECAPTCHA_ERR_INVALID_SECRET =
+      "invalid-input-secret"; //	The secret parameter is invalid or malformed.
+  public static final String RECAPTCHA_ERR_MISSING_INPUT =
+      "missing-input-response"; // The response parameter is missing.
+  public static final String RECAPTCHA_ERR_INVALID_INPUT =
+      "invalid-input-response"; //	The response parameter is invalid or malformed.
+  public static final String RECAPTCHA_ERR_BAD_REQUEST =
+      "bad-request"; // The request is invalid or malformed.
+  public static final String RECAPTCHA_ERR_TIMEOUT =
+      "timeout-or-duplicate"; // The response is no longer valid: either is too old or has been used
+  // previously.
 
+  private String url = "https://www.google.com/recaptcha/api/siteverify";
+  private String secret;
+  private String userAgent = "Mozilla/5.0";
+  private boolean captchaOn = false;
 
+  public PSRecaptchaService(boolean captchaOn, String captchaUrl, String secret, String userAgent) {
+    this.captchaOn = captchaOn;
+    this.url = captchaUrl;
+    this.secret = secret;
+    this.userAgent = userAgent;
+  }
 
-		public void setUrl(String url) {
-			this.url = url;
-		}
+  public String getUrl() {
+    return url;
+  }
 
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
+  public String getSecret() {
+    return secret;
+  }
 
-		public String getSecret() {
-			return secret;
-		}
+  public void setSecret(String secret) {
+    this.secret = secret;
+  }
 
+  public String getUserAgent() {
+    return userAgent;
+  }
 
+  public void setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
+  }
 
-		public void setSecret(String secret) {
-			this.secret = secret;
-		}
+  public boolean isCaptchaOn() {
+    return captchaOn;
+  }
 
+  public void setCaptchaOn(boolean captchaOn) {
+    this.captchaOn = captchaOn;
+  }
 
+  public boolean verify(String gRecaptchaResponse) throws IOException {
+    if (gRecaptchaResponse == null || "".equals(gRecaptchaResponse)) {
+      return false;
+    }
 
-		public String getUserAgent() {
-			return userAgent;
-		}
+    try {
+      URL obj = new URL(url);
+      HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 
+      // add requqest header
+      con.setRequestMethod("POST");
+      con.setRequestProperty("User-Agent", userAgent);
+      con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
+      String postParams = "secret=" + secret + "&response=" + gRecaptchaResponse;
 
-		public void setUserAgent(String userAgent) {
-			this.userAgent = userAgent;
-		}
+      // Send post request
+      con.setDoOutput(true);
+      DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+      wr.writeBytes(postParams);
+      wr.flush();
+      wr.close();
 
+      int responseCode = con.getResponseCode();
+      log.debug("reCaptcha: \nSending 'POST' request to URL : {}", url);
+      log.debug("reCaptcha: Post parameters : {}", postParams);
+      log.debug("reCaptcha: Response Code : {}", responseCode);
 
+      BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+      String inputLine;
+      StringBuilder response = new StringBuilder();
 
-		public boolean isCaptchaOn() {
-			return captchaOn;
-		}
+      while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+      }
+      in.close();
 
+      // print result
+      log.debug("{}", response);
 
+      // parse JSON response and return 'success' value
+      JSONObject json = new JSONObject(response.toString());
 
-		public void setCaptchaOn(boolean captchaOn) {
-			this.captchaOn = captchaOn;
-		}
+      boolean ret = json.getBoolean("success");
 
+      if (log.isDebugEnabled()) {
+        if (ret == true) {
+          log.debug("reCaptcha: Successful validation.  This is not a robot! Yay humans!");
+        } else {
+          log.debug("reCaptcha: Validation failed.  Bad robot!");
+        }
+      }
 
+      return ret;
 
-		public boolean verify(String gRecaptchaResponse) throws IOException {
-			if (gRecaptchaResponse == null || "".equals(gRecaptchaResponse)) {
-				return false;
-			}
-			
-			try{
-			URL obj = new URL(url);
-			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-			// add requqest header
-			con.setRequestMethod("POST");
-			con.setRequestProperty("User-Agent", userAgent);
-			con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-			String postParams = "secret=" + secret + "&response="
-					+ gRecaptchaResponse;
-
-			// Send post request
-			con.setDoOutput(true);
-			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.writeBytes(postParams);
-			wr.flush();
-			wr.close();
-
-			int responseCode = con.getResponseCode();
-			log.debug("reCaptcha: \nSending 'POST' request to URL : {}", url);
-			log.debug("reCaptcha: Post parameters : {}", postParams);
-			log.debug("reCaptcha: Response Code : {}", responseCode);
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-
-			// print result
-			log.debug("{}",response);
-			
-			//parse JSON response and return 'success' value
-			 JSONObject json = new JSONObject(response.toString());
-			
-			boolean ret = json.getBoolean("success");
-			
-			if(log.isDebugEnabled()){
-				if(ret==true){
-					log.debug("reCaptcha: Successful validation.  This is not a robot! Yay humans!");
-				}else{
-					log.debug("reCaptcha: Validation failed.  Bad robot!");
-				}
-			}
-			
-			return ret;
-		
-			}catch(Exception e){
-				log.error("An error occurred validating reCaptcha.  Failing validation.");
-				log.debug("reCaptcha: Validation failed with exception", e);
-				return false;
-			}
-		}
+    } catch (Exception e) {
+      log.error("An error occurred validating reCaptcha.  Failing validation.");
+      log.debug("reCaptcha: Validation failed with exception", e);
+      return false;
+    }
+  }
 }
-

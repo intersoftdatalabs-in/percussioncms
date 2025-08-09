@@ -26,26 +26,18 @@ import com.percussion.error.PSException;
  * @version    1.0
  * @since      1.0
  */
-public class PSJavaScriptCallException extends PSException
-{
-   /**
-    * Constructs a failure with the specified message.
-    */
-   public PSJavaScriptCallException(
-      String function, String message)
-   {
-      super(IPSExtensionErrors.JS_CALL_FAILED,
-         new Object[] { function, message } );
-   }
+public class PSJavaScriptCallException extends PSException {
+  /**
+   * Constructs a failure with the specified message.
+   */
+  public PSJavaScriptCallException(String function, String message) {
+    super(IPSExtensionErrors.JS_CALL_FAILED, new Object[] {function, message});
+  }
 
-   /**
-    * Constructs a failure with the specified context information.
-    */
-   public PSJavaScriptCallException(
-      String function, String message, String source)
-   {
-      super(IPSExtensionErrors.JS_CALL_FAILED_SRC,
-         new Object[] { function, message, source } );
-   }
+  /**
+   * Constructs a failure with the specified context information.
+   */
+  public PSJavaScriptCallException(String function, String message, String source) {
+    super(IPSExtensionErrors.JS_CALL_FAILED_SRC, new Object[] {function, message, source});
+  }
 }
-

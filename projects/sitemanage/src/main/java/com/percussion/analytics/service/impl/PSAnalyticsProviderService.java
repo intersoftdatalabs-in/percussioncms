@@ -16,6 +16,8 @@
  */
 package com.percussion.analytics.service.impl;
 
+import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.percussion.analytics.data.PSAnalyticsProviderConfig;
 import com.percussion.analytics.error.IPSAnalyticsErrorMessageHandler;
@@ -34,14 +36,11 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.io.PathUtils;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Map;
-
-import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 
 /**
  * Implementation of the analytics provider service.
@@ -50,226 +49,241 @@ import static com.percussion.share.service.exception.PSParameterValidationUtils.
 @PSSiteManageBean("analyticsProviderService")
 public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
 
-    private static final Logger log = LogManager.getLogger(PSAnalyticsProviderService.class);
-    private final IPSMetadataService metadataService;
-    private final IPSAnalyticsProviderHandler handler = new PSGoogleAnalyticsProviderHandler();
-    private final IPSAnalyticsErrorMessageHandler messageHandler = new PSGoogleAnalyticsErrorMessageHandler();
+  private static final Logger log = LogManager.getLogger(PSAnalyticsProviderService.class);
+  private final IPSMetadataService metadataService;
+  private final IPSAnalyticsProviderHandler handler = new PSGoogleAnalyticsProviderHandler();
+  private final IPSAnalyticsErrorMessageHandler messageHandler =
+      new PSGoogleAnalyticsErrorMessageHandler();
 
-    @Autowired
-    public PSAnalyticsProviderService(IPSMetadataService metadataService) {
-        this.metadataService = metadataService;
+  @Autowired
+  public PSAnalyticsProviderService(IPSMetadataService metadataService) {
+    this.metadataService = metadataService;
+  }
+
+  @Override
+  public void saveConfig(PSAnalyticsProviderConfig config)
+      throws PSValidationException, IPSGenericDao.LoadException, IPSGenericDao.SaveException {
+    // Store configuration to metadata service as a JSON string.
+    var pwd = config.getPassword();
+    String ePwd = null;
+    var current = loadConfig(true);
+
+    if (pwd == null) {
+      // Use stored password
+      if (current != null) {
+        ePwd = current.getPassword();
+        config.setUserid(current.getUserid());
+      }
+    } else {
+      try {
+        ePwd =
+            PSEncryptor.encryptString(
+                PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR),
+                pwd);
+      } catch (PSEncryptionException e) {
+        ePwd = pwd;
+        config.setEncrypted(false);
+      }
     }
 
-    @Override
-    public void saveConfig(PSAnalyticsProviderConfig config)
-            throws PSValidationException, IPSGenericDao.LoadException, IPSGenericDao.SaveException {
-        // Store configuration to metadata service as a JSON string.
-        var pwd = config.getPassword();
-        String ePwd = null;
-        var current = loadConfig(true);
+    config.setPassword(ePwd);
 
-        if (pwd == null) {
-            // Use stored password
-            if (current != null) {
-                ePwd = current.getPassword();
-                config.setUserid(current.getUserid());
-            }
-        } else {
-            try {
-                ePwd = PSEncryptor.encryptString(
-                        PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR), pwd);
-            } catch (PSEncryptionException e) {
-                ePwd = pwd;
-                config.setEncrypted(false);
-            }
-        }
-
-        config.setPassword(ePwd);
-
-        var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        String objectToJson = null;
-        try {
-            objectToJson = objectMapper.writeValueAsString(config);
-        } catch (JsonProcessingException e) {
-            log.error("Exception occurred while parsing -> {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-
-        var metadata = new PSMetadata(METADATA_KEY, objectToJson);
-        metadataService.save(metadata);
+    var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    String objectToJson = null;
+    try {
+      objectToJson = objectMapper.writeValueAsString(config);
+    } catch (JsonProcessingException e) {
+      log.error("Exception occurred while parsing -> {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
-    @Override
-    public void deleteConfig() throws IPSGenericDao.LoadException, IPSGenericDao.DeleteException {
-        metadataService.delete(METADATA_KEY);
+    var metadata = new PSMetadata(METADATA_KEY, objectToJson);
+    metadataService.save(metadata);
+  }
+
+  @Override
+  public void deleteConfig() throws IPSGenericDao.LoadException, IPSGenericDao.DeleteException {
+    metadataService.delete(METADATA_KEY);
+  }
+
+  @Override
+  public PSAnalyticsProviderConfig loadConfig(boolean encrypted)
+      throws IPSGenericDao.LoadException, PSValidationException {
+    var metadata = metadataService.find(METADATA_KEY);
+    PSAnalyticsProviderConfig config = null;
+    String userID;
+    if (metadata == null) return null;
+    var json = metadata.getData();
+    var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    try {
+      config = objectMapper.readValue(json, PSAnalyticsProviderConfig.class);
+
+      var rawPwd = config.getPassword();
+      userID = config.getUserid();
+      if (userID == null) {
+        userID = config.getUid();
+      }
+
+      String pwd;
+      try {
+        pwd =
+            encrypted
+                ? rawPwd
+                : PSEncryptor.decryptString(
+                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), rawPwd);
+      } catch (PSEncryptionException | IllegalArgumentException e) {
+        pwd =
+            PSLegacyEncrypter.getInstance(
+                    PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+                .decrypt(
+                    rawPwd,
+                    PSLegacyEncrypter.getInstance(
+                            PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+                        .CRYPT_KEY(),
+                    null);
+      }
+
+      config.setPassword(pwd);
+      config.setUserid(userID);
+    } catch (JsonProcessingException e) {
+      log.error("Error parsing Analytics configuration: {}", e.getMessage());
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      var builder = validateParameters("json file");
+      var msg = "Error parsing Analytics configuration:" + e.getMessage();
+      builder.reject("Invalid JSON", msg).throwIfInvalid();
     }
 
-    @Override
-    public PSAnalyticsProviderConfig loadConfig(boolean encrypted)
-            throws IPSGenericDao.LoadException, PSValidationException {
-        var metadata = metadataService.find(METADATA_KEY);
-        PSAnalyticsProviderConfig config = null;
-        String userID;
-        if (metadata == null)
-            return null;
-        var json = metadata.getData();
-        var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        try {
-            config = objectMapper.readValue(json, PSAnalyticsProviderConfig.class);
+    return config;
+  }
 
-            var rawPwd = config.getPassword();
-            userID = config.getUserid();
-            if (userID == null) {
-                userID = config.getUid();
-            }
-
-            String pwd;
-            try {
-                pwd = encrypted ? rawPwd : PSEncryptor.decryptString(
-                        PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), rawPwd);
-            } catch (PSEncryptionException | IllegalArgumentException e) {
-                pwd = PSLegacyEncrypter.getInstance(
-                        PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)).decrypt(
-                        rawPwd, PSLegacyEncrypter.getInstance(
-                                PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)).CRYPT_KEY(), null);
-            }
-
-            config.setPassword(pwd);
-            config.setUserid(userID);
-        } catch (JsonProcessingException e) {
-            log.error("Error parsing Analytics configuration: {}", e.getMessage());
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            var builder = validateParameters("json file");
-            var msg = "Error parsing Analytics configuration:" + e.getMessage();
-            builder.reject("Invalid JSON", msg).throwIfInvalid();
-        }
-
-        return config;
+  @Override
+  public Map<String, String> getProfiles(String uid, String password)
+      throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+    if (StringUtils.isBlank(uid) || StringUtils.isBlank(password)) {
+      // One of the creds is null, try to use stored cred
+      var config = loadConfig(false);
+      if (config != null) {
+        if (StringUtils.isBlank(uid)) uid = config.getUserid();
+        if (StringUtils.isBlank(password)) password = config.getPassword();
+      } else {
+        var builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
+        builder
+            .reject(
+                PSAnalyticsProviderException.CAUSETYPE.INVALID_CREDS.toString(),
+                "User id and password are both required.")
+            .throwIfInvalid();
+      }
     }
+    return handler.getProfiles(uid, password);
+  }
 
-    @Override
-    public Map<String, String> getProfiles(String uid, String password)
-            throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-        if (StringUtils.isBlank(uid) || StringUtils.isBlank(password)) {
-            // One of the creds is null, try to use stored cred
-            var config = loadConfig(false);
-            if (config != null) {
-                if (StringUtils.isBlank(uid))
-                    uid = config.getUserid();
-                if (StringUtils.isBlank(password))
-                    password = config.getPassword();
-            } else {
-                var builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
-                builder.reject(PSAnalyticsProviderException.CAUSETYPE.INVALID_CREDS.toString(),
-                        "User id and password are both required.").throwIfInvalid();
-            }
-        }
-        return handler.getProfiles(uid, password);
+  @Override
+  public void testConnection(String uid, String password)
+      throws PSAnalyticsProviderException,
+          IPSGenericDao.LoadException,
+          IPSGenericDao.SaveException,
+          PSValidationException {
+    if (StringUtils.isBlank(uid) || StringUtils.isBlank(password)) {
+      // One of the creds is null, try to use stored cred
+      var config = loadConfig(false);
+      if (config != null) {
+        if (StringUtils.isBlank(uid)) uid = config.getUserid();
+        if (StringUtils.isBlank(password)) password = config.getPassword();
+      } else {
+        var builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
+        builder
+            .reject(
+                PSAnalyticsProviderException.CAUSETYPE.INVALID_CREDS.toString(),
+                "User id and keyfile both required.")
+            .throwIfInvalid();
+      }
+    } else {
+      var config = loadConfig(false);
+      if (config == null
+          || !StringUtils.equalsIgnoreCase(config.getUserid(), uid)
+          || (StringUtils.isNotEmpty(password))) {
+        config = new PSAnalyticsProviderConfig(uid, password, false, null);
+        saveConfig(config);
+      }
     }
+    handler.testConnection(uid, password);
+  }
 
-    @Override
-    public void testConnection(String uid, String password)
-            throws PSAnalyticsProviderException, IPSGenericDao.LoadException, IPSGenericDao.SaveException, PSValidationException {
-        if (StringUtils.isBlank(uid) || StringUtils.isBlank(password)) {
-            // One of the creds is null, try to use stored cred
-            var config = loadConfig(false);
-            if (config != null) {
-                if (StringUtils.isBlank(uid))
-                    uid = config.getUserid();
-                if (StringUtils.isBlank(password))
-                    password = config.getPassword();
-            } else {
-                var builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
-                builder.reject(PSAnalyticsProviderException.CAUSETYPE.INVALID_CREDS.toString(),
-                        "User id and keyfile both required.").throwIfInvalid();
-            }
-        } else {
-            var config = loadConfig(false);
-            if (config == null || !StringUtils.equalsIgnoreCase(config.getUserid(), uid) ||
-                    (StringUtils.isNotEmpty(password))) {
-                config = new PSAnalyticsProviderConfig(uid, password, false, null);
-                saveConfig(config);
-            }
-        }
-        handler.testConnection(uid, password);
+  @Override
+  public boolean isProfileConfigured(String sitename)
+      throws IPSGenericDao.LoadException, PSValidationException {
+    return getSiteProfile(sitename) != null;
+  }
+
+  @Override
+  public String getProfileId(String sitename) throws IPSGenericDao.LoadException {
+    return getProfileProperty(sitename, 0);
+  }
+
+  @Override
+  public String getWebPropertyId(String sitename) throws IPSGenericDao.LoadException {
+    return getProfileProperty(sitename, 1);
+  }
+
+  @Override
+  public String getGoogleApiKey(String sitename) throws IPSGenericDao.LoadException {
+    return getProfileProperty(sitename, 2);
+  }
+
+  /**
+   * Gets the specified profile property for the specified site.
+   *
+   * @param sitename      the name of the site, assumed not blank.
+   * @param propertyIndex the index of the property. Assume it is 0, 1 or 2,
+   *                      which is 'profile id', 'web property ID' or 'API key'.
+   * @return the profile property. It is null if it is not configured for the site.
+   */
+  private String getProfileProperty(String sitename, int propertyIndex)
+      throws IPSGenericDao.LoadException {
+    String profile;
+    try {
+      profile = getSiteProfile(sitename);
+    } catch (PSValidationException e) {
+      log.error("Error Getting Site profile -> {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return null;
     }
+    if (profile == null) return null;
 
-    @Override
-    public boolean isProfileConfigured(String sitename)
-            throws IPSGenericDao.LoadException, PSValidationException {
-        return getSiteProfile(sitename) != null;
+    var properties = profile.split("\\|");
+    if (properties.length <= propertyIndex) return null;
+
+    return properties[propertyIndex];
+  }
+
+  /**
+   * Gets the profile for the specified site. The profile contains <profile-id>|<web-property-id>|<api-key>.
+   * The API key is optional. If the profile is configured correctly, it should contain profile-id and tracking-code.
+   *
+   * @param sitename the name of the site, assumed not blank.
+   * @return the profile of the site. It may be null if it is not configured for the site.
+   */
+  private String getSiteProfile(String sitename)
+      throws IPSGenericDao.LoadException, PSValidationException {
+    if (StringUtils.isBlank(sitename))
+      throw new IllegalArgumentException("sitename cannot be null or empty.");
+    var config = loadConfig(false);
+    if (config == null) return null;
+    var params = config.getExtraParamsMap();
+    if (params != null && !params.isEmpty()) {
+      return params.get(sitename);
+    } else {
+      return null;
     }
+  }
 
-    @Override
-    public String getProfileId(String sitename) throws IPSGenericDao.LoadException {
-        return getProfileProperty(sitename, 0);
-    }
+  @Override
+  public IPSAnalyticsErrorMessageHandler getErrorMessageHandler() {
+    return messageHandler;
+  }
 
-    @Override
-    public String getWebPropertyId(String sitename) throws IPSGenericDao.LoadException {
-        return getProfileProperty(sitename, 1);
-    }
-
-    @Override
-    public String getGoogleApiKey(String sitename) throws IPSGenericDao.LoadException {
-        return getProfileProperty(sitename, 2);
-    }
-
-    /**
-     * Gets the specified profile property for the specified site.
-     *
-     * @param sitename      the name of the site, assumed not blank.
-     * @param propertyIndex the index of the property. Assume it is 0, 1 or 2,
-     *                      which is 'profile id', 'web property ID' or 'API key'.
-     * @return the profile property. It is null if it is not configured for the site.
-     */
-    private String getProfileProperty(String sitename, int propertyIndex) throws IPSGenericDao.LoadException {
-        String profile;
-        try {
-            profile = getSiteProfile(sitename);
-        } catch (PSValidationException e) {
-            log.error("Error Getting Site profile -> {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            return null;
-        }
-        if (profile == null)
-            return null;
-
-        var properties = profile.split("\\|");
-        if (properties.length <= propertyIndex)
-            return null;
-
-        return properties[propertyIndex];
-    }
-
-    /**
-     * Gets the profile for the specified site. The profile contains <profile-id>|<web-property-id>|<api-key>.
-     * The API key is optional. If the profile is configured correctly, it should contain profile-id and tracking-code.
-     *
-     * @param sitename the name of the site, assumed not blank.
-     * @return the profile of the site. It may be null if it is not configured for the site.
-     */
-    private String getSiteProfile(String sitename) throws IPSGenericDao.LoadException, PSValidationException {
-        if (StringUtils.isBlank(sitename))
-            throw new IllegalArgumentException("sitename cannot be null or empty.");
-        var config = loadConfig(false);
-        if (config == null)
-            return null;
-        var params = config.getExtraParamsMap();
-        if (params != null && !params.isEmpty()) {
-            return params.get(sitename);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public IPSAnalyticsErrorMessageHandler getErrorMessageHandler() {
-        return messageHandler;
-    }
-
-    /**
-     * The metadata key to store the config.
-     */
-    public static final String METADATA_KEY = "perc.analytics.provider.config";
+  /**
+   * The metadata key to store the config.
+   */
+  public static final String METADATA_KEY = "perc.analytics.provider.config";
 }

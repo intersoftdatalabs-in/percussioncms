@@ -16,21 +16,18 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*;
 import java.awt.event.ActionListener;
-
+import javax.swing.*;
 
 /**
  * The abstract class for all the editor components which should work with
  * {@link UTCellEditor } which can be used as table cell editor.
  */
-public abstract class UTEditorComponent extends JPanel
-   implements IEditorComponent
-{
+public abstract class UTEditorComponent extends JPanel implements IEditorComponent {
 
-   //see interface for description
-   public abstract JComponent getEditorComponent();
+  // see interface for description
+  public abstract JComponent getEditorComponent();
 
-   //see interface for description
-   public abstract void addActionListener(ActionListener l);
+  // see interface for description
+  public abstract void addActionListener(ActionListener l);
 }

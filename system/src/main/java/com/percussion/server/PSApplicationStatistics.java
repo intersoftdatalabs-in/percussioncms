@@ -19,7 +19,6 @@ package com.percussion.server;
 
 import java.util.Date;
 
-
 /**
  * This class is used to store the statistics for an application running
  * on the server.
@@ -30,61 +29,54 @@ import java.util.Date;
  * @version    1.0
  * @since      1.0
  */
-public class PSApplicationStatistics extends PSHandlerStatistics
-{
-   /**
-    * Construct an application statistics object with the specified
-    *   application start time.
-    *
-    * @param   startTime      the time/date the application started
-    */
-   public PSApplicationStatistics(Date startTime)
-   {
-      super(startTime);
-      m_ServerStatistics = PSServer.getStatistics();
-   }
+public class PSApplicationStatistics extends PSHandlerStatistics {
+  /**
+   * Construct an application statistics object with the specified
+   *   application start time.
+   *
+   * @param   startTime      the time/date the application started
+   */
+  public PSApplicationStatistics(Date startTime) {
+    super(startTime);
+    m_ServerStatistics = PSServer.getStatistics();
+  }
 
-   /**
-    * Construct an application statistics object using the current time as
-    * the time the application was started.
-    */
-   public PSApplicationStatistics()
-   {
-      this(new Date());
-   }
+  /**
+   * Construct an application statistics object using the current time as
+   * the time the application was started.
+   */
+  public PSApplicationStatistics() {
+    this(new Date());
+  }
 
-   /**
-    * Add the statistics for the specified request.
-    *
-    * @param      stats         the statistics for the processed request
-    */
-   public synchronized void update(PSRequestStatistics stats)
-   {
-      super.update(stats);
+  /**
+   * Add the statistics for the specified request.
+   *
+   * @param      stats         the statistics for the processed request
+   */
+  public synchronized void update(PSRequestStatistics stats) {
+    super.update(stats);
 
-      // now pass this on to the server to do it's reporting
-      m_ServerStatistics.update(stats);
-   }
+    // now pass this on to the server to do it's reporting
+    m_ServerStatistics.update(stats);
+  }
 
-   /**
-    * Increment the pending event count.
-    */
-   public synchronized void incrementPendingEventCount()
-   {
-      super.incrementPendingEventCount();
-      m_ServerStatistics.incrementPendingEventCount();   // update server stats
-   }
+  /**
+   * Increment the pending event count.
+   */
+  public synchronized void incrementPendingEventCount() {
+    super.incrementPendingEventCount();
+    m_ServerStatistics.incrementPendingEventCount(); // update server stats
+  }
 
-   /**
-    * Decrement the pending event count.
-    */
-   public synchronized void decrementPendingEventCount()
-   {
-      super.decrementPendingEventCount();
-      m_ServerStatistics.decrementPendingEventCount();   // update server stats
-   }
+  /**
+   * Decrement the pending event count.
+   */
+  public synchronized void decrementPendingEventCount() {
+    super.decrementPendingEventCount();
+    m_ServerStatistics.decrementPendingEventCount(); // update server stats
+  }
 
-   // keep the server stats object so we can quickly refresh it as well
-   private   PSServerStatistics   m_ServerStatistics;
+  // keep the server stats object so we can quickly refresh it as well
+  private PSServerStatistics m_ServerStatistics;
 }
-

@@ -20,95 +20,84 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.security.IPSPasswordFilter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
-
+import java.io.File;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-
-
 /**
  *    This class will use a default encrypting scheme to
  *    encrypt passwords for various Percussion security providers.
  */
-public class DefaultPasswordFilter implements IPSPasswordFilter
-{
-   public static final Logger log = LogManager.getLogger(DefaultPasswordFilter.class);
-   
-   /* Main method used to test or encrypt from command line */
-   public static void main(String[] args)
-   {
-      DefaultPasswordFilter filter = new DefaultPasswordFilter();
+public class DefaultPasswordFilter implements IPSPasswordFilter {
+  public static final Logger log = LogManager.getLogger(DefaultPasswordFilter.class);
 
-      for (String arg : args) {
-         log.info("{} --> {}" ,arg , filter.encrypt(arg));
-      }
-   }
+  /* Main method used to test or encrypt from command line */
+  public static void main(String[] args) {
+    DefaultPasswordFilter filter = new DefaultPasswordFilter();
 
-   /* IPSPasswordFilter implementation */
+    for (String arg : args) {
+      log.info("{} --> {}", arg, filter.encrypt(arg));
+    }
+  }
 
-   /**
-    * This method is called by the Rhythmyx security provider before
-    * authenticating a user. The password submitted in the request is
-    * run through this filter, then checked against the stored password
-    * character-for-character.
-    *
-    * @param password The clear-text password to be encrypted. Never
-    * <CODE>null</CODE>, but may be <code>empty</code>.
-    *
-    * @return A string containing the encrypted password. Never
-    * <CODE>null</CODE>.
-    *
-    * @throws IllegalArgumentException If any param is invalid.
-    */
-   public String encrypt(String password)
-   {
-      if(StringUtils.isBlank(password))
-      {
-         return StringUtils.EMPTY; 
-      }
-      try {
-         return PSPasswordHandler.getHashedPassword(password.trim());
-      } catch (PSEncryptionException e) {
-         throw new IllegalArgumentException(e);
-      }
-   }
+  /* IPSPasswordFilter implementation */
 
-   @Override
-   public String getAlgorithm() {
-      return PSPasswordHandler.ALGORITHM;
-   }
+  /**
+   * This method is called by the Rhythmyx security provider before
+   * authenticating a user. The password submitted in the request is
+   * run through this filter, then checked against the stored password
+   * character-for-character.
+   *
+   * @param password The clear-text password to be encrypted. Never
+   * <CODE>null</CODE>, but may be <code>empty</code>.
+   *
+   * @return A string containing the encrypted password. Never
+   * <CODE>null</CODE>.
+   *
+   * @throws IllegalArgumentException If any param is invalid.
+   */
+  public String encrypt(String password) {
+    if (StringUtils.isBlank(password)) {
+      return StringUtils.EMPTY;
+    }
+    try {
+      return PSPasswordHandler.getHashedPassword(password.trim());
+    } catch (PSEncryptionException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
 
-   public void init(IPSExtensionDef def, File f)
-   {
-   }
+  @Override
+  public String getAlgorithm() {
+    return PSPasswordHandler.ALGORITHM;
+  }
 
+  public void init(IPSExtensionDef def, File f) {}
 
-   /***
-    * Will encrypt the password using the hashing / encryption
-    * routine used in the previous version of the software.
-    *
-    * This is to allow Security Providers to re-encrypt passwords
-    * on login after a security update.
-    *
-    * @param password
-    * @return
-    */
-   // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
-   @Override
-   @Deprecated
-   public String legacyEncrypt(String password) {
-      if(StringUtils.isBlank(password))
-      {
-         return StringUtils.EMPTY;
-      }
-      return DigestUtils.shaHex(password.trim());
-   }
+  /***
+   * Will encrypt the password using the hashing / encryption
+   * routine used in the previous version of the software.
+   *
+   * This is to allow Security Providers to re-encrypt passwords
+   * on login after a security update.
+   *
+   * @param password
+   * @return
+   */
+  // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
+  @Override
+  @Deprecated
+  public String legacyEncrypt(String password) {
+    if (StringUtils.isBlank(password)) {
+      return StringUtils.EMPTY;
+    }
+    return DigestUtils.shaHex(password.trim());
+  }
 
-   @Override
-   public String getLegacyAlgorithm() {
-      return "SHA-1";
-   }
+  @Override
+  public String getLegacyAlgorithm() {
+    return "SHA-1";
+  }
 }

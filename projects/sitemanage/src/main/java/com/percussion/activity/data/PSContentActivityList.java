@@ -24,7 +24,7 @@ import java.util.Collection;
 
 @JsonRootName(value = "ContentActivity")
 public class PSContentActivityList extends ArrayList<PSContentActivity> {
-    public PSContentActivityList(Collection<? extends PSContentActivity> c) {
-        super(c);
-    }
+  public PSContentActivityList(Collection<? extends PSContentActivity> c) {
+    super(c);
+  }
 }

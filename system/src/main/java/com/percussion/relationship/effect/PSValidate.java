@@ -40,70 +40,59 @@ import com.percussion.server.IPSRequestContext;
  * params[0] the text to return in the exception. This text can be
  * internationalized.
  * <p>
- * This is typically used for validation purpose. For example, one would 
- * attach this efefct to a relationship to throw an exception with a given 
- * message (parameter) whenever a condition succeeds and to not continue 
- * processing the effect. 
+ * This is typically used for validation purpose. For example, one would
+ * attach this efefct to a relationship to throw an exception with a given
+ * message (parameter) whenever a condition succeeds and to not continue
+ * processing the effect.
  *
  */
-public class PSValidate extends PSEffect
-{
-   /**
-    * Override the methode in the base class. This effect is meant to be run
-    * any context other than {@link IPSExecutionContext#RS_PRE_CONSTRUCTION}}
-    * and hence will return <code>true</code> for all other contexts.
-    */
-   public void test(
+public class PSValidate extends PSEffect {
+  /**
+   * Override the methode in the base class. This effect is meant to be run
+   * any context other than {@link IPSExecutionContext#RS_PRE_CONSTRUCTION}}
+   * and hence will return <code>true</code> for all other contexts.
+   */
+  public void test(
       Object[] params,
       IPSRequestContext request,
       IPSExecutionContext context,
-      PSEffectResult result)
-   {
-      if (context.isPreConstruction())
-      {
-         //Some default message
-         String msg = "Validation fails";
-         if (params.length > 0)
-         {
-            Object obj = params[0];
-            if (obj != null)
-               msg = obj.toString();
-         }
-         
-         
-         String[] args = {m_name, msg};
-         
-         result.setError(request.getUserLocale(),
-            IPSExtensionErrors.EFFECT_VALIDATE_MESSAGE, args);
+      PSEffectResult result) {
+    if (context.isPreConstruction()) {
+      // Some default message
+      String msg = "Validation fails";
+      if (params.length > 0) {
+        Object obj = params[0];
+        if (obj != null) msg = obj.toString();
       }
-      else
-      {
-         result.setSuccess();
-      }
-   }
 
-   //Implementation of the base class method
-   public void attempt(
-      Object[] params,
-      IPSRequestContext request,
-      IPSExecutionContext context,
-      PSEffectResult result)
-      throws PSExtensionProcessingException, PSParameterMismatchException
-   {
-      //Validation effect does not need to process anything
+      String[] args = {m_name, msg};
+
+      result.setError(request.getUserLocale(), IPSExtensionErrors.EFFECT_VALIDATE_MESSAGE, args);
+    } else {
       result.setSuccess();
-   }
+    }
+  }
 
-   //Implementation of the base class method
-   public void recover(
+  // Implementation of the base class method
+  public void attempt(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+    // Validation effect does not need to process anything
+    result.setSuccess();
+  }
+
+  // Implementation of the base class method
+  public void recover(
       Object[] params,
       IPSRequestContext request,
       IPSExecutionContext context,
       PSExtensionProcessingException e,
       PSEffectResult result)
-      throws PSExtensionProcessingException
-   {
-      //Validation effect does not need to recover anything
-      result.setSuccess();
-   }
+      throws PSExtensionProcessingException {
+    // Validation effect does not need to recover anything
+    result.setSuccess();
+  }
 }

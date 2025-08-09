@@ -17,7 +17,6 @@
 
 package com.percussion.auditlog;
 
-
 import com.ibm.cadf.middleware.AuditContext;
 import com.ibm.cadf.model.Event;
 
@@ -26,9 +25,13 @@ import com.ibm.cadf.model.Event;
  */
 public interface IPSAuditLogService {
 
-    public void logContentEvent(PSContentEvent event);
-    public void logWorkflowEvent(PSWorkflowEvent event);
-    public void logAuthenticationEvent(PSAuthenticationEvent event);
-    public void logUserManagementEvent(PSUserManagementEvent event);
-    public Event createEvent(AuditContext event, String action, String outcome);
+  public void logContentEvent(PSContentEvent event);
+
+  public void logWorkflowEvent(PSWorkflowEvent event);
+
+  public void logAuthenticationEvent(PSAuthenticationEvent event);
+
+  public void logUserManagementEvent(PSUserManagementEvent event);
+
+  public Event createEvent(AuditContext event, String action, String outcome);
 }

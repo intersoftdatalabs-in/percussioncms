@@ -31,113 +31,114 @@ import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
-
+import java.util.List;
+import javax.ws.rs.NotFoundException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-
-import javax.ws.rs.NotFoundException;
-import java.util.List;
-
 
 // REFACTORED: CP-JAVA11
 @PSSiteManageBean
 @Lazy
 public class AclAdaptor implements IAclAdaptor {
 
-    private final Logger log = LogManager.getLogger(this.getClass());
+  private final Logger log = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private IPSAclService aclService;
+  @Autowired private IPSAclService aclService;
 
-    /***
-     * CTOR
-     */
-    public AclAdaptor() {
-        // Left blank
+  /***
+   * CTOR
+   */
+  public AclAdaptor() {
+    // Left blank
+  }
+
+  @Override
+  public UserAccessLevel getUserAccessLevel(Guid objectGuid) {
+    return ApiUtils.convertPSUserAccessLevel(
+        aclService.getUserAccessLevel(ApiUtils.convertGuid(objectGuid)));
+  }
+
+  @Override
+  public UserAccessLevel calculateUserAccessLevel(String aclGuid) {
+    UserAccessLevel ret = null;
+    Guid g = null;
+    IPSAcl acl = null;
+
+    if (StringUtils.isNotEmpty(aclGuid)) {
+      g = new Guid(aclGuid);
+    }
+    try {
+      if (g != null) {
+        acl = aclService.loadAcl(ApiUtils.convertGuid(g));
+      }
+    } catch (PSSecurityException e) {
+      log.error("Error loading acl {}", aclGuid, e);
     }
 
-    @Override
-    public UserAccessLevel getUserAccessLevel(Guid objectGuid) {
-        return ApiUtils.convertPSUserAccessLevel(
-                aclService.getUserAccessLevel(
-                        ApiUtils.convertGuid(objectGuid)));
+    ret = ApiUtils.convertPSUserAccessLevel(aclService.calculateUserAccessLevel(acl));
+
+    return ret;
+  }
+
+  @Override
+  public Acl createAcl(Guid objGuid, TypedPrincipal owner) {
+    return ApiUtils.convertAcl(
+        (PSAclImpl)
+            aclService.createAcl(
+                ApiUtils.convertGuid(objGuid), ApiUtils.convertPrincipalType(owner)));
+  }
+
+  @Override
+  public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
+    return ApiUtils.convertAcls(aclService.loadAcls(ApiUtils.convertGuids(aclGuids)));
+  }
+
+  @Override
+  public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
+    return ApiUtils.convertAcl((PSAclImpl) aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
+  }
+
+  @Override
+  public AclList loadAclsForObjects(GuidList objectGuids) {
+    return ApiUtils.convertAcls(aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
+  }
+
+  @Override
+  public Acl loadAclForObject(Guid objectGuid) {
+    var ret =
+        ApiUtils.convertAcl(
+            (PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
+    if (ret != null) {
+      return ret;
+    } else {
+      throw new NotFoundException();
     }
+  }
 
-    @Override
-    public UserAccessLevel calculateUserAccessLevel(String aclGuid) {
-        UserAccessLevel ret = null;
-        Guid g = null;
-        IPSAcl acl = null;
+  @Override
+  public void saveAcls(AclList aclList) throws PSSecurityException {
+    aclService.saveAcls(ApiUtils.convertAcls(aclList));
+  }
 
-        if (StringUtils.isNotEmpty(aclGuid)) {
-            g = new Guid(aclGuid);
-        }
-        try {
-            if (g != null) {
-                acl = aclService.loadAcl(ApiUtils.convertGuid(g));
-            }
-        } catch (PSSecurityException e) {
-            log.error("Error loading acl {}", aclGuid, e);
-        }
+  @Override
+  public void deleteAcl(Guid aclGuid) throws PSSecurityException {
+    aclService.deleteAcl(ApiUtils.convertGuid(aclGuid));
+  }
 
-        ret = ApiUtils.convertPSUserAccessLevel(
-                aclService.calculateUserAccessLevel(acl));
+  @Override
+  public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
+    return ApiUtils.convertGuids(
+        aclService.filterByCommunities(ApiUtils.convertGuids(aclList), communityNames));
+  }
 
-        return ret;
-    }
-
-    @Override
-    public Acl createAcl(Guid objGuid, TypedPrincipal owner) {
-        return ApiUtils.convertAcl((PSAclImpl) aclService.createAcl(ApiUtils.convertGuid(objGuid), ApiUtils.convertPrincipalType(owner)));
-    }
-
-    @Override
-    public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
-        return ApiUtils.convertAcls(aclService.loadAcls(ApiUtils.convertGuids(aclGuids)));
-    }
-
-    @Override
-    public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
-        return ApiUtils.convertAcl((PSAclImpl) aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
-    }
-
-    @Override
-    public AclList loadAclsForObjects(GuidList objectGuids) {
-        return ApiUtils.convertAcls(aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
-    }
-
-    @Override
-    public Acl loadAclForObject(Guid objectGuid) {
-        var ret = ApiUtils.convertAcl((PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
-        if (ret != null) {
-            return ret;
-        } else {
-            throw new NotFoundException();
-        }
-    }
-
-    @Override
-    public void saveAcls(AclList aclList) throws PSSecurityException {
-        aclService.saveAcls(ApiUtils.convertAcls(aclList));
-    }
-
-    @Override
-    public void deleteAcl(Guid aclGuid) throws PSSecurityException {
-        aclService.deleteAcl(ApiUtils.convertGuid(aclGuid));
-    }
-
-    @Override
-    public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
-        return ApiUtils.convertGuids(aclService.filterByCommunities(
-                ApiUtils.convertGuids(aclList), communityNames)
-        );
-    }
-
-    @Override
-    public GuidList findObjectsVisibleToCommunities(List<String> communityNames, ObjectTypeEnum objectType) {
-        return ApiUtils.convertGuids(aclService.findObjectsVisibleToCommunities(communityNames, PSTypeEnum.valueOf(objectType.name())));
-    }
+  @Override
+  public GuidList findObjectsVisibleToCommunities(
+      List<String> communityNames, ObjectTypeEnum objectType) {
+    return ApiUtils.convertGuids(
+        aclService.findObjectsVisibleToCommunities(
+            communityNames, PSTypeEnum.valueOf(objectType.name())));
+  }
 }

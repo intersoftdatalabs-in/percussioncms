@@ -20,11 +20,10 @@ package com.percussion.delivery.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum FeedType {
-    @JsonProperty("ATOM")
-    ATOM,
-    @JsonProperty("RSS1")
-    RSS1,
-    @JsonProperty("RSS2")
-    RSS2
-
+  @JsonProperty("ATOM")
+  ATOM,
+  @JsonProperty("RSS1")
+  RSS1,
+  @JsonProperty("RSS2")
+  RSS2
 }

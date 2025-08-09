@@ -9,25 +9,23 @@ When I start a task, I will include `[Memory Bank: Active]` at the beginning of 
 The Memory Bank consists of core files and optional context files, all in Markdown format.
 
 ### Core Files (Required)
+
 1. `brief.md`
    This file is created and maintained manually by the developer. Don't edit this file directly but suggest to user to update it if it can be improved.
    - Foundation document that shapes all other files
    - Created at project start if it doesn't exist
    - Defines core requirements and goals
    - Source of truth for project scope
-
 2. `product.md`
    - Why this project exists
    - Problems it solves
    - How it should work
    - User experience goals
-
 3. `context.md`
    This file should be short and factual, not creative or speculative.
    - Current work focus
    - Recent changes
    - Next steps
-
 4. `architecture.md`
    - System architecture
    - Source Code paths
@@ -35,7 +33,6 @@ The Memory Bank consists of core files and optional context files, all in Markdo
    - Design patterns in use
    - Component relationships
    - Critical implementation paths
-
 5. `tech.md`
    - Technologies used
    - Development setup
@@ -44,6 +41,7 @@ The Memory Bank consists of core files and optional context files, all in Markdo
    - Tool usage patterns
 
 ### Additional Files
+
 Create additional files/folders within memory-bank/ when they help organize:
 - `tasks.md` - Documentation of repetitive tasks and their workflows
 - Complex feature documentation
@@ -98,7 +96,7 @@ This workflow is designed for repetitive tasks that follow similar patterns and 
 - Implementing new API endpoints following established patterns
 - Adding new features that follow existing architecture
 
-Tasks are stored in the file `tasks.md` in the memory bank folder. The file is optional an can be empty. The file can store many tasks. 
+Tasks are stored in the file `tasks.md` in the memory bank folder. The file is optional an can be empty. The file can store many tasks.
 
 To execute Add Task workflow:
 
@@ -112,6 +110,7 @@ To execute Add Task workflow:
 3. Include any context that was discovered during task execution but wasn't previously documented
 
 Example task entry:
+
 ```markdown
 ## Add New Model Support
 **Last performed:** [date]
@@ -135,7 +134,7 @@ Example task entry:
 
 ### Regular Task Execution
 
-In the beginning of EVERY task I MUST read ALL memory bank files - this is not optional. 
+In the beginning of EVERY task I MUST read ALL memory bank files - this is not optional.
 
 The memory bank files are located in `.kilocode/rules/memory-bank` folder. If the folder doesn't exist or is empty, I will warn user about potential issues with the memory bank. I will include `[Memory Bank: Active]` at the beginning of my response if I successfully read the memory bank files, or `[Memory Bank: Missing]` if the folder doesn't exist or is empty. If memory bank is missing, I will warn the user about potential issues and suggest initialization. I should briefly summarize my understanding of the project to confirm alignment with the user's expectations, like:
 

@@ -16,9 +16,7 @@
  */
 package com.percussion.install;
 
-
 import org.w3c.dom.Element;
-
 
 /**
  * This class updates the tomcat connectors in
@@ -27,76 +25,69 @@ import org.w3c.dom.Element;
  * default attributes which have been added in subsequent Rhythmyx versions.
  */
 // REFACTORED: CP-JAVA11
-public class PSUpgradePluginUpdateConnectors implements IPSUpgradePlugin
-{
-   /**
-    * Implements the process function of IPSUpgardePlugin. 
-    * Performs tomcat connector update. 
-    * 
-    * @param config PSUpgradeModule object.
-    * @param elemData We do not use this element in this function.
-    * @return <code>null</code>.
-    */
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      m_config = config;
-      int responseType = PSPluginResponse.SUCCESS;
-      String responseMsg = "Success";
-      
-      log("Performing tomcat connector update");
-     //TODO fix for 5.4
-     /*
-      try
-      {
-         String serverXmlStr = RxUpgrade.getRxRoot() +
-               PSJBossUtils.TOMCAT_SERVER_FILE;
-         File serverXmlFile = new File(serverXmlStr);
-         
-         log("Loading connectors from " + serverXmlStr);
-         List connectors = PSTomcatUtils.loadHttpConnectors(serverXmlFile);
-         log("Loaded " + connectors.size() + " connector(s)");
-         
-         log("Saving connectors to " + serverXmlStr);
-         PSTomcatUtils.saveHttpConnectors(serverXmlFile, connectors);
-         log("Tomcat connector update complete");
-      }
-      catch (Exception e)
-      {
-         responseType = PSPluginResponse.EXCEPTION;
-         responseMsg = e.getMessage();
-         log("Error occurred : " + e.getMessage());
-         e.printStackTrace(m_config.getLogStream());
-      }
-      */
-      return new PSPluginResponse(responseType, responseMsg);
-   }
-   
-   /**
-    * Prints message to the log printstream if it exists or just sends it to
-    * System.out
-    * 
-    * @param msg the message to be logged, can be <code>null</code>.
-    */
-   private void log(String msg)
-   {
-      if (msg == null)
-      {
-         return;
-      }
+public class PSUpgradePluginUpdateConnectors implements IPSUpgradePlugin {
+  /**
+   * Implements the process function of IPSUpgardePlugin.
+   * Performs tomcat connector update.
+   *
+   * @param config PSUpgradeModule object.
+   * @param elemData We do not use this element in this function.
+   * @return <code>null</code>.
+   */
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    m_config = config;
+    int responseType = PSPluginResponse.SUCCESS;
+    String responseMsg = "Success";
 
-      if (m_config != null)
-      {
-         m_config.getLogStream().println(msg);
-      }
-      else
-      {
-         System.out.println(msg);
-      }
-   }
-   
-   /**
-    * The config module, initialized in
-    * {@link #process(IPSUpgradeModule, Element)}.
+    log("Performing tomcat connector update");
+    // TODO fix for 5.4
+    /*
+    try
+    {
+       String serverXmlStr = RxUpgrade.getRxRoot() +
+             PSJBossUtils.TOMCAT_SERVER_FILE;
+       File serverXmlFile = new File(serverXmlStr);
+
+       log("Loading connectors from " + serverXmlStr);
+       List connectors = PSTomcatUtils.loadHttpConnectors(serverXmlFile);
+       log("Loaded " + connectors.size() + " connector(s)");
+
+       log("Saving connectors to " + serverXmlStr);
+       PSTomcatUtils.saveHttpConnectors(serverXmlFile, connectors);
+       log("Tomcat connector update complete");
+    }
+    catch (Exception e)
+    {
+       responseType = PSPluginResponse.EXCEPTION;
+       responseMsg = e.getMessage();
+       log("Error occurred : " + e.getMessage());
+       e.printStackTrace(m_config.getLogStream());
+    }
     */
-   private IPSUpgradeModule m_config;
+    return new PSPluginResponse(responseType, responseMsg);
+  }
+
+  /**
+   * Prints message to the log printstream if it exists or just sends it to
+   * System.out
+   *
+   * @param msg the message to be logged, can be <code>null</code>.
+   */
+  private void log(String msg) {
+    if (msg == null) {
+      return;
+    }
+
+    if (m_config != null) {
+      m_config.getLogStream().println(msg);
+    } else {
+      System.out.println(msg);
+    }
+  }
+
+  /**
+   * The config module, initialized in
+   * {@link #process(IPSUpgradeModule, Element)}.
+   */
+  private IPSUpgradeModule m_config;
 }

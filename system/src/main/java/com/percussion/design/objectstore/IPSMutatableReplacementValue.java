@@ -20,13 +20,12 @@ package com.percussion.design.objectstore;
 /**
  * This interface represents a <code>IPSReplacementValue</code> whose value
  * can be mutated after construction.
- */ 
-public interface IPSMutatableReplacementValue extends IPSReplacementValue
-{
-   /**
-    * Sets the implementation specific text for this value.
-    * @param text value to assign
-    * @throws IllegalArgumentException if text is invalid
-    */ 
-   public void setValueText(String text);
+ */
+public interface IPSMutatableReplacementValue extends IPSReplacementValue {
+  /**
+   * Sets the implementation specific text for this value.
+   * @param text value to assign
+   * @throws IllegalArgumentException if text is invalid
+   */
+  public void setValueText(String text);
 }

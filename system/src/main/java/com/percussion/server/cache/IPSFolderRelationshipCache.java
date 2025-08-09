@@ -26,57 +26,62 @@ import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.util.PSCacheException;
 import com.percussion.utils.guid.IPSGuid;
+import java.util.Collection;
+import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Collection;
-import java.util.List;
-
 public interface IPSFolderRelationshipCache extends IPSNotificationListener {
-    //Default number of levels / recursion
-    int DEFAULT_MAX_RECURSION = 20;
+  // Default number of levels / recursion
+  int DEFAULT_MAX_RECURSION = 20;
 
-    static IPSFolderRelationshipCache createInstance(){return null;};
+  static IPSFolderRelationshipCache createInstance() {
+    return null;
+  }
+  ;
 
-    static IPSFolderRelationshipCache getInstance(){return null;}
+  static IPSFolderRelationshipCache getInstance() {
+    return null;
+  }
 
-    void reinitialize(boolean isEnabled) throws PSCacheException;
+  void reinitialize(boolean isEnabled) throws PSCacheException;
 
-    void notifyEvent(PSNotificationEvent notify);
+  void notifyEvent(PSNotificationEvent notify);
 
-    PSItemSummaryCache getItemCache();
+  PSItemSummaryCache getItemCache();
 
-    List<PSLocator> getOwnerLocators(PSLocator itemLocator, String relationshipTypeName);
+  List<PSLocator> getOwnerLocators(PSLocator itemLocator, String relationshipTypeName);
 
-    String[] getParentPaths(PSLocator locator, String relationshipTypeName);
+  String[] getParentPaths(PSLocator locator, String relationshipTypeName);
 
-    List<PSLocator> getChildLocators(PSLocator locator);
+  List<PSLocator> getChildLocators(PSLocator locator);
 
-    List<Integer> getChildIDs(Integer parentID);
+  List<Integer> getChildIDs(Integer parentID);
 
-    List<PSLocator> getParentLocators(PSLocator locator);
+  List<PSLocator> getParentLocators(PSLocator locator);
 
-    void update(PSRelationshipSet relationships);
+  void update(PSRelationshipSet relationships);
 
-    PSLocator findChildOfType(PSLocator current, List<Long> types);
+  PSLocator findChildOfType(PSLocator current, List<Long> types);
 
-    void delete(PSRelationshipSet relationships);
+  void delete(PSRelationshipSet relationships);
 
-    PSRelationship getRelationship(int rid) throws PSNotFoundException;
+  PSRelationship getRelationship(int rid) throws PSNotFoundException;
 
-    List<PSRelationship> getChildren(PSLocator parent, PSRelationshipFilter filter);
+  List<PSRelationship> getChildren(PSLocator parent, PSRelationshipFilter filter);
 
-    List<PSRelationship> getParents(PSLocator child);
+  List<PSRelationship> getParents(PSLocator child);
 
-    int getIdByPath(List<String> paths, String relationshipTypeName);
+  int getIdByPath(List<String> paths, String relationshipTypeName);
 
-    List<IPSGuid> getFolderDescendants(IPSGuid parentGuid);
+  List<IPSGuid> getFolderDescendants(IPSGuid parentGuid);
 
-    Element getCacheStatistics(Document doc);
+  Element getCacheStatistics(Document doc);
 
-    void deleteOwnerRevisions(int ownerid, Collection<Integer> revisions);
+  void deleteOwnerRevisions(int ownerid, Collection<Integer> revisions);
 
-    List<PSRelationship> getAaChildren(PSLocator parent, String slot);
+  List<PSRelationship> getAaChildren(PSLocator parent, String slot);
 
-    Collection<PSRelationship> getAAParents(boolean publicRev, boolean tip, boolean current, String slot, PSLocator child);
+  Collection<PSRelationship> getAAParents(
+      boolean publicRev, boolean tip, boolean current, String slot, PSLocator child);
 }

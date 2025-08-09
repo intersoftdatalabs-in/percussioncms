@@ -10,28 +10,25 @@ import java.util.stream.Stream;
  */
 public final class PSDeliveryUtils {
 
-    private PSDeliveryUtils() {
-        // Utility class, do not instantiate.
-    }
+  private PSDeliveryUtils() {
+    // Utility class, do not instantiate.
+  }
 
-    /**
-     * Returns the first non-empty string from the provided arguments.
-     * @param values Strings to check.
-     * @return Optional containing the first non-empty string, or empty if none found.
-     */
-    public static Optional<String> firstNonEmpty(String... values) {
-        return Stream.of(values)
-                .filter(s -> s != null && !s.isEmpty())
-                .findFirst();
-    }
+  /**
+   * Returns the first non-empty string from the provided arguments.
+   * @param values Strings to check.
+   * @return Optional containing the first non-empty string, or empty if none found.
+   */
+  public static Optional<String> firstNonEmpty(String... values) {
+    return Stream.of(values).filter(s -> s != null && !s.isEmpty()).findFirst();
+  }
 
-    /**
-     * Checks if the given string is null or empty.
-     * @param value String to check.
-     * @return true if null or empty, false otherwise.
-     */
-    public static boolean isNullOrEmpty(String value) {
-        return value == null || value.isEmpty();
-    }
+  /**
+   * Checks if the given string is null or empty.
+   * @param value String to check.
+   * @return true if null or empty, false otherwise.
+   */
+  public static boolean isNullOrEmpty(String value) {
+    return value == null || value.isEmpty();
+  }
 }
-

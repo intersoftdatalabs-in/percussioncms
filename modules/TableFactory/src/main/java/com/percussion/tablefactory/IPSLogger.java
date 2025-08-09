@@ -21,32 +21,30 @@ package com.percussion.tablefactory;
  * This interface defines a few methods to log the messages so that any plugin
  * can use.
  */
-public interface IPSLogger
-{
-   /*
-    * Logs the message to whatever output the Logger object was initialized with
-    * no matter whether the Logger is in debug mode or not. This method is
-    * normally used to log a mandatory message.
-    *
-    * @param msg the message to be logged, must not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if the msg is <code>null</code> or
-    * <code>empty</code>.
-    */
-   void logMessage(String msg);
+public interface IPSLogger {
+  /*
+   * Logs the message to whatever output the Logger object was initialized with
+   * no matter whether the Logger is in debug mode or not. This method is
+   * normally used to log a mandatory message.
+   *
+   * @param msg the message to be logged, must not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException if the msg is <code>null</code> or
+   * <code>empty</code>.
+   */
+  void logMessage(String msg);
 
-   /*
-    * Logs the message to whatever output the Logger object was initialized with
-    * only if Logger is in debug mode. This method is normally used to log a
-    * extra information for debug purpose.
-    *
-    * @param msg the message to be logged, must not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if the msg is <code>null</code> or
-    * <code>empty</code>.
-    */
-   void logDebugMessage(String msg);
+  /*
+   * Logs the message to whatever output the Logger object was initialized with
+   * only if Logger is in debug mode. This method is normally used to log a
+   * extra information for debug purpose.
+   *
+   * @param msg the message to be logged, must not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException if the msg is <code>null</code> or
+   * <code>empty</code>.
+   */
+  void logDebugMessage(String msg);
 
-   static String LOG_CATEGORY="Table Factory";
-
+  static String LOG_CATEGORY = "Table Factory";
 }

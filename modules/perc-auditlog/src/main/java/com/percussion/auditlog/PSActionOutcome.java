@@ -18,8 +18,7 @@
 package com.percussion.auditlog;
 
 public enum PSActionOutcome {
-
-    SUCCESS,
-    FAILURE,
-    UNKNOWN
+  SUCCESS,
+  FAILURE,
+  UNKNOWN
 }

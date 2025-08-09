@@ -22,69 +22,65 @@ import java.util.Date;
  * @author erikserating
  *
  */
-public class PSFeedItem
-{
-   private String title;
-   private String description;
-   private Date publishDate;
-   private String link;
-   
-/**
- * @return the title
- */
-public String getTitle()
-{
+public class PSFeedItem {
+  private String title;
+  private String description;
+  private Date publishDate;
+  private String link;
+
+  /**
+   * @return the title
+   */
+  public String getTitle() {
     return title;
-}
-/**
- * @param title the title to set
- */
-public void setTitle(String title)
-{
+  }
+
+  /**
+   * @param title the title to set
+   */
+  public void setTitle(String title) {
     this.title = title;
-}
-/**
- * @return the description
- */
-public String getDescription()
-{
+  }
+
+  /**
+   * @return the description
+   */
+  public String getDescription() {
     return description;
-}
-/**
- * @param description the description to set
- */
-public void setDescription(String description)
-{
+  }
+
+  /**
+   * @param description the description to set
+   */
+  public void setDescription(String description) {
     this.description = description;
-}
-/**
- * @return the publishDate
- */
-public Date getPublishDate()
-{
+  }
+
+  /**
+   * @return the publishDate
+   */
+  public Date getPublishDate() {
     return publishDate;
-}
-/**
- * @param publishDate the publishDate to set
- */
-public void setPublishDate(Date publishDate)
-{
+  }
+
+  /**
+   * @param publishDate the publishDate to set
+   */
+  public void setPublishDate(Date publishDate) {
     this.publishDate = publishDate;
-}
-/**
- * @return the link
- */
-public String getLink()
-{
+  }
+
+  /**
+   * @return the link
+   */
+  public String getLink() {
     return link;
-}
-/**
- * @param link the link to set
- */
-public void setLink(String link)
-{
+  }
+
+  /**
+   * @param link the link to set
+   */
+  public void setLink(String link) {
     this.link = link;
-}
-   
-   
+  }
 }

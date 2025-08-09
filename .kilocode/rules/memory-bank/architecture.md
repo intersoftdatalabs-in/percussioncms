@@ -98,3 +98,4 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Build on JDK 11; run unit tests with JUnit 5 plus Vintage where necessary.
 - Package delivery-tier webapps for DTS tomcat deployment.
 - Future: Enable full CI across modules except proprietary; smoke deploy and regression test.
+

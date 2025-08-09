@@ -16,23 +16,21 @@
  */
 package com.percussion.security.shim.acl;
 
-/**
- * Compatibility exception mirroring java.security.acl.NotOwnerException.
- */
+/** Compatibility exception mirroring java.security.acl.NotOwnerException. */
 public class NotOwnerException extends Exception {
-    public NotOwnerException() {
-        super();
-    }
+  public NotOwnerException() {
+    super();
+  }
 
-    public NotOwnerException(String message) {
-        super(message);
-    }
+  public NotOwnerException(String message) {
+    super(message);
+  }
 
-    public NotOwnerException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public NotOwnerException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public NotOwnerException(Throwable cause) {
-        super(cause);
-    }
+  public NotOwnerException(Throwable cause) {
+    super(cause);
+  }
 }

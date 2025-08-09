@@ -18,47 +18,40 @@ package com.percussion.cms.objectstore.client;
 
 import com.percussion.error.PSException;
 
-
-
 /**
  * Exceptions of this type will be thrown from the Remote Agent
  */
-public class PSRemoteException extends PSException
-{
-   /*
-    * @see {@link com.percussion.error.PSException(int, Object)}
-    */
-   public PSRemoteException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+public class PSRemoteException extends PSException {
+  /*
+   * @see {@link com.percussion.error.PSException(int, Object)}
+   */
+  public PSRemoteException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   /*
-    * @see {@link com.percussion.error.PSException(int, Object[])}
-    */
-   public PSRemoteException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
+  /*
+   * @see {@link com.percussion.error.PSException(int, Object[])}
+   */
+  public PSRemoteException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /*
-    * @see {@link com.percussion.error.PSException(int)}
-    */
-   public PSRemoteException(int msgCode)
-   {
-      super(msgCode);
-   }
-   
-   /**
-    * Construct an exception from a class derived from PSException.  The name of
-    * the original exception class is saved.
-    *
-    * @param ex The exception to use.  Its message code and arguments are stored
-    * along with the original exception class name.  May not be
-    * <code>null</code>.
-    */
-   public PSRemoteException(PSException ex)
-   {
-      super(ex);
-   }
+  /*
+   * @see {@link com.percussion.error.PSException(int)}
+   */
+  public PSRemoteException(int msgCode) {
+    super(msgCode);
+  }
+
+  /**
+   * Construct an exception from a class derived from PSException.  The name of
+   * the original exception class is saved.
+   *
+   * @param ex The exception to use.  Its message code and arguments are stored
+   * along with the original exception class name.  May not be
+   * <code>null</code>.
+   */
+  public PSRemoteException(PSException ex) {
+    super(ex);
+  }
 }

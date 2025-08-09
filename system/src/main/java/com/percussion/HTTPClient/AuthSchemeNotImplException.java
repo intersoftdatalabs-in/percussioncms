@@ -17,7 +17,6 @@
 
 package com.percussion.HTTPClient;
 
-
 /**
  * Signals that the handling of a authorization scheme is not implemented.
  *
@@ -25,28 +24,24 @@ package com.percussion.HTTPClient;
  * @author	Ronald Tschalär
  */
 @Deprecated
-public class AuthSchemeNotImplException extends ModuleException
-{
+public class AuthSchemeNotImplException extends ModuleException {
 
-    /**
-     * Constructs an AuthSchemeNotImplException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public AuthSchemeNotImplException()
-    {
-	super();
-    }
+  /**
+   * Constructs an AuthSchemeNotImplException with no detail message.
+   * A detail message is a String that describes this particular exception.
+   */
+  public AuthSchemeNotImplException() {
+    super();
+  }
 
-
-    /**
-     * Constructs an AuthSchemeNotImplException class with the specified
-     * detail message.  A detail message is a String that describes this
-     * particular exception.
-     *
-     * @param msg the String containing a detail message
-     */
-    public AuthSchemeNotImplException(String msg)
-    {
-	super(msg);
-    }
+  /**
+   * Constructs an AuthSchemeNotImplException class with the specified
+   * detail message.  A detail message is a String that describes this
+   * particular exception.
+   *
+   * @param msg the String containing a detail message
+   */
+  public AuthSchemeNotImplException(String msg) {
+    super(msg);
+  }
 }

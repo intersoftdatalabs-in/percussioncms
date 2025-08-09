@@ -19,10 +19,15 @@ package com.percussion.delivery.polls.services;
 
 // REFACTORED: CP-JAVA11
 public interface IPSPollAnswer {
-    long getId();
-    void setId(long id);
-    String getAnswer();
-    void setAnswer(String answer);
-    int getCount();
-    void setCount(int count);
+  long getId();
+
+  void setId(long id);
+
+  String getAnswer();
+
+  void setAnswer(String answer);
+
+  int getCount();
+
+  void setCount(int count);
 }

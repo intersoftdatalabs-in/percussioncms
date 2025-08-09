@@ -17,8 +17,7 @@
 package com.percussion.security.shim.acl;
 
 /**
- * Marker interface equivalent to java.security.acl.Permission.
- * Concrete permission types in Percussion should implement this interface.
+ * Marker interface equivalent to java.security.acl.Permission. Concrete permission types in
+ * Percussion should implement this interface.
  */
-public interface Permission {
-}
+public interface Permission {}

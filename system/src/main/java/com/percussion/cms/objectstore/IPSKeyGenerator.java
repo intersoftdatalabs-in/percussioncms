@@ -18,12 +18,11 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 
-
 /**
  * This functionality is placed in its own interface so that it can be passed
  * to components during the toDbXml processing. This interface requires no
  * configuration, all required data is supplied to the methods.
- * 
+ *
  * @author Paul Howard
  * @version 1.0
  */

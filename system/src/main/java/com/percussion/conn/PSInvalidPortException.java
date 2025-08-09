@@ -28,15 +28,13 @@ package com.percussion.conn;
 // REFACTORED: CP-JAVA11
 public class PSInvalidPortException extends IllegalArgumentException {
 
-   /**
-    * Construct an invalid port exception when a string based port cannot
-    * be converted to a number.
-    *
-    * @param port          the string representation of the port
-    */
-   public PSInvalidPortException(String port)
-   {
-      super("Port number invalid: " + port);
-   }
+  /**
+   * Construct an invalid port exception when a string based port cannot
+   * be converted to a number.
+   *
+   * @param port          the string representation of the port
+   */
+  public PSInvalidPortException(String port) {
+    super("Port number invalid: " + port);
+  }
 }
-

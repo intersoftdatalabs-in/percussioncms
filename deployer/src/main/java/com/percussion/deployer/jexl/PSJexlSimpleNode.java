@@ -17,43 +17,40 @@
 package com.percussion.deployer.jexl;
 
 import org.apache.commons.jexl3.parser.SimpleNode;
+
 /**
- * 
+ *
  * A wrapper for SimpleNode.
  * @author vamsinukala
  *
  */
+public class PSJexlSimpleNode {
+  /**
+   * A SimpleNode that JEXL expects to parse and Rx does "visit"
+   */
+  private SimpleNode m_node = null;
 
-public class PSJexlSimpleNode
-{
-   /**
-    * A SimpleNode that JEXL expects to parse and Rx does "visit"
-    */
-   private SimpleNode m_node = null;
-   
-   private String m_code = null; 
-   
-   // REFACTORED: CP-JAVA11
-   public PSJexlSimpleNode(SimpleNode node, String code) {
-       this.m_node = node;
-       this.m_code = code;
-   }
+  private String m_code = null;
 
-   /**
-    * Accessor for the simple node
-    * @return the simple node
-    */
-   public SimpleNode getNode()
-   {
-      return m_node;
-   }
+  // REFACTORED: CP-JAVA11
+  public PSJexlSimpleNode(SimpleNode node, String code) {
+    this.m_node = node;
+    this.m_code = code;
+  }
 
-   /**
-    * Accessor for the expression/script
-    * @return the expression that this node tree represents
-    */
-   public String getCode()
-   {
-      return m_code;
-   }   
+  /**
+   * Accessor for the simple node
+   * @return the simple node
+   */
+  public SimpleNode getNode() {
+    return m_node;
+  }
+
+  /**
+   * Accessor for the expression/script
+   * @return the expression that this node tree represents
+   */
+  public String getCode() {
+    return m_code;
+  }
 }

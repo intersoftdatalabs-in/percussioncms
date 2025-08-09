@@ -30,41 +30,41 @@ import org.springframework.validation.Validator;
  *
  * @param <FULL> the class to be validated.
  */
-public abstract class PSAbstractBeanValidator<FULL> implements Validator
-{
-    private SpringValidator ovalValidator = new SpringValidator();
-    {
-        ovalValidator.setValidator(new net.sf.oval.Validator());
-    }
-    
-    public PSBeanValidationException validate(FULL obj) throws PSValidationException {
+public abstract class PSAbstractBeanValidator<FULL> implements Validator {
+  private SpringValidator ovalValidator = new SpringValidator();
 
-        PSParameterValidationUtils.rejectIfNull("validate", "object", obj);
-        PSBeanValidationException e = new PSBeanValidationException(obj, obj.getClass().getCanonicalName());
-        validate(obj, e);
-        return e;
-    }
+  {
+    ovalValidator.setValidator(new net.sf.oval.Validator());
+  }
 
-    protected abstract void doValidation(FULL obj, PSBeanValidationException e) throws PSValidationException;
+  public PSBeanValidationException validate(FULL obj) throws PSValidationException {
 
-    public boolean supports(Class clazz)
-    {
-        return ovalValidator.supports(clazz);
-    }
+    PSParameterValidationUtils.rejectIfNull("validate", "object", obj);
+    PSBeanValidationException e =
+        new PSBeanValidationException(obj, obj.getClass().getCanonicalName());
+    validate(obj, e);
+    return e;
+  }
 
+  protected abstract void doValidation(FULL obj, PSBeanValidationException e)
+      throws PSValidationException;
 
-    public void validate(Object object, Errors errors)  {
+  public boolean supports(Class clazz) {
+    return ovalValidator.supports(clazz);
+  }
+
+  public void validate(Object object, Errors errors) {
+    try {
+      ovalValidator.validate(object, errors);
+      if (errors instanceof PSBeanValidationException) {
         try {
-            ovalValidator.validate(object, errors);
-            if (errors instanceof PSBeanValidationException) {
-                try {
-                    doValidation((FULL) object, (PSBeanValidationException) errors);
-                } catch (PSValidationException e) {
-                    ((PSBeanValidationException) errors).addSuppressed(e);
-                }
-            }
-        }catch(ValidationFailedException ex){
-            ((PSBeanValidationException) errors).addSuppressed(ex);
+          doValidation((FULL) object, (PSBeanValidationException) errors);
+        } catch (PSValidationException e) {
+          ((PSBeanValidationException) errors).addSuppressed(e);
         }
+      }
+    } catch (ValidationFailedException ex) {
+      ((PSBeanValidationException) errors).addSuppressed(ex);
     }
+  }
 }

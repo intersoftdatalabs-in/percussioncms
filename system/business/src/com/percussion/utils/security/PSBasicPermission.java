@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.utils.security;
 
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.Permission;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 

@@ -18,7 +18,6 @@
 package com.percussion.error;
 
 import com.percussion.log.PSLogError;
-
 import java.util.Objects;
 
 /**
@@ -29,92 +28,84 @@ import java.util.Objects;
  * @version    1.0
  * @since      1.0
  */
-public abstract class PSBackEndError extends PSLogError
-{
-   /**
-    * Report an error encountered against the specified
-    * back-end (database).
-    * <p>
-    * The application id is most commonly obtained by calling
-    * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-    * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-    * <p>
-    * The session id can be obtained from the
-    * {@link com.percussion.server.PSUserSession PSUserSession} object
-    * contained in the
-    * {@link com.percussion.server.PSRequest PSRequest} object.
-    *
-    * @param      applId      the id of the application that generated
-    *                           the error
-    *
-    * @param      errorCode   the error code reported by the back-end
-    *                           (database)
-    *
-    * @param      errorParams   if the error string associated with the
-    *                           error code specifies parameters, this is
-    *                           an array of values to use to fill the string
-    *                           appropriately. Be sure to include the
-    *                           correct arguments in their correct
-    *                           positions!
-    */
-   protected PSBackEndError(int applId, int errorCode, Object[] errorParams)
-   {
-      super(applId);
-      m_errorCode = errorCode;
-      m_errorArgs = errorParams;
-   }
+public abstract class PSBackEndError extends PSLogError {
+  /**
+   * Report an error encountered against the specified
+   * back-end (database).
+   * <p>
+   * The application id is most commonly obtained by calling
+   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
+   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   * <p>
+   * The session id can be obtained from the
+   * {@link com.percussion.server.PSUserSession PSUserSession} object
+   * contained in the
+   * {@link com.percussion.server.PSRequest PSRequest} object.
+   *
+   * @param      applId      the id of the application that generated
+   *                           the error
+   *
+   * @param      errorCode   the error code reported by the back-end
+   *                           (database)
+   *
+   * @param      errorParams   if the error string associated with the
+   *                           error code specifies parameters, this is
+   *                           an array of values to use to fill the string
+   *                           appropriately. Be sure to include the
+   *                           correct arguments in their correct
+   *                           positions!
+   */
+  protected PSBackEndError(int applId, int errorCode, Object[] errorParams) {
+    super(applId);
+    m_errorCode = errorCode;
+    m_errorArgs = errorParams;
+  }
 
-   /**
-    * Allows the user to determine the underlying exception type.
-    *
-    * @return The error code passed to the ctor of this object.
-    */
-   public int getErrorCode()
-   {
-      return m_errorCode;
-   }
+  /**
+   * Allows the user to determine the underlying exception type.
+   *
+   * @return The error code passed to the ctor of this object.
+   */
+  public int getErrorCode() {
+    return m_errorCode;
+  }
 
-   /**
-    * Gets the error arguments.
-    *
-    * @return The error arguments array, may be {@code null}
-    */
-   public Object[] getErrorArgs()
-   {
-      return m_errorArgs;
-   }
+  /**
+   * Gets the error arguments.
+   *
+   * @return The error arguments array, may be {@code null}
+   */
+  public Object[] getErrorArgs() {
+    return m_errorArgs;
+  }
 
-   /**
-    * Compares this object with another for equality.
-    *
-    * @param obj The object to compare with.
-    *
-    * @return {@code true} if the objects are equal, {@code false} otherwise.
-    */
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj) return true;
-      if (obj == null || getClass() != obj.getClass()) return false;
-      if (!super.equals(obj)) return false;
+  /**
+   * Compares this object with another for equality.
+   *
+   * @param obj The object to compare with.
+   *
+   * @return {@code true} if the objects are equal, {@code false} otherwise.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    if (!super.equals(obj)) return false;
 
-      var other = (PSBackEndError) obj;
-      return m_errorCode == other.m_errorCode &&
-             Objects.deepEquals(m_errorArgs, other.m_errorArgs);
-   }
+    var other = (PSBackEndError) obj;
+    return m_errorCode == other.m_errorCode && Objects.deepEquals(m_errorArgs, other.m_errorArgs);
+  }
 
-   /**
-    * Returns the hash code for this object.
-    *
-    * @return The hash code.
-    */
-   @Override
-   public int hashCode()
-   {
-      return Objects.hash(super.hashCode(), m_errorCode,
-                         Objects.deepHashCode(m_errorArgs));
-   }
+  /**
+   * Returns the hash code for this object.
+   *
+   * @return The hash code.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), m_errorCode, Objects.deepHashCode(m_errorArgs));
+  }
 
-   protected final int m_errorCode;
-   protected final Object[] m_errorArgs;
+  protected final int m_errorCode;
+  protected final Object[] m_errorArgs;
 }

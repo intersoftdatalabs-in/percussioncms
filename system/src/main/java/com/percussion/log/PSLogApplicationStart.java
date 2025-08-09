@@ -17,7 +17,6 @@
 
 package com.percussion.log;
 
-
 /**
  * The PSLogApplicationStart class is used to log an application
  * startup event.
@@ -27,42 +26,41 @@ package com.percussion.log;
  * @since      1.0
  */
 public class PSLogApplicationStart extends PSLogInformation {
-   
-   /**
-    * Construct a log message identifying the application being started.
-    *
-    * @param   id       the id of the application being started
-    * @param   name     the name of the application being started
-    */
-   public PSLogApplicationStart(int id, java.lang.String name)
-   {
-      super(LOG_TYPE, id);
-      m_Subs = new PSLogSubMessage[1];
-      m_Subs[0] = new PSLogSubMessage(SUBTYPE_APPNAME, name); 
-   }
 
-   /**
-    * Get the sub-messages (type and text). A single sub-message is created
-    * containing the name of the application being started.
-    *
-    * @return  an array of sub-messages (PSLogSubMessage)
-    */
-   public PSLogSubMessage[] getSubMessages()
-   {
-      return m_Subs;
-   }
+  /**
+   * Construct a log message identifying the application being started.
+   *
+   * @param   id       the id of the application being started
+   * @param   name     the name of the application being started
+   */
+  public PSLogApplicationStart(int id, java.lang.String name) {
+    super(LOG_TYPE, id);
+    m_Subs = new PSLogSubMessage[1];
+    m_Subs[0] = new PSLogSubMessage(SUBTYPE_APPNAME, name);
+  }
 
-   /**
-    * Application start is set as type 4.
-    */
-   private static final int LOG_TYPE = 4;
-   
-   /**
-    *   Right now, there is only one sub-message type
-    */
-   private static final int SUBTYPE_APPNAME = 0;
-   /**
-    *   The array of sub-messages
-    */
-   private PSLogSubMessage[] m_Subs = null;
+  /**
+   * Get the sub-messages (type and text). A single sub-message is created
+   * containing the name of the application being started.
+   *
+   * @return  an array of sub-messages (PSLogSubMessage)
+   */
+  public PSLogSubMessage[] getSubMessages() {
+    return m_Subs;
+  }
+
+  /**
+   * Application start is set as type 4.
+   */
+  private static final int LOG_TYPE = 4;
+
+  /**
+   *   Right now, there is only one sub-message type
+   */
+  private static final int SUBTYPE_APPNAME = 0;
+
+  /**
+   *   The array of sub-messages
+   */
+  private PSLogSubMessage[] m_Subs = null;
 }

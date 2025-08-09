@@ -29,66 +29,54 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 
 /**
- * 
+ *
  * @author miltonpividori
- * 
+ *
  */
 @Entity
 @Table(name = "PERC_COMMENT_TAGS")
-public class PSCommentTag
-{
+public class PSCommentTag {
 
-    @TableGenerator(
-        name="commentTagId", 
-        table="PERC_ID_GEN", 
-        pkColumnName="GEN_KEY", 
-        valueColumnName="GEN_VALUE", 
-        pkColumnValue="commentTagId", 
-        allocationSize=1)
-    
-    @Id
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="commentTagId")
-    private long id;
-    
-    @ManyToOne(optional = false)
-    @JoinColumn(name="COMMENT_ID")
-    private PSComment comment;
-    
-    @Basic
-    private String name;
-    
-    public PSCommentTag()
-    {
-        
-    }
-    
-    public PSCommentTag(String name)
-    {
-        this.name = name;
-    }
+  @TableGenerator(
+      name = "commentTagId",
+      table = "PERC_ID_GEN",
+      pkColumnName = "GEN_KEY",
+      valueColumnName = "GEN_VALUE",
+      pkColumnValue = "commentTagId",
+      allocationSize = 1)
+  @Id
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "commentTagId")
+  private long id;
 
-    public long getId()
-    {
-        return id;
-    }
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "COMMENT_ID")
+  private PSComment comment;
 
-    public PSComment getComment()
-    {
-        return comment;
-    }
+  @Basic private String name;
 
-    public void setComment(PSComment comment)
-    {
-        this.comment = comment;
-    }
+  public PSCommentTag() {}
 
-    public String getName()
-    {
-        return name;
-    }
+  public PSCommentTag(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public long getId() {
+    return id;
+  }
+
+  public PSComment getComment() {
+    return comment;
+  }
+
+  public void setComment(PSComment comment) {
+    this.comment = comment;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }

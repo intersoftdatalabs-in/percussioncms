@@ -17,5 +17,4 @@
 
 package com.percussion.utils.container.config;
 
-public interface ContainerConfig {
-}
+public interface ContainerConfig {}

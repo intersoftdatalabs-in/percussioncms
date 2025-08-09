@@ -25,81 +25,81 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSUninstallResult implements IPSUninstallResult {
 
-   public PSUninstallResult(String pkgName, PSUninstallResultType resultType) {
-      if (StringUtils.isBlank(pkgName)) {
-         throw new IllegalArgumentException("pkgName must not be empty");
-      }
-      if (resultType == null) {
-         throw new IllegalArgumentException("resultType must not be null");
-      }
-      this.packageName = pkgName;
-      this.resultType = resultType;
-   }
+  public PSUninstallResult(String pkgName, PSUninstallResultType resultType) {
+    if (StringUtils.isBlank(pkgName)) {
+      throw new IllegalArgumentException("pkgName must not be empty");
+    }
+    if (resultType == null) {
+      throw new IllegalArgumentException("resultType must not be null");
+    }
+    this.packageName = pkgName;
+    this.resultType = resultType;
+  }
 
-   @Override
-   public String getMessage() {
-      return message;
-   }
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-   @Override
-   public Exception getException() {
-      return exception;
-   }
+  @Override
+  public Exception getException() {
+    return exception;
+  }
 
-   @Override
-   public PSUninstallResultType getResultType() {
-      return resultType;
-   }
+  @Override
+  public PSUninstallResultType getResultType() {
+    return resultType;
+  }
 
-   @Override
-   public IPSGuid getObjectGuid() {
-      return objectGuid;
-   }
+  @Override
+  public IPSGuid getObjectGuid() {
+    return objectGuid;
+  }
 
-   @Override
-   public String getObjectName() {
-      return objectName;
-   }
+  @Override
+  public String getObjectName() {
+    return objectName;
+  }
 
-   @Override
-   public IPSGuid getPackageGuid() {
-      return packageGuid;
-   }
+  @Override
+  public IPSGuid getPackageGuid() {
+    return packageGuid;
+  }
 
-   @Override
-   public String getPackageName() {
-      return packageName;
-   }
+  @Override
+  public String getPackageName() {
+    return packageName;
+  }
 
-   public void setException(Exception exception) {
-      this.exception = exception;
-   }
+  public void setException(Exception exception) {
+    this.exception = exception;
+  }
 
-   public void setResultType(PSUninstallResultType resultType) {
-      this.resultType = resultType;
-   }
+  public void setResultType(PSUninstallResultType resultType) {
+    this.resultType = resultType;
+  }
 
-   public void setObjectGuid(IPSGuid objectGuid) {
-      this.objectGuid = objectGuid;
-   }
+  public void setObjectGuid(IPSGuid objectGuid) {
+    this.objectGuid = objectGuid;
+  }
 
-   public void setObjectName(String objectName) {
-      this.objectName = objectName;
-   }
+  public void setObjectName(String objectName) {
+    this.objectName = objectName;
+  }
 
-   public void setPackageGuid(IPSGuid packageGuid) {
-      this.packageGuid = packageGuid;
-   }
+  public void setPackageGuid(IPSGuid packageGuid) {
+    this.packageGuid = packageGuid;
+  }
 
-   public void setMessage(String message) {
-      this.message = message;
-   }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-   private IPSGuid packageGuid;
-   private IPSGuid objectGuid;
-   private String packageName;
-   private String objectName;
-   private Exception exception;
-   private PSUninstallResultType resultType;
-   private String message;
+  private IPSGuid packageGuid;
+  private IPSGuid objectGuid;
+  private String packageName;
+  private String objectName;
+  private Exception exception;
+  private PSUninstallResultType resultType;
+  private String message;
 }

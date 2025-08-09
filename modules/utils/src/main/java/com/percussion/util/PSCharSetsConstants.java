@@ -21,31 +21,27 @@ import com.percussion.utils.tools.IPSUtilsConstants;
 /**
  * Holds the server-independent methods that were once in PSCharSets
  */
-public class PSCharSetsConstants
-{
-   /**
-    * Get the standard name of the preferred encoding for
-    * Rhythmyx. This encoding is guaranteed to be acceptable for
-    * XML parsers and HTTP servers, and should be some kind of Unicode
-    * so that we can be sure all characters are representable.
-    * @return valid String of the standard name for {@link #rxJavaEnc}
-    */
-   public static String rxStdEnc()
-   {
-      return IPSUtilsConstants.RX_STANDARD_ENC;
-   }
+public class PSCharSetsConstants {
+  /**
+   * Get the standard name of the preferred encoding for
+   * Rhythmyx. This encoding is guaranteed to be acceptable for
+   * XML parsers and HTTP servers, and should be some kind of Unicode
+   * so that we can be sure all characters are representable.
+   * @return valid String of the standard name for {@link #rxJavaEnc}
+   */
+  public static String rxStdEnc() {
+    return IPSUtilsConstants.RX_STANDARD_ENC;
+  }
 
-
-   /**
-    * Get the standard name of the preferred encoding for
-    * Rhythmyx. This encoding is guaranteed to be acceptable for
-    * Sun's Java methods which take a character encoding, and should be
-    * some kind of Unicode so that we can be sure all characters are
-    * representable.
-    * @return valid String of the Java name for {@link #rxStdEnc}
-    */
-   public static String rxJavaEnc()
-   {
-      return IPSUtilsConstants.RX_JAVA_ENC;
-   }
+  /**
+   * Get the standard name of the preferred encoding for
+   * Rhythmyx. This encoding is guaranteed to be acceptable for
+   * Sun's Java methods which take a character encoding, and should be
+   * some kind of Unicode so that we can be sure all characters are
+   * representable.
+   * @return valid String of the Java name for {@link #rxStdEnc}
+   */
+  public static String rxJavaEnc() {
+    return IPSUtilsConstants.RX_JAVA_ENC;
+  }
 }

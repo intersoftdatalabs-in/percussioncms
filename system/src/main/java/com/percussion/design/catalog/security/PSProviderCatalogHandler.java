@@ -21,7 +21,6 @@ import com.percussion.design.catalog.IPSCatalogHandler;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
-
 /**
  * The PSProviderCatalogHandler class implements cataloging of security
  * providers. This request type is used to locate the security providers
@@ -77,54 +76,50 @@ import org.w3c.dom.Document;
  * @version    1.0
  * @since      1.0
  */
-public class PSProviderCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSProviderCatalogHandler()
-   {
-      super();
-   }
+public class PSProviderCatalogHandler implements IPSCatalogHandler {
+  /**
+   * Constructs an instance of this handler.
+   */
+  public PSProviderCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>security</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Provider</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"security".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request
+   * information. The request information for this request type is:
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>security</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Provider</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param      req         the request information
+   *
+   * @return                 an XML document containing the appropriate
+   *                         catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"security".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ( (sTemp == null) || !"Provider".equalsIgnoreCase(sTemp) ) {
-         Object[] args = { "Provider", (sTemp == null ? "" : sTemp) };
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Provider".equalsIgnoreCase(sTemp)) {
+      Object[] args = {"Provider", (sTemp == null ? "" : sTemp)};
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      PSXmlDocumentBuilder.createRoot(reqDoc, "PSXSecurityProviderCatalog");
+    PSXmlDocumentBuilder.createRoot(reqDoc, "PSXSecurityProviderCatalog");
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

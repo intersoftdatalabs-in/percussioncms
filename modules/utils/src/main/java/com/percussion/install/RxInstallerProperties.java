@@ -17,78 +17,64 @@
 
 package com.percussion.install;
 
-//java
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+// java
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
-   * RxInstallerProperties is used to manage the resource bundle
-  */
-public class RxInstallerProperties
-{
+ * RxInstallerProperties is used to manage the resource bundle
+ */
+public class RxInstallerProperties {
 
-    private static final Logger log = LogManager.getLogger(RxInstallerProperties.class);
+  private static final Logger log = LogManager.getLogger(RxInstallerProperties.class);
 
   /**
    * Constructs an RxInstallerProperties
    */
-  public RxInstallerProperties()
-  {
-  }
+  public RxInstallerProperties() {}
 
   /**
    * Get string resource given a key. If resourse or a key
    * is not available it prints a message on a console and
    * returns a key itself.
    * @param key string key, never <code>null</code> or <code>empty</code>.
-   * @return resource string, never <code>null</code>. 
+   * @return resource string, never <code>null</code>.
    */
-  static public String getString(String key)
-  {
-     if (key == null || key.trim().length() < 1)
-        throw new IllegalArgumentException("key may not be null or empty");
-      
-     try
-     {
-        return getResources().getString(key);
-     }
-     catch(Throwable th)
-     {
-         log.error(th.getMessage());
-         log.debug(th.getMessage(), th);
-        
-        log.info("RxInstallerProperties: key missing: " + key);
-        
-        return key;
-     }
+  public static String getString(String key) {
+    if (key == null || key.trim().length() < 1)
+      throw new IllegalArgumentException("key may not be null or empty");
+
+    try {
+      return getResources().getString(key);
+    } catch (Throwable th) {
+      log.error(th.getMessage());
+      log.debug(th.getMessage(), th);
+
+      log.info("RxInstallerProperties: key missing: " + key);
+
+      return key;
+    }
   }
-    
+
   /**
-    * Get the resource 
-    */
-  static public ResourceBundle getResources()
-  {
-      try 
-      {
-         if ( null == m_res )
-         {
-            String bundleName = "com.percussion.install.RxInstaller";
-            m_res = ResourceBundle.getBundle(bundleName, Locale.getDefault());
-         }
+   * Get the resource
+   */
+  public static ResourceBundle getResources() {
+    try {
+      if (null == m_res) {
+        String bundleName = "com.percussion.install.RxInstaller";
+        m_res = ResourceBundle.getBundle(bundleName, Locale.getDefault());
       }
-      catch(MissingResourceException mre)
-      {
-          log.error(mre.getMessage());
-          log.debug(mre.getMessage(), mre);
-      }
-      
-      return m_res;
+    } catch (MissingResourceException mre) {
+      log.error(mre.getMessage());
+      log.debug(mre.getMessage(), mre);
+    }
+
+    return m_res;
   }
-  
-   private static ResourceBundle m_res = null;
+
+  private static ResourceBundle m_res = null;
 }

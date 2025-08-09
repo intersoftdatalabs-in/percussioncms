@@ -21,17 +21,17 @@ import org.w3c.dom.Node;
 
 // REFACTORED: CP-JAVA11
 public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment {
-   @Override
-   public short getNodeType() {
-      return Node.DOCUMENT_FRAGMENT_NODE;
-   }
+  @Override
+  public short getNodeType() {
+    return Node.DOCUMENT_FRAGMENT_NODE;
+  }
 
-   /**
-    * Method introduced later in DOM level 2. Not implemented.
-    */
-   @Override
-   public String getLocalName() {
-      // TODO: implement
-      throw new UnsupportedOperationException("Method getLocalName not supported");
-   }
+  /**
+   * Method introduced later in DOM level 2. Not implemented.
+   */
+  @Override
+  public String getLocalName() {
+    // TODO: implement
+    throw new UnsupportedOperationException("Method getLocalName not supported");
+  }
 }

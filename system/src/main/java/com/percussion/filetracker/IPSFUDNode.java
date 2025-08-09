@@ -25,93 +25,90 @@ import org.w3c.dom.Element;
  * directly or indirectly.
  *
  */
-public interface IPSFUDNode
-{
-   /**
-    * return String version of the node that is displayed in the treetable
-    *
-    * @return String representation of the node.
-    *
-    */
-   String toString();
+public interface IPSFUDNode {
+  /**
+   * return String version of the node that is displayed in the treetable
+   *
+   * @return String representation of the node.
+   *
+   */
+  String toString();
 
-   /**
-    * return DOM element of the node
-    *
-    * @return DOM Element
-    *
-    */
-   Element getElement();
+  /**
+   * return DOM element of the node
+   *
+   * @return DOM Element
+   *
+   */
+  Element getElement();
 
-   /**
-    * return array of child Nodes for the node
-    *
-    * @return DOM Element
-    *
-    */
-   Object[] getChildren();
+  /**
+   * return array of child Nodes for the node
+   *
+   * @return DOM Element
+   *
+   */
+  Object[] getChildren();
 
-   /**
-    * return status code for the node
-    *
-    * @return int value of the status
-    *
-    */
-   int getStatusCode();
+  /**
+   * return status code for the node
+   *
+   * @return int value of the status
+   *
+   */
+  int getStatusCode();
 
-   /**
-    * return the status string for the node
-    *
-    * @return status string as String
-    *
-    */
-   String getStatusText();
+  /**
+   * return the status string for the node
+   *
+   * @return status string as String
+   *
+   */
+  String getStatusText();
 
-   /**
-    * returns true if remote file exists
-    *
-    *  @return true if remote file exists else false
-    */
-   boolean isRemoteExists();
+  /**
+   * returns true if remote file exists
+   *
+   *  @return true if remote file exists else false
+   */
+  boolean isRemoteExists();
 
-   /**
-    * Element name that stores the status for any node. This is assumed to be
-    * the same for all derived nodes too.
-    *
-    */
-   String ELEM_STATUS = "status";
+  /**
+   * Element name that stores the status for any node. This is assumed to be
+   * the same for all derived nodes too.
+   *
+   */
+  String ELEM_STATUS = "status";
 
-   /**
-    * Attribute name of the element ELEM_STATUS that stores the status code for
-    * the node. This is assumed to be the same for all derived nodes too.
-    *
-    */
-   String ATTRIB_CODE = "code";
+  /**
+   * Attribute name of the element ELEM_STATUS that stores the status code for
+   * the node. This is assumed to be the same for all derived nodes too.
+   *
+   */
+  String ATTRIB_CODE = "code";
 
-   /**
-    * Status code indicating that the remote counter part is missing.
-    */
-   int STATUS_CODE_ABSENT = -1;
+  /**
+   * Status code indicating that the remote counter part is missing.
+   */
+  int STATUS_CODE_ABSENT = -1;
 
-   /**
-    * Status code indicating normal status -> remote exists, local does not.
-    */
-   int STATUS_CODE_NORMAL = 0;
+  /**
+   * Status code indicating normal status -> remote exists, local does not.
+   */
+  int STATUS_CODE_NORMAL = 0;
 
-   /**
-    * Status code indicating that the remote copy and local copy are in sync.
-    */
-   int STATUS_CODE_INSYNC = 1;
+  /**
+   * Status code indicating that the remote copy and local copy are in sync.
+   */
+  int STATUS_CODE_INSYNC = 1;
 
-   /**
-    * Status code indicating that the remote copy is newer than the local one.
-    */
-   int STATUS_CODE_REMOTENEW = 2;
+  /**
+   * Status code indicating that the remote copy is newer than the local one.
+   */
+  int STATUS_CODE_REMOTENEW = 2;
 
-   /**
-    * Status code indicating that the local copy is newer thatn the remote one.
-    */
-   int STATUS_CODE_LOCALNEW = 3;
+  /**
+   * Status code indicating that the local copy is newer thatn the remote one.
+   */
+  int STATUS_CODE_LOCALNEW = 3;
 }
-
-

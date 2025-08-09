@@ -22,12 +22,10 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.polls.services.PSPollsRestService;
+import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.glassfish.jersey.server.spring.SpringComponentProvider;
-
-import jakarta.ws.rs.ApplicationPath;
 
 /**
  * Jersey application configuration for Polls REST API.
@@ -35,15 +33,16 @@ import jakarta.ws.rs.ApplicationPath;
  */
 @ApplicationPath("/")
 public class PSPollsApplication extends ResourceConfig {
-    public PSPollsApplication() {
-        // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
-        // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.
-        // Removed SpringWebApplicationInitializer registration; not required for Jersey 2.x Spring integration.
-        register(PSPollsRestService.class);
-        register(LoggingFeature.class);
-        register(RolesAllowedDynamicFeature.class);
-        register(PSJsonMappingErrorResponse.class);
-        register(PSUncaughtError.class);
-        register(JacksonJaxbJsonProvider.class);
-    }
+  public PSPollsApplication() {
+    // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
+    // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.
+    // Removed SpringWebApplicationInitializer registration; not required for Jersey 2.x Spring
+    // integration.
+    register(PSPollsRestService.class);
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+    register(PSJsonMappingErrorResponse.class);
+    register(PSUncaughtError.class);
+    register(JacksonJaxbJsonProvider.class);
+  }
 }

@@ -21,12 +21,11 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This UDF returns the I18n resource lookup value string for the supplied
@@ -40,57 +39,48 @@ import java.util.List;
  *
  * @see PSI18nUtils#getString
  */
-public class PSLocalizedTextLookupUser
-   extends PSSimpleJavaUdfExtension
-{
+public class PSLocalizedTextLookupUser extends PSSimpleJavaUdfExtension {
 
-   private static final Logger log = LogManager.getLogger(PSLocalizedTextLookupUser.class);
+  private static final Logger log = LogManager.getLogger(PSLocalizedTextLookupUser.class);
 
-   /* ************ IPSUdfProcessor Interface Implementation ************ */
-   public Object processUdf(Object[] parm1, IPSRequestContext request)
-      throws com.percussion.data.PSConversionException
-   {
-      if(parm1 == null ||parm1.length < 1)
-      {
-         throw new PSConversionException(0, "Text lookupkey must not be empty");
+  /* ************ IPSUdfProcessor Interface Implementation ************ */
+  public Object processUdf(Object[] parm1, IPSRequestContext request)
+      throws com.percussion.data.PSConversionException {
+    if (parm1 == null || parm1.length < 1) {
+      throw new PSConversionException(0, "Text lookupkey must not be empty");
+    }
+    String lang = "";
+    String result = "";
+    try {
+      if (request != null) {
+        lang =
+            request
+                .getUserContextInformation(
+                    PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG, PSI18nUtils.DEFAULT_LANG)
+                .toString();
       }
-      String lang = "";
-      String result = "";
-      try
-      {
-         if(request != null)
-         {
-            lang = request.getUserContextInformation(
-               PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG,
-               PSI18nUtils.DEFAULT_LANG).toString();
-         }
-         List list = new ArrayList(Arrays.asList(parm1));
+      List list = new ArrayList(Arrays.asList(parm1));
 
-         return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
-      }
-      catch(Exception e)
-      {
-         //Do nothing and use the default value.
-         request.printTraceMessage(e.getLocalizedMessage());
-      }
-      return result;
-   }
-   /*
-    * main method for test purpose
-    * @param args  not used
-    */
-   static public void main(String[] args)
-   {
-      PSLocalizedTextLookup o = new PSLocalizedTextLookup();
-      String[] keys = {"en-us", "psx", "key1", "key2", "key3", "Content Title"};
-      try
-      {
-         System.out.println(o.processUdf(keys, null).toString());
-      }
-      catch(Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+      return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
+    } catch (Exception e) {
+      // Do nothing and use the default value.
+      request.printTraceMessage(e.getLocalizedMessage());
+    }
+    return result;
+  }
+
+  /*
+   * main method for test purpose
+   * @param args  not used
+   */
+  public static void main(String[] args) {
+    PSLocalizedTextLookup o = new PSLocalizedTextLookup();
+    String[] keys = {"en-us", "psx", "key1", "key2", "key3", "Content Title"};
+    try {
+      System.out.println(o.processUdf(keys, null).toString());
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 }

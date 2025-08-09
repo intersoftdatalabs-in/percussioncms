@@ -22,7 +22,6 @@ import com.percussion.data.PSDataConverter;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.PSCalculation;
-
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,130 +43,129 @@ import java.util.Date;
  * @version    1.1
  * @since      1.1
  */
-public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension
-{
-   /* ************ IPSUdfProcessor Interface Implementation ************ */
+public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
+  /* ************ IPSUdfProcessor Interface Implementation ************ */
 
-   /**
-    * Modifies a supplied date by adding/subtracting time from it. If a
-    * parameter is not supplied, a default value will be used, as shown in
-    * the table below. At least 1 (possibly <code>null</code>) parameter is
-    * required.
-    *
-    * @param      params         the parameter values to use in the UDF. The
-    * following parameters and their state are shown in the following table. If
-    * a date object is supplied (from a backend column), it will be used
-    * directly, otherwise the object is converted to a string and an attempt
-    * is made to parse the resulting string as a date.
-    * <table border="1">
-    *    <tr>
-    *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
-    *    </tr>
-    *    <tr>
-    *       <td>0</td>  <td>no</td> <td>Date to adjust</td>          <td>Current date/time</td>
-    *    </tr>
-    *    <tr>
-    *       <td>1</td>  <td>no</td> <td>Years to adjust date</td>    <td>0</td>
-    *    </tr>
-    *    <tr>
-    *       <td>2</td>  <td>no</td> <td>Months to adjust date</td>   <td>0</td>
-    *    </tr>
-    *    <tr>
-    *       <td>3</td>  <td>no</td> <td>Days to adjust date</td>     <td>0</td>
-    *    </tr>
-    *    <tr>
-    *       <td>4</td>  <td>no</td> <td>Hours to adjust time</td>    <td>0</td>
-    *    </tr>
-    *    <tr>
-    *       <td>5</td>  <td>no</td> <td>Minutes to adjust time</td>  <td>0</td>
-    *    </tr>
-    *    <tr>
-    *       <td>6</td>  <td>no</td> <td>Seconds to adjust time</td>  <td>0</td>
-    *    </tr>
-    * </table>
-    *
-    * @param      request         the current request context
-    *
-    * @return                     The supplied date (or the current date if
-    *                             <code>null</code> was supplied, adjusted by
-    *                             the supplied factors.
-    *
-    * @exception  PSConversionException
-    *                            if params is <code>null</code> or doesn't
-    *                            contain any params
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      final int size = (params == null) ? 0 : params.length;
+  /**
+   * Modifies a supplied date by adding/subtracting time from it. If a
+   * parameter is not supplied, a default value will be used, as shown in
+   * the table below. At least 1 (possibly <code>null</code>) parameter is
+   * required.
+   *
+   * @param      params         the parameter values to use in the UDF. The
+   * following parameters and their state are shown in the following table. If
+   * a date object is supplied (from a backend column), it will be used
+   * directly, otherwise the object is converted to a string and an attempt
+   * is made to parse the resulting string as a date.
+   * <table border="1">
+   *    <tr>
+   *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
+   *    </tr>
+   *    <tr>
+   *       <td>0</td>  <td>no</td> <td>Date to adjust</td>          <td>Current date/time</td>
+   *    </tr>
+   *    <tr>
+   *       <td>1</td>  <td>no</td> <td>Years to adjust date</td>    <td>0</td>
+   *    </tr>
+   *    <tr>
+   *       <td>2</td>  <td>no</td> <td>Months to adjust date</td>   <td>0</td>
+   *    </tr>
+   *    <tr>
+   *       <td>3</td>  <td>no</td> <td>Days to adjust date</td>     <td>0</td>
+   *    </tr>
+   *    <tr>
+   *       <td>4</td>  <td>no</td> <td>Hours to adjust time</td>    <td>0</td>
+   *    </tr>
+   *    <tr>
+   *       <td>5</td>  <td>no</td> <td>Minutes to adjust time</td>  <td>0</td>
+   *    </tr>
+   *    <tr>
+   *       <td>6</td>  <td>no</td> <td>Seconds to adjust time</td>  <td>0</td>
+   *    </tr>
+   * </table>
+   *
+   * @param      request         the current request context
+   *
+   * @return                     The supplied date (or the current date if
+   *                             <code>null</code> was supplied, adjusted by
+   *                             the supplied factors.
+   *
+   * @exception  PSConversionException
+   *                            if params is <code>null</code> or doesn't
+   *                            contain any params
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    final int size = (params == null) ? 0 : params.length;
 
-      // seven possible
-      if ( size == 0 ) {
-         int errCode = 0;
-         String arg0 = "expect two or more parameters, ";
-         arg0 += String.valueOf(size) + " parameters were specified.";
-         Object[] args = { arg0, "PSSimpleJavaUdf_dateAdjust/processUdf" };
-         throw new PSConversionException(errCode, args);
+    // seven possible
+    if (size == 0) {
+      int errCode = 0;
+      String arg0 = "expect two or more parameters, ";
+      arg0 += String.valueOf(size) + " parameters were specified.";
+      Object[] args = {arg0, "PSSimpleJavaUdf_dateAdjust/processUdf"};
+      throw new PSConversionException(errCode, args);
+    }
+
+    Date day = null;
+
+    // The first object has to be a String and the rest java.lang.Number ojbects
+    if (params[0] == null || params[0].toString().equals("")) day = new Date();
+    else if (params[0] instanceof Date) {
+      day = (Date) params[0];
+    } else {
+      try {
+        day = PSDataConverter.parseStringToDate(params[0].toString());
+      } catch (java.text.ParseException e) {
+        int errCode = 0;
+        Object[] args = {
+          e.toString(),
+          "Param 1 is (" + params[0].toString() + ")" + " PSSimpleJavaUdf_dateAdjust/processUdf"
+        };
+        throw new PSConversionException(errCode, args);
       }
+    }
 
+    // First initialize spaces for -all- adjust numbers to 0
+    Number[] paramArray = new Number[MAX_PARAMS - 1];
+    for (int i = 0; i < MAX_PARAMS - 1; i++) {
+      paramArray[i] = new Integer(0);
+    }
 
-      Date day = null;
-
-      // The first object has to be a String and the rest java.lang.Number ojbects
-      if (params[0] == null || params[0].toString().equals(""))
-         day = new Date();
-      else if (params[0] instanceof Date) {
-         day = (Date) params[0];
-      } else {
-         try{
-            day = PSDataConverter.parseStringToDate(params[0].toString());
-         } catch (java.text.ParseException e){
-            int errCode = 0;
-            Object[] args = { e.toString(), "Param 1 is ("+params[0].toString()+")"+" PSSimpleJavaUdf_dateAdjust/processUdf" };
-            throw new PSConversionException(errCode, args);
-         }
+    // All parameters after 1 are the adjustment numbers
+    for (int i = 1; i < size; i++) {
+      if (params[i] != null && !params[i].toString().equals("")) {
+        try {
+          paramArray[i - 1] = (Number) (PSCalculation.numberVerify(params[i]));
+        } catch (IllegalArgumentException e) {
+          int errCode = 0;
+          Object[] args = {e.toString(), "PSSimpleJavaUdf_dateAdjust/processUdf"};
+          throw new PSConversionException(errCode, args);
+        }
       }
+    }
 
-      // First initialize spaces for -all- adjust numbers to 0
-      Number[] paramArray = new Number[MAX_PARAMS - 1];
-      for (int i = 0; i < MAX_PARAMS - 1; i++) {
-            paramArray[i] = new Integer(0);
-      }
+    int nYear = paramArray[0].intValue();
+    int nMonth = paramArray[1].intValue();
+    int nDay = paramArray[2].intValue();
+    int nHour = paramArray[3].intValue();
+    int nMin = paramArray[4].intValue();
+    int nSec = paramArray[5].intValue();
 
-      // All parameters after 1 are the adjustment numbers
-      for (int i = 1; i < size; i++) {
-         if (params[i] != null && !params[i].toString().equals("")) {
-            try {
-               paramArray[i - 1] = (Number)(PSCalculation.numberVerify(params[i]));
-            } catch (IllegalArgumentException e){
-               int errCode = 0;
-               Object[] args = { e.toString(), "PSSimpleJavaUdf_dateAdjust/processUdf" };
-               throw new PSConversionException(errCode, args);
-            }
-         }
-      }
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(day);
+    cal.add(Calendar.YEAR, nYear);
+    cal.add(Calendar.MONTH, nMonth);
+    cal.add(Calendar.DAY_OF_MONTH, nDay);
+    cal.add(Calendar.HOUR_OF_DAY, nHour);
+    cal.add(Calendar.MINUTE, nMin);
+    cal.add(Calendar.SECOND, nSec);
+    return new Timestamp(cal.getTime().getTime());
+  }
 
-      int nYear    = paramArray[0].intValue();
-      int nMonth   = paramArray[1].intValue();
-      int nDay     = paramArray[2].intValue();
-      int nHour    = paramArray[3].intValue();
-      int nMin     = paramArray[4].intValue();
-      int nSec     = paramArray[5].intValue();
-
-      Calendar cal = Calendar.getInstance();
-      cal.setTime( day );
-      cal.add( Calendar.YEAR, nYear );
-      cal.add( Calendar.MONTH, nMonth );
-      cal.add( Calendar.DAY_OF_MONTH, nDay );
-      cal.add( Calendar.HOUR_OF_DAY, nHour );
-      cal.add( Calendar.MINUTE, nMin );
-      cal.add( Calendar.SECOND, nSec );
-      return new Timestamp( cal.getTime().getTime());
-   }
-
-   /**
-    * This method allows a variable number of params. This is the maxiumum
-    * number of params that will be processed.
-    */
-   private static final int MAX_PARAMS = 7;
+  /**
+   * This method allows a variable number of params. This is the maxiumum
+   * number of params that will be processed.
+   */
+  private static final int MAX_PARAMS = 7;
 }

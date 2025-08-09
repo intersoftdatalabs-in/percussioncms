@@ -20,33 +20,25 @@ package com.ibm.cadf.auditlogger;
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.model.Event;
 
-public abstract class AuditLogger
-{
+public abstract class AuditLogger {
 
-    private String outputFilePath;
+  private String outputFilePath;
 
-    public abstract void writeLog(Event auditEvent) throws CADFException;
+  public abstract void writeLog(Event auditEvent) throws CADFException;
 
-    public void audit(Event auditEvent) throws CADFException
-    {
-        try
-        {
-            writeLog(auditEvent);
-        }
-        catch (CADFException e)
-        {
-            throw e;
-        }
+  public void audit(Event auditEvent) throws CADFException {
+    try {
+      writeLog(auditEvent);
+    } catch (CADFException e) {
+      throw e;
     }
+  }
 
-    public String getOutputFilePath()
-    {
-        return outputFilePath;
-    }
+  public String getOutputFilePath() {
+    return outputFilePath;
+  }
 
-    public void setOutputFilePath(String outputFilePath)
-    {
-        this.outputFilePath = outputFilePath;
-    }
-
+  public void setOutputFilePath(String outputFilePath) {
+    this.outputFilePath = outputFilePath;
+  }
 }

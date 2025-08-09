@@ -17,36 +17,35 @@
 
 package com.percussion.extensions.encoding;
 
-import java.io.File;
-
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
+import java.io.File;
 import org.owasp.encoder.Encode;
 
-public class PSHTMLEncode implements IPSFieldInputTransformer{
+public class PSHTMLEncode implements IPSFieldInputTransformer {
 
-	/***
-	 * Default constructor
-	 */
-	public PSHTMLEncode(){}
-	
-	@Override
-	public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException {
-		
-	      PSExtensionParams ep = new PSExtensionParams(params);
-	      String value = ep.getStringParam(0, null, true);
-		
-		return Encode.forHtml(value);
-	}
+  /***
+   * Default constructor
+   */
+  public PSHTMLEncode() {}
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-		// TODO Auto-generated method stub
-		
-	}
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
 
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+
+    return Encode.forHtml(value);
+  }
+
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // TODO Auto-generated method stub
+
+  }
 }

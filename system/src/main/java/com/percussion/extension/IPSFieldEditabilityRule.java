@@ -42,7 +42,4 @@ package com.percussion.extension;
  * type <code>java.lang.ThreadLocal</code> to define thread specific copies of
  * the variable.
  */
-
-public interface IPSFieldEditabilityRule extends IPSUdfProcessor
-{
-}
+public interface IPSFieldEditabilityRule extends IPSUdfProcessor {}

@@ -25,58 +25,45 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.tools.PrintNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
 
-public class PSPostExitHandler implements IPSResultDocumentProcessor
-{
-    private static final Logger log = LogManager.getLogger(PSPostExitHandler.class);
+public class PSPostExitHandler implements IPSResultDocumentProcessor {
+  private static final Logger log = LogManager.getLogger(PSPostExitHandler.class);
 
-    /**
-    * Constructor
-    */
-   public PSPostExitHandler()
-   {
-     super();
-   }
+  /**
+   * Constructor
+   */
+  public PSPostExitHandler() {
+    super();
+  }
 
-  public boolean canModifyStyleSheet()
-  {
+  public boolean canModifyStyleSheet() {
     return true;
   }
 
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    // nothing to initialize
+  }
 
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-       //nothing to initialize
-   }
-   /**
-    * This is the main request processing handler
-    */
-   public Document processResultDocument(Object[] params,
-                                         IPSRequestContext request,
-                                         Document resDoc)
-      throws PSParameterMismatchException, PSExtensionProcessingException
-   {
+  /**
+   * This is the main request processing handler
+   */
+  public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
     log.info("");
-    log.info(
-       "             *** Beginning of Post-Document Exit Debugger ***");
+    log.info("             *** Beginning of Post-Document Exit Debugger ***");
     log.info("");
 
-    if(null == request)
-    {
+    if (null == request) {
       log.info("Request context is null!");
-    }
-    else
-    {
+    } else {
       printRequestContext(request);
 
       log.info("");
@@ -84,57 +71,44 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor
       log.info("");
       log.info("*** Starts Here ***");
 
-      try
-      {
-        if(null == request.getInputDocument())
-          log.info("   Document is empty");
-        else
-        {
+      try {
+        if (null == request.getInputDocument()) log.info("   Document is empty");
+        else {
           StringWriter writer = new StringWriter();
-          PrintNode.printNode(request.getInputDocument(), " " , writer);
+          PrintNode.printNode(request.getInputDocument(), " ", writer);
           log.info(writer.toString());
-         }
-      }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
+      } catch (Exception e) {
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       log.info("*** Ends Here ***");
     }
 
-    if(null != resDoc)
-    {
+    if (null != resDoc) {
       log.info("");
       log.info("Result XML Document:");
       log.info("");
       log.info("*** Starts Here ***");
-      try
-      {
+      try {
         StringWriter writer = new StringWriter();
-        PrintNode.printNode(resDoc, " " , writer);
+        PrintNode.printNode(resDoc, " ", writer);
         log.info(writer.toString());
-      }
-      catch (Exception e)
-      {
-          log.error(PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      } catch (Exception e) {
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       log.info("*** Ends Here ***");
-    }
-    else
-      log.info("   Document is empty");
+    } else log.info("   Document is empty");
 
     log.info("");
-    log.info(
-       "             *** End of Post-Document Exit Debugger ***");
+    log.info("             *** End of Post-Document Exit Debugger ***");
     log.info("");
 
-      return resDoc;
-   }
+    return resDoc;
+  }
 
-  static public void printRequestContext(IPSRequestContext request)
-  {
+  public static void printRequestContext(IPSRequestContext request) {
     log.info("");
     log.info("Contents of the Request Context...");
     log.info("");
@@ -147,12 +121,11 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor
     log.info("");
     log.info("List of CGI variables and values:");
     Enumeration headers = request.getHeaders();
-    while (headers.hasMoreElements())
-   {
+    while (headers.hasMoreElements()) {
       String header = (String) headers.nextElement();
       String value = request.getCgiVariable(header);
       printString(header, value);
-   }
+    }
 
     log.info("");
     log.info("List HTML parameters and values:");
@@ -163,35 +136,27 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor
     printMap(request.getResponseCookies());
   }
 
-  static public void printMap(Map map)
-  {
-    if(null == map)
-    {
+  public static void printMap(Map map) {
+    if (null == map) {
       log.info("Map containing the list is null");
       return;
     }
     Set keyset = map.keySet();
-    if(null == keyset || keyset.isEmpty())
-    {
+    if (null == keyset || keyset.isEmpty()) {
       log.info("List is empty");
     }
 
     if (keyset != null) {
 
-
-          Object[] obArray = keyset.toArray();
-          for (int i = 0; i < obArray.length; i++) {
-              log.info("{}  {}={}", i + 1,
-                      obArray[i],
-                      map.get(obArray[i].toString()));
-          }
+      Object[] obArray = keyset.toArray();
+      for (int i = 0; i < obArray.length; i++) {
+        log.info("{}  {}={}", i + 1, obArray[i], map.get(obArray[i].toString()));
       }
+    }
   }
 
-   public static void printString(String value, String name)
-  {
-    log.info( "{} = {}",name , value);
+  public static void printString(String value, String name) {
+    log.info("{} = {}", name, value);
     log.info("");
   }
 }
-

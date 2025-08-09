@@ -23,78 +23,71 @@ import java.io.File;
  * Class which provides the installer with the appropriate configuration file
  * locations.
  */
-public class PSInstConfigFileLocator implements IPSConfigFileLocator
-{
-   /**
-    * Construct the file locator
-    * 
-    * @param rxRoot Supplies the rhythmyx root installation directory, may not 
-    * be <code>null</code>.
-    */
-   public PSInstConfigFileLocator(String rxRoot)
-   {
-      if (rxRoot == null)
-         throw new IllegalArgumentException("rxRoot may not be null");
-      
-      m_rxRoot = rxRoot;
-   }
-     
-   /**
-    * @see IPSConfigFileLocator#getServerConfigFile
-    */
-   public File getServerConfigFile()
-   {
-      return new File(m_rxRoot + File.separator + m_serverConfigFile);
-   }
+public class PSInstConfigFileLocator implements IPSConfigFileLocator {
+  /**
+   * Construct the file locator
+   *
+   * @param rxRoot Supplies the rhythmyx root installation directory, may not
+   * be <code>null</code>.
+   */
+  public PSInstConfigFileLocator(String rxRoot) {
+    if (rxRoot == null) throw new IllegalArgumentException("rxRoot may not be null");
 
-   /**
-    * @see IPSConfigFileLocator#getSpringConfigFile
-    */
-   public File getSpringConfigFile()
-   {
-      return new File(m_rxRoot + File.separator + m_springConfigFile);
-   }
-   
-   /**
-    * @see IPSConfigFileLocator#getJndiDsFile
-    */
-   public File getJndiDsFile()
-   {
-      return new File(m_rxRoot + File.separator + m_jndiDsFile);
-   }
-   
-   /**
-    * @see IPSConfigFileLocator#getLoginCfgFile
-    */
-   public File getLoginCfgFile()
-   {
-      return new File(m_rxRoot + File.separator + m_loginCfgFile);
-   }
-   
-   /**
-    * The rhythmyx root supplied in the ctor, never <code>null</code> after that.
-    */
-   private String m_rxRoot;
-   
-   /**
-    * The server config file, may not be 
-    * <code>null</code>.
-    */
-   private String m_serverConfigFile = "rxconfig/Server/config.xml";
-   
-   /**
-    * The spring config file, may not be <code>null</code>. 
-    */
-   private String m_springConfigFile =
+    m_rxRoot = rxRoot;
+  }
+
+  /**
+   * @see IPSConfigFileLocator#getServerConfigFile
+   */
+  public File getServerConfigFile() {
+    return new File(m_rxRoot + File.separator + m_serverConfigFile);
+  }
+
+  /**
+   * @see IPSConfigFileLocator#getSpringConfigFile
+   */
+  public File getSpringConfigFile() {
+    return new File(m_rxRoot + File.separator + m_springConfigFile);
+  }
+
+  /**
+   * @see IPSConfigFileLocator#getJndiDsFile
+   */
+  public File getJndiDsFile() {
+    return new File(m_rxRoot + File.separator + m_jndiDsFile);
+  }
+
+  /**
+   * @see IPSConfigFileLocator#getLoginCfgFile
+   */
+  public File getLoginCfgFile() {
+    return new File(m_rxRoot + File.separator + m_loginCfgFile);
+  }
+
+  /**
+   * The rhythmyx root supplied in the ctor, never <code>null</code> after that.
+   */
+  private String m_rxRoot;
+
+  /**
+   * The server config file, may not be
+   * <code>null</code>.
+   */
+  private String m_serverConfigFile = "rxconfig/Server/config.xml";
+
+  /**
+   * The spring config file, may not be <code>null</code>.
+   */
+  private String m_springConfigFile =
       "AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/server-beans.xml";
-   
-   /**
-    * The jndi datasource file, may not be <code>null</code>. 
-    */   
-   private String m_jndiDsFile = "AppServer/server/rx/deploy/rx-ds.xml";
-      
-   /**
-    * The login config file, never <code>null</code>.
-    */
-   private String m_loginCfgFile = "AppServer/server/rx/conf/login-config.xml";
+
+  /**
+   * The jndi datasource file, may not be <code>null</code>.
+   */
+  private String m_jndiDsFile = "AppServer/server/rx/deploy/rx-ds.xml";
+
+  /**
+   * The login config file, never <code>null</code>.
+   */
+  private String m_loginCfgFile = "AppServer/server/rx/conf/login-config.xml";
 }

@@ -34,7 +34,6 @@
 
 package com.percussion.log;
 
-
 /**
  * The PSLogServerStop class is used to log server shutdown events.
  *
@@ -43,38 +42,35 @@ package com.percussion.log;
  * @since      1.0
  */
 public class PSLogServerStop extends PSLogInformation {
-   
-   /**
-    * Construct a log message identifying the Server being stopped.
-    *
-    * @param   name     the name of the user who stopped the server
-    */
-   public PSLogServerStop(java.lang.String name)
-   {
-      super(LOG_TYPE, 0);
-      m_Subs = new PSLogSubMessage[1];
-      m_Subs[0] = new PSLogSubMessage(0, name); 
-   }
 
-   /**
-    * Get the sub-messages (type and text). A single sub-message is created
-    * containing the name of the user who stopped the server.
-    *
-    * @return  an array of sub-messages (PSLogSubMessage)
-    */
-   public PSLogSubMessage[] getSubMessages()
-   {
-      return m_Subs;
-   }
+  /**
+   * Construct a log message identifying the Server being stopped.
+   *
+   * @param   name     the name of the user who stopped the server
+   */
+  public PSLogServerStop(java.lang.String name) {
+    super(LOG_TYPE, 0);
+    m_Subs = new PSLogSubMessage[1];
+    m_Subs[0] = new PSLogSubMessage(0, name);
+  }
 
-   /**
-    * Server stop is set as type 3.
-    */
-   private static final int LOG_TYPE = 3;
+  /**
+   * Get the sub-messages (type and text). A single sub-message is created
+   * containing the name of the user who stopped the server.
+   *
+   * @return  an array of sub-messages (PSLogSubMessage)
+   */
+  public PSLogSubMessage[] getSubMessages() {
+    return m_Subs;
+  }
 
-   /**
-    *   The array of sub-messages
-    */
-   private PSLogSubMessage[] m_Subs = null;
+  /**
+   * Server stop is set as type 3.
+   */
+  private static final int LOG_TYPE = 3;
+
+  /**
+   *   The array of sub-messages
+   */
+  private PSLogSubMessage[] m_Subs = null;
 }
-

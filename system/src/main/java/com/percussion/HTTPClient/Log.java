@@ -17,15 +17,14 @@
 
 package com.percussion.HTTPClient;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Calendar;
 import java.util.TimeZone;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This is a simple logger for the HTTPClient. It defines a number of
@@ -55,187 +54,176 @@ import java.util.TimeZone;
  * @since	V0.3-3
  */
 @Deprecated
-public class Log
-{
-	private static final Logger log = LogManager.getLogger(Log.class);
+public class Log {
+  private static final Logger log = LogManager.getLogger(Log.class);
 
-    /** The HTTPConnection facility (1) */
-    public static final int CONN  = 1 << 0;
-    /** The HTTPResponse facility (2) */
-    public static final int RESP  = 1 << 1;
-    /** The StreamDemultiplexor facility (4) */
-    public static final int DEMUX = 1 << 2;
-    /** The Authorization facility (8) */
-    public static final int AUTH  = 1 << 3;
-    /** The Cookies facility (16) */
-    public static final int COOKI = 1 << 4;
-    /** The Modules facility (32) */
-    public static final int MODS  = 1 << 5;
-    /** The Socks facility (64) */
-    public static final int SOCKS = 1 << 6;
-    /** The ULRConnection facility (128) */
-    public static final int URLC  = 1 << 7;
-    /** All the facilities - for use in <code>setLogging</code> (-1) */
-    public static final int ALL   = ~0;
+  /** The HTTPConnection facility (1) */
+  public static final int CONN = 1 << 0;
 
-    private static final String NL     = System.getProperty("line.separator");
-    private static final long   TZ_OFF;
+  /** The HTTPResponse facility (2) */
+  public static final int RESP = 1 << 1;
 
-    private static int     facMask     = 0;
-    private static boolean closeWriter = false;
+  /** The StreamDemultiplexor facility (4) */
+  public static final int DEMUX = 1 << 2;
 
+  /** The Authorization facility (8) */
+  public static final int AUTH = 1 << 3;
 
-    static
-    {
-	Calendar now = Calendar.getInstance();
-	TZ_OFF = TimeZone.getDefault().getOffset(now.get(Calendar.ERA),
-						 now.get(Calendar.YEAR),
-						 now.get(Calendar.MONTH),
-						 now.get(Calendar.DAY_OF_MONTH),
-						 now.get(Calendar.DAY_OF_WEEK),
-						 now.get(Calendar.MILLISECOND));
+  /** The Cookies facility (16) */
+  public static final int COOKI = 1 << 4;
 
-	try
-	{
-	    String file = System.getProperty("com.percussion.HTTPClient.log.file");
-	    if (file != null)
-	    {
-		try
-		    { setLogWriter(new FileWriter(file), true); }
-		catch (IOException ioe)
-		{
-		    System.err.println("failed to open file log stream `" +
-				       file + "': " + ioe);
-		}
-	    }
-	}
-	catch (Exception e)
-	    { }
+  /** The Modules facility (32) */
+  public static final int MODS = 1 << 5;
 
-	try
-	{
-	    facMask = Integer.getInteger("com.percussion.HTTPClient.log.mask", 0).intValue();
-	}
-	catch (Exception e)
-	    { }
+  /** The Socks facility (64) */
+  public static final int SOCKS = 1 << 6;
+
+  /** The ULRConnection facility (128) */
+  public static final int URLC = 1 << 7;
+
+  /** All the facilities - for use in <code>setLogging</code> (-1) */
+  public static final int ALL = ~0;
+
+  private static final String NL = System.getProperty("line.separator");
+  private static final long TZ_OFF;
+
+  private static int facMask = 0;
+  private static boolean closeWriter = false;
+
+  static {
+    Calendar now = Calendar.getInstance();
+    TZ_OFF =
+        TimeZone.getDefault()
+            .getOffset(
+                now.get(Calendar.ERA),
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH),
+                now.get(Calendar.DAY_OF_MONTH),
+                now.get(Calendar.DAY_OF_WEEK),
+                now.get(Calendar.MILLISECOND));
+
+    try {
+      String file = System.getProperty("com.percussion.HTTPClient.log.file");
+      if (file != null) {
+        try {
+          setLogWriter(new FileWriter(file), true);
+        } catch (IOException ioe) {
+          System.err.println("failed to open file log stream `" + file + "': " + ioe);
+        }
+      }
+    } catch (Exception e) {
     }
 
-
-    // Constructors
-
-    /**
-     * Not meant to be instantiated
-     */
-    private Log()
-    {
+    try {
+      facMask = Integer.getInteger("com.percussion.HTTPClient.log.mask", 0).intValue();
+    } catch (Exception e) {
     }
+  }
 
+  // Constructors
 
-    // Methods
+  /**
+   * Not meant to be instantiated
+   */
+  private Log() {}
 
-    /**
-     * Write the given message to the current log if logging for the given facility is
-     * enabled.
-     *
-     * @param facility  the facility which is logging the message
-     * @param msg       the message to log
-     */
-    @Deprecated
-    public static void write(int facility, String msg)
-    {
-		log.info(msg);
-    }
+  // Methods
 
-    /**
-     * Write the stack trace of the given exception to the current log if logging for the
-     * given facility is enabled.
-     *
-     * @param facility  the facility which is logging the message
-     * @param prefix    the string with which to prefix the stack trace; may be null
-     * @param t         the exception to log
-     */
-    @Deprecated
-    public static void write(int facility, String prefix, Throwable t)
-    {
-    	log.info(t.getMessage());
-    }
+  /**
+   * Write the given message to the current log if logging for the given facility is
+   * enabled.
+   *
+   * @param facility  the facility which is logging the message
+   * @param msg       the message to log
+   */
+  @Deprecated
+  public static void write(int facility, String msg) {
+    log.info(msg);
+  }
 
-    /**
-     * Write the contents of the given buffer to the current log if logging for
-     * the given facility is enabled.
-     *
-     * @param facility  the facility which is logging the message
-     * @param prefix    the string with which to prefix the buffer contents;
-     *                  may be null
-     * @param buf       the buffer to dump
-     */
-    @Deprecated
-    public static void write(int facility, String prefix, ByteArrayOutputStream buf)
-    {
-    	//If we are writing bytebuffers assume this is debug code
-		log.debug(buf);
-    }
+  /**
+   * Write the stack trace of the given exception to the current log if logging for the
+   * given facility is enabled.
+   *
+   * @param facility  the facility which is logging the message
+   * @param prefix    the string with which to prefix the stack trace; may be null
+   * @param t         the exception to log
+   */
+  @Deprecated
+  public static void write(int facility, String prefix, Throwable t) {
+    log.info(t.getMessage());
+  }
 
-    /**
-     * Write a log line prefix of the form
-     * <PRE>
-     *  {thread-name} [time]
-     * </PRE>
-     */
-    @Deprecated
-    private static final void writePrefix() throws IOException {
-		//Do nada
-    }
+  /**
+   * Write the contents of the given buffer to the current log if logging for
+   * the given facility is enabled.
+   *
+   * @param facility  the facility which is logging the message
+   * @param prefix    the string with which to prefix the buffer contents;
+   *                  may be null
+   * @param buf       the buffer to dump
+   */
+  @Deprecated
+  public static void write(int facility, String prefix, ByteArrayOutputStream buf) {
+    // If we are writing bytebuffers assume this is debug code
+    log.debug(buf);
+  }
 
-    private static final String fill2(int num) {
-	return ((num < 10) ? "0" : "") + num;
-    }
+  /**
+   * Write a log line prefix of the form
+   * <PRE>
+   *  {thread-name} [time]
+   * </PRE>
+   */
+  @Deprecated
+  private static final void writePrefix() throws IOException {
+    // Do nada
+  }
 
-    private static final String fill3(int num) {
-	return ((num < 10) ? "00" : (num < 100) ? "0" : "") + num;
-    }
+  private static final String fill2(int num) {
+    return ((num < 10) ? "0" : "") + num;
+  }
 
-    /**
-     * Check whether logging for the given facility is enabled or not.
-     *
-     * @param facility  the facility to check
-     * @return true if logging for the given facility is enable; false otherwise
-     */
-    @Deprecated
-    public static boolean isEnabled(int facility)
-    {
-	return ((facMask & facility) != 0);
-    }
+  private static final String fill3(int num) {
+    return ((num < 10) ? "00" : (num < 100) ? "0" : "") + num;
+  }
 
-    /**
-     * Enable or disable logging for the given facilities.
-     *
-     * @param facilities the facilities for which to enable or disable logging.
-     *                   This is bitwise OR ('|') of all the desired
-     *                   facilities; use {@link #ALL ALL} to affect all facilities
-     * @param enable     if true, enable logging for the chosen facilities; if
-     *                   false, disable logging for them.
-     */
-    @Deprecated
-    public static void setLogging(int facilities, boolean enable)
-    {
-	if (enable)
-	    facMask |= facilities;
-	else
-	    facMask &= ~facilities;
-    }
+  /**
+   * Check whether logging for the given facility is enabled or not.
+   *
+   * @param facility  the facility to check
+   * @return true if logging for the given facility is enable; false otherwise
+   */
+  @Deprecated
+  public static boolean isEnabled(int facility) {
+    return ((facMask & facility) != 0);
+  }
 
-    /**
-     * Set the writer to which to log. By default, things are logged to
-     * <var>System.err</var>.
-     *
-     * @param log           the writer to log to; if null, nothing is changed
-     * @param closeWhenDone if true, close this stream when a new stream is set
-     *                      again
-     */
-    @Deprecated
-    public static void setLogWriter(Writer log, boolean closeWhenDone)
-    {
-    	//Do nothing
-    }
+  /**
+   * Enable or disable logging for the given facilities.
+   *
+   * @param facilities the facilities for which to enable or disable logging.
+   *                   This is bitwise OR ('|') of all the desired
+   *                   facilities; use {@link #ALL ALL} to affect all facilities
+   * @param enable     if true, enable logging for the chosen facilities; if
+   *                   false, disable logging for them.
+   */
+  @Deprecated
+  public static void setLogging(int facilities, boolean enable) {
+    if (enable) facMask |= facilities;
+    else facMask &= ~facilities;
+  }
+
+  /**
+   * Set the writer to which to log. By default, things are logged to
+   * <var>System.err</var>.
+   *
+   * @param log           the writer to log to; if null, nothing is changed
+   * @param closeWhenDone if true, close this stream when a new stream is set
+   *                      again
+   */
+  @Deprecated
+  public static void setLogWriter(Writer log, boolean closeWhenDone) {
+    // Do nothing
+  }
 }

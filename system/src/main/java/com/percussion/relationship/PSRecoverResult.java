@@ -24,19 +24,17 @@ package com.percussion.relationship;
  * test for dependents' processing and error details if the test fails for
  * some reason.
  */
-public class PSRecoverResult  extends PSEffectResult
-{
-   /**
-    * Implementation for an abstract method, that does NOT allow to set a
-    * recursion flag by always throwing UnsupportedOperationException.
-    * This is to indicate to the effect implementer that it is an illegal
-    * operation for the recover method.
-    *
-    * @param recurseDependents
-    * @throws UnsupportedOperationException always.
-    */
-   public void setRecurseDependents(boolean recurseDependents)
-   {
-      throw new UnsupportedOperationException("not allowed for recover.");
-   }
+public class PSRecoverResult extends PSEffectResult {
+  /**
+   * Implementation for an abstract method, that does NOT allow to set a
+   * recursion flag by always throwing UnsupportedOperationException.
+   * This is to indicate to the effect implementer that it is an illegal
+   * operation for the recover method.
+   *
+   * @param recurseDependents
+   * @throws UnsupportedOperationException always.
+   */
+  public void setRecurseDependents(boolean recurseDependents) {
+    throw new UnsupportedOperationException("not allowed for recover.");
+  }
 }

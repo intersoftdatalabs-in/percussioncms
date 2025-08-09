@@ -17,8 +17,6 @@
 
 package com.percussion.error;
 
-
-
 /**
  * The PSLargeApplicationRequestQueueError class is used to report large
  * requests queues. This may signify that the number of user threads
@@ -32,33 +30,28 @@ package com.percussion.error;
  * @version    1.0
  * @since      1.0
  */
-public class PSLargeApplicationRequestQueueError extends PSLargeRequestQueueError
-{
-   /**
-    * Report a large application request queue.
-    * <p>
-    * The application id is most commonly obtained by calling
-    * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-    * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-    * <p>
-    * The session id can be obtained from the
-    * {@link com.percussion.server.PSUserSession PSUserSession} object
-    * contained in the
-    * {@link com.percussion.server.PSRequest PSRequest} object.
-    *
-    * @param      applId         the id of the application that generated
-    *                            the error
-    *
-    * @param      sessionId      the session id of the user making the
-    *                            request
-    *
-    * @param      size           the current size of the request queue
-    */
-   public PSLargeApplicationRequestQueueError(  int applId,
-                                                java.lang.String sessionId,
-                                                int size)
-   {
-      super(applId, sessionId, size);
-   }
+public class PSLargeApplicationRequestQueueError extends PSLargeRequestQueueError {
+  /**
+   * Report a large application request queue.
+   * <p>
+   * The application id is most commonly obtained by calling
+   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
+   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   * <p>
+   * The session id can be obtained from the
+   * {@link com.percussion.server.PSUserSession PSUserSession} object
+   * contained in the
+   * {@link com.percussion.server.PSRequest PSRequest} object.
+   *
+   * @param      applId         the id of the application that generated
+   *                            the error
+   *
+   * @param      sessionId      the session id of the user making the
+   *                            request
+   *
+   * @param      size           the current size of the request queue
+   */
+  public PSLargeApplicationRequestQueueError(int applId, java.lang.String sessionId, int size) {
+    super(applId, sessionId, size);
+  }
 }
-

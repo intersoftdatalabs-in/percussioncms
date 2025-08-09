@@ -16,18 +16,15 @@
  */
 package com.percussion.membership.data;
 
-public class PSLoginResult extends PSMembershipResult
-{
-    private String sessionId;
-    
-    public PSLoginResult(STATUS status, String message, String sessionId)
-    {
-        super(status, message);
-        this.sessionId = sessionId;
-    }
-    
-    public String getSessionId()
-    {
-        return sessionId;
-    }
+public class PSLoginResult extends PSMembershipResult {
+  private String sessionId;
+
+  public PSLoginResult(STATUS status, String message, String sessionId) {
+    super(status, message);
+    this.sessionId = sessionId;
+  }
+
+  public String getSessionId() {
+    return sessionId;
+  }
 }

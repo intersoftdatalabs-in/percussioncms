@@ -17,103 +17,102 @@
 
 package com.percussion.utils.security;
 
-import com.percussion.security.PSEncryptionException;
-import com.percussion.security.PSEncryptor;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.security.PSEncryptionException;
+import com.percussion.security.PSEncryptor;
+import java.io.File;
+import java.nio.file.Path;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 /**
  * Test class for PSEncryptor
  */
-//@todo: Fix it...
+// @todo: Fix it...
 @Disabled
 public class PSEncryptorTests {
 
-    @TempDir
-    public Path temporaryFolder;
-    private String rxdeploydir;
+  @TempDir public Path temporaryFolder;
+  private String rxdeploydir;
 
-    @BeforeEach
-    public void setup(){
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString() + File.separator + "test-secure");
-    }
+  @BeforeEach
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty(
+        "rxdeploydir",
+        temporaryFolder.toAbsolutePath().toString() + File.separator + "test-secure");
+  }
 
-    @AfterEach
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  @AfterEach
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-    public PSEncryptorTests(){}
+  public PSEncryptorTests() {}
 
-    @Test
-    public void testKeyStorage() throws PSEncryptionException {
+  @Test
+  public void testKeyStorage() throws PSEncryptionException {
 
-        assertTrue(PSEncryptor.decryptString(rxdeploydir, PSEncryptor.encryptString(rxdeploydir, "Gnomes rule!!!")).equals("Gnomes rule!!!"));
+    assertTrue(
+        PSEncryptor.decryptString(
+                rxdeploydir, PSEncryptor.encryptString(rxdeploydir, "Gnomes rule!!!"))
+            .equals("Gnomes rule!!!"));
+  }
 
-    }
+  @Test
+  public void testgetUIDandPassword() {
+    assertEquals(PSEncryptor.getUID("uid:password"), ("uid"));
+    assertEquals(PSEncryptor.getPassword("uid:password"), ("password"));
 
-    @Test
-    public void testgetUIDandPassword(){
-        assertEquals(PSEncryptor.getUID("uid:password"),("uid"));
-        assertEquals(PSEncryptor.getPassword("uid:password"),("password"));
+    assertEquals(PSEncryptor.getUID("uid:pass::ord"), ("uid"));
+    assertEquals(PSEncryptor.getPassword("uid:pass::ord"), ("pass::ord"));
+  }
 
-       assertEquals(PSEncryptor.getUID("uid:pass::ord"),("uid"));
-       assertEquals(PSEncryptor.getPassword("uid:pass::ord"),("pass::ord"));
+  @Test
+  public void testCredentials() throws PSEncryptionException {
+    String enc =
+        PSEncryptor.getInstance("AES", rxdeploydir + PSEncryptor.SECURE_DIR)
+            .encryptCredentials("user1", "user1$:Pass");
 
-    }
+    System.out.println("--------------------------");
+    System.out.println("Encoded Credentials:" + enc);
+    System.out.println("--------------------------");
 
-    @Test
-    public void testCredentials() throws PSEncryptionException {
-        String enc = PSEncryptor.getInstance("AES",
-                rxdeploydir + PSEncryptor.SECURE_DIR).encryptCredentials(
-                        "user1", "user1$:Pass");
+    assertNotNull(enc);
+    assertNotEquals("user1:user1$:Pass", enc);
 
-        System.out.println("--------------------------");
-        System.out.println("Encoded Credentials:" + enc);
-        System.out.println("--------------------------");
+    enc =
+        PSEncryptor.getInstance("AES", rxdeploydir + PSEncryptor.SECURE_DIR)
+            .decryptCredentials(enc, "user1$:Pass");
 
-        assertNotNull(enc);
-        assertNotEquals("user1:user1$:Pass",enc);
+    assertNotNull(enc);
+    assertEquals("user1:user1$:Pass", enc);
+    System.out.println("--------------------------");
+    System.out.println("Decoded Credentials:" + enc);
+    System.out.println("--------------------------");
+  }
 
-        enc = PSEncryptor.getInstance("AES",
-                rxdeploydir + PSEncryptor.SECURE_DIR).decryptCredentials(
-                        enc,"user1$:Pass");
+  @Test
+  public void testClientStyleOfGetInstance() throws PSEncryptionException {
 
-        assertNotNull(enc);
-        assertEquals("user1:user1$:Pass",enc);
-        System.out.println("--------------------------");
-        System.out.println("Decoded Credentials:" + enc);
-        System.out.println("--------------------------");
+    teardown();
 
-
-
-    }
-
-    @Test
-    public void testClientStyleOfGetInstance() throws PSEncryptionException {
-
-        teardown();
-
-        String pw = PSEncryptor.encryptString(System.getProperty("user.home") + File.separator + ".perc-secure"  + File.separator,"Cocaine is a hell of a drug.");
-        assertNotEquals(pw,"Cocaine is a hell of a drug.");
-        String dpw = PSEncryptor.decryptString(System.getProperty("user.home") + File.separator + ".perc-secure"  + File.separator,pw);
-        assertEquals("Cocaine is a hell of a drug.", dpw);
-
-    }
-
+    String pw =
+        PSEncryptor.encryptString(
+            System.getProperty("user.home") + File.separator + ".perc-secure" + File.separator,
+            "Cocaine is a hell of a drug.");
+    assertNotEquals(pw, "Cocaine is a hell of a drug.");
+    String dpw =
+        PSEncryptor.decryptString(
+            System.getProperty("user.home") + File.separator + ".perc-secure" + File.separator, pw);
+    assertEquals("Cocaine is a hell of a drug.", dpw);
+  }
 }

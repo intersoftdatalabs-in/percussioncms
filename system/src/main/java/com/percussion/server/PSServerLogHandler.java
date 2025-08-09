@@ -34,10 +34,9 @@ import com.percussion.log.PSLogHandler;
 import com.percussion.log.PSLogInformation;
 import com.percussion.log.PSLogSubMessage;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.net.InetAddress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.net.InetAddress;
 
 /**
  * The PSServerLogHandler class provides logging utilities for use within
@@ -49,70 +48,63 @@ import java.net.InetAddress;
  * @since      1.0
  */
 public class PSServerLogHandler {
-    private static final Logger ms_logger = LogManager.getLogger(PSServerLogHandler.class);
-   
-   /**
-    * Construction of this class is not permitted.
-    */
-   private PSServerLogHandler()
-   {
-      super();
-   }
+  private static final Logger ms_logger = LogManager.getLogger(PSServerLogHandler.class);
 
-   /**
-    * Log an exception caught during request pre-processing.
-    *
-    * @param   conn            the requestor's connection
-    *
-    * @param   error            the exception that was thrown
-    */
-   public static void handlePreProcessingError(   IPSConnection conn,
-                                                Exception error)
-   {
-      if (error instanceof PSRequestParsingException) {
-         InetAddress host = null;
-         try {
-            if (conn != null)
-               host = conn.getHost();
-         } catch (Exception e) { /* no big deal */ }
+  /**
+   * Construction of this class is not permitted.
+   */
+  private PSServerLogHandler() {
+    super();
+  }
 
-         reportError(conn, new PSRequestPreProcessingError(
-                                    host, (PSRequestParsingException)error));
-      }
-      else {
-         Object[] args = { error.getMessage() };
-         handlePreProcessingError(conn, IPSServerErrors.RAW_DUMP, args);
-      }
-   }
-
-   /**
-    * Log an error encountered during request pre-processing.
-    * <p>
-    * The error string is formatted by loading the string
-    * associated with the error code and passing it the array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param   conn            the requestor connection
-    *
-    * @param   errorCode      the associated error code
-    *
-    * @param   args            the array of arguments to use as the arguments
-    *                                                                                 in the error message
-    */
-   public static void handlePreProcessingError(   IPSConnection conn,
-                                                int errorCode,
-                                                Object[] args)
-   {
+  /**
+   * Log an exception caught during request pre-processing.
+   *
+   * @param   conn            the requestor's connection
+   *
+   * @param   error            the exception that was thrown
+   */
+  public static void handlePreProcessingError(IPSConnection conn, Exception error) {
+    if (error instanceof PSRequestParsingException) {
       InetAddress host = null;
       try {
-         if (conn != null)
-            host = conn.getHost();
-      } catch (Exception e) { /* no big deal */ }
+        if (conn != null) host = conn.getHost();
+      } catch (Exception e) {
+        /* no big deal */
+      }
 
-      reportError(conn, new PSRequestPreProcessingError(
-                                          host, errorCode, args));
-   }
+      reportError(conn, new PSRequestPreProcessingError(host, (PSRequestParsingException) error));
+    } else {
+      Object[] args = {error.getMessage()};
+      handlePreProcessingError(conn, IPSServerErrors.RAW_DUMP, args);
+    }
+  }
+
+  /**
+   * Log an error encountered during request pre-processing.
+   * <p>
+   * The error string is formatted by loading the string
+   * associated with the error code and passing it the array of
+   * arguments. Be sure to store the arguments in the correct order in
+   * the array, where {0} in the string is array element 0, etc.
+   *
+   * @param   conn            the requestor connection
+   *
+   * @param   errorCode      the associated error code
+   *
+   * @param   args            the array of arguments to use as the arguments
+   *                                                                                 in the error message
+   */
+  public static void handlePreProcessingError(IPSConnection conn, int errorCode, Object[] args) {
+    InetAddress host = null;
+    try {
+      if (conn != null) host = conn.getHost();
+    } catch (Exception e) {
+      /* no big deal */
+    }
+
+    reportError(conn, new PSRequestPreProcessingError(host, errorCode, args));
+  }
 
   /**
    * Handle the user request removal from the queue list due to the expiration of
@@ -120,8 +112,7 @@ public class PSServerLogHandler {
    *
    * @param conn     the requestor's connection
    */
-  public static void handleRequestWaitingTimeExpired( IPSConnection conn )
-  {
+  public static void handleRequestWaitingTimeExpired(IPSConnection conn) {
     int applId = 0;
     String sessionId = "";
     int size = 0;
@@ -132,336 +123,313 @@ public class PSServerLogHandler {
   /**
    * Handle error occurance when trying to check a user's access level
    */
-  public static void handleAccessError(PSRequest request, int applId, String ipAddress,
-                                 String loginId, int errorCode, String errorString)
-  {
-      reportError(request,
-         new PSApplicationAuthorizationError(
-            applId, ipAddress, loginId, errorCode, errorString));
+  public static void handleAccessError(
+      PSRequest request,
+      int applId,
+      String ipAddress,
+      String loginId,
+      int errorCode,
+      String errorString) {
+    reportError(
+        request,
+        new PSApplicationAuthorizationError(applId, ipAddress, loginId, errorCode, errorString));
   }
-  
-   /**
-    * Handle a terminal exception, which will cause server shut-down.
-    * <P><EM>Note:</EM> A call to this method will never return.
-    * <P>
-    * The error string is formatted by loading the string
-    * associated with the error code and passing it the array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param errorCode the associated error code
-    *
-    * @param args the array of arguments to use as the arguments
-    * in the error message. May be <code>null</code>.
-    */
-   public static void handleTerminalError(int errorCode, Object[] args)
-   {
-      PSFatalError err = new PSFatalError(errorCode, args);
 
-      /* log it to the screen so we definitely have some record of this */
-      logToScreen(err);
+  /**
+   * Handle a terminal exception, which will cause server shut-down.
+   * <P><EM>Note:</EM> A call to this method will never return.
+   * <P>
+   * The error string is formatted by loading the string
+   * associated with the error code and passing it the array of
+   * arguments. Be sure to store the arguments in the correct order in
+   * the array, where {0} in the string is array element 0, etc.
+   *
+   * @param errorCode the associated error code
+   *
+   * @param args the array of arguments to use as the arguments
+   * in the error message. May be <code>null</code>.
+   */
+  public static void handleTerminalError(int errorCode, Object[] args) {
+    PSFatalError err = new PSFatalError(errorCode, args);
 
-      /* log the condition causing the shutdown */
-      reportError(null, null, null, err);
+    /* log it to the screen so we definitely have some record of this */
+    logToScreen(err);
 
-      /* and shut the server down */
-      PSServer.scheduleShutdown(0);
-   }
+    /* log the condition causing the shutdown */
+    reportError(null, null, null, err);
 
-   /**
-    * Log an error encountered during request pre-processing.
-    * <p>
-    * The error string is formatted by loading the string
-    * associated with the error code and passing it the array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param   conn            the requestor's connection
-    */
-   public static void handleServerShuttingDown(IPSConnection conn)
-   {
-      try {
-         if (conn != null) {
-            /* fail the request as server being too busy */
-            PSResponse resp = new PSResponse(null);
+    /* and shut the server down */
+    PSServer.scheduleShutdown(0);
+  }
 
-            resp.setStatus(IPSHttpErrors.HTTP_SERVICE_UNAVAILABLE,
-                           PSErrorManager.getErrorText(
-                              IPSServerErrors.SERVER_SHUTDOWN_MSG));
-         }
-      } catch (Exception e) { /* not much we can do here */ }
-   }
+  /**
+   * Log an error encountered during request pre-processing.
+   * <p>
+   * The error string is formatted by loading the string
+   * associated with the error code and passing it the array of
+   * arguments. Be sure to store the arguments in the correct order in
+   * the array, where {0} in the string is array element 0, etc.
+   *
+   * @param   conn            the requestor's connection
+   */
+  public static void handleServerShuttingDown(IPSConnection conn) {
+    try {
+      if (conn != null) {
+        /* fail the request as server being too busy */
+        PSResponse resp = new PSResponse(null);
 
-   /**
-    * The request handler could not be found for the specified request.
-    *
-    * @param   req         the request object
-    */
-   public static void handleRequestHandlerNotFound(PSRequest req)
-   {
-      // log the user activity to tie back the error
-      logUserActivityForError(req);
-
-      Object[] params = { "", req.getRequestFileURL() };
-
-      reportError(req,
-                  new PSRequestHandlerNotFoundError(
-                  PSLogInformation.NULL_APPLID,
-                  IPSServerErrors.REQUEST_HANDLER_NOT_FOUND,
-                  params));
-   }
-
-   /**
-    * The data set could not be found for the specified request.
-    *
-    * @param   req         the request object
-    *
-    * @param   applId      the id of the application
-    *
-    * @param   applName      the name of the application
-    */
-   public static void handleDataSetNotFound(   PSRequest req,
-                                             int applId,
-                                             java.lang.String applName)
-   {
-      // log the user activity to tie back the error
-      logUserActivityForError(req);
-
-      String sessId = "";
-      if (req.getUserSession() != null) {
-          sessId = req.getUserSessionId();
+        resp.setStatus(
+            IPSHttpErrors.HTTP_SERVICE_UNAVAILABLE,
+            PSErrorManager.getErrorText(IPSServerErrors.SERVER_SHUTDOWN_MSG));
       }
+    } catch (Exception e) {
+      /* not much we can do here */
+    }
+  }
 
-      Object[] params = { sessId, req.getRequestFileURL(), applName };
+  /**
+   * The request handler could not be found for the specified request.
+   *
+   * @param   req         the request object
+   */
+  public static void handleRequestHandlerNotFound(PSRequest req) {
+    // log the user activity to tie back the error
+    logUserActivityForError(req);
 
-      reportError(req,
-                  new PSRequestHandlerNotFoundError(
-                                       applId,
-                                       IPSServerErrors.APP_DATASET_NOT_FOUND,
-                                       params));
-   }
+    Object[] params = {"", req.getRequestFileURL()};
 
-   /**
-    * The data set request handler could not be found for the
-    * specified request.
-    *
-    * @param   req         the request object
-    *
-    * @param   applId      the id of the application
-    *
-    * @param   applName      the name of the application
-    *
-    * @param   dataSetName   the name of the data set
-    *
-    * @param   requestType   the type of request
-    */
-   public static void handleDataSetHandlerNotFound(PSRequest req,
-                                                   int applId,
-                                                   java.lang.String applName,
-                                                   java.lang.String dataSetName,
-                                                   java.lang.String requestType)
-   {
-      // log the user activity to tie back the error
-      logUserActivityForError(req);
+    reportError(
+        req,
+        new PSRequestHandlerNotFoundError(
+            PSLogInformation.NULL_APPLID, IPSServerErrors.REQUEST_HANDLER_NOT_FOUND, params));
+  }
 
-      String sessId = "";
-      if (req.getUserSession() != null) {
-          sessId = req.getUserSessionId();
+  /**
+   * The data set could not be found for the specified request.
+   *
+   * @param   req         the request object
+   *
+   * @param   applId      the id of the application
+   *
+   * @param   applName      the name of the application
+   */
+  public static void handleDataSetNotFound(PSRequest req, int applId, java.lang.String applName) {
+    // log the user activity to tie back the error
+    logUserActivityForError(req);
+
+    String sessId = "";
+    if (req.getUserSession() != null) {
+      sessId = req.getUserSessionId();
+    }
+
+    Object[] params = {sessId, req.getRequestFileURL(), applName};
+
+    reportError(
+        req,
+        new PSRequestHandlerNotFoundError(applId, IPSServerErrors.APP_DATASET_NOT_FOUND, params));
+  }
+
+  /**
+   * The data set request handler could not be found for the
+   * specified request.
+   *
+   * @param   req         the request object
+   *
+   * @param   applId      the id of the application
+   *
+   * @param   applName      the name of the application
+   *
+   * @param   dataSetName   the name of the data set
+   *
+   * @param   requestType   the type of request
+   */
+  public static void handleDataSetHandlerNotFound(
+      PSRequest req,
+      int applId,
+      java.lang.String applName,
+      java.lang.String dataSetName,
+      java.lang.String requestType) {
+    // log the user activity to tie back the error
+    logUserActivityForError(req);
+
+    String sessId = "";
+    if (req.getUserSession() != null) {
+      sessId = req.getUserSessionId();
+    }
+
+    Object[] params = {sessId, applName, dataSetName, requestType};
+
+    reportError(
+        req,
+        new PSRequestHandlerNotFoundError(
+            applId, IPSServerErrors.APP_DATASET_HANDLER_NOT_FOUND, params));
+  }
+
+  /**
+   * Report an application validation error.
+   *
+   * @param   applId      the id of the application
+   *
+   * @param   e            the validation exception to report
+   */
+  public static void handleValidationError(int applId, PSSystemValidationException e) {
+    org.w3c.dom.Element xmlData = null;
+    org.w3c.dom.Document doc;
+
+    if (e.getSourceComponent() != null) {
+      doc = PSXmlDocumentBuilder.createXmlDocument();
+      xmlData = e.getSourceComponent().toXml(doc);
+    } else if (e.getSourceContainer() != null) {
+      doc = e.getSourceContainer().toXml();
+      xmlData = doc.getDocumentElement();
+    }
+
+    PSValidationError err =
+        new PSValidationError(applId, "", e.getErrorCode(), e.getErrorArguments(), xmlData);
+
+    reportError(null, null, null, err);
+  }
+
+  /**
+   * Log the specified message using the server's log handler. If
+   * logging of the specified action is disabled, it is not performed.
+   *
+   * @param   msg      the message to log
+   */
+  public static void logMessage(PSLogInformation msg) {
+    ms_logger.info(
+        "appid: {} type: {} time: {} msg: {}",
+        msg.getApplicationId(),
+        msg.getMessageType(),
+        msg.getMessageTime(),
+        msg.getSubMessageText());
+  }
+
+  /**
+   * Log the specified exception message using the server's log handler.
+   * The log message includes a full stack trace and a localized message.
+   * If logging of the specified action is disabled, it is not performed.
+   *
+   * @param message   the message to log before the stack trace, may be
+   * <code>null</code> or <code>empty</code>.
+   * @param t an exception object, never <code>null</code>.
+   *
+   * @return log error with the full message logged, never <code>null</code>.
+   */
+  public static PSLogError logException(String message, Throwable t) {
+    if (t == null) throw new IllegalArgumentException("Throwable must not be null");
+
+    Object[] args = {
+      String.format("%s Error: %s", message, PSExceptionUtils.getMessageForLog((Exception) t)),
+      PSExceptionUtils.getMessageForLog((Exception) t)
+    };
+
+    PSLogError logInfo = new PSInternalError(IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, args);
+
+    logMessage(logInfo);
+
+    return logInfo;
+  }
+
+  /**
+   * Report an error which does not have a request or response object
+   * associated with it.
+   *
+   * @param   conn         the connection which encountered the error
+   *
+   * @param   error         the PSLogError subclass describing the error
+   */
+  private static void reportError(IPSConnection conn, PSLogError error) {
+    PSResponse resp = null;
+
+    try {
+      if (conn != null) {
+        resp = new PSResponse(null);
       }
+    } catch (Exception e) {
+      /* not much we can do here */
+    }
 
-      Object[] params = { sessId, applName, dataSetName, requestType };
+    reportError(null, null, resp, error);
+  }
 
-      reportError(req,
-                  new PSRequestHandlerNotFoundError(
-                              applId,
-                              IPSServerErrors.APP_DATASET_HANDLER_NOT_FOUND,
-                              params));
-   }
+  /**
+   * Report an error which does not have a request or response object
+   * associated with it.
+   *
+   * @param   req         the request which encountered the error
+   *
+   * @param   error         the PSLogError subclass describing the error
+   */
+  private static void reportError(PSRequest req, PSLogError error) {
+    /* We are now grabbing the error/log handlers from the request
+     * to fix bug id's TGIS-4BL4CZ and TGIS-4BL44N
+     */
+    PSErrorHandler errorHandler = req.getErrorHandler();
+    PSLogHandler logHandler = req.getLogHandler();
 
-   /**
-    * Report an application validation error.
-    *
-    * @param   applId      the id of the application
-    *
-    * @param   e            the validation exception to report
-    */
-   public static void handleValidationError(
-      int applId, PSSystemValidationException e)
-   {
-      org.w3c.dom.Element xmlData = null;
-      org.w3c.dom.Document doc;
+    // Call PSRequest.getResponse with inError = true.  This suppresses
+    // some actions that the default PSRequest.getResponse() would perform
+    // on non-error responses.  In particular, it ensures that it doesn't
+    // create a new psessionid cookie if none could be found in the request.
+    PSResponse response = req.getResponse(true);
 
-      if (e.getSourceComponent() != null) {
-         doc = PSXmlDocumentBuilder.createXmlDocument();
-         xmlData = e.getSourceComponent().toXml(doc);
+    reportError(errorHandler, logHandler, response, error);
+  }
+
+  /**
+   * Report an error which does not have a request or response object
+   * associated with it.
+   *
+   * @param   eh            the error handler to report through
+   *                                                                              (or null to use the servers)
+   *
+   * @param   lh            the log handler to report through
+   *                                                                              (or null to use the servers)
+   *
+   * @param   resp         the response object to report the error to
+   *
+   * @param   error         the PSLogError subclass describing the error
+   */
+  private static void reportError(
+      PSErrorHandler eh, PSLogHandler lh, PSResponse resp, PSLogError error) {
+    /* We are now accepting the error/log handler to use as input
+     * to fix bug id's TGIS-4BL4CZ and TGIS-4BL44N
+     */
+
+    if (eh == null) eh = PSServer.getErrorHandler();
+    if (eh != null) {
+      eh.reportError(resp, error);
+    } else {
+      if (lh == null) lh = PSServer.getLogHandler();
+      if (lh != null) lh.write(error);
+    }
+  }
+
+  /**
+   * Log the specified error's sub-messages to the screen.
+   *
+   * @param   err      the error to log
+   */
+  private static void logToScreen(PSLogInformation err) {
+    PSLogSubMessage[] msgs = err.getSubMessages();
+    if (msgs != null) {
+      for (PSLogSubMessage msg : msgs) {
+        if (msg != null && msg.getText() != null) {
+          PSConsole.printMsg("Server", msg.getText(), null);
+        }
       }
-      else if (e.getSourceContainer() != null) {
-         doc = e.getSourceContainer().toXml();
-         xmlData = doc.getDocumentElement();
-      }
+    }
+  }
 
-      PSValidationError err = new PSValidationError(
-         applId, "", e.getErrorCode(), e.getErrorArguments(), xmlData);
-
-      reportError(null, null, null, err);
-   }
-
-   /**
-    * Log the specified message using the server's log handler. If
-    * logging of the specified action is disabled, it is not performed.
-    *
-    * @param   msg      the message to log
-    */
-   public static void logMessage(PSLogInformation msg)
-   {
-      ms_logger.info("appid: {} type: {} time: {} msg: {}" ,
-              msg.getApplicationId(),
-              msg.getMessageType(),
-              msg.getMessageTime(),
-              msg.getSubMessageText());
-   }
-
-   /**
-    * Log the specified exception message using the server's log handler.
-    * The log message includes a full stack trace and a localized message.
-    * If logging of the specified action is disabled, it is not performed.
-    *
-    * @param message   the message to log before the stack trace, may be
-    * <code>null</code> or <code>empty</code>.
-    * @param t an exception object, never <code>null</code>.
-    *
-    * @return log error with the full message logged, never <code>null</code>.
-    */
-   public static PSLogError logException(String message, Throwable t)
-   {
-      if (t == null)
-         throw new IllegalArgumentException("Throwable must not be null");
-
-      Object[] args = { String.format("%s Error: %s", message,
-              PSExceptionUtils.getMessageForLog((Exception)t)), PSExceptionUtils.getMessageForLog((Exception)t) };
-
-       PSLogError logInfo =
-         new PSInternalError(IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, args);
-
-      logMessage(logInfo);
-
-      return logInfo;
-   }
-
-
-   /**
-    * Report an error which does not have a request or response object
-    * associated with it.
-    *
-    * @param   conn         the connection which encountered the error
-    *
-    * @param   error         the PSLogError subclass describing the error
-    */
-   private static void reportError(   IPSConnection conn,
-                                    PSLogError error)
-   {
-      PSResponse resp = null;
-
-      try {
-         if (conn != null) {
-            resp = new PSResponse(null);
-         }
-      } catch (Exception e) { /* not much we can do here */ }
-
-      reportError(null, null, resp, error);
-   }
-
-   /**
-    * Report an error which does not have a request or response object
-    * associated with it.
-    *
-    * @param   req         the request which encountered the error
-    *
-    * @param   error         the PSLogError subclass describing the error
-    */
-   private static void reportError(   PSRequest req,
-                                    PSLogError error)
-   {
-      /* We are now grabbing the error/log handlers from the request
-       * to fix bug id's TGIS-4BL4CZ and TGIS-4BL44N
-       */
-      PSErrorHandler errorHandler = req.getErrorHandler();
-      PSLogHandler logHandler = req.getLogHandler();
-
-      // Call PSRequest.getResponse with inError = true.  This suppresses
-      // some actions that the default PSRequest.getResponse() would perform
-      // on non-error responses.  In particular, it ensures that it doesn't
-      // create a new psessionid cookie if none could be found in the request.
-      PSResponse response = req.getResponse(true);
-
-      reportError(
-         errorHandler, logHandler, response, error);
-   }
-
-   /**
-    * Report an error which does not have a request or response object
-    * associated with it.
-    *
-    * @param   eh            the error handler to report through
-    *                                                                              (or null to use the servers)
-    *
-    * @param   lh            the log handler to report through
-    *                                                                              (or null to use the servers)
-    *
-    * @param   resp         the response object to report the error to
-    *
-    * @param   error         the PSLogError subclass describing the error
-    */
-   private static void reportError(   PSErrorHandler eh,
-                                    PSLogHandler lh,
-                                    PSResponse resp,
-                                    PSLogError error)
-   {
-      /* We are now accepting the error/log handler to use as input
-       * to fix bug id's TGIS-4BL4CZ and TGIS-4BL44N
-       */
-
-      if (eh == null)
-         eh = PSServer.getErrorHandler();
-      if (eh != null) {
-         eh.reportError(resp, error);
-      }
-      else {
-         if (lh == null)
-            lh = PSServer.getLogHandler();
-         if (lh != null)
-            lh.write(error);
-      }
-   }
-
-   /**
-    * Log the specified error's sub-messages to the screen.
-    *
-    * @param   err      the error to log
-    */
-   private static void logToScreen(PSLogInformation err)
-   {
-      PSLogSubMessage[] msgs = err.getSubMessages();
-      if (msgs != null) {
-          for (PSLogSubMessage msg : msgs) {
-              if(msg != null && msg.getText() !=null) {
-                  PSConsole.printMsg("Server", msg.getText(), null);
-              }
-          }
-      }
-   }
-
-
-   private static void logUserActivityForError(PSRequest req)
-   {
-      /* need to log basic/detailed user activity info
-       * so we can trace back to the user that was denied
-       */
-      PSLogHandler lh = PSServer.getLogHandler();
-      if (lh != null) {
-         lh.logBasicUserActivity(req);
-         lh.logDetailedUserActivity(req);
-      }
-   }
+  private static void logUserActivityForError(PSRequest req) {
+    /* need to log basic/detailed user activity info
+     * so we can trace back to the user that was denied
+     */
+    PSLogHandler lh = PSServer.getLogHandler();
+    if (lh != null) {
+      lh.logBasicUserActivity(req);
+      lh.logDetailedUserActivity(req);
+    }
+  }
 }
-

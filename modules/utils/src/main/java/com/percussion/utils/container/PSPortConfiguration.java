@@ -23,36 +23,31 @@ import java.util.List;
 /**
  * Contains the configuration of a set of ports.
  */
-public class PSPortConfiguration
-{
-   /**
-    * Add a port configuration.
-    * 
-    * @param portConfig The config to add, may not be <code>null</code>.
-    */
-   public void addPortConfiguration(PSPortInfo portConfig)
-   {
-      if (portConfig == null)
-         throw new IllegalArgumentException("portConfig may not be null");
-      
-      m_portList.add(portConfig);
-   }
-   
-   /**
-    * Get read-only list of port configurations.  Members may be modified, but
-    * the list cannot be modified.
-    *    
-    * @return The list, never <code>null</code>.
-    */
-   public List<PSPortInfo> getPortConfigurations()
-   {
-      return Collections.unmodifiableList(m_portList);
-   }
+public class PSPortConfiguration {
+  /**
+   * Add a port configuration.
+   *
+   * @param portConfig The config to add, may not be <code>null</code>.
+   */
+  public void addPortConfiguration(PSPortInfo portConfig) {
+    if (portConfig == null) throw new IllegalArgumentException("portConfig may not be null");
 
-   /**
-    * List of port configs, never <code>null</code>, initially empty.  See
-    * {@link #addPortConfiguration(PSPortInfo)}.
-    */
-   private List<PSPortInfo> m_portList = new ArrayList<PSPortInfo>();
+    m_portList.add(portConfig);
+  }
+
+  /**
+   * Get read-only list of port configurations.  Members may be modified, but
+   * the list cannot be modified.
+   *
+   * @return The list, never <code>null</code>.
+   */
+  public List<PSPortInfo> getPortConfigurations() {
+    return Collections.unmodifiableList(m_portList);
+  }
+
+  /**
+   * List of port configs, never <code>null</code>, initially empty.  See
+   * {@link #addPortConfiguration(PSPortInfo)}.
+   */
+  private List<PSPortInfo> m_portList = new ArrayList<PSPortInfo>();
 }
-

@@ -20,14 +20,13 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.soln.linkback.utils.ItemSummaryFinder;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Linkback controller to redirect to Rhythmyx Active Assembly. Use the latest
@@ -37,107 +36,116 @@ import java.util.Map;
  */
 public class ActiveAssemblyLinkbackController extends GenericLinkbackController {
 
-    private static final Logger log = LogManager.getLogger(ActiveAssemblyLinkbackController.class);
+  private static final Logger log = LogManager.getLogger(ActiveAssemblyLinkbackController.class);
 
-    private static final String REDIRECT_PATH = "/assembler/render";
+  private static final String REDIRECT_PATH = "/assembler/render";
 
-    private boolean useVariantId = true;
+  private boolean useVariantId = true;
 
-    private ItemSummaryFinder itemSummaryFinder;
+  private ItemSummaryFinder itemSummaryFinder;
 
-    /**
-     * Return a ModelAndView to the active assembly. Verify sys_contentid,
-     * sys_template, sys_folderid, and sys_siteid are in the map. Use the latest
-     * revision of the item, which may or may not be checked out by current
-     * user.
-     */
-    @Override
-    protected ModelAndView handleLinkBackRedirect(Map<String, String> params) {
-        String sys_contentid = params.get(IPSHtmlParameters.SYS_CONTENTID);
-        String sys_template = params.get(IPSHtmlParameters.SYS_TEMPLATE);
-        String sys_folderid = params.get(IPSHtmlParameters.SYS_FOLDERID);
-        String sys_siteid = params.get(IPSHtmlParameters.SYS_SITEID);
+  /**
+   * Return a ModelAndView to the active assembly. Verify sys_contentid,
+   * sys_template, sys_folderid, and sys_siteid are in the map. Use the latest
+   * revision of the item, which may or may not be checked out by current
+   * user.
+   */
+  @Override
+  protected ModelAndView handleLinkBackRedirect(Map<String, String> params) {
+    String sys_contentid = params.get(IPSHtmlParameters.SYS_CONTENTID);
+    String sys_template = params.get(IPSHtmlParameters.SYS_TEMPLATE);
+    String sys_folderid = params.get(IPSHtmlParameters.SYS_FOLDERID);
+    String sys_siteid = params.get(IPSHtmlParameters.SYS_SITEID);
 
-        log.debug("sys_contentid=" + sys_contentid + ", sys_folderid=" + sys_folderid + ", sys_template="
-                + sys_template + ", sys_siteid=" + sys_siteid);
+    log.debug(
+        "sys_contentid="
+            + sys_contentid
+            + ", sys_folderid="
+            + sys_folderid
+            + ", sys_template="
+            + sys_template
+            + ", sys_siteid="
+            + sys_siteid);
 
-        if (isNotNumeric(sys_contentid) || isNotNumeric(sys_template) || isNotNumeric(sys_folderid)
-                || isNotNumeric(sys_siteid)) {
-            return super.createErrorView("Missing contentid, templateid, folderid, or siteid");
-        }
-
-        // get latest revision
-        String sys_revision;
-        try {
-            sys_revision = getLatestRevision(sys_contentid);
-
-        } catch (PSException e) {
-            // otherwise, use what is in the map
-            sys_revision = params.get(IPSHtmlParameters.SYS_REVISION);
-
-            if (isNotNumeric(sys_revision)) {
-                log.debug("cannot get revision");
-                return super.createErrorView("Fail to get revision");
-            }
-        }
-
-        // build new map
-        Map<String, String> nmap = new HashMap<>();
-        nmap.put(IPSHtmlParameters.SYS_CONTENTID, sys_contentid);
-        nmap.put(IPSHtmlParameters.SYS_FOLDERID, sys_folderid);
-        nmap.put(IPSHtmlParameters.SYS_SITEID, sys_siteid);
-        nmap.put(IPSHtmlParameters.SYS_REVISION, sys_revision);
-
-        // active assembly expects "sys_variantid", not "sys_template" in the
-        // URL...
-        if (isUseVariantId()) {
-            log.debug("use " + IPSHtmlParameters.SYS_VARIANTID);
-            nmap.put(IPSHtmlParameters.SYS_VARIANTID, sys_template);
-        } else {
-            log.debug("use " + IPSHtmlParameters.SYS_TEMPLATE);
-            nmap.put(IPSHtmlParameters.SYS_TEMPLATE, sys_template);
-        }
-
-        // these values are always the same for AA
-        nmap.put(IPSHtmlParameters.SYS_ITEMFILTER, "preview");
-        nmap.put(IPSHtmlParameters.SYS_CONTEXT, "0");
-        nmap.put(IPSHtmlParameters.SYS_COMMAND, "editrc");
-
-        // return a RedirectView relative to current servlet context
-        return new ModelAndView(new RedirectView(REDIRECT_PATH, true), nmap);
+    if (isNotNumeric(sys_contentid)
+        || isNotNumeric(sys_template)
+        || isNotNumeric(sys_folderid)
+        || isNotNumeric(sys_siteid)) {
+      return super.createErrorView("Missing contentid, templateid, folderid, or siteid");
     }
 
-    private String getLatestRevision(String contentid) throws PSException {
-        PSLocator loc = getItemSummaryFinder().getCurrentOrEditLocator(contentid);
-        log.debug("latest revision=" + loc.getRevision());
+    // get latest revision
+    String sys_revision;
+    try {
+      sys_revision = getLatestRevision(sys_contentid);
 
-        return Integer.toString(loc.getRevision());
+    } catch (PSException e) {
+      // otherwise, use what is in the map
+      sys_revision = params.get(IPSHtmlParameters.SYS_REVISION);
+
+      if (isNotNumeric(sys_revision)) {
+        log.debug("cannot get revision");
+        return super.createErrorView("Fail to get revision");
+      }
     }
 
-    private boolean isNotNumeric(String str) {
-        return (StringUtils.isBlank(str) || !StringUtils.isNumeric(str));
+    // build new map
+    Map<String, String> nmap = new HashMap<>();
+    nmap.put(IPSHtmlParameters.SYS_CONTENTID, sys_contentid);
+    nmap.put(IPSHtmlParameters.SYS_FOLDERID, sys_folderid);
+    nmap.put(IPSHtmlParameters.SYS_SITEID, sys_siteid);
+    nmap.put(IPSHtmlParameters.SYS_REVISION, sys_revision);
+
+    // active assembly expects "sys_variantid", not "sys_template" in the
+    // URL...
+    if (isUseVariantId()) {
+      log.debug("use " + IPSHtmlParameters.SYS_VARIANTID);
+      nmap.put(IPSHtmlParameters.SYS_VARIANTID, sys_template);
+    } else {
+      log.debug("use " + IPSHtmlParameters.SYS_TEMPLATE);
+      nmap.put(IPSHtmlParameters.SYS_TEMPLATE, sys_template);
     }
 
-    public boolean isUseVariantId() {
-        return useVariantId;
-    }
+    // these values are always the same for AA
+    nmap.put(IPSHtmlParameters.SYS_ITEMFILTER, "preview");
+    nmap.put(IPSHtmlParameters.SYS_CONTEXT, "0");
+    nmap.put(IPSHtmlParameters.SYS_COMMAND, "editrc");
 
-    /**
-     * Set this property in the bean config. If "true" (default), use
-     * IPSHtmlParameters.SYS_VARIANTID to submit the template ID; otherwise, use
-     * IPSHtmlParameters.SYS_TEMPLATE.
-     * 
-     * @param useVariantId
-     */
-    public void setUseVariantId(boolean useVariantId) {
-        this.useVariantId = useVariantId;
-    }
+    // return a RedirectView relative to current servlet context
+    return new ModelAndView(new RedirectView(REDIRECT_PATH, true), nmap);
+  }
 
-    public ItemSummaryFinder getItemSummaryFinder() {
-        return itemSummaryFinder;
-    }
+  private String getLatestRevision(String contentid) throws PSException {
+    PSLocator loc = getItemSummaryFinder().getCurrentOrEditLocator(contentid);
+    log.debug("latest revision=" + loc.getRevision());
 
-    public void setItemSummaryFinder(ItemSummaryFinder itemSummaryFinder) {
-        this.itemSummaryFinder = itemSummaryFinder;
-    }
+    return Integer.toString(loc.getRevision());
+  }
+
+  private boolean isNotNumeric(String str) {
+    return (StringUtils.isBlank(str) || !StringUtils.isNumeric(str));
+  }
+
+  public boolean isUseVariantId() {
+    return useVariantId;
+  }
+
+  /**
+   * Set this property in the bean config. If "true" (default), use
+   * IPSHtmlParameters.SYS_VARIANTID to submit the template ID; otherwise, use
+   * IPSHtmlParameters.SYS_TEMPLATE.
+   *
+   * @param useVariantId
+   */
+  public void setUseVariantId(boolean useVariantId) {
+    this.useVariantId = useVariantId;
+  }
+
+  public ItemSummaryFinder getItemSummaryFinder() {
+    return itemSummaryFinder;
+  }
+
+  public void setItemSummaryFinder(ItemSummaryFinder itemSummaryFinder) {
+    this.itemSummaryFinder = itemSummaryFinder;
+  }
 }

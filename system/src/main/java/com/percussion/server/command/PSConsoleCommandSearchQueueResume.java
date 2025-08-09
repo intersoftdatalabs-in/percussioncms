@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.server.command;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -41,48 +42,43 @@ import org.w3c.dom.Document;
 /**
  * Command to resume the queue processing if it is paused.  Noop if
  * queue is not paused.
- * 
+ *
  */
-public class PSConsoleCommandSearchQueueResume extends PSConsoleCommand
-{
+public class PSConsoleCommandSearchQueueResume extends PSConsoleCommand {
 
-   /**
-    * The constructor for this class. The command arguments are ignored for this
-    * command.
-    * 
-    * @param cmdArgs the argument string to use when executing this command, may
-    * be <code>null</code> or empty.
-    */
-   public PSConsoleCommandSearchQueueResume(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+  /**
+   * The constructor for this class. The command arguments are ignored for this
+   * command.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may
+   * be <code>null</code> or empty.
+   */
+  public PSConsoleCommandSearchQueueResume(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-   //see base class   
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc;
-      doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, 
-         getCommandName());
-      if (null != doc)
-         return doc;
-      String result = PSSearchIndexEventQueue.getInstance().resume() ? "Indexer was resumed" : "Indexer was not resumed";
-      doc = getResultsDocument(request, getCommandName(), 
-            IPSServerErrors.RAW_DUMP, 
-            new Object[] {result});
-      return doc;
-   }
-   
-   // see base class
-   protected String getCommandName()
-   {
-      return COMMAND_NAME;
-   }
-   
-   /**
-    * The full command that launched this handler. 
-    */
-   private final static String COMMAND_NAME = "search queue resume";
-   
+  // see base class
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc;
+    doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, getCommandName());
+    if (null != doc) return doc;
+    String result =
+        PSSearchIndexEventQueue.getInstance().resume()
+            ? "Indexer was resumed"
+            : "Indexer was not resumed";
+    doc =
+        getResultsDocument(
+            request, getCommandName(), IPSServerErrors.RAW_DUMP, new Object[] {result});
+    return doc;
+  }
 
+  // see base class
+  protected String getCommandName() {
+    return COMMAND_NAME;
+  }
+
+  /**
+   * The full command that launched this handler.
+   */
+  private static final String COMMAND_NAME = "search queue resume";
 }

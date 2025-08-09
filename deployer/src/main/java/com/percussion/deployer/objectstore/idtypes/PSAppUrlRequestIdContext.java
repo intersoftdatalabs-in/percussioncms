@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.deployer.objectstore.idtypes;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
@@ -22,246 +22,216 @@ import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.text.MessageFormat;
 import java.util.Optional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * ID Context to represent a <code>PSUrlRequest</code> object
  */
-public class PSAppUrlRequestIdContext extends PSApplicationIdContext
-{
-   /**
-    * Construct this context from the object it represents
-    * 
-    * @param req The url request, may not be <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>req</code> is 
-    * <code>null</code>.
-    */
-   public PSAppUrlRequestIdContext(PSUrlRequest req)
-   {
-      if (req == null)
-         throw new IllegalArgumentException("req may not be null");
-         
-      m_name = req.getName();
-      m_href = req.getHref() == null ? "" : req.getHref();
-   }
+public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
+  /**
+   * Construct this context from the object it represents
+   *
+   * @param req The url request, may not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException if <code>req</code> is
+   * <code>null</code>.
+   */
+  public PSAppUrlRequestIdContext(PSUrlRequest req) {
+    if (req == null) throw new IllegalArgumentException("req may not be null");
 
-   /**
-    * Create this object from its XML representation
-    *
-    * @param source The source element.  See {@link #toXml(Document)} for
-    * the expected format.  May not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException If <code>source</code> is
-    * <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
-    */
-   public PSAppUrlRequestIdContext(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
+    m_name = req.getName();
+    m_href = req.getHref() == null ? "" : req.getHref();
+  }
 
-      fromXml(source);
-   }
-   
-   /**
-    * Get the name of the url request if one was supplied.
-    * 
-    * @return The name, may be <code>null</code>, never empty.
-    */
-   public String getName()
-   {
-      return m_name;
-   }
-   
-   /**
-    * Get the base href of the url request if one was supplied.
-    * 
-    * @return The href, never <code>null</code>, may be empty.
-    */
-   public String getHref()
-   {
-      return m_href;
-   }
-   
-   /**
-    * Determine if this context represents the supplied request
-    * @param req The request to check, may not be <code>null</code>.
-    * 
-    * @return <code>true</code> if this context represents the supplied request,
-    * <code>false</code> otherwise.
-    * 
-    * @throws IllegalArgumentException if <code>req</code> is <code>null</code>.
-    */
-   public boolean isSameRequest(PSUrlRequest req)
-   {
-      if (req == null)
-         throw new IllegalArgumentException("req may not be null");
-      
-      boolean isSame = true;
-      
-      if (req.getName() == null ^ m_name == null)
-         isSame = false;
-      else if (m_name != null && !m_name.equals(req.getName()))
-         isSame = false;
-      else if (!m_href.equals(req.getHref()))
-         isSame = false;
-         
-      return isSame;
-   }
-   
-   //see PSApplicationIdContext
-   public String getDisplayText()
-   {
-      String key;
-      String arg;
-      if (m_name != null)
-      {
-         key = "appIdUrlRequestName";
-         arg = m_name;
-      }
-      else if (m_href.trim().length() > 0)
-      {
-         key = "appIdUrlRequestHref";
-         arg = m_href;
-      }
-      else
-      {
-         key = "appIdUrlRequest";
-         arg = null;
-      }
-      
-      String text = getBundle().getString(key);
-      text = MessageFormat.format(text, new Object[] {arg});
-      text = addParentDisplayText(text);
-      
-      return text;
-   }
-   
-   /**
-    * Serializes this object's state to its XML representation.  The format is:
-    * <!--
-    *    PSXApplicationIdContext is a place holder for the root node of the XML
-    *    representation of any class derived from PSApplicationIdContext that
-    *    is this context's parent context.
-    * -->
-    * <pre><code>
-    * &lt;!ELEMENT PSXAppUrlRequestIdContext (PSXApplicationIDContext?)>
-    * &lt;!ATTLIST PSXAppUrlRequestIdContext
-    *    name CDATA #IMPLIED
-    *    href CDATA #IMPLIED
-    * >
-    * </code></pre>
-    *
-    * See {@link IPSDeployComponent#toXml(Document)} for more info.
-    */
-   public Element toXml(Document doc) {
-      if (doc == null) {
-         throw new IllegalArgumentException("doc should not be null");
-      }
+  /**
+   * Create this object from its XML representation
+   *
+   * @param source The source element.  See {@link #toXml(Document)} for
+   * the expected format.  May not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException If <code>source</code> is
+   * <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   */
+  public PSAppUrlRequestIdContext(Element source) throws PSUnknownNodeTypeException {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
 
-      var root = doc.createElement(XML_NODE_NAME);
-      Optional.ofNullable(m_name).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
-      root.setAttribute(XML_ATTR_HREF, m_href);
-      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
-      return root;
-   }
-   
-   /**
-    * Restores this object's state from its XML representation.  See
-    * {@link #toXml(Document)} for format of XML.  See
-    * {@link IPSDeployComponent#fromXml(Element)} for more info on method
-    * signature.
-    */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
-      if (sourceNode == null) {
-         throw new IllegalArgumentException("sourceNode should not be null");
-      }
+    fromXml(source);
+  }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
-         );
-      }
+  /**
+   * Get the name of the url request if one was supplied.
+   *
+   * @return The name, may be <code>null</code>, never empty.
+   */
+  public String getName() {
+    return m_name;
+  }
 
-      m_name = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
-         .filter(name -> !name.trim().isEmpty())
-         .orElse(null);
+  /**
+   * Get the base href of the url request if one was supplied.
+   *
+   * @return The href, never <code>null</code>, may be empty.
+   */
+  public String getHref() {
+    return m_href;
+  }
 
-      m_href = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_HREF))
-         .orElse("");
+  /**
+   * Determine if this context represents the supplied request
+   * @param req The request to check, may not be <code>null</code>.
+   *
+   * @return <code>true</code> if this context represents the supplied request,
+   * <code>false</code> otherwise.
+   *
+   * @throws IllegalArgumentException if <code>req</code> is <code>null</code>.
+   */
+  public boolean isSameRequest(PSUrlRequest req) {
+    if (req == null) throw new IllegalArgumentException("req may not be null");
 
-      var tree = new PSXmlTreeWalker(sourceNode);
-      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
-   }
-   
-   // see IPSDeployComponent interface
-   public void copyFrom(IPSDeployComponent obj)
-   {
-      if ( obj == null )
-         throw new IllegalArgumentException("obj may not be null");
+    boolean isSame = true;
 
-      if (!(obj instanceof PSAppUrlRequestIdContext))
-         throw new IllegalArgumentException("obj wrong type");
+    if (req.getName() == null ^ m_name == null) isSame = false;
+    else if (m_name != null && !m_name.equals(req.getName())) isSame = false;
+    else if (!m_href.equals(req.getHref())) isSame = false;
 
-      PSAppUrlRequestIdContext other = (PSAppUrlRequestIdContext)obj;
-      m_name = other.m_name;
-      m_href = other.m_href;
-      super.copyFrom(other);
-   }
-   
-   // see IPSDeployComponent interface
-   public boolean equals(Object obj)
-   {
-      boolean isEqual = true;
+    return isSame;
+  }
 
-      if (!(obj instanceof PSAppUrlRequestIdContext))
-         isEqual = false;
-      else 
-      {
-         PSAppUrlRequestIdContext other = (PSAppUrlRequestIdContext)obj;
-         if (m_name == null ^ other.m_name == null)
-            isEqual = false;
-         else if (m_name != null && !m_name.equals(other.m_name))
-            isEqual = false;
-         else if (!m_href.equals(other.m_href))
-            isEqual = false;
-         else if (!super.equals(other))
-            isEqual = false;
-      }
+  // see PSApplicationIdContext
+  public String getDisplayText() {
+    String key;
+    String arg;
+    if (m_name != null) {
+      key = "appIdUrlRequestName";
+      arg = m_name;
+    } else if (m_href.trim().length() > 0) {
+      key = "appIdUrlRequestHref";
+      arg = m_href;
+    } else {
+      key = "appIdUrlRequest";
+      arg = null;
+    }
 
-      return isEqual;
-   }
-   
-   public int hashCode()
-   {
-      return m_href.hashCode() + m_name.hashCode() + super.hashCode();
-   }
+    String text = getBundle().getString(key);
+    text = MessageFormat.format(text, new Object[] {arg});
+    text = addParentDisplayText(text);
 
-   /**
-    * Name of the url request, may be <code>null</code>, never emtpy.
-    */
-   private String m_name;
-   
-   /**
-    * Href of the url request, never <code>null</code>, may be empty.
-    */
-   private String m_href;
-   
-   /**
-    * Root node name of this object's XML representation.
-    */
-   public static final String XML_NODE_NAME = "PSXAppUrlRequestIdContext";
+    return text;
+  }
 
-   // private xml constants
-   private static final String XML_ATTR_NAME = "name";
-   private static final String XML_ATTR_HREF = "href";
+  /**
+   * Serializes this object's state to its XML representation.  The format is:
+   * <!--
+   *    PSXApplicationIdContext is a place holder for the root node of the XML
+   *    representation of any class derived from PSApplicationIdContext that
+   *    is this context's parent context.
+   * -->
+   * <pre><code>
+   * &lt;!ELEMENT PSXAppUrlRequestIdContext (PSXApplicationIDContext?)>
+   * &lt;!ATTLIST PSXAppUrlRequestIdContext
+   *    name CDATA #IMPLIED
+   *    href CDATA #IMPLIED
+   * >
+   * </code></pre>
+   *
+   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   */
+  public Element toXml(Document doc) {
+    if (doc == null) {
+      throw new IllegalArgumentException("doc should not be null");
+    }
+
+    var root = doc.createElement(XML_NODE_NAME);
+    Optional.ofNullable(m_name).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
+    root.setAttribute(XML_ATTR_HREF, m_href);
+    Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
+    return root;
+  }
+
+  /**
+   * Restores this object's state from its XML representation.  See
+   * {@link #toXml(Document)} for format of XML.  See
+   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * signature.
+   */
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+      throw new IllegalArgumentException("sourceNode should not be null");
+    }
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
+    }
+
+    m_name =
+        Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
+            .filter(name -> !name.trim().isEmpty())
+            .orElse(null);
+
+    m_href = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_HREF)).orElse("");
+
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    Optional.ofNullable(ctxEl)
+        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+  }
+
+  // see IPSDeployComponent interface
+  public void copyFrom(IPSDeployComponent obj) {
+    if (obj == null) throw new IllegalArgumentException("obj may not be null");
+
+    if (!(obj instanceof PSAppUrlRequestIdContext))
+      throw new IllegalArgumentException("obj wrong type");
+
+    PSAppUrlRequestIdContext other = (PSAppUrlRequestIdContext) obj;
+    m_name = other.m_name;
+    m_href = other.m_href;
+    super.copyFrom(other);
+  }
+
+  // see IPSDeployComponent interface
+  public boolean equals(Object obj) {
+    boolean isEqual = true;
+
+    if (!(obj instanceof PSAppUrlRequestIdContext)) isEqual = false;
+    else {
+      PSAppUrlRequestIdContext other = (PSAppUrlRequestIdContext) obj;
+      if (m_name == null ^ other.m_name == null) isEqual = false;
+      else if (m_name != null && !m_name.equals(other.m_name)) isEqual = false;
+      else if (!m_href.equals(other.m_href)) isEqual = false;
+      else if (!super.equals(other)) isEqual = false;
+    }
+
+    return isEqual;
+  }
+
+  public int hashCode() {
+    return m_href.hashCode() + m_name.hashCode() + super.hashCode();
+  }
+
+  /**
+   * Name of the url request, may be <code>null</code>, never emtpy.
+   */
+  private String m_name;
+
+  /**
+   * Href of the url request, never <code>null</code>, may be empty.
+   */
+  private String m_href;
+
+  /**
+   * Root node name of this object's XML representation.
+   */
+  public static final String XML_NODE_NAME = "PSXAppUrlRequestIdContext";
+
+  // private xml constants
+  private static final String XML_ATTR_NAME = "name";
+  private static final String XML_ATTR_HREF = "href";
 }

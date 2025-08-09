@@ -27,10 +27,12 @@ This plan completes and standardizes the repository migration to Java 11. It min
 ## 3) Staged Execution Plan
 
 ### Stage 0 — Branching and baseline
+
 - Create branch: `development-java-11-integration`.
 - Cherry-pick/merge any missing changes from your prior `development-java-11` branch.
 
 ### Stage 1 — Enforce a consistent Java 11 toolchain
+
 - Parent [`pom.xml`](pom.xml):
   - Ensure `maven-compiler-plugin` 3.11.0+ set with source/target 11 and optionally `release=11` in pluginManagement.
   - Keep properties `maven.compiler.source/target=11` [`pom.xml`](pom.xml:87-88). Prefer central configuration.
@@ -38,6 +40,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
   - Update residual Java 8 flags in [`modules/perc-checkboxtree/pom.xml`](modules/perc-checkboxtree/pom.xml:32-34) to 11 or remove to inherit.
 
 ### Stage 2 — Unify on javax.* stack (DTS tomcat 10+)
+
 - Replace Jakarta APIs with javax in the membership module:
   - [`deliverytiersuite/delivery-tier-suite/membership/pom.xml`](deliverytiersuite/delivery-tier-suite/membership/pom.xml:47,53): replace `jakarta.servlet-api` 5.0.0 with `javax.servlet:javax.servlet-api` 4.0.1 (scope provided) and `jakarta.annotation-api` with `javax.annotation:javax.annotation-api` 1.3.2.
 - Standardize Servlet API:
@@ -49,17 +52,20 @@ This plan completes and standardizes the repository migration to Java 11. It min
   - Standardize to `javax.annotation:javax.annotation-api:1.3.2` (avoid jakarta.* until a future Jakarta migration).
 
 ### Stage 3 — JAXB/Activation for Java 11
+
 - Keep explicit dependencies where JAXB is used:
   - `javax.xml.bind:jaxb-api:2.3.1` and `org.glassfish.jaxb:jaxb-runtime:2.3.3` (already present e.g. [`system/pom.xml`](system/pom.xml:416-423)).
   - `javax.activation:javax.activation-api:1.2.0` (already present).
 - Centralize versions via parent `dependencyManagement` and remove duplicate child declarations where possible.
 
 ### Stage 4 — REST/CXF version consolidation
+
 - Align delivery-tier to CXF 3.5.11 to match root:
   - Update `cxf.version` in [`deliverytiersuite/delivery-tier-suite/pom.xml`](deliverytiersuite/delivery-tier-suite/pom.xml:58) from 3.3.5 to 3.5.11.
 - Keep Jersey 2.33 for delivery-tier modules, ensuring no Jakarta variants sneak in. Preserve exclusions that remove jakarta.annotation from jersey-spring5 (already configured).
 
 ### Stage 5 — Axis 1.4/JAX-RPC
+
 - Short-term: retain Axis 1.4 with plugin-based code generation:
   - Verify `axistools-maven-plugin` and `axis:wsdl2java` executions compile under JDK 11:
     - [`modules/webservices/pom.xml`](modules/webservices/pom.xml:18,206)
@@ -68,12 +74,14 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Long-term tech debt: plan deprecation/migration from Axis to JAX-WS/REST.
 
 ### Stage 6 — Plugins and test runners
+
 - Standardize Surefire:
   - Parent pluginManagement: `maven-surefire-plugin 3.1.2` with `-Djava.awt.headless=true`, reasonable memory; many modules already 3.0.0–3.1.2.
 - Enforcer:
   - Add rules to require Java 11 and to ban `jakarta.servlet*` and `jakarta.annotation*` until DTS tomcat 10 migration.
 
 ### Stage 7 — Build and runtime verification
+
 - Build smoke:
   - `mvn -T 1C -DskipTests clean install` to validate compilation and packaging.
 - Tests:
@@ -83,12 +91,14 @@ This plan completes and standardizes the repository migration to Java 11. It min
   - Watch for javax/jakarta linkage errors, JAXB missing classes, or CXF/Jersey provider conflicts.
 
 ### Stage 8 — Minimal CI enablement
+
 - Add GitHub Actions workflow to build on JDK 11:
   - Use `actions/setup-java@v4` with Temurin 11.
   - Command: `mvn -B -DskipTests clean verify`. Enable tests once stable.
   - Cache Maven repository.
 
 ### Stage 9 — Documentation and guardrails
+
 - Update contributor/developer docs to require JDK 11.
 - State container target: DTS tomcat 10.x (Servlet 5).
 - Open issues:
@@ -108,24 +118,19 @@ This plan completes and standardizes the repository migration to Java 11. It min
    - Plugins:
      - `maven-compiler-plugin:3.11.0` with 11 source/target (optionally `release`).
      - `maven-surefire-plugin:3.1.2`.
-
 2. Remove Jakarta variants in `deliverytiersuite/delivery-tier-suite/membership`
    - Replace:
      - `jakarta.servlet-api` → `javax.servlet-api` 4.0.1 (provided)
      - `jakarta.annotation-api` → `javax.annotation-api` 1.3.2
-
 3. Update Java 8 module
    - [`modules/perc-checkboxtree`](modules/perc-checkboxtree/pom.xml:32): set source/target 11 or remove to inherit.
-
 4. Fix servlet API scopes and artifacts
    - Change compile-scoped servlet dependencies to provided in:
      - [`modules/perc-security-utils`](modules/perc-security-utils/pom.xml:111)
      - [`modules/perc-ant`](modules/perc-ant/pom.xml:105) (if not truly needed at runtime)
    - Ensure no servlet-api JARs end up in WARs (check WebUI filters: [`WebUI/pom.xml`](WebUI/pom.xml:236)).
-
 5. Align delivery-tier CXF
    - Update `cxf.version` in [`deliverytiersuite/delivery-tier-suite/pom.xml`](deliverytiersuite/delivery-tier-suite/pom.xml:58) to 3.5.11.
-
 6. Axis plugin verification
    - Confirm `axistools` and `wsdl2java` plugin executions succeed with JDK 11; add plugin-level dependencies where missing (mirror [`modules/webservices`](modules/webservices/pom.xml:18-33,123-141)).
 
@@ -145,3 +150,4 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Axis deprecation: Migrate SOAP clients/services to JAX-WS or REST; eliminate Axis toolchain and JAXB runtime coupling.
 - Jakarta migration (optional next major):
   - Move to DTS tomcat 10.1+, update all javax.* to jakarta.* namespaces, upgrade Jersey/CXF to Jakarta variants, re-test.
+

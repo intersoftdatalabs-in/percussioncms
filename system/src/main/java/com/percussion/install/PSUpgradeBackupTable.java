@@ -27,10 +27,6 @@ import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.tools.DbUtils;
 import com.percussion.util.PSSQLStatement;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintStream;
@@ -38,291 +34,254 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Upgrade plugin class which creates a backup of an existing table. This plugin
  * may be used to backup an existing table during upgrade before deleting any
  * data from the table.
  */
-public class PSUpgradeBackupTable implements IPSUpgradePlugin
-{
-   /**
-    * Implements process method of IPSUpgradePlugin.
-    * @see com.percussion.install.IPSUpgradeConfig
-    * @throws IllegalArgumentException if elemData is <code>null</code> or
-    * does not have any valid "table" element, or if any "table" element is
-    * invalid, or if config is <code>null</code>
-    */
-   
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      if (config == null)
-         throw new IllegalArgumentException("config may not be null");
+public class PSUpgradeBackupTable implements IPSUpgradePlugin {
+  /**
+   * Implements process method of IPSUpgradePlugin.
+   * @see com.percussion.install.IPSUpgradeConfig
+   * @throws IllegalArgumentException if elemData is <code>null</code> or
+   * does not have any valid "table" element, or if any "table" element is
+   * invalid, or if config is <code>null</code>
+   */
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    if (config == null) throw new IllegalArgumentException("config may not be null");
 
-      if (elemData == null)
-         throw new IllegalArgumentException("elemData may not be null");
+    if (elemData == null) throw new IllegalArgumentException("elemData may not be null");
 
-      config.getLogStream().println(
-         "Creating backup of existing tables...");
+    config.getLogStream().println("Creating backup of existing tables...");
 
-      NodeList nl = elemData.getElementsByTagName("table");
-      if ((nl == null) || (nl.getLength() < 1))
-         throw new IllegalArgumentException("nl may not be null or empty");
+    NodeList nl = elemData.getElementsByTagName("table");
+    if ((nl == null) || (nl.getLength() < 1))
+      throw new IllegalArgumentException("nl may not be null or empty");
 
-      FileInputStream in = null;
-      Connection conn = null;
-      try
-      {
-         in = new FileInputStream(new File(RxUpgrade.getRxRoot() +
-            "rxconfig/Installer/rxrepository.properties"));
-         Properties props = new Properties();
-         props.load(in);
-         props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-         PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
-         PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap(
-            props.getProperty("DB_BACKEND"),
-            props.getProperty("DB_DRIVER_NAME"), null);
-         conn = RxUpgrade.getJdbcConnection();
-         
-         for(int j=0; j < nl.getLength(); j++)
-         {
-            String srcTableName = InstallUtil.getElemValue(nl.item(j), "src");
-            String destTableName = InstallUtil.getElemValue(nl.item(j), "dest");
-            config.getLogStream().println("Creating backup of table. " +
-               "Source table : " + srcTableName +
-               " Destination table : " + destTableName);
+    FileInputStream in = null;
+    Connection conn = null;
+    try {
+      in =
+          new FileInputStream(
+              new File(RxUpgrade.getRxRoot() + "rxconfig/Installer/rxrepository.properties"));
+      Properties props = new Properties();
+      props.load(in);
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      PSJdbcDataTypeMap dataTypeMap =
+          new PSJdbcDataTypeMap(
+              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
+      conn = RxUpgrade.getJdbcConnection();
 
-            boolean success = true;
-            try
-            {
-               success = DbUtils.backupTable(conn, dbmsDef,
-                  dataTypeMap, srcTableName, destTableName,
-                  config.getLogStream(), true);
-               
-            }
-            catch (Exception e)
-            {
-               success = false;
-               config.getLogStream().println(e.getMessage());
-               e.printStackTrace(config.getLogStream());
-            }
-            if (!success)
-            {
-               String errorMsg = "\nERROR: failed to backup source table \"" + srcTableName + "\" to the destination table \"" + destTableName + "\"." +
-                  "\nPlease resolve any exceptions and check the database to make sure it contains the source table." + 
-                  "\nSkip executing SQL Statement defined by this plugin.\n";
-               config.getLogStream().println(errorMsg);
-            }
-            else
-            {
-               Element onSuccessEl =
-                  InstallUtil.getElement(nl.item(j), "onSuccess");
-               if (onSuccessEl != null)
-               {
-                  Element sqlEl =
-                     InstallUtil.getElement(onSuccessEl, "sql");
-                  if (sqlEl != null)
-                  {
-                     String desc =
-                        InstallUtil.getElemValue(sqlEl, "description");
-                     config.getLogStream().println(desc);
+      for (int j = 0; j < nl.getLength(); j++) {
+        String srcTableName = InstallUtil.getElemValue(nl.item(j), "src");
+        String destTableName = InstallUtil.getElemValue(nl.item(j), "dest");
+        config
+            .getLogStream()
+            .println(
+                "Creating backup of table. "
+                    + "Source table : "
+                    + srcTableName
+                    + " Destination table : "
+                    + destTableName);
 
-                     NodeList stnl = sqlEl.getElementsByTagName("statement");
-                     if(stnl != null && stnl.getLength() > 0)
-                     {
-                        for(int i=0; i<stnl.getLength(); i++)
-                        {
-                           String sqlStatement =
-                              InstallUtil.getElemValue((Element)stnl.item(i));
-                           if (!((sqlStatement == null)
-                              || (sqlStatement.trim().length() < 1)))
-                           {
-                              sqlStatement = sqlStatement.trim();
-                              config.getLogStream().println(sqlStatement);
-                              Statement stmt = null;
-                              try
-                              {
-                                 stmt = PSSQLStatement.getStatement(conn);
-                                 stmt.executeUpdate(sqlStatement);
-                              }
-                              catch (Exception e)
-                              {
-                                 config.getLogStream().println(e.getMessage());
-                                 e.printStackTrace(config.getLogStream());
-                              }
-                              finally
-                              {
-                                 if (stmt != null)
-                                 {
-                                    stmt.close();
-                                 }
-                              }
-                           }
-                        }
-                     }
+        boolean success = true;
+        try {
+          success =
+              DbUtils.backupTable(
+                  conn,
+                  dbmsDef,
+                  dataTypeMap,
+                  srcTableName,
+                  destTableName,
+                  config.getLogStream(),
+                  true);
+
+        } catch (Exception e) {
+          success = false;
+          config.getLogStream().println(e.getMessage());
+          e.printStackTrace(config.getLogStream());
+        }
+        if (!success) {
+          String errorMsg =
+              "\nERROR: failed to backup source table \""
+                  + srcTableName
+                  + "\" to the destination table \""
+                  + destTableName
+                  + "\".\n"
+                  + "Please resolve any exceptions and check the database to make sure it contains"
+                  + " the source table.\n"
+                  + "Skip executing SQL Statement defined by this plugin.\n";
+          config.getLogStream().println(errorMsg);
+        } else {
+          Element onSuccessEl = InstallUtil.getElement(nl.item(j), "onSuccess");
+          if (onSuccessEl != null) {
+            Element sqlEl = InstallUtil.getElement(onSuccessEl, "sql");
+            if (sqlEl != null) {
+              String desc = InstallUtil.getElemValue(sqlEl, "description");
+              config.getLogStream().println(desc);
+
+              NodeList stnl = sqlEl.getElementsByTagName("statement");
+              if (stnl != null && stnl.getLength() > 0) {
+                for (int i = 0; i < stnl.getLength(); i++) {
+                  String sqlStatement = InstallUtil.getElemValue((Element) stnl.item(i));
+                  if (!((sqlStatement == null) || (sqlStatement.trim().length() < 1))) {
+                    sqlStatement = sqlStatement.trim();
+                    config.getLogStream().println(sqlStatement);
+                    Statement stmt = null;
+                    try {
+                      stmt = PSSQLStatement.getStatement(conn);
+                      stmt.executeUpdate(sqlStatement);
+                    } catch (Exception e) {
+                      config.getLogStream().println(e.getMessage());
+                      e.printStackTrace(config.getLogStream());
+                    } finally {
+                      if (stmt != null) {
+                        stmt.close();
+                      }
+                    }
                   }
-               }
+                }
+              }
             }
-         }
+          }
+        }
       }
-      catch(Exception e)
-      {
-         config.getLogStream().println(e.getMessage());
-         e.printStackTrace(config.getLogStream());
+    } catch (Exception e) {
+      config.getLogStream().println(e.getMessage());
+      e.printStackTrace(config.getLogStream());
+    } finally {
+      try {
+        if (in != null) {
+          in.close();
+          in = null;
+        }
+      } catch (Throwable t) {
       }
-      finally
-      {
-         try
-         {
-            if(in != null)
-            {
-               in.close();
-               in = null;
-            }
-         }
-         catch(Throwable t)
-         {
-         }
-         if (conn != null)
-         {
-            try
-            {
-               conn.close();
-            }
-            catch (SQLException e)
-            {
-            }
-            conn = null;
-         }
-         config.getLogStream().println(
-                "leaving the process() of the plugin...");
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
+        conn = null;
       }
-      return null;
-   }
+      config.getLogStream().println("leaving the process() of the plugin...");
+    }
+    return null;
+  }
 
-   /**
-    * Creates backup of existing table. First we will attempt to copy the
-    * data using copy table statement (INSERT INTO ... SELECT .. FROM ..)
-    * If this fails, (for example, if the table has a LONG column on Oracle)
-    * then we will catalog data from the source table and insert into the
-    * destination table.
-    * This method does not close the database connection.
-    *
-    * @param conn Database connection, may not be <code>null</code>
-    * @param dbmsDef Used to connect to the database and provides correct
-    * schema/origin. May not be <code>null</code>.
-    * @param dataTypeMap Required to create the tableSchema object. May not be
-    * <code>null</code>.
-    * @param srcTableName Name of the table whose backup is to be created,
-    * may not be <code>null</code> or empty.
-    * @param destTableName Name of the backup table, may not be <code>null</code>
-    * or empty.
-    * @param logOut If not <code>null</code>, log messages will be written to
-    * this stream.  If <code>null</code>, they will not. This method does not
-    * take ownership of the stream and will not attempt to close it when
-    * processing is completed.
-    * @param logDebug If <code>true</code> and logOut is not <code>null</code>,
-    * debugging messages will also be written to the logging output stream.  If
-    * <code>false</code>, they will not.  If logOut is <code>null</code>, this
-    * parameter has no effect.
-    *
-    * @return <code>true</code> if the backup of the table was sucessful,
-    * <code>false</code> otherwise.
-    * @throws IllegalArgumentException if any param is invalid
-    */
-   public static boolean backupTable(
-      Connection conn, PSJdbcDbmsDef dbmsDef,
-      PSJdbcDataTypeMap dataTypeMap, String srcTableName, String destTableName,
-      PrintStream logOut, boolean logDebug)
-      throws SQLException, PSJdbcTableFactoryException
-   {
-      if (conn == null)
-         throw new IllegalArgumentException("conn may not be null");
+  /**
+   * Creates backup of existing table. First we will attempt to copy the
+   * data using copy table statement (INSERT INTO ... SELECT .. FROM ..)
+   * If this fails, (for example, if the table has a LONG column on Oracle)
+   * then we will catalog data from the source table and insert into the
+   * destination table.
+   * This method does not close the database connection.
+   *
+   * @param conn Database connection, may not be <code>null</code>
+   * @param dbmsDef Used to connect to the database and provides correct
+   * schema/origin. May not be <code>null</code>.
+   * @param dataTypeMap Required to create the tableSchema object. May not be
+   * <code>null</code>.
+   * @param srcTableName Name of the table whose backup is to be created,
+   * may not be <code>null</code> or empty.
+   * @param destTableName Name of the backup table, may not be <code>null</code>
+   * or empty.
+   * @param logOut If not <code>null</code>, log messages will be written to
+   * this stream.  If <code>null</code>, they will not. This method does not
+   * take ownership of the stream and will not attempt to close it when
+   * processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>,
+   * debugging messages will also be written to the logging output stream.  If
+   * <code>false</code>, they will not.  If logOut is <code>null</code>, this
+   * parameter has no effect.
+   *
+   * @return <code>true</code> if the backup of the table was sucessful,
+   * <code>false</code> otherwise.
+   * @throws IllegalArgumentException if any param is invalid
+   */
+  public static boolean backupTable(
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcDataTypeMap dataTypeMap,
+      String srcTableName,
+      String destTableName,
+      PrintStream logOut,
+      boolean logDebug)
+      throws SQLException, PSJdbcTableFactoryException {
+    if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (dataTypeMap == null)
-         throw new IllegalArgumentException("dataTypeMap may not be null");
+    if (dataTypeMap == null) throw new IllegalArgumentException("dataTypeMap may not be null");
 
-      if ((srcTableName == null) || (srcTableName.trim().length() < 1))
-         throw new IllegalArgumentException("srcTableName may not be null or empty");
+    if ((srcTableName == null) || (srcTableName.trim().length() < 1))
+      throw new IllegalArgumentException("srcTableName may not be null or empty");
 
-      if ((destTableName == null) || (destTableName.trim().length() < 1))
-         throw new IllegalArgumentException("destTableName may not be null or empty");
+    if ((destTableName == null) || (destTableName.trim().length() < 1))
+      throw new IllegalArgumentException("destTableName may not be null or empty");
 
-      // first catalog the schema only
-      PSJdbcTableSchema srcTableSchema =
-      PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap,
-         srcTableName, false);
+    // first catalog the schema only
+    PSJdbcTableSchema srcTableSchema =
+        PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, srcTableName, false);
 
-      if (srcTableSchema == null)
-      {
-         // source table does not exist
-         return false;
-      }
+    if (srcTableSchema == null) {
+      // source table does not exist
+      return false;
+    }
 
-      // create the destination table schema from the source schema
-      // the destination table should not have any primary key, foreign key,
-      // unique key or or any other index
-      PSJdbcTableSchema destTableSchema = new PSJdbcTableSchema(srcTableSchema);
-      destTableSchema.setName(destTableName);
-      destTableSchema.setPrimaryKey(null);
-      destTableSchema.setForeignKeys(null,false);
-      destTableSchema.clearIndexes();
+    // create the destination table schema from the source schema
+    // the destination table should not have any primary key, foreign key,
+    // unique key or or any other index
+    PSJdbcTableSchema destTableSchema = new PSJdbcTableSchema(srcTableSchema);
+    destTableSchema.setName(destTableName);
+    destTableSchema.setPrimaryKey(null);
+    destTableSchema.setForeignKeys(null, false);
+    destTableSchema.clearIndexes();
 
-      // drop the table
-      PSJdbcExecutionStep step =
-         PSJdbcStatementFactory.getDropTableStatement(dbmsDef,
-            destTableSchema.getName());
-      try
-      {
-         step.execute(conn);
-      }
-      catch (SQLException sqle)
-      {
-         // Drop Table throws a SQLException if the table does not
-         // does not exist in the system catalog. We will only catch the
-         // SQLException.
-      }
-
-      // create the table
-      step = PSJdbcStatementFactory.getCreateTableStatement(dbmsDef,
-         destTableSchema);
+    // drop the table
+    PSJdbcExecutionStep step =
+        PSJdbcStatementFactory.getDropTableStatement(dbmsDef, destTableSchema.getName());
+    try {
       step.execute(conn);
+    } catch (SQLException sqle) {
+      // Drop Table throws a SQLException if the table does not
+      // does not exist in the system catalog. We will only catch the
+      // SQLException.
+    }
 
-      // table successfully created, now copy data
-      step = PSJdbcStatementFactory.getCopyTableDataStatement(
-         dbmsDef, srcTableSchema, destTableSchema);
+    // create the table
+    step = PSJdbcStatementFactory.getCreateTableStatement(dbmsDef, destTableSchema);
+    step.execute(conn);
 
-      boolean copyDataSuccess = true;
-      try
-      {
-         step.execute(conn);
-      }
-      catch (Throwable t)
-      {
-         logOut.println(t.getMessage());
-         copyDataSuccess = false;
-      }
+    // table successfully created, now copy data
+    step =
+        PSJdbcStatementFactory.getCopyTableDataStatement(dbmsDef, srcTableSchema, destTableSchema);
 
-      if (copyDataSuccess)
-         return true;
+    boolean copyDataSuccess = true;
+    try {
+      step.execute(conn);
+    } catch (Throwable t) {
+      logOut.println(t.getMessage());
+      copyDataSuccess = false;
+    }
 
-      // catalog data from the source table
-      PSJdbcTableData tableData = PSJdbcTableFactory.catalogTableData(
-         conn, dbmsDef, srcTableSchema,
-         null, null, PSJdbcRowData.ACTION_INSERT);
+    if (copyDataSuccess) return true;
 
-      // insert the catalogged data into the destination table
-      if (tableData != null)
-      {
-         destTableSchema.setAllowSchemaChanges(false);
-         destTableSchema.setTableData(tableData);
-         PSJdbcTableFactory.processTable(
-            conn, dbmsDef, destTableSchema, logOut, logDebug);
-      }
-      return true;
-   }
+    // catalog data from the source table
+    PSJdbcTableData tableData =
+        PSJdbcTableFactory.catalogTableData(
+            conn, dbmsDef, srcTableSchema, null, null, PSJdbcRowData.ACTION_INSERT);
 
+    // insert the catalogged data into the destination table
+    if (tableData != null) {
+      destTableSchema.setAllowSchemaChanges(false);
+      destTableSchema.setTableData(tableData);
+      PSJdbcTableFactory.processTable(conn, dbmsDef, destTableSchema, logOut, logDebug);
+    }
+    return true;
+  }
 }

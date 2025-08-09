@@ -20,39 +20,33 @@ package com.percussion.i18n;
 import com.percussion.error.PSException;
 
 /**
- * Generic exception class to be used for locale errors.  
+ * Generic exception class to be used for locale errors.
  */
-public class PSLocaleException extends PSException
-{
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object)
-    */ 
-   public PSLocaleException(int msgCode, Object singleArg)
-   {
-      super( msgCode, singleArg );
-   }
+public class PSLocaleException extends PSException {
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object)
+   */
+  public PSLocaleException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object[])
+   */
+  public PSLocaleException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object[])
-    */ 
-   public PSLocaleException(int msgCode, Object[] arrayArgs)
-   {
-      super( msgCode, arrayArgs );
-   }
-
-
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int)
-    */ 
-   public PSLocaleException(int msgCode)
-   {
-      super( msgCode );
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int)
+   */
+  public PSLocaleException(int msgCode) {
+    super(msgCode);
+  }
 }

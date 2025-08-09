@@ -16,6 +16,9 @@
  */
 package com.percussion.delivery.polls.services;
 
+import com.percussion.delivery.polls.data.PSPollsResponse;
+import com.percussion.delivery.polls.data.PSRestPoll;
+import com.percussion.delivery.services.IPSRestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
@@ -25,34 +28,31 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
-import com.percussion.delivery.polls.data.PSPollsResponse;
-import com.percussion.delivery.polls.data.PSRestPoll;
-import com.percussion.delivery.services.IPSRestService;
-
 /**
- * 
+ *
  * @author natechadwick
  *
  */
 // REFACTORED: CP-JAVA11
 public interface IPSPollsRestService extends IPSRestService {
-    @GET
-    @Path("/{pollName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    PSPollsResponse getPoll(@PathParam("pollName") String pollName);
+  @GET
+  @Path("/{pollName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  PSPollsResponse getPoll(@PathParam("pollName") String pollName);
 
-    @GET
-    @Path("/question/{pollQuestion}")
-    @Produces(MediaType.APPLICATION_JSON)
-    PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion);
+  @GET
+  @Path("/question/{pollQuestion}")
+  @Produces(MediaType.APPLICATION_JSON)
+  PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion);
 
-    @PUT
-    @Path("/save")
-    @Produces(MediaType.APPLICATION_JSON)
-    PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req);
+  @PUT
+  @Path("/save")
+  @Produces(MediaType.APPLICATION_JSON)
+  PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req);
 
-    @GET
-    @Path("/canuservote/{pollQuestion}")
-    @Produces(MediaType.APPLICATION_JSON)
-    String canUserVote(@PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req);
+  @GET
+  @Path("/canuservote/{pollQuestion}")
+  @Produces(MediaType.APPLICATION_JSON)
+  String canUserVote(
+      @PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req);
 }

@@ -19,11 +19,9 @@ package com.percussion.design.catalog.data;
 
 import com.percussion.design.catalog.IPSCatalogHandler;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.util.StringTokenizer;
-
 
 /**
  * The PSTableCatalogHandler class implements cataloging of
@@ -77,94 +75,83 @@ import java.util.StringTokenizer;
  *    &lt;!ELEMENT name                   (#PCDATA)&gt;
  * </pre>
  */
-public class PSTableCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSTableCatalogHandler()
-   {
-      super();
-   }
+public class PSTableCatalogHandler implements IPSCatalogHandler {
+  /**
+   * Constructs an instance of this handler.
+   */
+  public PSTableCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Table</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be ommited to 
-    *       query the repository</td>
-    *       <td>no</td></tr>
-    *   <tr><td>Filter</td>
-    *       <td>a filter to use for locating matches. The filter condition
-    *           must use the SQL LIKE pattern matching syntax. Use _ to
-    *           match a single character and % to match a string of length
-    *           0 or more.
-    *       <td>no</td></tr>
-    *   <tr><td>TableType</td>
-    *       <td>the type(s) of table to locate. Multiple table types can be
-    *           specified by using a comma delimited list of types. The
-    *           supported types are DBMS specific. Use the TableTypes catalog
-    *           for a list of supported types.</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"data".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req category invalid");
+  /**
+   * Format the catalog request based upon the specified request
+   * information. The request information for this request type is:
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Table</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be ommited to
+   *       query the repository</td>
+   *       <td>no</td></tr>
+   *   <tr><td>Filter</td>
+   *       <td>a filter to use for locating matches. The filter condition
+   *           must use the SQL LIKE pattern matching syntax. Use _ to
+   *           match a single character and % to match a string of length
+   *           0 or more.
+   *       <td>no</td></tr>
+   *   <tr><td>TableType</td>
+   *       <td>the type(s) of table to locate. Multiple table types can be
+   *           specified by using a comma delimited list of types. The
+   *           supported types are DBMS specific. Use the TableTypes catalog
+   *           for a list of supported types.</td></tr>
+   * </table>
+   *
+   * @param      req         the request information
+   *
+   * @return                 an XML document containing the appropriate
+   *                         catalog request information
+   *
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
+
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Table".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
+
+    String datasource = (String) req.get("Datasource");
+
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXTableCatalog");
+
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
+
+    sTemp = (String) req.get("Filter");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "filter", sTemp);
+
+    sTemp = (String) req.get("TableType");
+    if (sTemp != null) {
+      // table types are comma delimited, so parse it up
+      StringTokenizer toks = new StringTokenizer(sTemp, ",");
+      String curTok;
+      while (toks.hasMoreTokens()) {
+        curTok = toks.nextToken().trim();
+        if (curTok.length() > 0) PSXmlDocumentBuilder.addElement(reqDoc, root, "tableType", curTok);
       }
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ( (sTemp == null) || !"Table".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req type invalid");
-      }
-
-      String datasource = (String)req.get("Datasource");
-
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
-
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXTableCatalog");
-
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", 
-            datasource);
-
-      sTemp = (String) req.get("Filter");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "filter", sTemp);
-
-      sTemp = (String)req.get("TableType");
-      if (sTemp != null)
-      {
-         // table types are comma delimited, so parse it up
-         StringTokenizer toks = new StringTokenizer(sTemp, ",");
-         String curTok;
-         while (toks.hasMoreTokens())
-         {
-            curTok = toks.nextToken().trim();
-            if (curTok.length() > 0)
-               PSXmlDocumentBuilder.addElement(reqDoc, root, "tableType",
-                  curTok);
-         }
-      }
-
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

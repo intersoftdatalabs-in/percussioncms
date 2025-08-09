@@ -20,5 +20,4 @@ package com.percussion.utils.testing;
 /**
  * Marker for unit tests
  */
-public interface UnitTest {
-}
+public interface UnitTest {}

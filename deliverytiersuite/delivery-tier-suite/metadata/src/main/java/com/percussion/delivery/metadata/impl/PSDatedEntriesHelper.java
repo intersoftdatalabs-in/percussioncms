@@ -20,97 +20,79 @@ import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEntries;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEvent;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.util.List;
-
 /**
- * This class is responsible for process the dates of the page and return
- * the JSONObject with the entries with their properties.
- * 
+ * This class is responsible for process the dates of the page and return the JSONObject with the
+ * entries with their properties.
+ *
  * @author rafaelsalis
- * 
  */
-public class PSDatedEntriesHelper
-{
-    
-    /**
-     * Constants names for the page properties.
-     */
-    private static final String SUMMARY_PROPERTY_NAME = "dcterms:abstract";
-    private static final String START_DATE_PROPERTY_NAME = "perc:start_date";
-    private static final String END_DATE_PROPERTY_NAME = "perc:end_date";
-    
-    /**
-     * Constant for the date formater. 
-     */
-    private FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+public class PSDatedEntriesHelper {
 
-    /**
-     * This method is responsible for return the list with entries with their
-     * properties:
-     * <ul>
-     *  <li>page title</li>
-     *  <li>page summary</li>
-     *  <li>page start date</li>
-     *  <li>page end date</li>
-     *  <li>page url</li>  
-     * </ul>
-     * 
-     * @param results assumed not <code>null</code>.
-     * @return a {@link PSMetadataDatedEntries} object containing the entries.
-     * @throws Exception
-     */
-    public PSMetadataDatedEntries getDatedEntries(List<IPSMetadataEntry> results) throws Exception
-    {
-        if (results == null)
-            throw new IllegalArgumentException("Results can not be null");
+  /** Constants names for the page properties. */
+  private static final String SUMMARY_PROPERTY_NAME = "dcterms:abstract";
 
-        PSMetadataDatedEntries datedListResults = new PSMetadataDatedEntries();
-        
-        try
-        {
-            for (IPSMetadataEntry entryPage : results)
-            {
-                PSMetadataDatedEvent event = new PSMetadataDatedEvent();
-                event.setTitle(entryPage.getLinktext());
-                
-                // Strip the site from the url
-                String[] paths = entryPage.getPagepath().split("/"); 
-                String pageUrl = StringUtils.EMPTY;
-                for (int i = 2; i < paths.length; i++)
-                {
-                    pageUrl = pageUrl + "/" + paths[i];
-                }
-                event.setUrl(pageUrl);
-                
-                for (IPSMetadataProperty prop : entryPage.getProperties())
-                {
-                    if (SUMMARY_PROPERTY_NAME.equals(prop.getName()) && !prop.getStringvalue().isEmpty())
-                    {
-                        event.setSummary(prop.getStringvalue());
-                    }
-                    
-                    if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null)
-                    {
-                            event.setStart(formatter.format(prop.getDatevalue()));
-                    }
-                    
-                    if (END_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null)
-                    {
-                            event.setEnd(formatter.format(prop.getDatevalue()));
-                    }
-                }
-                
-                datedListResults.add(event);
-            }
-            return datedListResults;
+  private static final String START_DATE_PROPERTY_NAME = "perc:start_date";
+  private static final String END_DATE_PROPERTY_NAME = "perc:end_date";
+
+  /** Constant for the date formater. */
+  private FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+  /**
+   * This method is responsible for return the list with entries with their properties:
+   *
+   * <ul>
+   *   <li>page title
+   *   <li>page summary
+   *   <li>page start date
+   *   <li>page end date
+   *   <li>page url
+   * </ul>
+   *
+   * @param results assumed not <code>null</code>.
+   * @return a {@link PSMetadataDatedEntries} object containing the entries.
+   * @throws Exception
+   */
+  public PSMetadataDatedEntries getDatedEntries(List<IPSMetadataEntry> results) throws Exception {
+    if (results == null) throw new IllegalArgumentException("Results can not be null");
+
+    PSMetadataDatedEntries datedListResults = new PSMetadataDatedEntries();
+
+    try {
+      for (IPSMetadataEntry entryPage : results) {
+        PSMetadataDatedEvent event = new PSMetadataDatedEvent();
+        event.setTitle(entryPage.getLinktext());
+
+        // Strip the site from the url
+        String[] paths = entryPage.getPagepath().split("/");
+        String pageUrl = StringUtils.EMPTY;
+        for (int i = 2; i < paths.length; i++) {
+          pageUrl = pageUrl + "/" + paths[i];
         }
-        catch (Exception e)
-        {
-            throw new Exception("Cannot get the list of entries within a specific range of dates.");
+        event.setUrl(pageUrl);
+
+        for (IPSMetadataProperty prop : entryPage.getProperties()) {
+          if (SUMMARY_PROPERTY_NAME.equals(prop.getName()) && !prop.getStringvalue().isEmpty()) {
+            event.setSummary(prop.getStringvalue());
+          }
+
+          if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
+            event.setStart(formatter.format(prop.getDatevalue()));
+          }
+
+          if (END_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
+            event.setEnd(formatter.format(prop.getDatevalue()));
+          }
         }
+
+        datedListResults.add(event);
+      }
+      return datedListResults;
+    } catch (Exception e) {
+      throw new Exception("Cannot get the list of entries within a specific range of dates.");
     }
-    
+  }
 }

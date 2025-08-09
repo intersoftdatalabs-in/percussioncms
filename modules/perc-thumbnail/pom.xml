@@ -1,67 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>core</artifactId>
         <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>perc-thumbnail</artifactId>
-  <version>8.2.0-SNAPSHOT</version>
-
+    <version>8.2.0-SNAPSHOT</version>
     <properties>
         <version.arquillian>1.1.11.Final</version.arquillian>
         <version.shrinkwrap>1.0.0-cr-3</version.shrinkwrap>
     </properties>
-
-    <profiles>
-<profile>
-    <id>populate-nexus</id>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <id>import-installs</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <mkdir dir="${download-folder}" />
-                                <echo message="download windows archive" />
-                                <get src="${windows.url}" dest="${download-folder}" />
-                                <echo message="download linux archive" />
-                                <get src="${linux.url}" dest="${download-folder}" />
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-               <executions>
-                   <execution>
-                       <id>default-deploy</id>
-                       <phase>none</phase>
-                   </execution>
-               </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-</profile>
-    </profiles>
-    <build>
-    </build>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -203,5 +154,46 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    <build/>
+    <profiles>
+        <profile>
+            <id>populate-nexus</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>import-installs</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${download-folder}"/>
+                                        <echo message="download windows archive"/>
+                                        <get dest="${download-folder}" src="${windows.url}"/>
+                                        <echo message="download linux archive"/>
+                                        <get dest="${download-folder}" src="${linux.url}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

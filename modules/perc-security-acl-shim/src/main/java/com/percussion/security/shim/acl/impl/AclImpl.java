@@ -21,8 +21,6 @@ import com.percussion.security.shim.acl.AclEntry;
 import com.percussion.security.shim.acl.LastOwnerException;
 import com.percussion.security.shim.acl.NotOwnerException;
 import com.percussion.security.shim.acl.Permission;
-
-import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,131 +30,136 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
+import javax.security.auth.Subject;
 
 /**
- * In-memory implementation of Acl with owner management and deny-overrides-allow semantics.
- * Mirrors java.security.acl.Acl behavior closely to minimize calling-site changes.
+ * In-memory implementation of Acl with owner management and deny-overrides-allow semantics. Mirrors
+ * java.security.acl.Acl behavior closely to minimize calling-site changes.
  */
 public class AclImpl implements Acl {
 
-    private String name;
-    private final Set<Principal> owners = new LinkedHashSet<>();
-    private final List<AclEntry> entries = new ArrayList<>();
+  private String name;
+  private final Set<Principal> owners = new LinkedHashSet<>();
+  private final List<AclEntry> entries = new ArrayList<>();
 
-    /**
-     * Create an ACL with an initial owner.
-     * @param initialOwner required owner; cannot be null
-     * @param name optional ACL name
-     */
-    public AclImpl(Principal initialOwner, String name) {
-        Objects.requireNonNull(initialOwner, "initialOwner must not be null");
-        this.owners.add(initialOwner);
-        this.name = name;
+  /**
+   * Create an ACL with an initial owner.
+   *
+   * @param initialOwner required owner; cannot be null
+   * @param name optional ACL name
+   */
+  public AclImpl(Principal initialOwner, String name) {
+    Objects.requireNonNull(initialOwner, "initialOwner must not be null");
+    this.owners.add(initialOwner);
+    this.name = name;
+  }
+
+  @Override
+  public boolean addOwner(Principal caller, Principal owner) throws NotOwnerException {
+    requireOwner(caller);
+    return owners.add(owner);
+  }
+
+  @Override
+  public boolean deleteOwner(Principal caller, Principal owner)
+      throws NotOwnerException, LastOwnerException {
+    requireOwner(caller);
+    if (!owners.contains(owner)) {
+      return false;
+    }
+    if (owners.size() == 1 && owners.contains(owner)) {
+      throw new LastOwnerException("Cannot remove the last remaining owner");
+    }
+    return owners.remove(owner);
+  }
+
+  @Override
+  public boolean isOwner(Principal owner) {
+    return owners.contains(owner);
+  }
+
+  @Override
+  public void setName(Principal caller, String name) throws NotOwnerException {
+    requireOwner(caller);
+    this.name = name;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public boolean addEntry(Principal caller, AclEntry entry) throws NotOwnerException {
+    requireOwner(caller);
+    if (entry == null) return false;
+    if (entries.contains(entry)) return false;
+    return entries.add(entry);
+  }
+
+  @Override
+  public boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException {
+    requireOwner(caller);
+    if (entry == null) return false;
+    return entries.remove(entry);
+  }
+
+  @Override
+  public Enumeration<AclEntry> entries() {
+    if (entries.isEmpty()) {
+      return new Vector<AclEntry>().elements();
+    }
+    return Collections.enumeration(entries);
+  }
+
+  /**
+   * Deny overrides allow: - If any matching negative entry contains the permission for the subject,
+   * deny. - Else if any matching positive entry contains the permission, allow. - Else deny.
+   */
+  @Override
+  public boolean checkPermission(Subject subject, Permission permission) {
+    if (subject == null || permission == null) return false;
+
+    Set<Principal> subjectPrincipals = subject.getPrincipals();
+    if (subjectPrincipals == null || subjectPrincipals.isEmpty()) {
+      return false;
     }
 
-    @Override
-    public boolean addOwner(Principal caller, Principal owner) throws NotOwnerException {
-        requireOwner(caller);
-        return owners.add(owner);
-    }
+    boolean anyPositive = false;
 
-    @Override
-    public boolean deleteOwner(Principal caller, Principal owner) throws NotOwnerException, LastOwnerException {
-        requireOwner(caller);
-        if (!owners.contains(owner)) {
-            return false;
+    for (AclEntry entry : entries) {
+      Principal p = entry.getPrincipal();
+      if (p == null) continue;
+      if (!subjectPrincipals.contains(p)) continue;
+
+      if (entry.checkPermission(permission)) {
+        if (entry.isNegative()) {
+          // Explicit deny wins
+          return false;
+        } else {
+          anyPositive = true;
         }
-        if (owners.size() == 1 && owners.contains(owner)) {
-            throw new LastOwnerException("Cannot remove the last remaining owner");
-        }
-        return owners.remove(owner);
+      }
     }
+    return anyPositive;
+  }
 
-    @Override
-    public boolean isOwner(Principal owner) {
-        return owners.contains(owner);
+  private void requireOwner(Principal caller) throws NotOwnerException {
+    if (!isOwner(caller)) {
+      throw new NotOwnerException("Caller is not an owner");
     }
+  }
 
-    @Override
-    public void setName(Principal caller, String name) throws NotOwnerException {
-        requireOwner(caller);
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public boolean addEntry(Principal caller, AclEntry entry) throws NotOwnerException {
-        requireOwner(caller);
-        if (entry == null) return false;
-        if (entries.contains(entry)) return false;
-        return entries.add(entry);
-    }
-
-    @Override
-    public boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException {
-        requireOwner(caller);
-        if (entry == null) return false;
-        return entries.remove(entry);
-    }
-
-    @Override
-    public Enumeration<AclEntry> entries() {
-        if (entries.isEmpty()) {
-            return new Vector<AclEntry>().elements();
-        }
-        return Collections.enumeration(entries);
-    }
-
-    /**
-     * Deny overrides allow:
-     * - If any matching negative entry contains the permission for the subject, deny.
-     * - Else if any matching positive entry contains the permission, allow.
-     * - Else deny.
-     */
-    @Override
-    public boolean checkPermission(Subject subject, Permission permission) {
-        if (subject == null || permission == null) return false;
-
-        Set<Principal> subjectPrincipals = subject.getPrincipals();
-        if (subjectPrincipals == null || subjectPrincipals.isEmpty()) {
-            return false;
-        }
-
-        boolean anyPositive = false;
-
-        for (AclEntry entry : entries) {
-            Principal p = entry.getPrincipal();
-            if (p == null) continue;
-            if (!subjectPrincipals.contains(p)) continue;
-
-            if (entry.checkPermission(permission)) {
-                if (entry.isNegative()) {
-                    // Explicit deny wins
-                    return false;
-                } else {
-                    anyPositive = true;
-                }
-            }
-        }
-        return anyPositive;
-    }
-
-    private void requireOwner(Principal caller) throws NotOwnerException {
-        if (!isOwner(caller)) {
-            throw new NotOwnerException("Caller is not an owner");
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "AclImpl{" +
-                "name='" + name + '\'' +
-                ", owners=" + owners +
-                ", entries=" + entries +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "AclImpl{"
+        + "name='"
+        + name
+        + '\''
+        + ", owners="
+        + owners
+        + ", entries="
+        + entries
+        + '}';
+  }
 }

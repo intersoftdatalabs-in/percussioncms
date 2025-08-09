@@ -23,17 +23,14 @@ import jakarta.ws.rs.core.Response.Status;
 
 /**
  * Returns a 400 Bad Request response with the supplied message
- * 
+ *
  * @author JaySeletz
  *
  */
-public class PSBadRequestException extends WebApplicationException
-{
+public class PSBadRequestException extends WebApplicationException {
 
-    public PSBadRequestException(String message)
-    {
-        super(Response.status(Status.BAD_REQUEST).entity(new GenericEntity<String>(message){}).build());
-        
-    }
-
+  public PSBadRequestException(String message) {
+    super(
+        Response.status(Status.BAD_REQUEST).entity(new GenericEntity<String>(message) {}).build());
+  }
 }

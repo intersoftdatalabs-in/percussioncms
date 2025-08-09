@@ -22,7 +22,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.xml.PSXmlTreeWalker;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,71 +40,65 @@ import org.w3c.dom.Node;
  * removed.  Any number of nodes may be specified.  Node names are relative to
  * the <code>&lt;root element&gt;</code>. The root element name is never
  * included in the path name.
-**/
-public class PSXdRemoveElements  extends PSDefaultExtension implements IPSResultDocumentProcessor
-{
+ **/
+public class PSXdRemoveElements extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
- /**
-  * This method handles the post-exit request.
-  *
-  * @param params an array of objects representing the parameters. See the
-  * description under {@link PSXdDomToText} for parameter details.
-  *
-  * @param request the request context for this request
-  *
-  * @param resultDoc the XML document resulting from the Rhythmyx server
-  * operation.  The output text will be added as an XML node in this document.
-  *
-  * @throws PSExtensionProcessingException when a run time error is detected.
-  *
-  **/
-  public org.w3c.dom.Document processResultDocument(Object[] params,
-           IPSRequestContext request, Document resultDoc)
-             throws PSParameterMismatchException, PSExtensionProcessingException
-    {
-     if ( params.length < 1) {
-         throw new PSParameterMismatchException(0,1);
-         }
-      if ( null == params[0] || 0 == params[0].toString().trim().length())
-      {
-         throw new PSExtensionProcessingException( 0, "Empty or null Element Name." );
+  /**
+   * This method handles the post-exit request.
+   *
+   * @param params an array of objects representing the parameters. See the
+   * description under {@link PSXdDomToText} for parameter details.
+   *
+   * @param request the request context for this request
+   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server
+   * operation.  The output text will be added as an XML node in this document.
+   *
+   * @throws PSExtensionProcessingException when a run time error is detected.
+   *
+   **/
+  public org.w3c.dom.Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    if (params.length < 1) {
+      throw new PSParameterMismatchException(0, 1);
+    }
+    if (null == params[0] || 0 == params[0].toString().trim().length()) {
+      throw new PSExtensionProcessingException(0, "Empty or null Element Name.");
+    }
+
+    for (int i = 0; i < params.length; i++) {
+      String sourceNodeName = params[i].toString();
+      if (sourceNodeName.trim().length() == 0) {
+        request.printTraceMessage("Empty node name encountered");
+        continue;
+      }
+      PSXmlTreeWalker nodeWalker = new PSXmlTreeWalker(resultDoc);
+      Element docRoot = (Element) nodeWalker.getCurrent();
+      Element elementNode =
+          nodeWalker.getNextElement(sourceNodeName, nodeWalker.GET_NEXT_ALLOW_CHILDREN);
+
+      if (null == elementNode) {
+        request.printTraceMessage("Element not found:" + sourceNodeName);
+        continue;
       }
 
-      for(int i=0; i < params.length; i++) {
-         String sourceNodeName = params[i].toString();
-         if(sourceNodeName.trim().length() == 0) {
-            request.printTraceMessage("Empty node name encountered");
-            continue;
-            }
-         PSXmlTreeWalker nodeWalker = new PSXmlTreeWalker(resultDoc);
-         Element docRoot = (Element)nodeWalker.getCurrent();
-         Element elementNode = nodeWalker.getNextElement(sourceNodeName,
-                            nodeWalker.GET_NEXT_ALLOW_CHILDREN);
+      Node parentNode = elementNode.getParentNode();
+      if (null == parentNode) {
+        request.printTraceMessage("Element has no parent:" + sourceNodeName);
+        continue;
+      }
 
-         if(null == elementNode) {
-            request.printTraceMessage("Element not found:" + sourceNodeName);
-            continue;
-            }
+      parentNode.removeChild(elementNode);
+    } // for
 
+    return resultDoc;
+  }
 
-         Node parentNode = elementNode.getParentNode();
-         if(null == parentNode) {
-             request.printTraceMessage("Element has no parent:" + sourceNodeName);
-             continue;
-          }
-
-         parentNode.removeChild(elementNode);
-         } //for
-
-      return resultDoc;
-    }
-
- /**
-  * This exit will never modify the stylesheet.
-  **/
-
-  public boolean canModifyStyleSheet()
-    {
-     return false;
-    }
+  /**
+   * This exit will never modify the stylesheet.
+   **/
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
 }

@@ -18,8 +18,11 @@
 package com.percussion.utils.container;
 
 public interface IPSDtsConfig {
-    boolean isLocalStagingDTSEnabled();
-    boolean isLocalDTSEnabled();
-    PSAbstractConnectors getDtsConnectorInfo();
-    PSAbstractConnectors getStagingDtsConnectorInfo();
+  boolean isLocalStagingDTSEnabled();
+
+  boolean isLocalDTSEnabled();
+
+  PSAbstractConnectors getDtsConnectorInfo();
+
+  PSAbstractConnectors getStagingDtsConnectorInfo();
 }

@@ -3,6 +3,7 @@
 Documentation of repetitive tasks and workflows for the Percussion CMS modernization effort.
 
 ## Java 11 Migration Sweep (Per Module)
+
 Last performed: 2025-08-05
 
 Files to modify:
@@ -14,24 +15,24 @@ Steps:
 1. Verify module compiles on Java 11 with javax.* compatibility.
 2. Ensure no jakarta.* artifacts are introduced.
 3. Align test dependencies:
-   - Prefer JUnit 5 Jupiter; keep Vintage if JUnit 4 tests remain.
-   - Ensure org.jmock:jmock-junit4 or jmock-junit5 versions are explicit or inherited.
+- Prefer JUnit 5 Jupiter; keep Vintage if JUnit 4 tests remain.
+- Ensure org.jmock:jmock-junit4 or jmock-junit5 versions are explicit or inherited.
 4. Update Oracle JDBC:
-   - Replace ojdbc6 with com.oracle.database.jdbc:ojdbc8 and inherit version from parent dependencyManagement.
-   - Keep runtime scope where applicable.
+- Replace ojdbc6 with com.oracle.database.jdbc:ojdbc8 and inherit version from parent dependencyManagement.
+- Keep runtime scope where applicable.
 5. Axis alignment (if applicable):
-   - Use Axis 1.4; avoid 1.4.1/1.4.2.
-   - Align wsdl2java/axistools plugin versions to resolvable artifacts.
+- Use Axis 1.4; avoid 1.4.1/1.4.2.
+- Align wsdl2java/axistools plugin versions to resolvable artifacts.
 6. Externalize JAXB/Activation:
-   - Use centrally managed versions in parent for API and runtime.
+- Use centrally managed versions in parent for API and runtime.
 7. Servlet API:
-   - Ensure provided scope and do not bundle in WARs.
+- Ensure provided scope and do not bundle in WARs.
 8. Enforcer and Surefire:
-   - Confirm surefire 3.2.5+ in parent pluginManagement.
-   - Enable RequireUpperBoundDeps; resolve conflicts via parent pins or selective exclusions.
+- Confirm surefire 3.2.5+ in parent pluginManagement.
+- Enable RequireUpperBoundDeps; resolve conflicts via parent pins or selective exclusions.
 9. Validate with focused reactor:
-   - mvn -U -DskipTests -pl <module> -am validate
-   - Use -rf :artifactId to resume after failures.
+- mvn -U -DskipTests -pl <module> -am validate
+- Use -rf :artifactId to resume after failures.
 
 Important considerations:
 - Use dependency:tree to locate transitive sources causing UBD violations.
@@ -44,6 +45,7 @@ Example outcome:
 ---
 
 ## Axis 1.4 Resolution Fix (Webservices)
+
 Last performed: 2025-08-05
 
 Files to modify:
@@ -51,12 +53,12 @@ Files to modify:
 
 Steps:
 1. Set properties:
-   - axis.version = 1.4
-   - axiscore.version = 1.4
+- axis.version = 1.4
+- axiscore.version = 1.4
 2. Align plugins:
-   - axis:wsdl2java-maven-plugin to 1.4 (avoid 1.4.1).
+- axis:wsdl2java-maven-plugin to 1.4 (avoid 1.4.1).
 3. Validate:
-   - mvn -U -DskipTests -pl modules/webservices -am validate
+- mvn -U -DskipTests -pl modules/webservices -am validate
 
 Important notes:
 - Avoid 1.4.1 and 1.4.2 which are not available in Central.
@@ -68,6 +70,7 @@ Example outcome:
 ---
 
 ## Upper Bound Dependency (UBD) Resolution via Parent
+
 Last performed: 2025-08-05
 
 Files to modify:
@@ -76,14 +79,14 @@ Files to modify:
 Steps:
 1. Collect UBD warnings across modules.
 2. Choose consistent central versions:
-   - commons-io (e.g., 2.18.0)
-   - commons-collections4 (prefer stable; avoid milestone if possible)
-   - xmlgraphics-commons (align with Batik chain)
-   - commons-logging, slf4j-api
+- commons-io (e.g., 2.18.0)
+- commons-collections4 (prefer stable; avoid milestone if possible)
+- xmlgraphics-commons (align with Batik chain)
+- commons-logging, slf4j-api
 3. Add managed versions to parent dependencyManagement.
 4. Remove per-module overrides unless necessary.
 5. Re-run partial reactors to confirm resolution:
-   - mvn -U -DskipTests -pl <module> -am validate
+- mvn -U -DskipTests -pl <module> -am validate
 
 Important notes:
 - If a milestone is unavoidable (e.g., 4.5.0-M2), document the rationale and plan to move to a stable release later.
@@ -95,6 +98,7 @@ Example outcome:
 ---
 
 ## JUnit Platform Launcher Stability Pin
+
 Last performed: 2025-08-05
 
 Update tests such as java.imports() to JUnit 5:
@@ -111,11 +115,11 @@ Files to modify:
 Steps:
 1. If Central metadata for 5.13.3 is flaky, pin launcher to 5.13.1.
 2. Either:
-   - Add in parent dependencyManagement:
-     - org.junit.platform:junit-platform-launcher:5.13.1
-   - Or add a test-scoped dependency in the module (temporary) to unblock.
+- Add in parent dependencyManagement:
+- org.junit.platform:junit-platform-launcher:5.13.1
+- Or add a test-scoped dependency in the module (temporary) to unblock.
 3. Re-run failing reactor segment:
-   - mvn -U -DskipTests -rf :perc-system validate (example)
+- mvn -U -DskipTests -rf :perc-system validate (example)
 
 Important notes:
 - Keep junit5.version aligned for other JUnit artifacts; only pin launcher as needed.
@@ -127,6 +131,7 @@ Example outcome:
 ---
 
 ## Proprietary/IDE-only Artifacts Handling
+
 Last performed: 2025-08-05
 
 Files to modify:

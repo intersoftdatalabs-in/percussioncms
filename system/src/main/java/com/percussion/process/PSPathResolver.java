@@ -39,32 +39,23 @@ import java.util.Map;
  * On Unix (assuming "/home/Rhythmyx" is the Rhythmyx root directory) :
  * "/home/Rhythmyx/sys_search/rware70/rx/config/rware.cfg"
  */
-public class PSPathResolver extends PSBasicResolver
-{
-   // see base class
-   public String resolve(String var, Map ctx)
-      throws PSResolveException
-   {
-      //use super to check contract
-      boolean isDoubleQuoted = false;
+public class PSPathResolver extends PSBasicResolver {
+  // see base class
+  public String resolve(String var, Map ctx) throws PSResolveException {
+    // use super to check contract
+    boolean isDoubleQuoted = false;
 
-      String expanded = super.resolve(var, ctx);
+    String expanded = super.resolve(var, ctx);
 
-     if ( expanded.startsWith("\"") && expanded.endsWith("\""))
-     {
-        isDoubleQuoted = true;
-        expanded = expanded.substring(1,expanded.length()-1);
-     }
-      File file = new File(expanded);
+    if (expanded.startsWith("\"") && expanded.endsWith("\"")) {
+      isDoubleQuoted = true;
+      expanded = expanded.substring(1, expanded.length() - 1);
+    }
+    File file = new File(expanded);
 
-      expanded =  file.getAbsolutePath();
+    expanded = file.getAbsolutePath();
 
-      if ( isDoubleQuoted )
-         expanded = "\"" + expanded + "\"";
-      return expanded;
-   }
+    if (isDoubleQuoted) expanded = "\"" + expanded + "\"";
+    return expanded;
+  }
 }
-
-
-
-

@@ -23,21 +23,21 @@ package com.percussion.analytics.error;
  */
 public class PSAnalyticsQueryResultException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSAnalyticsQueryResultException() {
-        super();
-    }
+  public PSAnalyticsQueryResultException() {
+    super();
+  }
 
-    public PSAnalyticsQueryResultException(String message) {
-        super(message);
-    }
+  public PSAnalyticsQueryResultException(String message) {
+    super(message);
+  }
 
-    public PSAnalyticsQueryResultException(Throwable cause) {
-        super(cause);
-    }
+  public PSAnalyticsQueryResultException(Throwable cause) {
+    super(cause);
+  }
 
-    public PSAnalyticsQueryResultException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSAnalyticsQueryResultException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

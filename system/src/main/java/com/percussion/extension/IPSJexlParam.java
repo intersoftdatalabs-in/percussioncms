@@ -24,33 +24,33 @@ import java.lang.annotation.Target;
 
 /**
  * Describe a single parameter. Parameter descriptions are in the order that
- * the annotated method uses them. 
- * 
+ * the annotated method uses them.
+ *
  * @author dougrand
  */
-@Documented 
-@Retention(RetentionPolicy.RUNTIME) 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface IPSJexlParam {
 
-   /**
-    * The name of the parameter.
-    *
-    * @return the parameter name, never {@code null}
-    */
-   String name();
+  /**
+   * The name of the parameter.
+   *
+   * @return the parameter name, never {@code null}
+   */
+  String name();
 
-   /**
-    * The type of the parameter.
-    *
-    * @return the parameter type, empty string if not specified
-    */
-   String type() default "";
+  /**
+   * The type of the parameter.
+   *
+   * @return the parameter type, empty string if not specified
+   */
+  String type() default "";
 
-   /**
-    * The description of the parameter.
-    *
-    * @return the parameter description, never {@code null}
-    */
-   String description();
+  /**
+   * The description of the parameter.
+   *
+   * @return the parameter description, never {@code null}
+   */
+  String description();
 }

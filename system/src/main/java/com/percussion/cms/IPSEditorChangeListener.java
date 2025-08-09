@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 // REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
@@ -25,14 +24,13 @@ import com.percussion.share.service.exception.PSValidationException;
 /**
  * Interface to allow classes to listen for changes to content items.
  */
-public interface IPSEditorChangeListener 
-{
-   /**
-    * Called to notify listeners when a content item has changed by the 
-    * content editor.
-    * 
-    * @param e The change event object, never <code>null</code>.
-    */
-   void editorChanged(PSEditorChangeEvent e) throws PSSystemValidationException, PSValidationException;
-
+public interface IPSEditorChangeListener {
+  /**
+   * Called to notify listeners when a content item has changed by the
+   * content editor.
+   *
+   * @param e The change event object, never <code>null</code>.
+   */
+  void editorChanged(PSEditorChangeEvent e)
+      throws PSSystemValidationException, PSValidationException;
 }

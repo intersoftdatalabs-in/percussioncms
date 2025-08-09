@@ -21,17 +21,15 @@ import java.io.IOException;
 /**
  * Defines the SJIS character encoding for the Saxon XSLT processor.
  */
-public class PSSJISCharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSSJISCharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("SJIS", "java-SJIS.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSSJISCharacterSet() throws IOException
-   {
-      super("SJIS", "java-SJIS.xml");
-   }
+public class PSSJISCharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSSJISCharacterSet</code> object by
+   * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
+   * String) <code>super("SJIS", "java-SJIS.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSSJISCharacterSet() throws IOException {
+    super("SJIS", "java-SJIS.xml");
+  }
 }

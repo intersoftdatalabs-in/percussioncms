@@ -17,6 +17,11 @@
 
 package com.percussion.servlets;
 
+import static com.percussion.cms.IPSConstants.SECURITY_LOG;
+import static com.percussion.utils.request.PSRequestInfoBase.KEY_PSREQUEST;
+import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
 import com.percussion.auditlog.PSAuthenticationEvent;
@@ -30,14 +35,14 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSessionManager;
-import com.percussion.tools.PSURIEncoder;
 import com.percussion.system.utils.IPSHtmlParameters;
+import com.percussion.tools.PSURIEncoder;
 import com.percussion.utils.tools.IPSUtilsConstants;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,16 +50,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Objects;
-
-import static com.percussion.cms.IPSConstants.SECURITY_LOG;
-import static com.percussion.utils.request.PSRequestInfoBase.KEY_PSREQUEST;
-import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This servlet will process form based login/out calls. The servlet is mapped
@@ -66,487 +65,445 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * error page is not found, then the custom login page will be used as the error
  * page.
  */
-public class PSLoginServlet extends HttpServlet
-{
-   /**
-    * Serial version id
-    */
-   private static final long serialVersionUID = 1L;
-   private final PSAuditLogService psAuditLogService=PSAuditLogService.getInstance();
+public class PSLoginServlet extends HttpServlet {
+  /**
+   * Serial version id
+   */
+  private static final long serialVersionUID = 1L;
 
-   /**
-    * Handles requests to login and logout. Initial GET requests to "/login" are
-    * returned an include of the correct login page (standard or custom if
-    * defined). JAAS authentication will be performed for POST request from the
-    * login page that provide credentials (the "j_username" and "j_password"
-    * request params). Successful authentication will redirect to the originally
-    * requested page as specified by the "RX_REDIRECT_URL" session attribute.
-    * Authentication failures will return an include of either the custom error
-    * page if defined, or else the appropriate login form again. Requests to
-    * "/logout" will call {@link javax.servlet.http.HttpSession#invalidate()}
-    * and redirect the user to the appropriate logout page ((standard or custom
-    * if defined).
-    *
-    * @see HttpServlet#service(HttpServletRequest, HttpServletResponse) for
-    * other details.
-    */
-   @Override
-   protected void service(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException
-   {
-      // see if login or logout
-      String url = request.getServletPath();
-      // if login, logout first, then do login
-      if (url.equals("/login"))
-      {
-         login(request, response);
+  private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
+
+  /**
+   * Handles requests to login and logout. Initial GET requests to "/login" are
+   * returned an include of the correct login page (standard or custom if
+   * defined). JAAS authentication will be performed for POST request from the
+   * login page that provide credentials (the "j_username" and "j_password"
+   * request params). Successful authentication will redirect to the originally
+   * requested page as specified by the "RX_REDIRECT_URL" session attribute.
+   * Authentication failures will return an include of either the custom error
+   * page if defined, or else the appropriate login form again. Requests to
+   * "/logout" will call {@link javax.servlet.http.HttpSession#invalidate()}
+   * and redirect the user to the appropriate logout page ((standard or custom
+   * if defined).
+   *
+   * @see HttpServlet#service(HttpServletRequest, HttpServletResponse) for
+   * other details.
+   */
+  @Override
+  protected void service(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    // see if login or logout
+    String url = request.getServletPath();
+    // if login, logout first, then do login
+    if (url.equals("/login")) {
+      login(request, response);
+    } else if (url.equals("/logout")) {
+      logout(request, response);
+    }
+  }
+
+  /**
+   * Calculates the url to use when redirecting after successful form login and
+   * appends it to the supplied login page url as a query string parameter.
+   *
+   * @param request The current request, may not be <code>null</code>.
+   * @param loginPage The login page request url to which the result is
+   * appended, may not be <code>null</code> or empty.
+   *
+   * @return The login page value with the redirect url query string parameter
+   * appended, never <code>null</code> or empty.
+   */
+  public static String addRedirect(HttpServletRequest request, String loginPage) {
+    if (request == null) throw new IllegalArgumentException("request may not be null");
+
+    if (StringUtils.isBlank(loginPage)) {
+      throw new IllegalArgumentException("loginPage may not be null or empty");
+    }
+
+    String redirect;
+    String legacyUI;
+    legacyUI = request.getParameter(LEGACY_UI_PARAM);
+    try {
+      boolean isBehindProxy = PSServer.isRequestBehindProxy(request);
+      if (isBehindProxy) {
+        redirect = PSServer.getProxyURL(request, false);
+        if (Objects.equals(redirect, "")) {
+          redirect = request.getRequestURL().toString();
+        }
+      } else {
+        redirect = request.getRequestURL().toString();
       }
-      else if (url.equals("/logout"))
-      {
-         logout(request, response);
-      }
-   }
+    } catch (NullPointerException ex) {
+      // Default
+      if (!Boolean.parseBoolean(legacyUI)) redirect = CMS_INDEX_PAGE;
+      else redirect = LEGACY_INDEX_PAGE;
+    }
 
-   /**
-    * Calculates the url to use when redirecting after successful form login and
-    * appends it to the supplied login page url as a query string parameter.
-    *
-    * @param request The current request, may not be <code>null</code>.
-    * @param loginPage The login page request url to which the result is
-    * appended, may not be <code>null</code> or empty.
-    *
-    * @return The login page value with the redirect url query string parameter
-    * appended, never <code>null</code> or empty.
-    */
-   public static String addRedirect(HttpServletRequest request,
-                                    String loginPage)
-   {
-      if (request == null)
-         throw new IllegalArgumentException("request may not be null");
+    String sep = "?";
+    // if the original request was for the login page, redirect to CX
+    if (redirect.endsWith(loginPage)) {
+      if (!Boolean.parseBoolean(legacyUI)) redirect = CMS_INDEX_PAGE;
+      else redirect = LEGACY_INDEX_PAGE;
+    } else if (request.getQueryString() != null) {
+      redirect += sep + request.getQueryString();
+    }
 
-      if (StringUtils.isBlank(loginPage))
-      {
-         throw new IllegalArgumentException(
-                 "loginPage may not be null or empty");
-      }
+    loginPage += sep + IPSHtmlParameters.SYS_REDIRECT + "=" + PSURIEncoder.escape(redirect);
 
-      String redirect;
-      String legacyUI;
-      legacyUI = request.getParameter(LEGACY_UI_PARAM);
-      try
-      {
-         boolean isBehindProxy = PSServer.isRequestBehindProxy(request);
-         if(isBehindProxy){
-            redirect =PSServer.getProxyURL(request,false);
-            if(Objects.equals(redirect, "")){
-               redirect = request.getRequestURL().toString();
-            }
-         }else{
-            redirect = request.getRequestURL().toString();
-         }
-      }
-      catch (NullPointerException ex)
-      {
-         // Default
-         if(!Boolean.parseBoolean(legacyUI))
-             redirect = CMS_INDEX_PAGE;
-         else
-            redirect = LEGACY_INDEX_PAGE;
-      }
+    return loginPage;
+  }
 
-      String sep = "?";
-      // if the original request was for the login page, redirect to CX
-      if (redirect.endsWith(loginPage))
-      {
-         if(!Boolean.parseBoolean(legacyUI))
-            redirect = CMS_INDEX_PAGE;
-         else
-            redirect = LEGACY_INDEX_PAGE;
-      }
-      else if (request.getQueryString() != null)
-      {
-         redirect += sep + request.getQueryString();
-      }
+  /**
+   * Handles the logout request.
+   *
+   * @param request The current request, assumed not <code>null</code>.
+   * @param response The current response, assumed not <code>null</code>.
+   *
+   * @throws IOException If there are any errors redirecting to the logout
+   * page.
+   * @throws ServletException If there are any other errors
+   */
+  private void logout(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
+    try {
+      PSAuthenticationEvent psAuthenticationEvent =
+          new PSAuthenticationEvent(
+              PSActionOutcome.SUCCESS.name(),
+              PSAuthenticationEvent.AuthenticationEventActions.logout,
+              request,
+              request.getRemoteUser());
+      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+    HttpSession session = request.getSession();
+    if (session != null) {
+      PSSecurityFilter.logout(
+          request, (String) session.getAttribute(IPSHtmlParameters.SYS_SESSIONID));
+    }
 
+    // return logout page
+    response.setContentType(CONTENT_TYPE_HEADER_VAL);
+    request.getRequestDispatcher(getLogoutPage()).include(request, response);
+  }
 
-      loginPage += sep + IPSHtmlParameters.SYS_REDIRECT + "=" +
-              PSURIEncoder.escape(redirect);
+  /**
+   * Handles the login request.
+   *
+   * @param request The current request, assumed not <code>null</code>.
+   * @param response The current response, assumed not <code>null</code>.
+   *
+   * @throws IOException If there are any errors including the login page or
+   * redirecting to the originally requested page.
+   * @throws ServletException If there are any other errors.
+   */
+  private void login(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    // see if initial request for login page, or a post with credentials
+    String uid = null;
+    String pwd = null;
+    String locale;
+    String legacyUI = "false";
 
-        return loginPage;
-   }
+    // Checking for maximum users allowed in the system, if reached maximum, then don't allow more
+    // users
+    if (!PSUserSessionManager.checkIfNewUserAllowed()) {
+      String errorText = "Maximum number of users are logged in, try again after some time!!";
 
-   /**
-    * Handles the logout request.
-    *
-    * @param request The current request, assumed not <code>null</code>.
-    * @param response The current response, assumed not <code>null</code>.
-    *
-    * @throws IOException If there are any errors redirecting to the logout
-    * page.
-    * @throws ServletException If there are any other errors
-    */
-   private void logout(HttpServletRequest request, HttpServletResponse response)
-           throws IOException, ServletException
-   {
-       try {
-          PSAuthenticationEvent psAuthenticationEvent = new PSAuthenticationEvent(PSActionOutcome.SUCCESS.name(), PSAuthenticationEvent.AuthenticationEventActions.logout, request, request.getRemoteUser());
-           psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
-       }catch (Exception e){
-          log.error(PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-       }
-      HttpSession session = request.getSession();
-      if (session != null)
-      {
-         PSSecurityFilter.logout(request, (String) session.getAttribute(
-                 IPSHtmlParameters.SYS_SESSIONID));
-      }
-
-      // return logout page
-      response.setContentType(CONTENT_TYPE_HEADER_VAL);
-      request.getRequestDispatcher(getLogoutPage()).include(request,
-              response);
-
-   }
-
-   /**
-    * Handles the login request.
-    *
-    * @param request The current request, assumed not <code>null</code>.
-    * @param response The current response, assumed not <code>null</code>.
-    *
-    * @throws IOException If there are any errors including the login page or
-    * redirecting to the originally requested page.
-    * @throws ServletException If there are any other errors.
-    */
-   private void login(HttpServletRequest request, HttpServletResponse response)
-           throws ServletException, IOException
-   {
-      // see if initial request for login page, or a post with credentials
-      String uid = null;
-      String pwd = null;
-      String locale;
-      String legacyUI="false";
-
-      // Checking for maximum users allowed in the system, if reached maximum, then don't allow more users
-         if(!PSUserSessionManager.checkIfNewUserAllowed()){
-            String errorText = "Maximum number of users are logged in, try again after some time!!";
-
-            // add error param
-            request = new HttpServletRequestWrapper(request) {
-               @Override
-               public String getParameter(String param)
-               {
-                  if (param.equals("j_error"))
-                     return errorText;
-
-                  return super.getParameter(param);
-               }};
-
-            response.setContentType(CONTENT_TYPE_HEADER_VAL);
-            request.getRequestDispatcher(getErrorPage()).include(request,
-                    response);
-            return;
-         }
-
-
-      if (request.getMethod().equalsIgnoreCase("POST"))
-      {
-         PSRequest psreq = (PSRequest) getRequestInfo(KEY_PSREQUEST);
-
-         if (psreq == null)
-         {
-            // this should never happen
-            throw new RuntimeException(
-                    "The request was not properly initialized by the security filter");
-         }
-         try
-         {
-            psreq.parseBody();
-            uid = psreq.getParameter("j_username");
-            pwd = psreq.getParameter("j_password");
-            locale = psreq.getParameter("j_locale");
-            legacyUI = psreq.getParameter(LEGACY_UI_PARAM);
-
-            if(legacyUI == null || legacyUI.equalsIgnoreCase("off"))
-               legacyUI = "false";
-            else if(legacyUI.equalsIgnoreCase("on"))
-               legacyUI = "true";
-
-            request.getSession().setAttribute(IPSConstants.LEGACY_UI_ATTR, Boolean.parseBoolean(legacyUI));
-
-            if(locale!=null) {
-               request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, locale);
-            } else {
-               request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "en-us");
-            }
-
-         }
-         catch (PSRequestParsingException e)
-         {
-            throw new ServletException(e);
-         }
-      }
-
-      String redirect = request.getParameter(IPSHtmlParameters.SYS_REDIRECT);
-      if (isValidRedirectUri(request, redirect) ){
-         request.getSession().setAttribute(REDIRECT_URL, redirect);
-      }
-      if (!StringUtils.isBlank(uid))
-      {
-         // handle authentication
-         authenticate(request, response, uid, pwd,Boolean.parseBoolean(legacyUI));
-
-
-      }
-      else
-      {
-         // return login page
-         response.setContentType(CONTENT_TYPE_HEADER_VAL);
-         request.getRequestDispatcher(getLoginPage()).include(request,
-                 response);
-      }
-   }
-
-   /**
-    * Determines if a redirect URI is valid and safe (XSS).
-    * A redirection URI should be to the same host and a valid
-    * URI.
-    * @param request never null.
-    * @param uri maybe null or invalid <code>false</code> will be returned.
-    * @return true if a valid redirect uri.
-    */
-   protected static boolean isValidRedirectUri(HttpServletRequest request, String uri) {
-      boolean rvalue = false;
-      if (StringUtils.isBlank(uri)) return false;
-      try
-      {
-         URI targetUri = new URI(uri);
-         //See if its just a path
-         if (targetUri.getHost() == null
-                 && targetUri.getAuthority() == null
-                 && targetUri.getScheme() == null &&
-                 isNotBlank(targetUri.getPath())) {
-            rvalue = true;
-         }
-         else {
-            URI requestUri  = new URI(request.getRequestURL().toString());
-            rvalue = ObjectUtils.equals(requestUri.getHost(), targetUri.getHost()) &&
-                    ObjectUtils.equals(requestUri.getPort(), targetUri.getPort()) &&
-                    ObjectUtils.equals(requestUri.getScheme(), targetUri.getScheme());
-         }
-      }
-      catch (URISyntaxException e)
-      {
-         log.error("Bad redirect uri: {} , Error : {} ",  uri,PSExceptionUtils.getMessageForLog(e));
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-
-      if(PSServer.isRequestBehindProxy(request)){
-         rvalue=true;
-      }
-      if ( ! rvalue )
-         log.error("Bad redirect uri: {}", uri);
-      return rvalue;
-   }
-
-
-
-
-   /**
-    * Performs the authentication.  If successful, the user is redirected to the
-    * originally requested page, if it fails, then the appropriate error page is
-    * included.
-    *
-    * @param request The current request, assumed not <code>null</code>.
-    * @param response The current response, assumed not <code>null</code>.
-    * @param uid The user id to use, assumed not <code>null</code> or empty.
-    * @param pwd The password, may be <code>null</code> or empty.
-    * @throws IOException
-    * @throws ServletException
-    */
-   private void authenticate(HttpServletRequest request,
-                             HttpServletResponse response, String uid, String pwd,boolean legacyUI) throws IOException,
-           ServletException
-   {
-      try
-      {
-
-         HttpSession sess = request.getSession(true);
-
-         String redirect = (String) sess.getAttribute(REDIRECT_URL);
-         if (redirect == null) {
-            if(!legacyUI) {
-               redirect = CMS_INDEX_PAGE;
-            }else{
-               redirect = LEGACY_INDEX_PAGE;
-            }
-
-         }else{
-            if(legacyUI) {
-               redirect = LEGACY_INDEX_PAGE;
-            }
-         }
-
-         request = PSSecurityFilter.authenticate(request, response, uid,
-                 pwd);
-
-
-         response.sendRedirect(redirect);
-
-         sess.removeAttribute(REDIRECT_URL);
-         PSAuthenticationEvent psAuthenticationEvent=new PSAuthenticationEvent(PSActionOutcome.SUCCESS.name(), PSAuthenticationEvent.AuthenticationEventActions.login,request,uid);
-          psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
-      }
-      catch (LoginException e)
-      {
-         PSAuthenticationEvent psAuthenticationEvent=new PSAuthenticationEvent(PSActionOutcome.FAILURE.name(), PSAuthenticationEvent.AuthenticationEventActions.login,request,uid);
-         psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
-         Exception ex;
-
-         if (e instanceof PSMissingRoleException)
-         {
-            ex = e;
-         }
-         else
-         {
-            // create error message
-            ex =
-                    new PSAuthenticationFailedException(
-                            IPSSecurityErrors.GENERIC_AUTHENTICATION_FAILED, null);
-         }
-
-         final String errorText = ex.getMessage();
-         log.debug(errorText, e);
-
-         // add error param
-         request = new HttpServletRequestWrapper(request) {
+      // add error param
+      request =
+          new HttpServletRequestWrapper(request) {
             @Override
-            public String getParameter(String param)
-            {
-               if (param.equals("j_error"))
-                  return errorText;
+            public String getParameter(String param) {
+              if (param.equals("j_error")) return errorText;
 
-               return super.getParameter(param);
-            }};
+              return super.getParameter(param);
+            }
+          };
 
-         response.setContentType(CONTENT_TYPE_HEADER_VAL);
-         request.getRequestDispatcher(getErrorPage()).include(request,
-                 response);
+      response.setContentType(CONTENT_TYPE_HEADER_VAL);
+      request.getRequestDispatcher(getErrorPage()).include(request, response);
+      return;
+    }
+
+    if (request.getMethod().equalsIgnoreCase("POST")) {
+      PSRequest psreq = (PSRequest) getRequestInfo(KEY_PSREQUEST);
+
+      if (psreq == null) {
+        // this should never happen
+        throw new RuntimeException(
+            "The request was not properly initialized by the security filter");
       }
-   }
+      try {
+        psreq.parseBody();
+        uid = psreq.getParameter("j_username");
+        pwd = psreq.getParameter("j_password");
+        locale = psreq.getParameter("j_locale");
+        legacyUI = psreq.getParameter(LEGACY_UI_PARAM);
 
-   /**
-    * Gets the appropriate page to include when authentication fails.
-    *
-    * @return The relative path to the error page, never <code>null</code> or
-    * empty.
-    */
-   private String getErrorPage()
-   {
-      File errorPage = new File(getUserDirectory(), ERROR_PAGE);
-      if (errorPage.exists())
-         return "/" + USER_DIR + "/" + ERROR_PAGE;
+        if (legacyUI == null || legacyUI.equalsIgnoreCase("off")) legacyUI = "false";
+        else if (legacyUI.equalsIgnoreCase("on")) legacyUI = "true";
 
-      return getLoginPage();
-   }
+        request
+            .getSession()
+            .setAttribute(IPSConstants.LEGACY_UI_ATTR, Boolean.parseBoolean(legacyUI));
 
-   /**
-    * Gets the appropriate page to include when returning the login page.
-    *
-    * @return The relative path to the login page, never <code>null</code> or
-    * empty.
-    */
-   private String getLoginPage()
-   {
-      File loginPage = new File(getUserDirectory(), LOGIN_PAGE);
-      if (loginPage.exists())
-         return "/" + USER_DIR + "/" + LOGIN_PAGE;
+        if (locale != null) {
+          request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, locale);
+        } else {
+          request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "en-us");
+        }
 
-      return "/rxlogin.jsp";
-   }
+      } catch (PSRequestParsingException e) {
+        throw new ServletException(e);
+      }
+    }
 
-   /**
-    * Gets the appropriate page to include when returning the logout page.
-    *
-    * @return The relative path to the logout page, never <code>null</code> or
-    * empty.
-    */
-   private String getLogoutPage()
-   {
-      File logoutPage = new File(getUserDirectory(), LOGOUT_PAGE);
-      if (logoutPage.exists())
-         return USER_DIR + "/" + LOGOUT_PAGE;
+    String redirect = request.getParameter(IPSHtmlParameters.SYS_REDIRECT);
+    if (isValidRedirectUri(request, redirect)) {
+      request.getSession().setAttribute(REDIRECT_URL, redirect);
+    }
+    if (!StringUtils.isBlank(uid)) {
+      // handle authentication
+      authenticate(request, response, uid, pwd, Boolean.parseBoolean(legacyUI));
 
-      return "rxlogout.jsp";
-   }
+    } else {
+      // return login page
+      response.setContentType(CONTENT_TYPE_HEADER_VAL);
+      request.getRequestDispatcher(getLoginPage()).include(request, response);
+    }
+  }
 
-   /**
-    * Get the absolute path to the user sub-directory of the web application in
-    * which this servlet is running.
-    *
-    * @return The file, never <code>null</code>.
-    */
-   private File getUserDirectory()
-   {
-      return new File(getServletDirectory(), USER_DIR);
-   }
+  /**
+   * Determines if a redirect URI is valid and safe (XSS).
+   * A redirection URI should be to the same host and a valid
+   * URI.
+   * @param request never null.
+   * @param uri maybe null or invalid <code>false</code> will be returned.
+   * @return true if a valid redirect uri.
+   */
+  protected static boolean isValidRedirectUri(HttpServletRequest request, String uri) {
+    boolean rvalue = false;
+    if (StringUtils.isBlank(uri)) return false;
+    try {
+      URI targetUri = new URI(uri);
+      // See if its just a path
+      if (targetUri.getHost() == null
+          && targetUri.getAuthority() == null
+          && targetUri.getScheme() == null
+          && isNotBlank(targetUri.getPath())) {
+        rvalue = true;
+      } else {
+        URI requestUri = new URI(request.getRequestURL().toString());
+        rvalue =
+            ObjectUtils.equals(requestUri.getHost(), targetUri.getHost())
+                && ObjectUtils.equals(requestUri.getPort(), targetUri.getPort())
+                && ObjectUtils.equals(requestUri.getScheme(), targetUri.getScheme());
+      }
+    } catch (URISyntaxException e) {
+      log.error("Bad redirect uri: {} , Error : {} ", uri, PSExceptionUtils.getMessageForLog(e));
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
 
-   /**
-    * Get the path to the directory of the web application in which this
-    * servlet is running.
-    *
-    * @return The path, never <code>null</code>.
-    */
-   private File getServletDirectory()
-   {
-      return new File(getServletContext().getRealPath("/WEB-INF")).getParentFile();
-   }
+    if (PSServer.isRequestBehindProxy(request)) {
+      rvalue = true;
+    }
+    if (!rvalue) log.error("Bad redirect uri: {}", uri);
+    return rvalue;
+  }
 
-   /**
-    * Default CMS page constant
-    */
-   private static final String CMS_INDEX_PAGE = "index.jsp";
-   private static final String LEGACY_INDEX_PAGE = "Rhythmyx/sys_cx/mainpage.html";
-   /**
-    * Constant for the "user" directory.
-    */
-   private static final String USER_DIR = "user";
+  /**
+   * Performs the authentication.  If successful, the user is redirected to the
+   * originally requested page, if it fails, then the appropriate error page is
+   * included.
+   *
+   * @param request The current request, assumed not <code>null</code>.
+   * @param response The current response, assumed not <code>null</code>.
+   * @param uid The user id to use, assumed not <code>null</code> or empty.
+   * @param pwd The password, may be <code>null</code> or empty.
+   * @throws IOException
+   * @throws ServletException
+   */
+  private void authenticate(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      String uid,
+      String pwd,
+      boolean legacyUI)
+      throws IOException, ServletException {
+    try {
 
-   /**
-    * Name of the user defined login page.
-    */
-   private static final String LOGIN_PAGE = "login.jsp";
+      HttpSession sess = request.getSession(true);
 
-   /**
-    * Name of the user defined logout page.
-    */
-   private static final String LOGOUT_PAGE = "logout.jsp";
+      String redirect = (String) sess.getAttribute(REDIRECT_URL);
+      if (redirect == null) {
+        if (!legacyUI) {
+          redirect = CMS_INDEX_PAGE;
+        } else {
+          redirect = LEGACY_INDEX_PAGE;
+        }
 
-   /**
-    * Name of the user defined error page.
-    */
-   private static final String ERROR_PAGE = "error.jsp";
+      } else {
+        if (legacyUI) {
+          redirect = LEGACY_INDEX_PAGE;
+        }
+      }
 
-   /**
-    * This is used to record the original request that the user was attempting
-    * when redirected to the login page while doing form based authentication.
-    */
-   public static final String REDIRECT_URL = "RX_REDIRECT_URL";
+      request = PSSecurityFilter.authenticate(request, response, uid, pwd);
 
-   public static final String LEGACY_UI_PARAM= "j_selectUI";
-   /**
-    * logger
-    */
-   private static final Logger log = LogManager.getLogger(SECURITY_LOG);
+      response.sendRedirect(redirect);
 
-   /**
-    * The Content-Type header value to set when returning included pages,
-    * currently text/html with the UTF-8 encoding.
-    */
-   private static final String CONTENT_TYPE_HEADER_VAL =
-           IPSMimeContentTypes.MIME_TYPE_TEXT_HTML + ";charset=" +
-                   IPSUtilsConstants.RX_STANDARD_ENC;
+      sess.removeAttribute(REDIRECT_URL);
+      PSAuthenticationEvent psAuthenticationEvent =
+          new PSAuthenticationEvent(
+              PSActionOutcome.SUCCESS.name(),
+              PSAuthenticationEvent.AuthenticationEventActions.login,
+              request,
+              uid);
+      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+    } catch (LoginException e) {
+      PSAuthenticationEvent psAuthenticationEvent =
+          new PSAuthenticationEvent(
+              PSActionOutcome.FAILURE.name(),
+              PSAuthenticationEvent.AuthenticationEventActions.login,
+              request,
+              uid);
+      psAuditLogService.logAuthenticationEvent(psAuthenticationEvent);
+      Exception ex;
 
+      if (e instanceof PSMissingRoleException) {
+        ex = e;
+      } else {
+        // create error message
+        ex =
+            new PSAuthenticationFailedException(
+                IPSSecurityErrors.GENERIC_AUTHENTICATION_FAILED, null);
+      }
+
+      final String errorText = ex.getMessage();
+      log.debug(errorText, e);
+
+      // add error param
+      request =
+          new HttpServletRequestWrapper(request) {
+            @Override
+            public String getParameter(String param) {
+              if (param.equals("j_error")) return errorText;
+
+              return super.getParameter(param);
+            }
+          };
+
+      response.setContentType(CONTENT_TYPE_HEADER_VAL);
+      request.getRequestDispatcher(getErrorPage()).include(request, response);
+    }
+  }
+
+  /**
+   * Gets the appropriate page to include when authentication fails.
+   *
+   * @return The relative path to the error page, never <code>null</code> or
+   * empty.
+   */
+  private String getErrorPage() {
+    File errorPage = new File(getUserDirectory(), ERROR_PAGE);
+    if (errorPage.exists()) return "/" + USER_DIR + "/" + ERROR_PAGE;
+
+    return getLoginPage();
+  }
+
+  /**
+   * Gets the appropriate page to include when returning the login page.
+   *
+   * @return The relative path to the login page, never <code>null</code> or
+   * empty.
+   */
+  private String getLoginPage() {
+    File loginPage = new File(getUserDirectory(), LOGIN_PAGE);
+    if (loginPage.exists()) return "/" + USER_DIR + "/" + LOGIN_PAGE;
+
+    return "/rxlogin.jsp";
+  }
+
+  /**
+   * Gets the appropriate page to include when returning the logout page.
+   *
+   * @return The relative path to the logout page, never <code>null</code> or
+   * empty.
+   */
+  private String getLogoutPage() {
+    File logoutPage = new File(getUserDirectory(), LOGOUT_PAGE);
+    if (logoutPage.exists()) return USER_DIR + "/" + LOGOUT_PAGE;
+
+    return "rxlogout.jsp";
+  }
+
+  /**
+   * Get the absolute path to the user sub-directory of the web application in
+   * which this servlet is running.
+   *
+   * @return The file, never <code>null</code>.
+   */
+  private File getUserDirectory() {
+    return new File(getServletDirectory(), USER_DIR);
+  }
+
+  /**
+   * Get the path to the directory of the web application in which this
+   * servlet is running.
+   *
+   * @return The path, never <code>null</code>.
+   */
+  private File getServletDirectory() {
+    return new File(getServletContext().getRealPath("/WEB-INF")).getParentFile();
+  }
+
+  /**
+   * Default CMS page constant
+   */
+  private static final String CMS_INDEX_PAGE = "index.jsp";
+
+  private static final String LEGACY_INDEX_PAGE = "Rhythmyx/sys_cx/mainpage.html";
+
+  /**
+   * Constant for the "user" directory.
+   */
+  private static final String USER_DIR = "user";
+
+  /**
+   * Name of the user defined login page.
+   */
+  private static final String LOGIN_PAGE = "login.jsp";
+
+  /**
+   * Name of the user defined logout page.
+   */
+  private static final String LOGOUT_PAGE = "logout.jsp";
+
+  /**
+   * Name of the user defined error page.
+   */
+  private static final String ERROR_PAGE = "error.jsp";
+
+  /**
+   * This is used to record the original request that the user was attempting
+   * when redirected to the login page while doing form based authentication.
+   */
+  public static final String REDIRECT_URL = "RX_REDIRECT_URL";
+
+  public static final String LEGACY_UI_PARAM = "j_selectUI";
+
+  /**
+   * logger
+   */
+  private static final Logger log = LogManager.getLogger(SECURITY_LOG);
+
+  /**
+   * The Content-Type header value to set when returning included pages,
+   * currently text/html with the UTF-8 encoding.
+   */
+  private static final String CONTENT_TYPE_HEADER_VAL =
+      IPSMimeContentTypes.MIME_TYPE_TEXT_HTML + ";charset=" + IPSUtilsConstants.RX_STANDARD_ENC;
 }

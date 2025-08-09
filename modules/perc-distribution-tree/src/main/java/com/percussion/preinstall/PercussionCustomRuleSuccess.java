@@ -20,12 +20,10 @@ package com.percussion.preinstall;
 import com.zerog.ia.api.pub.CustomCodeRule;
 
 public class PercussionCustomRuleSuccess extends CustomCodeRule {
-public static Boolean rulePass=false;
+  public static Boolean rulePass = false;
 
-
-
-    @Override
-    public boolean evaluateRule() {
-        return rulePass;
-    }
+  @Override
+  public boolean evaluateRule() {
+    return rulePass;
+  }
 }

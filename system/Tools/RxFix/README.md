@@ -9,6 +9,7 @@ RxFix is a comprehensive database repair and verification framework for Rhythmyx
 This module has been modernized to leverage Java 11 features and best practices:
 
 ### Key Improvements
+
 - **var keyword**: Local variable type inference for cleaner code
 - **Enhanced Collections**: Use of `List.of()`, `Set.of()` for immutable collections
 - **Stream API**: Modern collection processing and functional programming
@@ -17,6 +18,7 @@ This module has been modernized to leverage Java 11 features and best practices:
 - **Text blocks**: Improved string literals for better readability
 
 ### Refactored Classes
+
 - ✅ **PSRxFix.java** - Main framework class with Java 11 features
 - ✅ **PSVerify.java** - Installation verification tool with modern patterns
 - 🔄 **PSFixBase.java** - Abstract base class for all fixes (in progress)
@@ -27,18 +29,21 @@ This module has been modernized to leverage Java 11 features and best practices:
 ### Core Components
 
 #### 1. PSRxFix
+
 The main framework class that orchestrates database repair operations:
 - Manages a collection of fix modules
 - Supports preview and execution modes
 - Provides UI integration for administrative interfaces
 
 #### 2. PSVerify
+
 Installation verification tool that:
 - Generates bills of materials (BOM) for installations
 - Verifies installations against existing BOMs
 - Checks database integrity and file consistency
 
 #### 3. Database Fix Modules
+
 Individual repair modules located in `dbfixes/` package:
 - **PSFixBrokenRelationships** - Removes orphaned relationship records
 - **PSFixContentStatusHistory** - Repairs content status inconsistencies
@@ -47,6 +52,7 @@ Individual repair modules located in `dbfixes/` package:
 - **And many more...**
 
 ### Design Patterns Used
+
 - **Strategy Pattern**: Individual fix modules implement `IPSFix` interface
 - **Template Method**: `PSFixBase` provides common functionality
 - **Factory Pattern**: Dynamic instantiation of fix modules
@@ -57,6 +63,7 @@ Individual repair modules located in `dbfixes/` package:
 ### Command Line Usage
 
 #### Generate Installation BOM
+
 ```bash
 java -cp rxfix.jar com.percussion.rxverify.PSVerify \
   -generate \
@@ -65,6 +72,7 @@ java -cp rxfix.jar com.percussion.rxverify.PSVerify \
 ```
 
 #### Verify Installation
+
 ```bash
 java -cp rxfix.jar com.percussion.rxverify.PSVerify \
   -rxroot /opt/rhythmyx \
@@ -72,6 +80,7 @@ java -cp rxfix.jar com.percussion.rxverify.PSVerify \
 ```
 
 #### Run Database Fixes
+
 ```bash
 java -cp rxfix.jar com.percussion.rxfix.PSRxFixCmd \
   -preview \
@@ -81,6 +90,7 @@ java -cp rxfix.jar com.percussion.rxfix.PSRxFixCmd \
 ### Programmatic Usage
 
 #### Basic Fix Execution
+
 ```java
 // Create and configure the fix framework
 var rxFix = new PSRxFix();
@@ -105,6 +115,7 @@ rxFix.doFix(false);
 ```
 
 #### Custom Fix Implementation
+
 ```java
 public class MyCustomFix extends PSFixBase {
     @Override
@@ -135,15 +146,18 @@ public class MyCustomFix extends PSFixBase {
 ## Configuration
 
 ### System Properties
+
 - `log4j.configuration` - Logging configuration file
 - `javax.xml.parsers.SAXParserFactory` - XML parser implementation
 
 ### Database Connection
+
 The framework uses JNDI to obtain database connections. Ensure your application server is configured with the appropriate data source.
 
 ## Testing
 
 ### Unit Tests
+
 ```bash
 # Run all tests
 mvn test
@@ -153,6 +167,7 @@ mvn test -Dtest=PSRxFixTest
 ```
 
 ### Integration Tests
+
 Integration tests require a running Rhythmyx installation and database.
 
 ## Error Handling
@@ -179,6 +194,7 @@ The framework provides comprehensive error handling:
 ## Dependencies
 
 ### Core Dependencies
+
 - Java 11+
 - Spring Framework
 - Apache Commons Lang3
@@ -186,6 +202,7 @@ The framework provides comprehensive error handling:
 - JDBC drivers for supported databases
 
 ### Build Dependencies
+
 - Maven 3.6+
 - JUnit 5 (for testing)
 
@@ -201,6 +218,7 @@ When adding new fix modules:
 6. Update the fix registration in `PSRxFix.java`
 
 ### Code Style
+
 - Follow Google Java Style Guide
 - Use Java 11 features where appropriate
 - Maintain backward compatibility for public APIs
@@ -221,3 +239,4 @@ For issues and questions:
 ---
 
 > 🤠 "Refactor today, so we don't have to rewrite tomorrow!" - Sunny Sal the Senior Java Developer
+

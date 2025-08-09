@@ -22,5 +22,4 @@ package com.percussion.extension;
  *
  * @author paulhoward
  */
-public interface IPSItemInputTransformer extends IPSRequestPreProcessor
-{}
+public interface IPSItemInputTransformer extends IPSRequestPreProcessor {}

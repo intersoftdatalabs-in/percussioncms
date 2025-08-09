@@ -19,9 +19,7 @@ package com.percussion.data;
 
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-
 import java.sql.SQLException;
-
 
 /**
  * This class is used to generate unique numeric IDs.  It relies on a table with
@@ -43,26 +41,22 @@ import java.sql.SQLException;
  * The user must provide the connection info, table name and column
  * names at run time.
  */
-public class PSIdGenerator
-{
-   /**
-    * Convenience version of {@link #getNextIdBlock(String, int)} that calls
-    * <code>getNextIdBlock(keyId, 1).
-    */
-   public static synchronized int getNextId(String keyId) throws SQLException
-   {
-      return mgr.createId(keyId);
-   }
+public class PSIdGenerator {
+  /**
+   * Convenience version of {@link #getNextIdBlock(String, int)} that calls
+   * <code>getNextIdBlock(keyId, 1).
+   */
+  public static synchronized int getNextId(String keyId) throws SQLException {
+    return mgr.createId(keyId);
+  }
 
-   /**
-    * That uses the database defined in the server.properties, and a default
-    * nextnumber table.
-    */
-   public static synchronized int[] getNextIdBlock(String keyId, int blockSize)
-       throws SQLException
-   {
-      return mgr.createIdBlock(keyId, blockSize);
-   }
-   
-   private static final IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
+  /**
+   * That uses the database defined in the server.properties, and a default
+   * nextnumber table.
+   */
+  public static synchronized int[] getNextIdBlock(String keyId, int blockSize) throws SQLException {
+    return mgr.createIdBlock(keyId, blockSize);
+  }
+
+  private static final IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
 }

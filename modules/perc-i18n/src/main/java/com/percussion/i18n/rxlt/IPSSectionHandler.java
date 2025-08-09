@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package com.percussion.i18n.rxlt;
+package com.percussion.i18n.rxlt;
 
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
-
 import org.w3c.dom.Element;
 
 /**
@@ -27,49 +26,52 @@ import org.w3c.dom.Element;
  * of generationg TMX resources for translation from only sections that are
  * known to be modified.
  */
+public interface IPSSectionHandler {
+  /**
+   * This is the method that actually processes the section.
+   * @param cfgData DOM element holding the data for processing the section ,
+   * must not be <code>null</code>.
+   * @return The newly created TMX document object that subsequently merged
+   * with other sections when required, never <code>null</code>.
+   * @throws IllegalArgumentException cfgData <code>null</code>)
+   * @throws PSSectionProcessingException if any error occurs during processing
+   */
+  IPSTmxDocument process(Element cfgData) throws PSSectionProcessingException;
 
-public interface IPSSectionHandler
-{
-   /**
-    * This is the method that actually processes the section.
-    * @param cfgData DOM element holding the data for processing the section ,
-    * must not be <code>null</code>.
-    * @return The newly created TMX document object that subsequently merged
-    * with other sections when required, never <code>null</code>.
-    * @throws IllegalArgumentException cfgData <code>null</code>)
-    * @throws PSSectionProcessingException if any error occurs during processing
-    */
-   IPSTmxDocument process(Element cfgData)
-      throws PSSectionProcessingException;
+  /**
+   * Section ID for CMS tables part of the Rhythmyx Content Manager
+   */
+  static final int SECTIONID_CMS_TABLES = 1;
 
-   /**
-    * Section ID for CMS tables part of the Rhythmyx Content Manager
-    */
-   static final int SECTIONID_CMS_TABLES = 1;
-   /**
-    * Section ID for XSL Stylesheets of the Rhythmyx Content Manager
-    */
-   static final int SECTIONID_XSL_STYLESHEETS = 2;
-   /**
-    * Section ID for Content Editors of the Rhythmyx Content Manager
-    */
-   static final int SECTIONID_CONTENT_EDITORS = 3;
-   /**
-    * Section ID for the extension resources. These are typically uploaded to
-    * the server along with the exits written by customer when the exits handle
-    * the localized error messages.
-    */
-   static final int SECTIONID_EXTENSION_RESOURCES = 4;
-   /**
-    * Section ID for JSPs included with Rhythmyx.
-    */
-   static final int SECTIONID_JSPS = 5;
-   /**
-    * First Sectionid
-    */
-   static final int SECTIONID_FIRST = SECTIONID_CMS_TABLES;
-   /**
-    * Last Sectionid
-    */
-   static final int SECTIONID_LAST = SECTIONID_JSPS;
+  /**
+   * Section ID for XSL Stylesheets of the Rhythmyx Content Manager
+   */
+  static final int SECTIONID_XSL_STYLESHEETS = 2;
+
+  /**
+   * Section ID for Content Editors of the Rhythmyx Content Manager
+   */
+  static final int SECTIONID_CONTENT_EDITORS = 3;
+
+  /**
+   * Section ID for the extension resources. These are typically uploaded to
+   * the server along with the exits written by customer when the exits handle
+   * the localized error messages.
+   */
+  static final int SECTIONID_EXTENSION_RESOURCES = 4;
+
+  /**
+   * Section ID for JSPs included with Rhythmyx.
+   */
+  static final int SECTIONID_JSPS = 5;
+
+  /**
+   * First Sectionid
+   */
+  static final int SECTIONID_FIRST = SECTIONID_CMS_TABLES;
+
+  /**
+   * Last Sectionid
+   */
+  static final int SECTIONID_LAST = SECTIONID_JSPS;
 }

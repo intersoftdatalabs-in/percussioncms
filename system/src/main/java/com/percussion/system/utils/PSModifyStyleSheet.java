@@ -20,15 +20,13 @@ package com.percussion.system.utils;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The PSModifyStyleSheet class is used to modify user-defined style-sheets
@@ -44,169 +42,153 @@ import java.io.IOException;
  * @version    1.0
  * @since      1.0
  */
-public class PSModifyStyleSheet
-{
-   Logger log = LogManager.getLogger(PSModifyStyleSheet.class);
-   /**
-    * External construction needed for installer.
-    */
-   public PSModifyStyleSheet()
-   {
-      super();
-   }
+public class PSModifyStyleSheet {
+  Logger log = LogManager.getLogger(PSModifyStyleSheet.class);
 
-   /* function to run the guts
+  /**
+   * External construction needed for installer.
+   */
+  public PSModifyStyleSheet() {
+    super();
+  }
+
+  /* function to run the guts
    * @param   strStyleSheet      the file name of the style sheet to be modified
-    *                     (style-sheet-filename)
-    *@returns true for error, false for success
+   *                     (style-sheet-filename)
+   *@returns true for error, false for success
    */
 
-   public boolean modify(String strStyleSheet)
-   {
-      File xslFile = null;
-      FileInputStream fIn = null;
-      org.w3c.dom.Document inDoc = null;
-      PSXmlTreeWalker walker = null;
-      try {
-         xslFile = new File(strStyleSheet);
-         fIn = new FileInputStream(xslFile);
-         inDoc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
-         fIn.close();
-      } catch (java.io.IOException | org.xml.sax.SAXException ioE) {
-         log.error("An IO exception occurred accessing the file.");
-         log.error(ioE.toString());
-         return true;
+  public boolean modify(String strStyleSheet) {
+    File xslFile = null;
+    FileInputStream fIn = null;
+    org.w3c.dom.Document inDoc = null;
+    PSXmlTreeWalker walker = null;
+    try {
+      xslFile = new File(strStyleSheet);
+      fIn = new FileInputStream(xslFile);
+      inDoc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
+      fIn.close();
+    } catch (java.io.IOException | org.xml.sax.SAXException ioE) {
+      log.error("An IO exception occurred accessing the file.");
+      log.error(ioE.toString());
+      return true;
+    }
+
+    /* Need to alter the xsl:stylesheet member's attributes */
+    org.w3c.dom.Element e = inDoc.getDocumentElement();
+
+    if (e == null) {
+      log.error("No root element specified in this document!");
+      return true;
+    } else {
+      if (!e.getTagName().equals("xsl:stylesheet")) {
+        log.error("Document not stylesheet!");
+        return true;
       }
 
-      /* Need to alter the xsl:stylesheet member's attributes */
-      org.w3c.dom.Element e = inDoc.getDocumentElement();
-
-      if (e == null)
-      {
-         log.error("No root element specified in this document!");
-         return true;
+      /* check to see if there is no version attribute and
+      change the attributes if need be */
+      String version = e.getAttribute(XSL_VERSION_ATTRIBUTE_NAME);
+      if ((version == null) || (version.equals(""))) {
+        log.info("Updating stylesheet attributes");
+        e.setAttribute(XSL_VERSION_ATTRIBUTE_NAME, CURRENT_XSL_VERSION);
+        e.setAttribute(XSL_NAMESPACE_ATTRIBUTE_NAME, CURRENT_XSL_NAMESPACE_REF);
       } else {
-         if (!e.getTagName().equals("xsl:stylesheet"))
-         {
-           log.error("Document not stylesheet!");
-            return true;
-         }
-
-         /* check to see if there is no version attribute and
-            change the attributes if need be */
-         String version = e.getAttribute(XSL_VERSION_ATTRIBUTE_NAME);
-         if ((version == null) || (version.equals("")))
-         {
-            log.info("Updating stylesheet attributes");
-            e.setAttribute(XSL_VERSION_ATTRIBUTE_NAME, CURRENT_XSL_VERSION);
-            e.setAttribute(XSL_NAMESPACE_ATTRIBUTE_NAME, CURRENT_XSL_NAMESPACE_REF);
-         } else
-         {
-            /* version already there, no changes to be made */
-            return false;
-         }
+        /* version already there, no changes to be made */
+        return false;
       }
+    }
 
-      FileOutputStream fOut = null;
-      try {
-         fOut = new FileOutputStream(xslFile);
-         PSXmlDocumentBuilder.write(inDoc, fOut);
-         fOut.close();
-      } catch (java.io.IOException ioE) {
-         log.error("Error writing updated file: {}", ioE);
-         return true;
+    FileOutputStream fOut = null;
+    try {
+      fOut = new FileOutputStream(xslFile);
+      PSXmlDocumentBuilder.write(inDoc, fOut);
+      fOut.close();
+    } catch (java.io.IOException ioE) {
+      log.error("Error writing updated file: {}", ioE);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * This will convert the server root for the entity reference in the provided
+   * XSL from "./../../DTD/HTMLlat1x.ent" to "./../../DTD/HTMLlat1x.ent".
+   *
+   * @param strStyleSheet the file name of the style sheet to be modified
+   * @returns <code>true</code> for error, <code>false</code> for success
+   */
+  public boolean convertServerRoot(String strStyleSheet) {
+    File xslFile = null;
+
+    StringBuilder buffer;
+
+    xslFile = new File(strStyleSheet);
+    try (FileInputStream fIn = new FileInputStream(xslFile)) {
+      try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        int read = 0;
+        byte[] buf = new byte[1024];
+        while ((read = fIn.read(buf)) >= 0) {
+          out.write(buf, 0, read);
+          if (read < buf.length) break;
+        }
+        out.flush();
+
+        buffer = new StringBuilder(out.toString(PSCharSets.getStdName("UTF-8")));
       }
+    } catch (IOException e) {
+      String fileName = "";
+      fileName = xslFile.toString();
+      log.error(
+          "An IO exception occurred accessing the file: {} Error: {}",
+          fileName,
+          PSExceptionUtils.getMessageForLog(e));
+      return true;
+    }
 
-      return false;
-   }
+    String strTest = "./../../DTD/HTMLlat1x.ent";
+    int index = buffer.toString().indexOf(strTest);
+    if (index != -1) buffer.replace(index, index + strTest.length(), "./../../DTD/HTMLlat1x.ent");
 
-   /**
-    * This will convert the server root for the entity reference in the provided
-    * XSL from "./../../DTD/HTMLlat1x.ent" to "./../../DTD/HTMLlat1x.ent".
-    * 
-    * @param strStyleSheet the file name of the style sheet to be modified
-    * @returns <code>true</code> for error, <code>false</code> for success
-    */
+    strTest = "./../../DTD/HTMLsymbolx.ent";
+    index = buffer.toString().indexOf(strTest);
+    if (index != -1) buffer.replace(index, index + strTest.length(), "./../../DTD/HTMLsymbolx.ent");
 
-   public boolean convertServerRoot(String strStyleSheet)
-   {
-      File xslFile = null;
+    strTest = "./../../DTD/HTMLspecialx.ent";
+    index = buffer.toString().indexOf(strTest);
+    if (index != -1)
+      buffer.replace(index, index + strTest.length(), "./../../DTD/HTMLspecialx.ent");
 
-      StringBuilder buffer;
+    try (FileOutputStream fOut = new FileOutputStream(xslFile)) {
+      fOut.write(buffer.toString().getBytes());
+      fOut.flush();
+    } catch (IOException e) {
+      log.error("Error writing updated file", e);
+      return true;
+    }
 
-         xslFile = new File(strStyleSheet);
-         try(FileInputStream fIn = new FileInputStream(xslFile)){
-            try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-               int read = 0;
-               byte[] buf = new byte[1024];
-               while ((read = fIn.read(buf)) >= 0) {
-                  out.write(buf, 0, read);
-                  if (read < buf.length)
-                     break;
-               }
-               out.flush();
+    return false;
+  }
 
-               buffer = new StringBuilder(out.toString(PSCharSets.getStdName("UTF-8")));
-            }
-      }
-      catch (IOException e)
-      {
-         String fileName = "";
-         fileName = xslFile.toString();
-         log.error("An IO exception occurred accessing the file: {} Error: {}" , fileName,
-                 PSExceptionUtils.getMessageForLog(e));
-         return true;
-      } 
-      
-      String strTest = "./../../DTD/HTMLlat1x.ent";
-      int index = buffer.toString().indexOf(strTest);
-      if (index != -1)
-         buffer.replace(index, index+strTest.length(), 
-                        "./../../DTD/HTMLlat1x.ent");
-         
-      strTest = "./../../DTD/HTMLsymbolx.ent";
-      index = buffer.toString().indexOf(strTest);
-      if (index != -1)
-         buffer.replace(index, index+strTest.length(), 
-                        "./../../DTD/HTMLsymbolx.ent");
-         
-      strTest = "./../../DTD/HTMLspecialx.ent";
-      index = buffer.toString().indexOf(strTest);
-      if (index != -1)
-         buffer.replace(index, index+strTest.length(), 
-                        "./../../DTD/HTMLspecialx.ent");
+  /**
+   * This is the server application's entry point
+   *
+   * @param   args      the arguments supplied to the Style Sheet Modifier
+   *                     (style-sheet-filename)
+   */
+  public static void main(java.lang.String[] args) {
+    if (args.length != 1) {
+      System.out.println("Usage: java PSModifyStyleSheet <style-sheet>");
+      System.exit(1);
+    }
 
+    PSModifyStyleSheet modifyXSL = new PSModifyStyleSheet();
+    System.exit(modifyXSL.convertServerRoot(args[0]) == true ? 1 : 0);
+  }
 
-         try(FileOutputStream fOut = new FileOutputStream(xslFile)){
-            fOut.write(buffer.toString().getBytes());
-            fOut.flush();
-         } catch (IOException e) {
-            log.error("Error writing updated file",e);
-            return true;
-         }
-
-      return false;
-   }
-
-   /**
-    * This is the server application's entry point
-    *
-    * @param   args      the arguments supplied to the Style Sheet Modifier
-    *                     (style-sheet-filename)
-    */
-   public static void main(java.lang.String[] args)
-   {
-      if (args.length != 1) {
-         System.out.println("Usage: java PSModifyStyleSheet <style-sheet>");
-         System.exit(1);
-      }
-
-      PSModifyStyleSheet modifyXSL = new PSModifyStyleSheet();
-      System.exit(modifyXSL.convertServerRoot(args[0]) == true ? 1 : 0);
-   }
-
-   public static final String CURRENT_XSL_VERSION = "1.0";
-   public static final String CURRENT_XSL_NAMESPACE_REF = "http://www.w3.org/1999/XSL/Transform";
-   public static final String XSL_VERSION_ATTRIBUTE_NAME = "version";
-   public static final String XSL_NAMESPACE_ATTRIBUTE_NAME = "xmlns:xsl";
+  public static final String CURRENT_XSL_VERSION = "1.0";
+  public static final String CURRENT_XSL_NAMESPACE_REF = "http://www.w3.org/1999/XSL/Transform";
+  public static final String XSL_VERSION_ATTRIBUTE_NAME = "version";
+  public static final String XSL_NAMESPACE_ATTRIBUTE_NAME = "xmlns:xsl";
 }

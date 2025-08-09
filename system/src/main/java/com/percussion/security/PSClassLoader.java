@@ -25,13 +25,11 @@ package com.percussion.security;
  * @version    1.1
  * @since      1.1
  */
-public class PSClassLoader extends ClassLoader
-{
-   /**
-    * Construct a PSClassLoader object.
-    */
-   PSClassLoader()
-   {
-      super();
-   }
+public class PSClassLoader extends ClassLoader {
+  /**
+   * Construct a PSClassLoader object.
+   */
+  PSClassLoader() {
+    super();
+  }
 }

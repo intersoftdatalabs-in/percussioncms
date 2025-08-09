@@ -23,47 +23,47 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * A request object used for getting the content activity data from the rest service. 
+ * A request object used for getting the content activity data from the rest service.
  */
 @JsonRootName(value = "ContentActivityRequest")
 public class PSContentActivityRequest implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String path;
-    private String durationType;
-    private String duration;
+  private String path;
+  private String durationType;
+  private String duration;
 
-    /**
-     * @return the path may be <code>null</code> or empty.
-     */
-    public Optional<String> getPath() {
-        return Optional.ofNullable(path);
-    }
+  /**
+   * @return the path may be <code>null</code> or empty.
+   */
+  public Optional<String> getPath() {
+    return Optional.ofNullable(path);
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * @return the duration type may be <code>null</code> or empty.
-     */
-    public Optional<String> getDurationType() {
-        return Optional.ofNullable(durationType);
-    }
+  /**
+   * @return the duration type may be <code>null</code> or empty.
+   */
+  public Optional<String> getDurationType() {
+    return Optional.ofNullable(durationType);
+  }
 
-    public void setDurationType(String durationType) {
-        this.durationType = durationType;
-    }
+  public void setDurationType(String durationType) {
+    this.durationType = durationType;
+  }
 
-    /**
-     * @return the duration may be <code>null</code> or empty.
-     */
-    public Optional<String> getDuration() {
-        return Optional.ofNullable(duration);
-    }
+  /**
+   * @return the duration may be <code>null</code> or empty.
+   */
+  public Optional<String> getDuration() {
+    return Optional.ofNullable(duration);
+  }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
+  public void setDuration(String duration) {
+    this.duration = duration;
+  }
 }

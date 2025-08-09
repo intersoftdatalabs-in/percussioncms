@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
- 
 package com.percussion.deployer.server;
 
 /**
@@ -23,20 +22,20 @@ package com.percussion.deployer.server;
  */
 public interface IPSJobHandle {
 
-   /**
-    * Updates the current status using the supplied message.
-    *
-    * @param message The message, may not be {@code null} or empty.
-    * @throws IllegalArgumentException if {@code message} is invalid.
-    */
-   void updateStatus(String message);
+  /**
+   * Updates the current status using the supplied message.
+   *
+   * @param message The message, may not be {@code null} or empty.
+   * @throws IllegalArgumentException if {@code message} is invalid.
+   */
+  void updateStatus(String message);
 
-   /**
-    * Determines if the current job has been cancelled.
-    *
-    * @return {@code true} if the job is cancelled and the executing code
-    * should stop at an appropriate point, cleanup as required, and return,
-    * {@code false} otherwise.
-    */
-   boolean isCancelled();
+  /**
+   * Determines if the current job has been cancelled.
+   *
+   * @return {@code true} if the job is cancelled and the executing code
+   * should stop at an appropriate point, cleanup as required, and return,
+   * {@code false} otherwise.
+   */
+  boolean isCancelled();
 }

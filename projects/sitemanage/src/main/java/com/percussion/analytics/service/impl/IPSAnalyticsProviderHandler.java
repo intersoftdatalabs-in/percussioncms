@@ -26,26 +26,26 @@ import java.util.Map;
  */
 public interface IPSAnalyticsProviderHandler {
 
-    /**
-     * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to
-     * get access to a particular data set from the provider.
-     *
-     * @param uid      the user ID for access to the provider. Cannot be null or empty.
-     * @param password the password for access to the provider. Cannot be null or empty.
-     * @return a map of strings, with the key being the profile value and the value being the
-     *         profile display value. Never null, may be empty.
-     * @throws PSAnalyticsProviderException upon any error.
-     */
-    Map<String, String> getProfiles(String uid, String password)
-            throws PSAnalyticsProviderException, PSValidationException;
+  /**
+   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to
+   * get access to a particular data set from the provider.
+   *
+   * @param uid      the user ID for access to the provider. Cannot be null or empty.
+   * @param password the password for access to the provider. Cannot be null or empty.
+   * @return a map of strings, with the key being the profile value and the value being the
+   *         profile display value. Never null, may be empty.
+   * @throws PSAnalyticsProviderException upon any error.
+   */
+  Map<String, String> getProfiles(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
 
-    /**
-     * Tests a connection to the provider using the specified credentials.
-     *
-     * @param uid      the user ID for access to the provider. Cannot be null or empty.
-     * @param password the password for access to the provider. Cannot be null or empty.
-     * @throws PSAnalyticsProviderException if failed to connect.
-     */
-    void testConnection(String uid, String password)
-            throws PSAnalyticsProviderException, PSValidationException;
+  /**
+   * Tests a connection to the provider using the specified credentials.
+   *
+   * @param uid      the user ID for access to the provider. Cannot be null or empty.
+   * @param password the password for access to the provider. Cannot be null or empty.
+   * @throws PSAnalyticsProviderException if failed to connect.
+   */
+  void testConnection(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
 }

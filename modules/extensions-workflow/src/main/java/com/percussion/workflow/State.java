@@ -22,75 +22,63 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-public class State
-{
-   public State(int nIndex, Element elem, int width, int height)
-   {
-      m_nIndex = nIndex;
-      m_ElemState = elem;
-      m_nWidth = width;
-      m_nHeight = height;
-   }
+public class State {
+  public State(int nIndex, Element elem, int width, int height) {
+    m_nIndex = nIndex;
+    m_ElemState = elem;
+    m_nWidth = width;
+    m_nHeight = height;
+  }
 
-   public Element makeElement(Element elemParent, int yLoc)
-   {
-      Document doc = elemParent.getOwnerDocument();
-      Element elemState = doc.createElement("state");
-      NamedNodeMap attrs = m_ElemState.getAttributes();
-      for(int i=0; i<attrs.getLength(); i++)
-      {
-         Attr importNode = (Attr)doc.importNode(attrs.item(i), true);
-         elemState.setAttributeNode(importNode);
-      }
-      elemState.setAttribute("xloc", Integer.toString(m_nIndex*m_nWidth));
-      elemState.setAttribute("yloc", Integer.toString(yLoc));
-      elemState.setAttribute("width", Integer.toString(m_nWidth));
+  public Element makeElement(Element elemParent, int yLoc) {
+    Document doc = elemParent.getOwnerDocument();
+    Element elemState = doc.createElement("state");
+    NamedNodeMap attrs = m_ElemState.getAttributes();
+    for (int i = 0; i < attrs.getLength(); i++) {
+      Attr importNode = (Attr) doc.importNode(attrs.item(i), true);
+      elemState.setAttributeNode(importNode);
+    }
+    elemState.setAttribute("xloc", Integer.toString(m_nIndex * m_nWidth));
+    elemState.setAttribute("yloc", Integer.toString(yLoc));
+    elemState.setAttribute("width", Integer.toString(m_nWidth));
 
-      return elemState;
-   }
+    return elemState;
+  }
 
-   public String getID()
-   {
-      return m_ElemState.getAttribute("id");
-   }
+  public String getID() {
+    return m_ElemState.getAttribute("id");
+  }
 
-   public String getLink()
-   {
-      return m_ElemState.getAttribute("link");
-   }
+  public String getLink() {
+    return m_ElemState.getAttribute("link");
+  }
 
-   public String getLinkNewTransition()
-   {
-      return m_ElemState.getAttribute("linknewtransition");
-   }
+  public String getLinkNewTransition() {
+    return m_ElemState.getAttribute("linknewtransition");
+  }
 
-   public String getLinkNewAgingTransition()
-   {
-      return m_ElemState.getAttribute("linknewagingtransition");
-   }
+  public String getLinkNewAgingTransition() {
+    return m_ElemState.getAttribute("linknewagingtransition");
+  }
 
-   public int getIndex()
-   {
-      return m_nIndex;
-   }
+  public int getIndex() {
+    return m_nIndex;
+  }
 
-   public String getName()
-   {
-      return m_ElemState.getAttribute("name");
-   }
+  public String getName() {
+    return m_ElemState.getAttribute("name");
+  }
 
-   public int getMidX()
-   {
-      return m_nIndex*m_nWidth + m_nWidth/2;
-   }
+  public int getMidX() {
+    return m_nIndex * m_nWidth + m_nWidth / 2;
+  }
 
-   public int getWidth()
-   {
-      return m_nWidth;
-   }
+  public int getWidth() {
+    return m_nWidth;
+  }
 
-   int m_nIndex;
-   Element m_ElemState;
-   int m_nWidth;
-   int m_nHeight;
+  int m_nIndex;
+  Element m_ElemState;
+  int m_nWidth;
+  int m_nHeight;
 }

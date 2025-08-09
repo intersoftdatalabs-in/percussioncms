@@ -22,5 +22,4 @@ package com.percussion.utils.testing;
  * but there is not time to refactor it at the moment.  Backlogged tests
  * are tests we intend to fix, not tests that we just ignore forever.
  */
-public interface BackloggedTest {
-}
+public interface BackloggedTest {}

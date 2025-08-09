@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-package   com.percussion.log;
-
+package com.percussion.log;
 
 /**
  * IPSLogReader   defines   an interface for reading log messages
@@ -34,34 +33,33 @@ package   com.percussion.log;
  * @version       1.0
  * @since          1.0
  */
-public interface IPSLogReader   {
-   /**
-    *   Close   the   log   reader.   This should   only be   called when   it is   no longer
-    *   needed.   Any   subsequent attempts to read from this object will throw
-    *   an exception. It is not an error to call close() on a closed log reader.
-    *
-    *   @see #isOpen
-    */
-    public   void close();
+public interface IPSLogReader {
+  /**
+   *   Close   the   log   reader.   This should   only be   called when   it is   no longer
+   *   needed.   Any   subsequent attempts to read from this object will throw
+   *   an exception. It is not an error to call close() on a closed log reader.
+   *
+   *   @see #isOpen
+   */
+  public void close();
 
-   /**
-    *   Use to query whether the log reader is open or not.
-    *
-    *   @return   Returns true if the log reader is open, false if the log
-    *   reader is not open.
-    *
-    *   @see #close
-    */
-    public boolean isOpen();
+  /**
+   *   Use to query whether the log reader is open or not.
+   *
+   *   @return   Returns true if the log reader is open, false if the log
+   *   reader is not open.
+   *
+   *   @see #close
+   */
+  public boolean isOpen();
 
-   /**
-    *   Read log messages   using   the   specified   filter.
-    *
-    *   @param         filter                           the   log   message   filter
-    *
-    *   @exception   IllegalStateException      if close has already been   called
-    *                                                         on this   reader
-    */
-   public   void read(IPSLogReaderFilter filter)
-      throws java.lang.IllegalStateException;
+  /**
+   *   Read log messages   using   the   specified   filter.
+   *
+   *   @param         filter                           the   log   message   filter
+   *
+   *   @exception   IllegalStateException      if close has already been   called
+   *                                                         on this   reader
+   */
+  public void read(IPSLogReaderFilter filter) throws java.lang.IllegalStateException;
 }

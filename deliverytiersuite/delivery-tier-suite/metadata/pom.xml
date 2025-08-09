@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.percussion.deliverytier</groupId>
         <artifactId>delivery-tier-suite</artifactId>
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>perc-metadata-services</artifactId>
     <packaging>war</packaging>
     <dependencies>
@@ -233,6 +230,16 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
@@ -240,12 +247,12 @@
                 <version>${hibernate.version}</version>
                 <executions>
                     <execution>
-                        <configuration>
-                            <enableLazyInitialization>true</enableLazyInitialization>
-                        </configuration>
                         <goals>
                             <goal>enhance</goal>
                         </goals>
+                        <configuration>
+                            <enableLazyInitialization>true</enableLazyInitialization>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -300,16 +307,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-        <finalName>${project.artifactId}</finalName>
     </build>
     <profiles>
         <profile>
@@ -336,13 +333,11 @@
                             <configuration>
                                 <properties>
                                     <cargo.servlet.port>8080</cargo.servlet.port>
-                                    <cargo.datasource.datasource.derby>
-                                        cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
+                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
                                         cargo.datasource.url=jdbc:derby:derbyDB;create=true|
                                         cargo.datasource.jndi=jdbc/CargoDS|
                                         cargo.datasource.username=APP|
-                                        cargo.datasource.password=nonemptypassword
-                                    </cargo.datasource.datasource.derby>
+                                        cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
                                 </properties>
                             </configuration>
                             <packager>

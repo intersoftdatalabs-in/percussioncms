@@ -17,23 +17,19 @@
 
 package com.ibm.cadf.exception;
 
-public class CADFException extends RuntimeException
-{
+public class CADFException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public CADFException(String message, Throwable e)
-    {
-        super(message, e);
-    }
+  public CADFException(String message, Throwable e) {
+    super(message, e);
+  }
 
-    public CADFException(String message)
-    {
-        super(message);
-    }
+  public CADFException(String message) {
+    super(message);
+  }
 
-    public CADFException(Throwable e)
-    {
-        super(e);
-    }
+  public CADFException(Throwable e) {
+    super(e);
+  }
 }

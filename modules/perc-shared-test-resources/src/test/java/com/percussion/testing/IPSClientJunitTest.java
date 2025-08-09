@@ -22,6 +22,4 @@ package com.percussion.testing;
  * In contrast to {@link IPSClientBasedJunitTest} this test does not need
  * assistance in obtaining a server connection.
  */
-public interface IPSClientJunitTest
-{
-}
+public interface IPSClientJunitTest {}

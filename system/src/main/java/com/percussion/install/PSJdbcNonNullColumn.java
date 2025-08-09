@@ -27,24 +27,17 @@ import com.percussion.tablefactory.PSJdbcColumnData;
  * default value specified in the handler's Xml. Non-null column are not
  * modified.
  */
-public class PSJdbcNonNullColumn extends PSJdbcUniqueColumn
-   implements IPSJdbcTableDataHandler
-{
-   /**
-    * If <code>value</code> is null then returns a column data object whose
-    * value equals the default value (specified in the handler's Xml) for the
-    * column being altered, otherwise returns a column data having the
-    * value <code>value</code>.
-    *
-    * See {@link PSJdbcUniqueColumn#getColumnValue(String)} for details.
-    */
-   protected PSJdbcColumnData getColumnValue(String value)
-   {
-      if (value == null)
-         value = m_value;
-      return new PSJdbcColumnData(m_column, value);
-   }
-
+public class PSJdbcNonNullColumn extends PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
+  /**
+   * If <code>value</code> is null then returns a column data object whose
+   * value equals the default value (specified in the handler's Xml) for the
+   * column being altered, otherwise returns a column data having the
+   * value <code>value</code>.
+   *
+   * See {@link PSJdbcUniqueColumn#getColumnValue(String)} for details.
+   */
+  protected PSJdbcColumnData getColumnValue(String value) {
+    if (value == null) value = m_value;
+    return new PSJdbcColumnData(m_column, value);
+  }
 }
-
-

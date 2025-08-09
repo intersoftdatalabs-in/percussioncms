@@ -17,7 +17,6 @@
 
 package com.percussion.workflow;
 
-
 import com.percussion.data.PSConversionException;
 import com.percussion.error.PSException;
 import com.percussion.error.PSExceptionUtils;
@@ -43,71 +42,53 @@ import org.w3c.dom.Text;
  * the contentid of the item. The UDF takes the content id as the only first
  * parameter.
  */
-public class PSGetAssignees extends PSSimpleJavaUdfExtension
-   implements IPSUdfProcessor
-{
+public class PSGetAssignees extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 
-   private static final Logger log = LogManager.getLogger(PSGetAssignees.class);
+  private static final Logger log = LogManager.getLogger(PSGetAssignees.class);
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      if ( null == params || params.length < 1 || null == params[0]
-         || 0 == params[0].toString().trim().length())
-         return "";
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    if (null == params
+        || params.length < 1
+        || null == params[0]
+        || 0 == params[0].toString().trim().length()) return "";
 
-      String contentid = params[0].toString().trim();
-      //Create a temporary XML result document with key fields.
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element elem = PSXmlDocumentBuilder.createRoot(doc, ELEMENT_ITEM);
-      elem.setAttribute(ATTRIB_CONTENTID, contentid);
-      String result = "";
-      String userName = "";
-      try
-      {
-         userName = request.getUserContextInformation(
-            "User/Name", "unknown").toString();
-         Object[] paramsEx =
-         {
-            userName,
-            ELEMENT_ITEM,
-            "@" + ATTRIB_CONTENTID,
-            "yes"
-         };
-         PSExitAddPossibleTransitionsEx posTransEx =
-            new PSExitAddPossibleTransitionsEx();
-         doc = posTransEx.processResultDocument(paramsEx, request, doc);
-         NodeList nl = doc.getElementsByTagName(
-            PSExitAddPossibleTransitionsEx.ELEMENT_ASSIGNEDROLE);
-         if(nl.getLength() < 1)
-            return result;
+    String contentid = params[0].toString().trim();
+    // Create a temporary XML result document with key fields.
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element elem = PSXmlDocumentBuilder.createRoot(doc, ELEMENT_ITEM);
+    elem.setAttribute(ATTRIB_CONTENTID, contentid);
+    String result = "";
+    String userName = "";
+    try {
+      userName = request.getUserContextInformation("User/Name", "unknown").toString();
+      Object[] paramsEx = {userName, ELEMENT_ITEM, "@" + ATTRIB_CONTENTID, "yes"};
+      PSExitAddPossibleTransitionsEx posTransEx = new PSExitAddPossibleTransitionsEx();
+      doc = posTransEx.processResultDocument(paramsEx, request, doc);
+      NodeList nl = doc.getElementsByTagName(PSExitAddPossibleTransitionsEx.ELEMENT_ASSIGNEDROLE);
+      if (nl.getLength() < 1) return result;
 
-         Node node = null;
-         for(int i=0; nl != null && i<nl.getLength(); i++)
-         {
-            elem = (Element)nl.item(i);
-            node = elem.getFirstChild();
-            if(node != null && node instanceof Text)
-            {
-               result += ((Text)node).getData().trim() + SEPARATOR;
-            }
-         }
+      Node node = null;
+      for (int i = 0; nl != null && i < nl.getLength(); i++) {
+        elem = (Element) nl.item(i);
+        node = elem.getFirstChild();
+        if (node != null && node instanceof Text) {
+          result += ((Text) node).getData().trim() + SEPARATOR;
+        }
       }
-      catch (PSException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSConversionException(e.getErrorCode(),
-            e.getErrorArguments());
-      }
-      //remove the trialing separator
-      if(result.endsWith(SEPARATOR) && result.length() >= SEPARATOR.length())
-         result = result.substring(0, result.length()-SEPARATOR.length());
-      return result;
-   }
-   //String constants for the temporary XML document
-   static private final String ELEMENT_ITEM = "Item";
-   static private final String ATTRIB_CONTENTID = "contentid";
-   static private final String SEPARATOR = ", ";
+    } catch (PSException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
+    }
+    // remove the trialing separator
+    if (result.endsWith(SEPARATOR) && result.length() >= SEPARATOR.length())
+      result = result.substring(0, result.length() - SEPARATOR.length());
+    return result;
+  }
+
+  // String constants for the temporary XML document
+  private static final String ELEMENT_ITEM = "Item";
+  private static final String ATTRIB_CONTENTID = "contentid";
+  private static final String SEPARATOR = ", ";
 }
-

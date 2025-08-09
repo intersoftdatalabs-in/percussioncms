@@ -16,36 +16,34 @@
  */
 package com.percussion.testing;
 
-
 /**
- * If a JUnit test must run in the same context (in the same process) as the 
- * Rhythmyx server, it should implement this interface in addition to extending 
- * the {@link junit.framework.TestCase}. This is part of a testing 
+ * If a JUnit test must run in the same context (in the same process) as the
+ * Rhythmyx server, it should implement this interface in addition to extending
+ * the {@link junit.framework.TestCase}. This is part of a testing
  * framework that is based on a loadable handler.
- * <p>To enable this test to still be run w/ the JUnit runner, the 
- * <code>suite</code> method should use {@link 
+ * <p>To enable this test to still be run w/ the JUnit runner, the
+ * <code>suite</code> method should use {@link
  * com.percussion.testing.PSRequestHandlerTestSuite PSRequestHandlerTestSuite}
  * class as the suite. This class will invoke the Rx server, asking it to
  * execute the tests remotely.
- * 
- * @see com.percussion.testing.PSJunitRequestHandler 
+ *
+ * @see com.percussion.testing.PSJunitRequestHandler
  * @see com.percussion.testing.PSRequestHandlerTestSuite
  *
  * @author paulhoward
  */
-public interface IPSServerBasedJunitTest
-{
-   /**
-    * The loadable handler will call this method once before any test method.
-    *  
-    * @param req The request that was passed to the loadable handler.
-    * Never <code>null</code>;
-    */
-   public void oneTimeSetUp(Object req);
+public interface IPSServerBasedJunitTest {
+  /**
+   * The loadable handler will call this method once before any test method.
+   *
+   * @param req The request that was passed to the loadable handler.
+   * Never <code>null</code>;
+   */
+  public void oneTimeSetUp(Object req);
 
-   /**
-    * The loadable handler will call this method once after all tests have 
-    * been completed.
-    */   
-   public void oneTimeTearDown();
+  /**
+   * The loadable handler will call this method once after all tests have
+   * been completed.
+   */
+  public void oneTimeTearDown();
 }

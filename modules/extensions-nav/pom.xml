@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>core</artifactId>
         <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>extensions-nav</artifactId>
-
-   <dependencies>
-       <dependency>
-           <groupId>com.percussion</groupId>
-           <artifactId>perc-system</artifactId>
-           <version>${project.parent.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.percussion</groupId>
-           <artifactId>rxutils</artifactId>
-           <version>${project.parent.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>saxon</groupId>
-           <artifactId>saxon</artifactId>
-           <scope>compile</scope>
-       </dependency>
-       <dependency>
-           <groupId>javax.jcr</groupId>
-           <artifactId>jcr</artifactId>
-           <scope>compile</scope>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.logging.log4j</groupId>
-           <artifactId>log4j-1.2-api</artifactId>
-           <scope>provided</scope>
-       </dependency>
-   </dependencies>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-system</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rxutils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>saxon</groupId>
+            <artifactId>saxon</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.jcr</groupId>
+            <artifactId>jcr</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

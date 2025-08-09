@@ -30,86 +30,86 @@ import org.apache.commons.lang3.StringUtils;
 @JsonRootName(value = "TrafficDetailsRequest")
 public class PSTrafficDetailsRequest implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String path;
-    private String startDate;
-    private String endDate;
-    private String usage;
+  private String path;
+  private String startDate;
+  private String endDate;
+  private String usage;
 
-    /**
-     * Gets the folder path to the site folder.
-     *
-     * @return Optional containing the path, or empty if not set.
-     */
-    public Optional<String> getPath() {
-        return Optional.ofNullable(path);
+  /**
+   * Gets the folder path to the site folder.
+   *
+   * @return Optional containing the path, or empty if not set.
+   */
+  public Optional<String> getPath() {
+    return Optional.ofNullable(path);
+  }
+
+  /**
+   * Gets the start date of the date range used for content traffic query.
+   *
+   * @return Optional containing the start date, or empty if not set.
+   */
+  public Optional<String> getStartDate() {
+    return Optional.ofNullable(startDate);
+  }
+
+  /**
+   * Gets the end date of the date range used for content traffic query.
+   *
+   * @return Optional containing the end date, or empty if not set.
+   */
+  public Optional<String> getEndDate() {
+    return Optional.ofNullable(endDate);
+  }
+
+  /**
+   * Gets the usage for analytics. Default is "uniquepageviews".
+   *
+   * @return usage string
+   */
+  public String getUsage() {
+    if (StringUtils.equals(usage, IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS)) {
+      return IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
     }
+    return IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS;
+  }
 
-    /**
-     * Gets the start date of the date range used for content traffic query.
-     *
-     * @return Optional containing the start date, or empty if not set.
-     */
-    public Optional<String> getStartDate() {
-        return Optional.ofNullable(startDate);
-    }
+  /**
+   * Sets analytics usage to "pageviews" or "uniquepageviews".
+   * If not set or set to any other value, default is "uniquepageviews".
+   *
+   * @param usage the usage string
+   */
+  public void setUsage(String usage) {
+    this.usage = usage;
+  }
 
-    /**
-     * Gets the end date of the date range used for content traffic query.
-     *
-     * @return Optional containing the end date, or empty if not set.
-     */
-    public Optional<String> getEndDate() {
-        return Optional.ofNullable(endDate);
-    }
+  /**
+   * Sets the folder path to the site folder. Required.
+   *
+   * @param path the folder path
+   */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * Gets the usage for analytics. Default is "uniquepageviews".
-     *
-     * @return usage string
-     */
-    public String getUsage() {
-        if (StringUtils.equals(usage, IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS)) {
-            return IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
-        }
-        return IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS;
-    }
+  /**
+   * Sets the start date of the date range used for content traffic query. Required.
+   *
+   * @param startDate the start date
+   */
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    /**
-     * Sets analytics usage to "pageviews" or "uniquepageviews".
-     * If not set or set to any other value, default is "uniquepageviews".
-     *
-     * @param usage the usage string
-     */
-    public void setUsage(String usage) {
-        this.usage = usage;
-    }
-
-    /**
-     * Sets the folder path to the site folder. Required.
-     *
-     * @param path the folder path
-     */
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    /**
-     * Sets the start date of the date range used for content traffic query. Required.
-     *
-     * @param startDate the start date
-     */
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    /**
-     * Sets the end date of the date range used for content traffic query. Required.
-     *
-     * @param endDate the end date
-     */
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+  /**
+   * Sets the end date of the date range used for content traffic query. Required.
+   *
+   * @param endDate the end date
+   */
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 }

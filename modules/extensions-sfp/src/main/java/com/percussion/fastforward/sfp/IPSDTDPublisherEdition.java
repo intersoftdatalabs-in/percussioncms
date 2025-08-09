@@ -105,170 +105,163 @@ package com.percussion.fastforward.sfp;
  * &lt;/psxpub:pubdata&gt;<br>
  *
  */
-public interface IPSDTDPublisherEdition
-{
-   /*
-    * Element names
-    */
-   static public final String ELEM_ROOT = "psxpub:pubdata";
-   static public final String ELEM_SITE = "destsite";
-   static public final String ELEM_CONTENTLIST = "contentlist";
-   static public final String ELEM_CONTENTITEM = "contentitem";
-   static public final String ELEM_CONTENTTITLE = "title";
-   static public final String ELEM_CONTENTURL = "contenturl";
-   static public final String ELEM_DELIVERY = "delivery";
-   static public final String ELEM_LOCATION = "location";
-   static public final String ELEM_MODIFYDATE = "modifydate";
-   static public final String ELEM_MODIFYUSER = "modifyuser";
-   static public final String ELEM_EXPIREDATE = "expiredate";
-   static public final String ELEM_CONTENTTYPE = "contenttype";
-   static public final String ELEM_CONFIG = "publisherconfig";
-   static public final String ELEM_PARAM = "param";
-   static public final String ELEM_CUSTOMPROPERTIES ="customproperties";
-   /*
-    * Attribute names
-    */
-   static public final String ATTR_NS = "xmlns:psxpub";
-   static public final String ATTR_USERID = "userid";
-   static public final String ATTR_PASSWORD = "password";
-   static public final String ATTR_IPADDRESS = "ipaddress";
-   static public final String ATTR_PORT = "port";
-   static public final String ATTR_ROOTDIR = "rootdir";
-   static public final String ATTR_NAME = "name";
-   static public final String ATTR_EDITIONID = "editionid";
-   static public final String ATTR_SRCSITEID = "srcsiteid";
-   static public final String ATTR_RECOVERYPUBSTATUSID = "recoverypubstatusid";
-   static public final String ATTR_SITEID = "siteid";
-   static public final String ATTR_PUBLISHERID = "publisherid";
-   static public final String ATTR_PUBLICATIONID = "publicationid";
-   static public final String ATTR_PUBSTATUSID = "pubstatusid";
-   static public final String ATTR_DELIVERYTYPE = "deliverytype";
-   static public final String ATTR_UNPUBLISH = "unpublish";
-   static public final String ATTR_CONTENTID = "contentid";
-   static public final String ATTR_REVISION = "revision";
-   static public final String ATTR_CONTEXT = "context";
-   static public final String ATTR_VARIANTID = "variantid";
-   static public final String ATTR_CLISTID = "clistid";
-   static public final String ATTR_PAGEINDEX = "pageindex";
-   static public final String ATTR_ISLASTPAGE = "islastpage";
-   public static final String ATTR_ELAPSETIME = "elapsetime";
+public interface IPSDTDPublisherEdition {
+  /*
+   * Element names
+   */
+  public static final String ELEM_ROOT = "psxpub:pubdata";
+  public static final String ELEM_SITE = "destsite";
+  public static final String ELEM_CONTENTLIST = "contentlist";
+  public static final String ELEM_CONTENTITEM = "contentitem";
+  public static final String ELEM_CONTENTTITLE = "title";
+  public static final String ELEM_CONTENTURL = "contenturl";
+  public static final String ELEM_DELIVERY = "delivery";
+  public static final String ELEM_LOCATION = "location";
+  public static final String ELEM_MODIFYDATE = "modifydate";
+  public static final String ELEM_MODIFYUSER = "modifyuser";
+  public static final String ELEM_EXPIREDATE = "expiredate";
+  public static final String ELEM_CONTENTTYPE = "contenttype";
+  public static final String ELEM_CONFIG = "publisherconfig";
+  public static final String ELEM_PARAM = "param";
+  public static final String ELEM_CUSTOMPROPERTIES = "customproperties";
+  /*
+   * Attribute names
+   */
+  public static final String ATTR_NS = "xmlns:psxpub";
+  public static final String ATTR_USERID = "userid";
+  public static final String ATTR_PASSWORD = "password";
+  public static final String ATTR_IPADDRESS = "ipaddress";
+  public static final String ATTR_PORT = "port";
+  public static final String ATTR_ROOTDIR = "rootdir";
+  public static final String ATTR_NAME = "name";
+  public static final String ATTR_EDITIONID = "editionid";
+  public static final String ATTR_SRCSITEID = "srcsiteid";
+  public static final String ATTR_RECOVERYPUBSTATUSID = "recoverypubstatusid";
+  public static final String ATTR_SITEID = "siteid";
+  public static final String ATTR_PUBLISHERID = "publisherid";
+  public static final String ATTR_PUBLICATIONID = "publicationid";
+  public static final String ATTR_PUBSTATUSID = "pubstatusid";
+  public static final String ATTR_DELIVERYTYPE = "deliverytype";
+  public static final String ATTR_UNPUBLISH = "unpublish";
+  public static final String ATTR_CONTENTID = "contentid";
+  public static final String ATTR_REVISION = "revision";
+  public static final String ATTR_CONTEXT = "context";
+  public static final String ATTR_VARIANTID = "variantid";
+  public static final String ATTR_CLISTID = "clistid";
+  public static final String ATTR_PAGEINDEX = "pageindex";
+  public static final String ATTR_ISLASTPAGE = "islastpage";
+  public static final String ATTR_ELAPSETIME = "elapsetime";
 
+  /**
+   * The name for the attribute holding the publisher user identification,
+   * never <code>null</code>.
+   */
+  public static final String ATTR_PUBUID = "pubuid";
 
-   /**
-    * The name for the attribute holding the publisher user identification,
-    * never <code>null</code>.
-    */
-   static public final String ATTR_PUBUID = "pubuid";
+  /**
+   * The name for the attribute holding the publisher password, never
+   * <code>null</code>.
+   */
+  public static final String ATTR_PUBPW = "pubpw";
 
-   /**
-    * The name for the attribute holding the publisher password, never
-    * <code>null</code>.
-    */
-   static public final String ATTR_PUBPW = "pubpw";
+  /**
+   * The parameter name for the rhythmyx server name.
+   */
+  public static final String PARAM_RXSERVER = "rxserver";
 
-   /**
-    * The parameter name for the rhythmyx server name.
-    */
-   static public final String PARAM_RXSERVER = "rxserver";
+  /**
+   * The parameter name for the rhythmyx server port.
+   */
+  public static final String PARAM_RXPORT = "rxport";
 
-   /**
-    * The parameter name for the rhythmyx server port.
-    */
-   static public final String PARAM_RXPORT = "rxport";
+  /**
+   * The parameter name for the rhythmyx server SSL port.
+   */
+  public static final String PARAM_RXSSLPORT = "rxsslport";
 
-   /**
-    * The parameter name for the rhythmyx server SSL port.
-    */
-   static public final String PARAM_RXSSLPORT = "rxsslport";
+  /**
+   * The parameter name for the rhythmyx server user name.
+   */
+  public static final String PARAM_USERID = "userid";
 
-   /**
-    * The parameter name for the rhythmyx server user name.
-    */
-   static public final String PARAM_USERID = "userid";
+  /**
+   * The parameter name for the rhythmyx server password.
+   */
+  public static final String PARAM_PASSWORD = "password";
 
-   /**
-    * The parameter name for the rhythmyx server password.
-    */
-   static public final String PARAM_PASSWORD = "password";
+  /**
+   * The parameter name for the publisher user name parameter.
+   */
+  public static final String PARAM_PUBUID = "pubuid";
 
-   /**
-    * The parameter name for the publisher user name parameter.
-    */
-   static public final String PARAM_PUBUID = "pubuid";
+  /**
+   * The parameter name for the publisher password.
+   */
+  public static final String PARAM_PUBPW = "pubpw";
 
-   /**
-    * The parameter name for the publisher password.
-    */
-   static public final String PARAM_PUBPW = "pubpw";
+  /**
+   * The parameter name for the publisher SSL port. Use this name to specify
+   * the publisher SSL port in the publisher setup form.
+   */
+  public static final String PARAM_SSLPORT = "sslport";
 
-   /**
-    * The parameter name for the publisher SSL port. Use this name to specify
-    * the publisher SSL port in the publisher setup form.
-    */
-   static public final String PARAM_SSLPORT = "sslport";
+  /**
+   * The parameter name for the publisher log location. Use this name to
+   * specify the log location in the publisher setup form.
+   */
+  public static final String PARAM_LOG_LOCATION = "loglocation";
 
-   /**
-    * The parameter name for the publisher log location. Use this name to
-    * specify the log location in the publisher setup form.
-    */
-   static public final String PARAM_LOG_LOCATION = "loglocation";
+  /**
+   * The parameter name for the publisher soap request file. Use this name to
+   * specify the soap request file in the publisher setup form.
+   */
+  public static final String PARAM_SOAP_REQUEST = "soaprequest";
 
-   /**
-    * The parameter name for the publisher soap request file. Use this name to
-    * specify the soap request file in the publisher setup form.
-    */
-   static public final String PARAM_SOAP_REQUEST = "soaprequest";
+  /**
+   * The parameter name for the database publisher jdbc context factory used
+   * for jndi lookups. Use this name to specify the database publisher jdbc
+   * context factory in the publisher setup form.
+   */
+  public static final String PARAM_JDBC_CONTEXTFACTORY = "jdbccontextfactory";
 
-   /**
-    * The parameter name for the database publisher jdbc context factory used
-    * for jndi lookups. Use this name to specify the database publisher jdbc
-    * context factory in the publisher setup form.
-    */
-   static public final String PARAM_JDBC_CONTEXTFACTORY = "jdbccontextfactory";
+  /**
+   * The parameter name for the database publisher jndi provider url to use.
+   * Use this name to specify the database publisher jndi provider url in the
+   * publisher setup form.
+   */
+  public static final String PARAM_JNDI_PROVIDERURL = "jndiproviderurl";
 
-   /**
-    * The parameter name for the database publisher jndi provider url to use.
-    * Use this name to specify the database publisher jndi provider url in the
-    * publisher setup form.
-    */
-   static public final String PARAM_JNDI_PROVIDERURL = "jndiproviderurl";
+  /**
+   * The parameter name for the number of items after which the FTP client will
+   * log out of and then log back into a server session. Defaults to
+   * Integer.MAX_INT if not found in the database.
+   */
+  public static final String PARAM_FTP_RELOGIN_ITEMCOUNT = "ftpreloginitemcount";
 
+  /**
+   * The parameter name for the time (in seconds) that the FTP Publisher
+   * client will wait for the complete content list to arrive. The client
+   * will time out if this request is not complete in the specified number
+   * of seconds. Defaults to 0 if not found in the database.
+   */
+  public static final String PARAM_SERVER_REQUEST_TIMEOUT = "serverrequesttimeout";
 
-   /**
-    * The parameter name for the number of items after which the FTP client will
-    * log out of and then log back into a server session. Defaults to
-    * Integer.MAX_INT if not found in the database.
-    */
-   static public final String PARAM_FTP_RELOGIN_ITEMCOUNT =
-      "ftpreloginitemcount";
-
-   /**
-    * The parameter name for the time (in seconds) that the FTP Publisher
-    * client will wait for the complete content list to arrive. The client
-    * will time out if this request is not complete in the specified number
-    * of seconds. Defaults to 0 if not found in the database.
-    */
-   static public final String PARAM_SERVER_REQUEST_TIMEOUT =
-      "serverrequesttimeout";
-
-   /**
-    * The parameter name for the field that indicates whether to use
-    * Active mode (false) or Passive mode (true) in FTP Publisher requests.
-    * Defaults to false (use Active mode) if not found in the database.
-    */
-      static public final String PARAM_FTP_USE_PASSIVE_MODE =
-      "enablepassivemode";
+  /**
+   * The parameter name for the field that indicates whether to use
+   * Active mode (false) or Passive mode (true) in FTP Publisher requests.
+   * Defaults to false (use Active mode) if not found in the database.
+   */
+  public static final String PARAM_FTP_USE_PASSIVE_MODE = "enablepassivemode";
 
   /** Parameter name for the time (in seconds) to wait for data to arrive on FTP
-    * sockets when publishing. Note that timeouts should be rare,
-    * especially since most of the time we're tranmitting data, not
-    * receiving it.
-    *
-    * Defaults to 60 seconds. 0 means no timeout is set.
-    *
-    * @see net.oroinc.ftp.FtpClient#setDataTimeout
-    * @see net.oroinc.net.SocketClient#setSoTimeout
-    */
-      static public final String PARAM_FTP_RCV_TIMEOUT =
-         "ftprcvtimeout";
+   * sockets when publishing. Note that timeouts should be rare,
+   * especially since most of the time we're tranmitting data, not
+   * receiving it.
+   *
+   * Defaults to 60 seconds. 0 means no timeout is set.
+   *
+   * @see net.oroinc.ftp.FtpClient#setDataTimeout
+   * @see net.oroinc.net.SocketClient#setSoTimeout
+   */
+  public static final String PARAM_FTP_RCV_TIMEOUT = "ftprcvtimeout";
 }

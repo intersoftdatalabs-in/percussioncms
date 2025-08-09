@@ -51,72 +51,63 @@ import org.w3c.dom.Element;
  * @author Ram
  * @version 1.0
  */
-public class PSUnpublishMandatory extends PSPublishUnpublishMandatory
-{
-   /**
-    * Returns mode name.
-    * @return the name of the effect mode: "unpublish",
-    * never <code>null</code>.
-    */
-   protected String getModeName()
-   {
-      return MODE_UNPUBLISH;
-   }
-   
-   /**
-    * Determines if the given WF state is a desired state or not.
-    * @param elem element with a WF state, may be <code>null</code>.
-    * @return <code>true</code> if the item is in desired WF state
-    * <code>false</code> otherwise.
-    */
-   protected boolean isItemInDesiredWFState(Element elem)
-   {
-      return elem != null
-         && !elem.getAttribute("isPublic").equalsIgnoreCase("y")
-         && !elem.getAttribute("isPublic").equalsIgnoreCase("i");
-   }
+public class PSUnpublishMandatory extends PSPublishUnpublishMandatory {
+  /**
+   * Returns mode name.
+   * @return the name of the effect mode: "unpublish",
+   * never <code>null</code>.
+   */
+  protected String getModeName() {
+    return MODE_UNPUBLISH;
+  }
 
-   /**
-    * This method is used to determine whether the item is
-    * transitioning into a WF state which should trigger
-    * the relationship engine to execute attempt on this
-    * effect. It is up to the derived class to decide if so.
-    *
-    * @param isCurrentlyPublic <code>true</code> indicates
-    * that the item is in the public state, <code>false</code>
-    * otherwise.
-    * @param isToPublic <code>true</code> indicates that this
-    * item is transitioning into a public state from a non
-    * public state, <code>false</code> otherwise.
-    * @param isToOutOfPublic <code>true</code> indicates that
-    * this item is transitioning out of a public state from
-    * a public state, <code>false</code> otherwise.
-    * @param result result to set, never <code>null</code>.
-    *
-    * @return <code>true</code> indicates that the trigger
-    * condition has been met, <code>false</code> otherwise.
-    */
-   protected boolean isTransitioningIntoTriggerState(
+  /**
+   * Determines if the given WF state is a desired state or not.
+   * @param elem element with a WF state, may be <code>null</code>.
+   * @return <code>true</code> if the item is in desired WF state
+   * <code>false</code> otherwise.
+   */
+  protected boolean isItemInDesiredWFState(Element elem) {
+    return elem != null
+        && !elem.getAttribute("isPublic").equalsIgnoreCase("y")
+        && !elem.getAttribute("isPublic").equalsIgnoreCase("i");
+  }
+
+  /**
+   * This method is used to determine whether the item is
+   * transitioning into a WF state which should trigger
+   * the relationship engine to execute attempt on this
+   * effect. It is up to the derived class to decide if so.
+   *
+   * @param isCurrentlyPublic <code>true</code> indicates
+   * that the item is in the public state, <code>false</code>
+   * otherwise.
+   * @param isToPublic <code>true</code> indicates that this
+   * item is transitioning into a public state from a non
+   * public state, <code>false</code> otherwise.
+   * @param isToOutOfPublic <code>true</code> indicates that
+   * this item is transitioning out of a public state from
+   * a public state, <code>false</code> otherwise.
+   * @param result result to set, never <code>null</code>.
+   *
+   * @return <code>true</code> indicates that the trigger
+   * condition has been met, <code>false</code> otherwise.
+   */
+  protected boolean isTransitioningIntoTriggerState(
       IPSRequestContext request,
       boolean isCurrentlyPublic,
       boolean isToPublic,
       boolean isToOutOfPublic,
-      PSEffectResult result)
-   {
-      if (isCurrentlyPublic && isToOutOfPublic)
-      {
-         return true;
-      }
-      else
-      {
-         String[] args = {m_name, "public", "non-public"};
-         //unpublish mode
-         result.setWarning(request.getUserLocale(),
-            IPSExtensionErrors.INVALID_TRANSITION_FOR_EFFECT, args);
-         result.setRecurseDependents(false);
-         return false;
-      }
-   }
-   
-   
+      PSEffectResult result) {
+    if (isCurrentlyPublic && isToOutOfPublic) {
+      return true;
+    } else {
+      String[] args = {m_name, "public", "non-public"};
+      // unpublish mode
+      result.setWarning(
+          request.getUserLocale(), IPSExtensionErrors.INVALID_TRANSITION_FOR_EFFECT, args);
+      result.setRecurseDependents(false);
+      return false;
+    }
+  }
 }

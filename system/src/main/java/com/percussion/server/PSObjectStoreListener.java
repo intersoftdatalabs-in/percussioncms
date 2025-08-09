@@ -17,10 +17,8 @@
 
 package com.percussion.server;
 
-
-
 /**
- * The PSObjectStoreListener class is used by the server to hook 
+ * The PSObjectStoreListener class is used by the server to hook
  * changes in the object store. When a change is made to an object store
  * object (such as an E2 Application) the server is notified immediately
  * so it may alter its behavior when handling effected requests.
@@ -44,28 +42,24 @@ package com.percussion.server;
  * <li>DATASET_DATA_ENCRYPTOR - notify on changes to a data set's
  *     data encryption settings</li>
  * </ul>
- * 
+ *
  * @author     Tas Giakouminakis
  * @version    1.0
  * @since      1.0
  */
 public class PSObjectStoreListener extends Thread {
 
-   /**
-    * Construct an object store listener.
-    */
-   PSObjectStoreListener()
-   {
-      super();
-   }
+  /**
+   * Construct an object store listener.
+   */
+  PSObjectStoreListener() {
+    super();
+  }
 
-   /**
-    * This method is called by Thread.start to begin execution of this
-    * thread. This is where we'll create the connection listener and wait
-    * for incoming requests.
-    */
-   public void run()
-   {
-   }
+  /**
+   * This method is called by Thread.start to begin execution of this
+   * thread. This is where we'll create the connection listener and wait
+   * for incoming requests.
+   */
+  public void run() {}
 }
-

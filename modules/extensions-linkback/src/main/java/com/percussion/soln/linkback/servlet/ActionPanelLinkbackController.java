@@ -18,10 +18,9 @@
 package com.percussion.soln.linkback.servlet;
 
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Arrays;
 
 /**
  * Linkback controller to redirect to Rhythmyx Action Panel. The redirect path
@@ -31,17 +30,18 @@ import java.util.Arrays;
  */
 public class ActionPanelLinkbackController extends GenericLinkbackController {
 
-    @SuppressWarnings("unused")
-    private static final Logger log = LogManager.getLogger(ActionPanelLinkbackController.class);
+  @SuppressWarnings("unused")
+  private static final Logger log = LogManager.getLogger(ActionPanelLinkbackController.class);
 
-    private static final String REDIRECT_PATH = "/ui/actionpage/panel";
+  private static final String REDIRECT_PATH = "/ui/actionpage/panel";
 
-    public ActionPanelLinkbackController() {
-        super();
-        setRedirectPath(REDIRECT_PATH);
-        setRequiredParameterNames(Arrays.<String> asList(new String[] { IPSHtmlParameters.SYS_CONTENTID }));
-        setOptionalParameterNames(Arrays.<String> asList(new String[] { IPSHtmlParameters.SYS_FOLDERID,
-                IPSHtmlParameters.SYS_SITEID }));
-    }
-
+  public ActionPanelLinkbackController() {
+    super();
+    setRedirectPath(REDIRECT_PATH);
+    setRequiredParameterNames(
+        Arrays.<String>asList(new String[] {IPSHtmlParameters.SYS_CONTENTID}));
+    setOptionalParameterNames(
+        Arrays.<String>asList(
+            new String[] {IPSHtmlParameters.SYS_FOLDERID, IPSHtmlParameters.SYS_SITEID}));
+  }
 }

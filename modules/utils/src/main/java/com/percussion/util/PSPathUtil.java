@@ -21,48 +21,41 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Utilities for working with paths
  */
-public class PSPathUtil
-{
-   /**
-    * The root folder for all sites. 
-    */
-   public static final String SITES_ROOT = "//Sites";
-   
-   /**
-    * Private constructor so this class can not be instantiated
-    * 
-    */
-   private PSPathUtil(){}
-   
-   /**
-    * Determines if the path passed in resides under the //Sites
-    * folder hierarchy
-    * 
-    * @param path the path to validate, cannot be <code>null</code>
-    * @return <code>true</code> if this path is under the //Sites root
-    */
-   public static boolean isPathUnderSiteFolderRoot(String path)
-   {
-      if(path == null)
-         throw new IllegalArgumentException("path cannot be null.");
-      return path.startsWith(SITES_ROOT);
-   }
-   
-   /**
-    * Normalizes the supplied path to use "/" file separators.
-    *
-    * @param path The path to normalize, it may be <code>null</code> or empty.
-    *
-    * @return The normalized path, it may be <code>null</code> or empty if the
-    * given path is <code>null</code> or empty.
-    */
-   public static String getNormalizedPath(String path)
-   {
-      if (StringUtils.isBlank(path))
-         return path;
+public class PSPathUtil {
+  /**
+   * The root folder for all sites.
+   */
+  public static final String SITES_ROOT = "//Sites";
 
-      return path.replace('\\', '/');
-   }
+  /**
+   * Private constructor so this class can not be instantiated
+   *
+   */
+  private PSPathUtil() {}
 
+  /**
+   * Determines if the path passed in resides under the //Sites
+   * folder hierarchy
+   *
+   * @param path the path to validate, cannot be <code>null</code>
+   * @return <code>true</code> if this path is under the //Sites root
+   */
+  public static boolean isPathUnderSiteFolderRoot(String path) {
+    if (path == null) throw new IllegalArgumentException("path cannot be null.");
+    return path.startsWith(SITES_ROOT);
+  }
 
+  /**
+   * Normalizes the supplied path to use "/" file separators.
+   *
+   * @param path The path to normalize, it may be <code>null</code> or empty.
+   *
+   * @return The normalized path, it may be <code>null</code> or empty if the
+   * given path is <code>null</code> or empty.
+   */
+  public static String getNormalizedPath(String path) {
+    if (StringUtils.isBlank(path)) return path;
+
+    return path.replace('\\', '/');
+  }
 }

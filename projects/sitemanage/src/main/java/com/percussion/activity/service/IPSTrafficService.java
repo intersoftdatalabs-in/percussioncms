@@ -24,10 +24,8 @@ import com.percussion.activity.data.PSTrafficDetails;
 import com.percussion.activity.data.PSTrafficDetailsRequest;
 import com.percussion.error.PSException;
 import com.percussion.pathmanagement.service.IPSPathService;
-import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.List;
 
 /**
@@ -37,55 +35,57 @@ import java.util.List;
  */
 public interface IPSTrafficService {
 
-    /**
-     * Gets the content traffic activity for the given site path and specified date range.
-     *
-     * @param request List of traffic data types that is getting requested. Never {@code null}.
-     * @return Never {@code null}.
-     */
-    PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
-            throws PSTrafficServiceException, PSValidationException;
+  /**
+   * Gets the content traffic activity for the given site path and specified date range.
+   *
+   * @param request List of traffic data types that is getting requested. Never {@code null}.
+   * @return Never {@code null}.
+   */
+  PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
+      throws PSTrafficServiceException, PSValidationException;
 
-    /**
-     * Gets the content traffic activity for the given site path and specified date range.
-     *
-     * @param request List of traffic data types that is getting requested. Never {@code null}.
-     * @return Never {@code null}.
-     */
-    List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request)
-            throws PSTrafficServiceException, PSDataServiceException, IPSPathService.PSPathServiceException;
+  /**
+   * Gets the content traffic activity for the given site path and specified date range.
+   *
+   * @param request List of traffic data types that is getting requested. Never {@code null}.
+   * @return Never {@code null}.
+   */
+  List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request)
+      throws PSTrafficServiceException,
+          PSDataServiceException,
+          IPSPathService.PSPathServiceException;
 
-    /**
-     * Exception thrown when an unexpected error occurs in this service.
-     */
-    class PSTrafficServiceException extends PSException {
-        private static final long serialVersionUID = 1L;
+  /**
+   * Exception thrown when an unexpected error occurs in this service.
+   */
+  class PSTrafficServiceException extends PSException {
+    private static final long serialVersionUID = 1L;
 
-        public PSTrafficServiceException() {
-            super();
-        }
-
-        public PSTrafficServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSTrafficServiceException(String message) {
-            super(message);
-        }
-
-        public PSTrafficServiceException(Throwable cause) {
-            super(cause);
-        }
+    public PSTrafficServiceException() {
+      super();
     }
 
-    /**
-     * The type of the traffic request.
-     */
-    enum PSTrafficTypeEnum {
-        LIVE_PAGES,
-        NEW_PAGES,
-        TAKE_DOWNS,
-        UPDATED_PAGES,
-        VISITS
+    public PSTrafficServiceException(String message, Throwable cause) {
+      super(message, cause);
     }
+
+    public PSTrafficServiceException(String message) {
+      super(message);
+    }
+
+    public PSTrafficServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /**
+   * The type of the traffic request.
+   */
+  enum PSTrafficTypeEnum {
+    LIVE_PAGES,
+    NEW_PAGES,
+    TAKE_DOWNS,
+    UPDATED_PAGES,
+    VISITS
+  }
 }

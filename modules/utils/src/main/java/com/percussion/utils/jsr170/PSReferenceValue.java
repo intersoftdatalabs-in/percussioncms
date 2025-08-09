@@ -16,82 +16,63 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.Node;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
+import javax.jcr.Node;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 
 /**
  * Value that holds a reference
- * 
+ *
  * @author dougrand
  */
-public class PSReferenceValue extends PSBaseValue<Node>
-{   
-   /**
-    * Constructor
-    * @param arg0 the node value, may be <code>null</code>
-    */
-   public PSReferenceValue(Node arg0) {
-      m_value = arg0;
-   }
+public class PSReferenceValue extends PSBaseValue<Node> {
+  /**
+   * Constructor
+   * @param arg0 the node value, may be <code>null</code>
+   */
+  public PSReferenceValue(Node arg0) {
+    m_value = arg0;
+  }
 
-   public String getString() throws
-         IllegalStateException, RepositoryException
-   {
-      if (m_value != null)
-         return m_value.getUUID();
-      else
-         return null;
-   }
+  public String getString() throws IllegalStateException, RepositoryException {
+    if (m_value != null) return m_value.getUUID();
+    else return null;
+  }
 
-   public InputStream getStream() throws IllegalStateException,
-         RepositoryException
-   {
-      String stringrep = getString();
-      if (stringrep != null) {
-         return new ByteArrayInputStream(stringrep.getBytes(StandardCharsets.UTF_8));
-      }
-      else
-         return null;
-   }
+  public InputStream getStream() throws IllegalStateException, RepositoryException {
+    String stringrep = getString();
+    if (stringrep != null) {
+      return new ByteArrayInputStream(stringrep.getBytes(StandardCharsets.UTF_8));
+    } else return null;
+  }
 
-   public long getLong() throws IllegalStateException,
-         RepositoryException
-   {
-      throw new ValueFormatException("reference cannot be converted to long");
-   }
+  public long getLong() throws IllegalStateException, RepositoryException {
+    throw new ValueFormatException("reference cannot be converted to long");
+  }
 
-   public double getDouble() throws
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("reference cannot be converted to double");
-   }
+  public double getDouble() throws IllegalStateException, RepositoryException {
+    throw new ValueFormatException("reference cannot be converted to double");
+  }
 
-   public Calendar getDate() throws
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("reference cannot be converted to date");
-   }
+  public Calendar getDate() throws IllegalStateException, RepositoryException {
+    throw new ValueFormatException("reference cannot be converted to date");
+  }
 
-   public boolean getBoolean() throws
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("reference cannot be converted to boolean");
-   }
+  public boolean getBoolean() throws IllegalStateException, RepositoryException {
+    throw new ValueFormatException("reference cannot be converted to boolean");
+  }
 
-   public int getType()
-   {
-      return PropertyType.REFERENCE;
-   }
+  public int getType() {
+    return PropertyType.REFERENCE;
+  }
 
-   @Override
-   public long getSizeInBytes() throws RepositoryException {
-      return ((IPSJcrCacheItem) m_value).getSizeInBytes() + 4;
-   }
-
+  @Override
+  public long getSizeInBytes() throws RepositoryException {
+    return ((IPSJcrCacheItem) m_value).getSizeInBytes() + 4;
+  }
 }

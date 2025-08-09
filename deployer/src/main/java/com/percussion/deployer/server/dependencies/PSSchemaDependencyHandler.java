@@ -18,7 +18,6 @@ package com.percussion.deployer.server.dependencies;
 
 import com.percussion.data.PSDatabaseMetaData;
 import com.percussion.data.PSMetaDataCache;
-import com.percussion.deployer.objectstore.PSDbmsInfo;
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSTransactionSummary;
@@ -39,335 +38,289 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
 
 /**
  * Class to handle packaging and deploying a schema definition.
  */
-public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler
-{
+public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
 
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    * @throws PSDeployException if the system table schema cannot be loaded.
-    */
-   public PSSchemaDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap) throws PSDeployException
-   {
-      super(def, dependencyMap);
-   }
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if the system table schema cannot be loaded.
+   */
+  public PSSchemaDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)
+      throws PSDeployException {
+    super(def, dependencyMap);
+  }
 
-   // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+  // see base class
+  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
 
-      return PSIteratorUtils.emptyIterator(); // there is no child dependencies
+    return PSIteratorUtils.emptyIterator(); // there is no child dependencies
+  }
+
+  // see base class
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    var dbmsHelper = PSDbmsHelper.getInstance();
+    var dbmsInfo = dbmsHelper.getServerRepositoryInfo();
+    var excludeTables = new HashSet<>(PSDependencyUtils.getSharedGroupTables());
+    excludeTables.addAll(PSDependencyUtils.getAllContentTypeTables(tok));
+    excludeTables.addAll(List.of("PSLOG", "PSLOGDATA"));
+
+    try (var conn = dbmsHelper.getRepositoryConnection();
+        var rs =
+            conn.getMetaData()
+                .getTables(
+                    dbmsInfo.getDatabase().isBlank() ? "%" : dbmsInfo.getDatabase(),
+                    dbmsInfo.getOrigin().isBlank() ? "%" : dbmsInfo.getOrigin(),
+                    "%",
+                    new String[] {"TABLE"})) {
+
+      var tableList = new ArrayList<String>();
+      while (rs.next()) {
+        tableList.add(rs.getString(COLNO_TABLE_NAME));
+      }
+
+      return tableList.stream()
+          .filter(
+              table ->
+                  !excludeTables.contains(table)
+                      && !table.endsWith("_BAK")
+                      && !table.endsWith("_BAKUP")
+                      && !table.endsWith("_UPG"))
+          .map(table -> getDependency(tok, table))
+          .filter(Objects::nonNull)
+          .iterator();
+    } catch (SQLException e) {
+      throw new PSDeployException(
+          IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));
+    }
+  }
+
+  // see base class
+  @Override
+  public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
+
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+    PSJdbcTableSchema schema = null;
+
+    try {
+      schema = dbmsHelper.catalogTable(id, false);
+    } catch (PSDeployException e) {
+      schema = null; // assume cannot find the "id" table
     }
 
-   // see base class
-   @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    PSDependency dep = null;
+    if (schema != null) {
+      dep = createDependency(m_def, id, id);
+      if (schema.isView()) dep.setDependencyType(PSDependency.TYPE_SERVER);
+      else dep.setDependencyType(dbmsHelper.getDependencyType(id));
+    }
 
-      var dbmsHelper = PSDbmsHelper.getInstance();
-      var dbmsInfo = dbmsHelper.getServerRepositoryInfo();
-      var excludeTables = new HashSet<>(PSDependencyUtils.getSharedGroupTables());
-      excludeTables.addAll(PSDependencyUtils.getAllContentTypeTables(tok));
-      excludeTables.addAll(List.of("PSLOG", "PSLOGDATA"));
+    return dep;
+  }
 
-      try (var conn = dbmsHelper.getRepositoryConnection();
-           var rs = conn.getMetaData().getTables(
-                   dbmsInfo.getDatabase().isBlank() ? "%" : dbmsInfo.getDatabase(),
-                   dbmsInfo.getOrigin().isBlank() ? "%" : dbmsInfo.getOrigin(),
-                   "%",
-                   new String[]{"TABLE"})) {
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * The child types supported by this handler are:
+   * <ol>
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code>
+   * objects, never <code>null</code>, does not contain <code>null</code> or
+   * empty entries.
+   */
+  @SuppressWarnings("unchecked")
+  public Iterator getChildTypes() {
+    return PSIteratorUtils.emptyIterator();
+  }
 
-          var tableList = new ArrayList<String>();
-          while (rs.next()) {
-              tableList.add(rs.getString(COLNO_TABLE_NAME));
-          }
+  // see base class
+  @Override
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-          return tableList.stream()
-                  .filter(table -> !excludeTables.contains(table) &&
-                          !table.endsWith("_BAK") &&
-                          !table.endsWith("_BAKUP") &&
-                          !table.endsWith("_UPG"))
-                  .map(table -> getDependency(tok, table))
-                  .filter(Objects::nonNull)
-                  .iterator();
-      } catch (SQLException e) {
-          throw new PSDeployException(IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));
-      }
-   }
-   
-   // see base class
-   @Override
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+  // see base class
+  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      PSJdbcTableSchema schema = null;
-      
-      try {
-         schema = dbmsHelper.catalogTable(id, false);
-      }
-      catch (PSDeployException e) { 
-         schema = null;  // assume cannot find the "id" table
-      }
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
 
-      PSDependency dep = null;
-      if (schema != null)
-      {
-         dep = createDependency(m_def, id, id);
-         if (schema.isView())
-            dep.setDependencyType(PSDependency.TYPE_SERVER);
-         else
-            dep.setDependencyType(dbmsHelper.getDependencyType(id));
-      }
-         
-      return dep;
-   }
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+    PSJdbcTableSchema schema;
+    schema = dbmsHelper.catalogTable(dep.getDependencyId(), false);
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   @SuppressWarnings("unchecked")
-   public Iterator getChildTypes()
-   {
-      return PSIteratorUtils.emptyIterator();
-   }
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSXmlDocumentBuilder.replaceRoot(doc, schema.toXml(doc));
+    File dataFile = createXmlFile(doc);
 
-   // see base class
-   @Override
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+    PSDependencyFile file;
+    file = new PSDependencyFile(PSDependencyFile.TYPE_DBMS_SCHEMA, dataFile);
 
-   // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    List files = new ArrayList();
+    files.add(file);
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+    return files.iterator();
+  }
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+  // see base class
+  public void installDependencyFiles(
+      PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+      throws PSDeployException, PSNotFoundException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      PSJdbcTableSchema schema;
-      schema = dbmsHelper.catalogTable(dep.getDependencyId(), false);
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSXmlDocumentBuilder.replaceRoot(doc, schema.toXml(doc));
-      File dataFile = createXmlFile(doc);
+    if (archive == null) throw new IllegalArgumentException("archive may not be null");
 
-      PSDependencyFile file;
-      file = new PSDependencyFile(PSDependencyFile.TYPE_DBMS_SCHEMA, 
-         dataFile);
-      
-      List files = new ArrayList();
-      files.add(file);
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-      return files.iterator();
-   }
-   
-   // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
 
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
+    if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+    // get the schema document from archive
+    Iterator files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = (PSDependencyFile) files.next();
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+    PSJdbcTableSchema schema = getSchema(file, archive);
+    PSDbmsHelper.getInstance().processTable(schema);
 
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
+    boolean exists = doesDependencyExist(tok, dep.getDependencyId());
+    int transAction =
+        exists ? PSTransactionSummary.ACTION_MODIFIED : PSTransactionSummary.ACTION_CREATED;
 
-      // get the schema document from archive
-      Iterator files = getDependecyDataFiles(archive, dep);
-      PSDependencyFile file = (PSDependencyFile) files.next();
+    addTransactionLogEntry(
+        dep, ctx, dep.getDisplayIdentifier(), PSTransactionSummary.TYPE_SCHEMA, transAction);
+  }
 
-      PSJdbcTableSchema schema = getSchema(file, archive);
-      PSDbmsHelper.getInstance().processTable(schema);
+  /**
+   * Gets the schema from the specified (schema) dependency file.
+   *
+   * @param file the schema dependency file, assumed not <code>null</code>.
+   * @param archive the archive, assumed not <code>null</code>.
+   *
+   * @return the schema that is in the dependency file, never <code>null</code>.
+   *
+   * @throws PSDeployException if an error occurs.
+   */
+  public PSJdbcTableSchema getSchema(PSDependencyFile file, PSArchiveHandler archive)
+      throws PSDeployException {
+    Document doc = null;
+    if (file.getType() == PSDependencyFile.TYPE_DBMS_SCHEMA) {
+      doc = createXmlDocument(archive.getFileData(file));
+    } else {
+      Object[] args = {
+        PSDependencyFile.TYPE_ENUM[file.getType()],
+        PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_DBMS_SCHEMA]
+      };
+      throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+    }
 
-      boolean exists = doesDependencyExist(tok, dep.getDependencyId());
-      int transAction = exists ? PSTransactionSummary.ACTION_MODIFIED : 
-         PSTransactionSummary.ACTION_CREATED;
-      
-      addTransactionLogEntry(dep, ctx, dep.getDisplayIdentifier(), 
-         PSTransactionSummary.TYPE_SCHEMA, transAction);
-   }
+    // convert doc to schema object
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+    PSJdbcDataTypeMap typeMap = dbmsHelper.getDataTypeMap();
 
-   /**
-    * Gets the schema from the specified (schema) dependency file.
-    * 
-    * @param file the schema dependency file, assumed not <code>null</code>.
-    * @param archive the archive, assumed not <code>null</code>.
-    * 
-    * @return the schema that is in the dependency file, never <code>null</code>.
-    * 
-    * @throws PSDeployException if an error occurs.
-    */
-   public PSJdbcTableSchema getSchema(PSDependencyFile file,
-         PSArchiveHandler archive) throws PSDeployException
-   {
-      Document doc = null;
-      if (file.getType() == PSDependencyFile.TYPE_DBMS_SCHEMA)
-      {
-         doc = createXmlDocument(archive.getFileData(file));
-      }
-      else
-      {
-         Object[] args =
-         {
-            PSDependencyFile.TYPE_ENUM[file.getType()],
-            PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_DBMS_SCHEMA]
-         };
-         throw new PSDeployException(
-            IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
-      }
+    PSJdbcTableSchema schema = null;
+    try {
+      schema = new PSJdbcTableSchema(doc.getDocumentElement(), typeMap);
+    } catch (PSJdbcTableFactoryException e) {
+      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    }
 
-      // convert doc to schema object
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      PSJdbcDataTypeMap typeMap = dbmsHelper.getDataTypeMap();
+    // handle flushing the dbmd cache on schema change
+    addTableChangeHandler(schema);
 
-      PSJdbcTableSchema schema = null;
-      try
-      {
-         schema = new PSJdbcTableSchema(doc.getDocumentElement(), typeMap);
-      }
-      catch (PSJdbcTableFactoryException e) {
-            throw new PSDeployException(
-               IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
-      }
+    return schema;
+  }
 
-      // handle flushing the dbmd cache on schema change
-      addTableChangeHandler(schema);
-      
-      return schema;
-   }
-   
-   /**
-    * Add a listener to the schema to flush the table meta data for any changed
-    * tables.
-    * 
-    * @param tableSchema The schema to add the listener to, may not be 
-    * <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>schema</code> is 
-    * <code>null</code>.
-    */
-   protected void addTableChangeHandler(PSJdbcTableSchema tableSchema)
-   {
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-         
-      // need to flush server's dbmd cache
-      tableSchema.addSchemaChangeListener(
-         new IPSJdbcTableChangeListener()
-         {
-            public void tableChanged(PSJdbcTableChangeEvent e)
-            {
-               /* make sure its the correct action and that there is connection
-                * info (may not have been constructed this way, but should
-                * have been for our purposes)
-                */
-               if (e.getAction() ==
-                  PSJdbcTableChangeEvent.ACTION_SCHEMA_CHANGED &&
-                     e.usedConnInfo())
-               {
-                  PSDatabaseMetaData dbmd =
-                     PSMetaDataCache.getCachedDatabaseMetaData(
-                        e.getConnectionInfo());
+  /**
+   * Add a listener to the schema to flush the table meta data for any changed
+   * tables.
+   *
+   * @param tableSchema The schema to add the listener to, may not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if <code>schema</code> is
+   * <code>null</code>.
+   */
+  protected void addTableChangeHandler(PSJdbcTableSchema tableSchema) {
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-                  if (dbmd != null)
-                  {
-                     String schema = null;
-                     try
-                     {
-                        PSConnectionDetail connDetail = dbmd.getConnectionDetail();
-                        schema = connDetail.getOrigin();
-                     }
-                     catch (SQLException e1)
-                     {
-                        ms_log.warn("Could not get the schema or origin, " +
-                            "cannot flush cache.");
-                     }
-                     dbmd.flushTableMetaData(e.getTable(), schema);
-                  }
-               }
+    // need to flush server's dbmd cache
+    tableSchema.addSchemaChangeListener(
+        new IPSJdbcTableChangeListener() {
+          public void tableChanged(PSJdbcTableChangeEvent e) {
+            /* make sure its the correct action and that there is connection
+             * info (may not have been constructed this way, but should
+             * have been for our purposes)
+             */
+            if (e.getAction() == PSJdbcTableChangeEvent.ACTION_SCHEMA_CHANGED && e.usedConnInfo()) {
+              PSDatabaseMetaData dbmd =
+                  PSMetaDataCache.getCachedDatabaseMetaData(e.getConnectionInfo());
+
+              if (dbmd != null) {
+                String schema = null;
+                try {
+                  PSConnectionDetail connDetail = dbmd.getConnectionDetail();
+                  schema = connDetail.getOrigin();
+                } catch (SQLException e1) {
+                  ms_log.warn("Could not get the schema or origin, " + "cannot flush cache.");
+                }
+                dbmd.flushTableMetaData(e.getTable(), schema);
+              }
             }
-         }
-      );
-   }
-   
-   /**
-    * Reference to Log4j singleton object used to log any errors or debug info.
-    */
-   private static final Logger ms_log = LogManager.getLogger(
-         "com.percussion.deployer.server.dependencies.PSSchemaDependencyHandler");
-   
-   /**
-    * Constant for this handler's supported type
-    */
-   public final static String DEPENDENCY_TYPE = "Schema";
+          }
+        });
+  }
 
-   /**
-    * Column number in result set for table name
-    */
-   private static final int COLNO_TABLE_NAME      = 3;
+  /**
+   * Reference to Log4j singleton object used to log any errors or debug info.
+   */
+  private static final Logger ms_log =
+      LogManager.getLogger("com.percussion.deployer.server.dependencies.PSSchemaDependencyHandler");
+
+  /**
+   * Constant for this handler's supported type
+   */
+  public static final String DEPENDENCY_TYPE = "Schema";
+
+  /**
+   * Column number in result set for table name
+   */
+  private static final int COLNO_TABLE_NAME = 3;
 }

@@ -24,19 +24,17 @@ import java.util.Iterator;
  * typing of undefined application ID types. In the standard MSM client,
  * undefined application ID types are typed through user-interaction with a
  * dialog.
- * 
+ *
  * @author James Schultz
  */
-public interface IPSApplicationIDTypesResolver
-{
-   /**
-    * Defines each undefined ID type mapping in the supplied iterator, by
-    * calling the mapping's <code>setType</code> method.
-    * 
-    * @param undefinedMappings an iterator of
-    *           <code>PSApplicationIDTypeMapping</code>, each representing an
-    *           undefined ID type
-    */
-   void defineIdTypes(Iterator<PSApplicationIDTypeMapping> undefinedMappings);
-
+public interface IPSApplicationIDTypesResolver {
+  /**
+   * Defines each undefined ID type mapping in the supplied iterator, by
+   * calling the mapping's <code>setType</code> method.
+   *
+   * @param undefinedMappings an iterator of
+   *           <code>PSApplicationIDTypeMapping</code>, each representing an
+   *           undefined ID type
+   */
+  void defineIdTypes(Iterator<PSApplicationIDTypeMapping> undefinedMappings);
 }

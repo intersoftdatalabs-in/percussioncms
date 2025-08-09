@@ -16,34 +16,29 @@
  */
 package com.percussion.fastforward.managednav;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
-public class PSManagedNavServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSManagedNavService mns=null;
-   /**
-    * Find and return the managed navigation service.
-    * 
-    * @return the navigation service, never <code>null</code>.
-    *  
-    * @throws PSMissingBeanConfigurationException if the requested bean is 
-    *    missing.
-    */
-   public static IPSManagedNavService getContentWebservice() 
-      throws PSMissingBeanConfigurationException
-   {
-      if (mns==null)
-      {
-         synchronized (PSManagedNavServiceLocator.class)
-         {
-            if (mns==null)
-            {
-               mns = (IPSManagedNavService) getCtx().getBean("sys_managedNavService");
-            }
-         }
+public class PSManagedNavServiceLocator extends PSBaseServiceLocator {
+  private static volatile IPSManagedNavService mns = null;
+
+  /**
+   * Find and return the managed navigation service.
+   *
+   * @return the navigation service, never <code>null</code>.
+   *
+   * @throws PSMissingBeanConfigurationException if the requested bean is
+   *    missing.
+   */
+  public static IPSManagedNavService getContentWebservice()
+      throws PSMissingBeanConfigurationException {
+    if (mns == null) {
+      synchronized (PSManagedNavServiceLocator.class) {
+        if (mns == null) {
+          mns = (IPSManagedNavService) getCtx().getBean("sys_managedNavService");
+        }
       }
-      return mns;
-   }
-
+    }
+    return mns;
+  }
 }

@@ -19,10 +19,9 @@ package com.percussion.process;
 /**
  * Interface that any ps processes must implement.
  */
-public interface IPSShutdownListener
-{
-   /**
-    * Shutdown hook for any process.
-    */
-   public void psShutdown();
+public interface IPSShutdownListener {
+  /**
+   * Shutdown hook for any process.
+   */
+  public void psShutdown();
 }

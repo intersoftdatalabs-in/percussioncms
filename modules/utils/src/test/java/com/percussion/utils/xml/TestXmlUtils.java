@@ -17,22 +17,23 @@
 
 package com.percussion.utils.xml;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the xml utils class
  */
 public class TestXmlUtils {
 
-    @Test
-    public void testXMLEncoded(){
+  @Test
+  public void testXMLEncoded() {
 
-        assertFalse(PSXmlUtils.isStringXMLEscaped("<?xml version='1.0'?><test>text</test>"));
-        assertTrue(PSXmlUtils.isStringXMLEscaped(StringEscapeUtils.escapeXml10("<?xml version='1.0'?><test>text</test>")));
-
-    }
+    assertFalse(PSXmlUtils.isStringXMLEscaped("<?xml version='1.0'?><test>text</test>"));
+    assertTrue(
+        PSXmlUtils.isStringXMLEscaped(
+            StringEscapeUtils.escapeXml10("<?xml version='1.0'?><test>text</test>")));
+  }
 }

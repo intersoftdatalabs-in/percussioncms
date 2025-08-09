@@ -17,7 +17,6 @@
 
 package com.percussion.HTTPClient;
 
-
 /**
  * Signals that an exception occurred in a module.
  *
@@ -26,27 +25,23 @@ package com.percussion.HTTPClient;
  * @since	V0.3
  */
 @Deprecated
-public class ModuleException extends Exception
-{
+public class ModuleException extends Exception {
 
-    /**
-     * Constructs an ModuleException with no detail message. A detail
-     * message is a String that describes this particular exception.
-     */
-    public ModuleException()
-    {
-	super();
-    }
+  /**
+   * Constructs an ModuleException with no detail message. A detail
+   * message is a String that describes this particular exception.
+   */
+  public ModuleException() {
+    super();
+  }
 
-
-    /**
-     * Constructs an ModuleException class with the specified detail message.
-     * A detail message is a String that describes this particular exception.
-     *
-     * @param msg the String containing a detail message
-     */
-    public ModuleException(String msg)
-    {
-	super(msg);
-    }
+  /**
+   * Constructs an ModuleException class with the specified detail message.
+   * A detail message is a String that describes this particular exception.
+   *
+   * @param msg the String containing a detail message
+   */
+  public ModuleException(String msg) {
+    super(msg);
+  }
 }

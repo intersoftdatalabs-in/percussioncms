@@ -43,8 +43,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.security.acl.AclEntry;
-import java.security.acl.NotOwnerException;
+import com.percussion.security.shim.acl.AclEntry;
+import com.percussion.security.shim.acl.NotOwnerException;
 import java.util.*;
 import java.util.stream.Collectors;
 

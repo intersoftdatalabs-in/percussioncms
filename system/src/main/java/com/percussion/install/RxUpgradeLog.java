@@ -17,102 +17,90 @@
 package com.percussion.install;
 
 import com.percussion.error.PSExceptionUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.xml.sax.SAXException;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.xml.sax.SAXException;
 
 /**
  * RxUpgrade logger.
  */
-public class RxUpgradeLog
-{
+public class RxUpgradeLog {
 
-   private static final Logger log = LogManager.getLogger(RxUpgradeLog.class);
+  private static final Logger log = LogManager.getLogger(RxUpgradeLog.class);
 
-   /**
-    * Log object into a upgrade print stream.
-    * @param o any object to log, may be <code>null</code>.
-    */
-   public static void logIt(Object o)
-   {
-      try
-      {
-        
-         //prepend with date&time, so that we could figure out when it was logged..  
-         String time = ms_dateFormat.format(new Date());         
+  /**
+   * Log object into a upgrade print stream.
+   * @param o any object to log, may be <code>null</code>.
+   */
+  public static void logIt(Object o) {
+    try {
 
-         if (o instanceof Throwable)
-         {
-            String s = getStackTraceAsString((Throwable)o);
+      // prepend with date&time, so that we could figure out when it was logged..
+      String time = ms_dateFormat.format(new Date());
 
-            getPrintStream().println(time + " " + s);
-         }
-         else if (o instanceof String)
-         {
-            getPrintStream().println(time + " " + o.toString());
-         }
-      } catch (SAXException | IOException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      if (o instanceof Throwable) {
+        String s = getStackTraceAsString((Throwable) o);
+
+        getPrintStream().println(time + " " + s);
+      } else if (o instanceof String) {
+        getPrintStream().println(time + " " + o.toString());
       }
-   }
-   
-   /**
-    * Get the stack trace for the specified exception as a string.
-    *
-    * @param   t        the throwable (usually an exception)
-    */
-   private static String getStackTraceAsString(java.lang.Throwable t)
-   {
-      // for unknown exceptions, it's useful to log the stack trace
-      java.io.StringWriter stackTrace = new java.io.StringWriter();
-      java.io.PrintWriter writer = new java.io.PrintWriter(stackTrace);
-      t.printStackTrace(writer);
-      writer.flush();
+    } catch (SAXException | IOException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 
-      return stackTrace.toString();
-   }
+  /**
+   * Get the stack trace for the specified exception as a string.
+   *
+   * @param   t        the throwable (usually an exception)
+   */
+  private static String getStackTraceAsString(java.lang.Throwable t) {
+    // for unknown exceptions, it's useful to log the stack trace
+    java.io.StringWriter stackTrace = new java.io.StringWriter();
+    java.io.PrintWriter writer = new java.io.PrintWriter(stackTrace);
+    t.printStackTrace(writer);
+    writer.flush();
 
-   /**
-    * Returns current print stream.
-    * 
-    * @return print stream, never <code>null</code>.
-    * @throws FileNotFoundException
-    * @throws IOException
-    * @throws SAXException
-    */
-   private static PrintStream getPrintStream()
-      throws FileNotFoundException, IOException, SAXException
-   {
-      if (m_ps!=null)
-         return m_ps;
+    return stackTrace.toString();
+  }
 
-      String logFile = RxUpgrade.getLogFileDir() + "rxupgrade.log";
-      try(FileOutputStream fo = new FileOutputStream(logFile, true)) {
-         m_ps = new PrintStream(fo);
-      }
+  /**
+   * Returns current print stream.
+   *
+   * @return print stream, never <code>null</code>.
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws SAXException
+   */
+  private static PrintStream getPrintStream()
+      throws FileNotFoundException, IOException, SAXException {
+    if (m_ps != null) return m_ps;
 
-      return m_ps;
-   }
+    String logFile = RxUpgrade.getLogFileDir() + "rxupgrade.log";
+    try (FileOutputStream fo = new FileOutputStream(logFile, true)) {
+      m_ps = new PrintStream(fo);
+    }
 
-   /**
-    * Print stream holder.
-    */
-   private static PrintStream m_ps = null;
-   
-   /**
-    * Time stamp format.
-    * i.e.: MM/dd/yy HH:mm:ss -> 09/29/04 18:31:28
-    */
-   private static FastDateFormat ms_dateFormat =
-       FastDateFormat.getInstance("MM/dd/yy HH:mm:ss"); //ie: 09/29/04 18:31:28
+    return m_ps;
+  }
 
+  /**
+   * Print stream holder.
+   */
+  private static PrintStream m_ps = null;
+
+  /**
+   * Time stamp format.
+   * i.e.: MM/dd/yy HH:mm:ss -> 09/29/04 18:31:28
+   */
+  private static FastDateFormat ms_dateFormat =
+      FastDateFormat.getInstance("MM/dd/yy HH:mm:ss"); // ie: 09/29/04 18:31:28
 }

@@ -21,53 +21,50 @@ import java.util.Objects;
 
 public class PSFeedDTO {
 
-    private String feedsUrl;
-    private String hostName;
+  private String feedsUrl;
+  private String hostName;
 
-    public PSFeedDTO() {
-        super();
-    }
+  public PSFeedDTO() {
+    super();
+  }
 
-    public PSFeedDTO(String feedsUrl, String hostName) {
-        this.feedsUrl = Objects.requireNonNull(feedsUrl, "feedsUrl cannot be null");
-        this.hostName = Objects.requireNonNull(hostName, "hostName cannot be null");
-    }
+  public PSFeedDTO(String feedsUrl, String hostName) {
+    this.feedsUrl = Objects.requireNonNull(feedsUrl, "feedsUrl cannot be null");
+    this.hostName = Objects.requireNonNull(hostName, "hostName cannot be null");
+  }
 
-    public String getFeedsUrl() {
-        return feedsUrl;
-    }
+  public String getFeedsUrl() {
+    return feedsUrl;
+  }
 
-    public void setFeedsUrl(String feedsUrl) {
-        this.feedsUrl = feedsUrl;
-    }
+  public void setFeedsUrl(String feedsUrl) {
+    this.feedsUrl = feedsUrl;
+  }
 
-    public String getHostName() {
-        return hostName;
-    }
+  public String getHostName() {
+    return hostName;
+  }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
+  public void setHostName(String hostName) {
+    this.hostName = hostName;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PSFeedDTO psFeedDTO = (PSFeedDTO) o;
-        return Objects.equals(feedsUrl, psFeedDTO.feedsUrl) &&
-                Objects.equals(hostName, psFeedDTO.hostName);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    PSFeedDTO psFeedDTO = (PSFeedDTO) o;
+    return Objects.equals(feedsUrl, psFeedDTO.feedsUrl)
+        && Objects.equals(hostName, psFeedDTO.hostName);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(feedsUrl, hostName);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(feedsUrl, hostName);
+  }
 
-    @Override
-    public String toString() {
-        return "PSFeedDTO{" +
-                "feedsUrl='" + feedsUrl + '\'' +
-                ", hostName='" + hostName + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSFeedDTO{" + "feedsUrl='" + feedsUrl + '\'' + ", hostName='" + hostName + '\'' + '}';
+  }
 }

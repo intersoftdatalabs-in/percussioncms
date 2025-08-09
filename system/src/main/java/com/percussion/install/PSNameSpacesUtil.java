@@ -23,40 +23,36 @@ import java.util.Set;
  *
  * @author Andriy Palamarchuk
  */
-public class PSNameSpacesUtil
-{
-   /**
-    * Constructor prohibiting creation of instance of the class.
-    */
-   private PSNameSpacesUtil() {}
+public class PSNameSpacesUtil {
+  /**
+   * Constructor prohibiting creation of instance of the class.
+   */
+  private PSNameSpacesUtil() {}
 
-   /**
-    * Replaces whitespace characters with underscores.
-    * Make sure new name does not clash with any existing names. 
-    * If generated name already exists the method adds "1" to the name, if
-    * that name exists, it adds "2" and so on until it finds unused name.
-    * @param name the name to correct. Never <code>null</code>.
-    * @param names all existing names to check for clash against.
-    * Never <code>null</code>.
-    * @return the corrected name. If this name is applied caller
-    * should add it to the names set.
-    */
-   public static String removeWhitespacesFromName(final String name, Set names)
-   {
-      final StringBuilder buf = new StringBuilder();
-      for (int i = 0; i < name.length(); i++)
-      {
-         final char ch = name.charAt(i);
-         buf.append(Character.isWhitespace(ch) ? '_' : ch);
-      }
-      final String nameBase = buf.toString();
-      String newName = nameBase;
-      int i = 1;
-      while (names.contains(newName))
-      {
-         newName = nameBase + i;
-         i++;
-      }
-      return newName;
-   }
+  /**
+   * Replaces whitespace characters with underscores.
+   * Make sure new name does not clash with any existing names.
+   * If generated name already exists the method adds "1" to the name, if
+   * that name exists, it adds "2" and so on until it finds unused name.
+   * @param name the name to correct. Never <code>null</code>.
+   * @param names all existing names to check for clash against.
+   * Never <code>null</code>.
+   * @return the corrected name. If this name is applied caller
+   * should add it to the names set.
+   */
+  public static String removeWhitespacesFromName(final String name, Set names) {
+    final StringBuilder buf = new StringBuilder();
+    for (int i = 0; i < name.length(); i++) {
+      final char ch = name.charAt(i);
+      buf.append(Character.isWhitespace(ch) ? '_' : ch);
+    }
+    final String nameBase = buf.toString();
+    String newName = nameBase;
+    int i = 1;
+    while (names.contains(newName)) {
+      newName = nameBase + i;
+      i++;
+    }
+    return newName;
+  }
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.server.command;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -41,11 +42,9 @@ import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.util.Locale;
-
 
 /**
  * The PSConsoleCommandStartApplication class implements processing of the
@@ -57,103 +56,89 @@ import java.util.Locale;
  * @version      1.0
  * @since      1.0
  */
-public class PSConsoleCommandStartApplication extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param      cmdArgs      the argument string to use when executing
-    *                           this command
-    *
-    */
-   public PSConsoleCommandStartApplication(String cmdArgs)
-      throws PSIllegalArgumentException
-   {
-      super(cmdArgs);
+public class PSConsoleCommandStartApplication extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param      cmdArgs      the argument string to use when executing
+   *                           this command
+   *
+   */
+  public PSConsoleCommandStartApplication(String cmdArgs) throws PSIllegalArgumentException {
+    super(cmdArgs);
 
-      // need the application name for this command
-      if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
-         throw new PSIllegalArgumentException(
-            IPSServerErrors.RCONSOLE_APP_NAME_REQD, ms_cmdName);
-      }
-   }
+    // need the application name for this command
+    if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
+      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_APP_NAME_REQD, ms_cmdName);
+    }
+  }
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   <P>
-    * The execution of this command results in the following XML document
-    * structure:
-    * <PRE><CODE>
-    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
-    *
-    *      &lt;--
-    *         the command that was executed
-    *      --&gt;
-    *      &lt;ELEMENT command                     (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the result code for the command execution
-    *      --&gt;
-    *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the message text associated with the result code
-    *      --&gt;
-    *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
-    * </CODE></PRE>
-    *   
-    * @param      request                     the requestor object
-    *
-    * @return                                 the result document
-    *
-    * @exception   PSConsoleCommandException   if an error occurs during
-    *                                          execution
-    */
-   public Document execute(PSRequest request)
-      throws PSConsoleCommandException
-   {
-      Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(
-         respDoc, "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName + " " + m_cmdArgs);
+  /**
+   * Execute the command specified by this object. The results are returned
+   * as an XML document of the appropriate structure for the command.
+   *   <P>
+   * The execution of this command results in the following XML document
+   * structure:
+   * <PRE><CODE>
+   *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
+   *
+   *      &lt;--
+   *         the command that was executed
+   *      --&gt;
+   *      &lt;ELEMENT command                     (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the result code for the command execution
+   *      --&gt;
+   *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the message text associated with the result code
+   *      --&gt;
+   *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
+   * </CODE></PRE>
+   *
+   * @param      request                     the requestor object
+   *
+   * @return                                 the result document
+   *
+   * @exception   PSConsoleCommandException   if an error occurs during
+   *                                          execution
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(respDoc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName + " " + m_cmdArgs);
 
-      Locale loc;
-      if (request != null)
-         loc = request.getPreferredLocale();
-      else
-         loc = Locale.getDefault();
+    Locale loc;
+    if (request != null) loc = request.getPreferredLocale();
+    else loc = Locale.getDefault();
 
-      try {
-         // if the application is up, ignore this command
-         if (PSServer.getApplicationHandler(m_cmdArgs) == null)
-            PSServer.startApplication(m_cmdArgs);
+    try {
+      // if the application is up, ignore this command
+      if (PSServer.getApplicationHandler(m_cmdArgs) == null) PSServer.startApplication(m_cmdArgs);
 
-         PSXmlDocumentBuilder.addElement(respDoc, root, "resultCode",
-            String.valueOf(IPSServerErrors.RCONSOLE_APP_STARTED));
-         Object[] args = { m_cmdArgs };
-         String termMsg = PSErrorManager.createMessage(
-            IPSServerErrors.RCONSOLE_APP_STARTED, args, loc);
-         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
-      } catch (Exception e) {
-         String msg;
-         if (e instanceof com.percussion.error.PSException)
-            msg = ((PSException)e).getLocalizedMessage(loc);
-         else
-            msg = e.getMessage();
+      PSXmlDocumentBuilder.addElement(
+          respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_APP_STARTED));
+      Object[] args = {m_cmdArgs};
+      String termMsg =
+          PSErrorManager.createMessage(IPSServerErrors.RCONSOLE_APP_STARTED, args, loc);
+      PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
+    } catch (Exception e) {
+      String msg;
+      if (e instanceof com.percussion.error.PSException)
+        msg = ((PSException) e).getLocalizedMessage(loc);
+      else msg = e.getMessage();
 
-         Object[] args = { (ms_cmdName + " " + m_cmdArgs), msg };
-         throw new PSConsoleCommandException(
-            IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
-      }
+      Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
+      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+    }
 
-      return respDoc;
-   }
+    return respDoc;
+  }
 
-
-   /**
-    * allow package members to see our command name
-    */
-   final static String   ms_cmdName = "start application";
+  /**
+   * allow package members to see our command name
+   */
+  static final String ms_cmdName = "start application";
 }
-

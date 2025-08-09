@@ -28,109 +28,109 @@ import java.util.Optional;
 @JsonRootName(value = "ContentTraffic")
 public class PSContentTraffic {
 
-    private String site;
-    private String siteId;
-    private String startDate;
-    private String endDate;
-    private List<String> dates;
-    private List<Integer> visits;
-    private List<Integer> newPages;
-    private List<Integer> pageUpdates;
-    private List<Integer> takeDowns;
-    private List<Integer> livePages;
-    private List<Integer> updateTotals;
+  private String site;
+  private String siteId;
+  private String startDate;
+  private String endDate;
+  private List<String> dates;
+  private List<Integer> visits;
+  private List<Integer> newPages;
+  private List<Integer> pageUpdates;
+  private List<Integer> takeDowns;
+  private List<Integer> livePages;
+  private List<Integer> updateTotals;
 
-    public PSContentTraffic() {}
+  public PSContentTraffic() {}
 
-    public PSContentTraffic(String site) {
-        setSite(site);
-    }
+  public PSContentTraffic(String site) {
+    setSite(site);
+  }
 
-    public Optional<String> getSite() {
-        return Optional.ofNullable(site);
-    }
+  public Optional<String> getSite() {
+    return Optional.ofNullable(site);
+  }
 
-    public Optional<String> getSiteId() {
-        return Optional.ofNullable(siteId);
-    }
+  public Optional<String> getSiteId() {
+    return Optional.ofNullable(siteId);
+  }
 
-    public Optional<String> getStartDate() {
-        return Optional.ofNullable(startDate);
-    }
+  public Optional<String> getStartDate() {
+    return Optional.ofNullable(startDate);
+  }
 
-    public Optional<String> getEndDate() {
-        return Optional.ofNullable(endDate);
-    }
+  public Optional<String> getEndDate() {
+    return Optional.ofNullable(endDate);
+  }
 
-    public Optional<List<Integer>> getVisits() {
-        return Optional.ofNullable(visits);
-    }
+  public Optional<List<Integer>> getVisits() {
+    return Optional.ofNullable(visits);
+  }
 
-    public Optional<List<Integer>> getNewPages() {
-        return Optional.ofNullable(newPages);
-    }
+  public Optional<List<Integer>> getNewPages() {
+    return Optional.ofNullable(newPages);
+  }
 
-    public Optional<List<Integer>> getPageUpdates() {
-        return Optional.ofNullable(pageUpdates);
-    }
+  public Optional<List<Integer>> getPageUpdates() {
+    return Optional.ofNullable(pageUpdates);
+  }
 
-    public Optional<List<Integer>> getTakeDowns() {
-        return Optional.ofNullable(takeDowns);
-    }
+  public Optional<List<Integer>> getTakeDowns() {
+    return Optional.ofNullable(takeDowns);
+  }
 
-    public Optional<List<Integer>> getLivePages() {
-        return Optional.ofNullable(livePages);
-    }
+  public Optional<List<Integer>> getLivePages() {
+    return Optional.ofNullable(livePages);
+  }
 
-    public Optional<List<String>> getDates() {
-        return Optional.ofNullable(dates);
-    }
+  public Optional<List<String>> getDates() {
+    return Optional.ofNullable(dates);
+  }
 
-    public Optional<List<Integer>> getUpdateTotals() {
-        return Optional.ofNullable(updateTotals);
-    }
+  public Optional<List<Integer>> getUpdateTotals() {
+    return Optional.ofNullable(updateTotals);
+  }
 
-    public void setSite(String site) {
-        this.site = site;
-    }
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 
-    public void setVisits(List<Integer> visits) {
-        this.visits = visits;
-    }
+  public void setVisits(List<Integer> visits) {
+    this.visits = visits;
+  }
 
-    public void setNewPages(List<Integer> newPages) {
-        this.newPages = newPages;
-    }
+  public void setNewPages(List<Integer> newPages) {
+    this.newPages = newPages;
+  }
 
-    public void setPageUpdates(List<Integer> pageUpdates) {
-        this.pageUpdates = pageUpdates;
-    }
+  public void setPageUpdates(List<Integer> pageUpdates) {
+    this.pageUpdates = pageUpdates;
+  }
 
-    public void setTakeDowns(List<Integer> takeDowns) {
-        this.takeDowns = takeDowns;
-    }
+  public void setTakeDowns(List<Integer> takeDowns) {
+    this.takeDowns = takeDowns;
+  }
 
-    public void setLivePages(List<Integer> livePages) {
-        this.livePages = livePages;
-    }
+  public void setLivePages(List<Integer> livePages) {
+    this.livePages = livePages;
+  }
 
-    public void setDates(List<String> dates) {
-        this.dates = dates;
-    }
+  public void setDates(List<String> dates) {
+    this.dates = dates;
+  }
 
-    public void setUpdateTotals(List<Integer> updateTotals) {
-        this.updateTotals = updateTotals;
-    }
+  public void setUpdateTotals(List<Integer> updateTotals) {
+    this.updateTotals = updateTotals;
+  }
 }

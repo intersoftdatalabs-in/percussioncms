@@ -20,83 +20,73 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.client.IPSDeployConstants;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
-
 import java.util.Iterator;
 import java.util.List;
-
 
 /**
  * Class to handle packaging and deploying a content editor
  */
-public class PSCEDependencyHandler extends PSElementDependencyHandler
-{
+public class PSCEDependencyHandler extends PSElementDependencyHandler {
 
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public PSCEDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap)
-   {
-      super(def, dependencyMap);
-   }
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public PSCEDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
+    super(def, dependencyMap);
+  }
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>ContentType</li>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
-   }
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * The child types supported by this handler are:
+   * <ol>
+   * <li>ContentType</li>
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code>
+   * objects, never <code>null</code>, does not contain <code>null</code> or
+   * empty entries.
+   */
+  public Iterator getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSContentTypeDependencyHandler.DEPENDENCY_TYPE);
+  // see base class
+  protected PSDependencyHandler getChildHandler() {
+    if (m_childHandler == null)
+      m_childHandler = getDependencyHandler(PSContentTypeDependencyHandler.DEPENDENCY_TYPE);
 
-      return m_childHandler;
-   }
+    return m_childHandler;
+  }
 
-   /**
-    * Constant for this handler's supported type
-    */
-   public static final String DEPENDENCY_TYPE =
-      IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR;
+  /**
+   * Constant for this handler's supported type
+   */
+  public static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR;
 
-   /**
-    * The content type definition handler, initialized by
-    * <code>getChildHandler()</code> if it is <code>null</code>, will never
-    * be <code>null</code> after that.
-    */
-   private PSDependencyHandler m_childHandler = null;
+  /**
+   * The content type definition handler, initialized by
+   * <code>getChildHandler()</code> if it is <code>null</code>, will never
+   * be <code>null</code> after that.
+   */
+  private PSDependencyHandler m_childHandler = null;
 
-   /**
-    * List of child types supported by this handler, never <code>null</code> or
-    * empty.
-    */
-   private static final List<String> ms_childTypes = List.of(PSContentTypeDependencyHandler.DEPENDENCY_TYPE);
-
+  /**
+   * List of child types supported by this handler, never <code>null</code> or
+   * empty.
+   */
+  private static final List<String> ms_childTypes =
+      List.of(PSContentTypeDependencyHandler.DEPENDENCY_TYPE);
 }

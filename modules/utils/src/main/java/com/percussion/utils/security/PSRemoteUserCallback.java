@@ -16,47 +16,40 @@
  */
 package com.percussion.utils.security;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.security.auth.callback.Callback;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Used to get the remote user name of an already authenticated user.
  */
-public class PSRemoteUserCallback implements Callback
-{
-   /**
-    * Default ctor
-    */
-   public PSRemoteUserCallback()
-   {
-   }
+public class PSRemoteUserCallback implements Callback {
+  /**
+   * Default ctor
+   */
+  public PSRemoteUserCallback() {}
 
-   /**
-    * Get the remote user name.
-    * 
-    * @return The name, <code>null</code> if none identified, never emtpy.
-    */
-   public String getRemoteUser()
-   {
-      return m_remoteUser;
-   }
-   
-   /**
-    * Set the remote username.
-    * 
-    * @param userName The user name, may be <code>null</code> or empty if no
-    * remote user has been identified.
-    */
-   public void setRemoteUser(String userName)
-   {
-      m_remoteUser = StringUtils.isBlank(userName) ? null : userName;
-   }
-   
-   /**
-    * The remote user name, may be <code>null</code>, never empty. See 
-    * {@link #getRemoteUser()}. 
-    */
-   private String m_remoteUser = null;
+  /**
+   * Get the remote user name.
+   *
+   * @return The name, <code>null</code> if none identified, never emtpy.
+   */
+  public String getRemoteUser() {
+    return m_remoteUser;
+  }
+
+  /**
+   * Set the remote username.
+   *
+   * @param userName The user name, may be <code>null</code> or empty if no
+   * remote user has been identified.
+   */
+  public void setRemoteUser(String userName) {
+    m_remoteUser = StringUtils.isBlank(userName) ? null : userName;
+  }
+
+  /**
+   * The remote user name, may be <code>null</code>, never empty. See
+   * {@link #getRemoteUser()}.
+   */
+  private String m_remoteUser = null;
 }
-

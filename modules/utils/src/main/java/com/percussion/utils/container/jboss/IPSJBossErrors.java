@@ -17,21 +17,19 @@
 package com.percussion.utils.container.jboss;
 
 /**
- * Provides error codes for messages located in 
+ * Provides error codes for messages located in
  * <code>PSJBossErrorStringBundle</code>
  */
-public interface IPSJBossErrors
-{
-   /**
-    * Missing app polciy
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>the name of the policy</TD></TR>
-    * <TR><TD>1</TD><TD>the name of the file</TD></TR>
-    * </TABLE>
-    */
-   public static final int APP_POLICY_ELEMENT_MISSING = 1;
+public interface IPSJBossErrors {
+  /**
+   * Missing app polciy
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>the name of the policy</TD></TR>
+   * <TR><TD>1</TD><TD>the name of the file</TD></TR>
+   * </TABLE>
+   */
+  public static final int APP_POLICY_ELEMENT_MISSING = 1;
 }
-

@@ -7,12 +7,11 @@ package com.percussion.delivery.utils;
  */
 public class PSDeliveryException extends RuntimeException {
 
-    public PSDeliveryException(String message) {
-        super(message);
-    }
+  public PSDeliveryException(String message) {
+    super(message);
+  }
 
-    public PSDeliveryException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSDeliveryException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
-

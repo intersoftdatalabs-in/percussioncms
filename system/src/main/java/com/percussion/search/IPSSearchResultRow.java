@@ -60,83 +60,82 @@ import java.util.Set;
  * part of URLs.</li>
  * </ol>
  */
-public interface IPSSearchResultRow
-{
-   /**
-    * Make a new exact copy of the row and return.
-    * 
-    * @return new row object, never <code>null</code>.
-    */
-   IPSSearchResultRow cloneRow();
+public interface IPSSearchResultRow {
+  /**
+   * Make a new exact copy of the row and return.
+   *
+   * @return new row object, never <code>null</code>.
+   */
+  IPSSearchResultRow cloneRow();
 
-   /**
-    * Get the display value of the specified column in the row.
-    * 
-    * @param colName name of the column. Must not be <code>null</code> or
-    *           empty and is case sensitive.
-    * @return Display value of the column, will be <code>null</code> if the
-    *         column does not exist in the row or the column value is
-    *         <code>null</code>.
-    */
-   String getColumnDisplayValue(String colName);
+  /**
+   * Get the display value of the specified column in the row.
+   *
+   * @param colName name of the column. Must not be <code>null</code> or
+   *           empty and is case sensitive.
+   * @return Display value of the column, will be <code>null</code> if the
+   *         column does not exist in the row or the column value is
+   *         <code>null</code>.
+   */
+  String getColumnDisplayValue(String colName);
 
-   /**
-    * Set specified dislay value to a specified column in the row. Nothing 
-    * happens if specified column does exist in the row.
-    * 
-    * @param colName name of the column, must not be <code>null</code> or
-    *           empty and is case sensitive.
-    * @param colDisplayValue display value for the column, may be
-    *           <code>null</code> or empty.
-    */
-   void setColumnDisplayValue(String colName, String colDisplayValue);
+  /**
+   * Set specified dislay value to a specified column in the row. Nothing
+   * happens if specified column does exist in the row.
+   *
+   * @param colName name of the column, must not be <code>null</code> or
+   *           empty and is case sensitive.
+   * @param colDisplayValue display value for the column, may be
+   *           <code>null</code> or empty.
+   */
+  void setColumnDisplayValue(String colName, String colDisplayValue);
 
-   /**
-    * Get value of the specified column in the row.
-    * 
-    * @param colName name of the column. Must not be <code>null</code> or
-    *           empty and is case sensitive.
-    * @return Value of the column, will be <code>null</code> if the column
-    *         does not exist in the row or the column display value is
-    *         <code>null</code>.
-    */
-   String getColumnValue(String colName);
+  /**
+   * Get value of the specified column in the row.
+   *
+   * @param colName name of the column. Must not be <code>null</code> or
+   *           empty and is case sensitive.
+   * @return Value of the column, will be <code>null</code> if the column
+   *         does not exist in the row or the column display value is
+   *         <code>null</code>.
+   */
+  String getColumnValue(String colName);
 
-   /**
-    * Set specified value to a specified column in the row. Nothing 
-    * happens if specified column does exist in the row.
-    * 
-    * @param colName name of the column, must not be <code>null</code> or
-    *           empty and is case sensitive.
-    * @param colValue value for the column, may be <code>null</code> or empty.
-    */
-   void setColumnValue(String colName, String colValue);
+  /**
+   * Set specified value to a specified column in the row. Nothing
+   * happens if specified column does exist in the row.
+   *
+   * @param colName name of the column, must not be <code>null</code> or
+   *           empty and is case sensitive.
+   * @param colValue value for the column, may be <code>null</code> or empty.
+   */
+  void setColumnValue(String colName, String colValue);
 
-   /**
-    * Does the row have the column with the specified name?
-    * 
-    * @param colName name of the column, must not be <code>null</code> or
-    *           empty and is case sensitive.
-    * @return <code>true</code> if the row has the specified column,
-    *         <code>false</code> otherwise.
-    */
-   boolean hasColumn(String colName);
+  /**
+   * Does the row have the column with the specified name?
+   *
+   * @param colName name of the column, must not be <code>null</code> or
+   *           empty and is case sensitive.
+   * @return <code>true</code> if the row has the specified column,
+   *         <code>false</code> otherwise.
+   */
+  boolean hasColumn(String colName);
 
-   /**
-    * Get the set of column names in the row. Each entry in the set is a
-    * <code>String</code>
-    * 
-    * @return set of column names in the row. Never <code>null</code> may be
-    *         empty.
-    */
-   Set<String> getColumnNames();
+  /**
+   * Get the set of column names in the row. Each entry in the set is a
+   * <code>String</code>
+   *
+   * @return set of column names in the row. Never <code>null</code> may be
+   *         empty.
+   */
+  Set<String> getColumnNames();
 
-   /**
-    * Get map of column values for the row. The key in the map is the name of
-    * the column and the value is the internal value of the column.
-    * 
-    * @return map of column values as descibed above, never <code>null</code>
-    *         may be empty.
-    */
-   Map<String, Object> getColumnValueMap();
+  /**
+   * Get map of column values for the row. The key in the map is the name of
+   * the column and the value is the internal value of the column.
+   *
+   * @return map of column values as descibed above, never <code>null</code>
+   *         may be empty.
+   */
+  Map<String, Object> getColumnValueMap();
 }

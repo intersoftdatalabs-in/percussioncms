@@ -23,17 +23,9 @@ import java.io.OutputStream;
 /**
  * Creates a stream that allows the user to read data from a block of shared
  * memory. Marking and resetting are supported.
-**/
-public class PSSharedMemoryOutputStream extends OutputStream 
-{
-   public PSSharedMemoryOutputStream( PSSharedMemory shMem )
-   {
-      
-   }
-   
-   public void write( int b )
-         throws IOException 
-   {
-      
-   }
+ **/
+public class PSSharedMemoryOutputStream extends OutputStream {
+  public PSSharedMemoryOutputStream(PSSharedMemory shMem) {}
+
+  public void write(int b) throws IOException {}
 }

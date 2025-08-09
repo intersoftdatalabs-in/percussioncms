@@ -29,10 +29,6 @@ import com.percussion.tablefactory.PSJdbcTableSchemaCollection;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.utils.container.IPSJdbcDbmsDefConstants;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * This class creates backup of specified tables. If backup of the table is
@@ -78,210 +76,199 @@ import java.util.stream.Collectors;
  * </pre>
  *
  */
-public class PSExportDatabase extends PSAction
-{
-    private static final String ERROR = "ERROR :";
-   // see base class
-   
-   @Override
-   public void execute()
-   {
-        Connection conn = null;
-         String propFile = getRootDir() + File.separator
-         + "rxconfig/Installer/rxrepository.properties";
+public class PSExportDatabase extends PSAction {
+  private static final String ERROR = "ERROR :";
 
-         File f = new File(propFile);
-         if (!(f.exists() && f.isFile()))
-            return;
-        try(FileInputStream in = new FileInputStream(f)){
+  // see base class
 
-         Properties props = new Properties();
-         props.load(in);
-         props.setProperty(IPSJdbcDbmsDefConstants.PWD_ENCRYPTED_PROPERTY, "Y");
-         PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
-         PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap(
-               props.getProperty("DB_BACKEND"),
-               props.getProperty("DB_DRIVER_NAME"), null);
-         conn = RxLogTables.createConnection(props);
+  @Override
+  public void execute() {
+    Connection conn = null;
+    String propFile = getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
 
-          List<String> tableNames = getTableNames(conn, dbmsDef);
-          tableNames=filterTableNames(tableNames);
-          Document schemaDoc = PSXmlDocumentBuilder.createXmlDocument();
-          Document dataDoc = PSXmlDocumentBuilder.createXmlDocument();
+    File f = new File(propFile);
+    if (!(f.exists() && f.isFile())) return;
+    try (FileInputStream in = new FileInputStream(f)) {
 
-          PSJdbcTableDataCollection collData = new PSJdbcTableDataCollection();
-          PSJdbcTableSchemaCollection collSchema =
-                  new PSJdbcTableSchemaCollection();
-          PSJdbcTableSchema tableSchema = null;
-          PSJdbcTableData tableData = null;
+      Properties props = new Properties();
+      props.load(in);
+      props.setProperty(IPSJdbcDbmsDefConstants.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      PSJdbcDataTypeMap dataTypeMap =
+          new PSJdbcDataTypeMap(
+              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
+      conn = RxLogTables.createConnection(props);
 
-          List<PSJdbcTableSchema> schemasToSort = new ArrayList<>();
-        for (int i=0; i <tableNames.size(); i++) {
-            String tblName = tableNames.get(i).trim();
+      List<String> tableNames = getTableNames(conn, dbmsDef);
+      tableNames = filterTableNames(tableNames);
+      Document schemaDoc = PSXmlDocumentBuilder.createXmlDocument();
+      Document dataDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-            try {
-                tableSchema = PSJdbcTableFactory.catalogTable(conn, dbmsDef,
-                dataTypeMap, tblName, true);
-                if(tableSchema != null) {
-                    schemasToSort.add(tableSchema);
-                }
-            } catch (PSJdbcTableFactoryException ex) {
-                PSLogger.logInfo(ERROR + ex.getMessage());
-                PSLogger.logInfo(ex);
-            }
-        }
+      PSJdbcTableDataCollection collData = new PSJdbcTableDataCollection();
+      PSJdbcTableSchemaCollection collSchema = new PSJdbcTableSchemaCollection();
+      PSJdbcTableSchema tableSchema = null;
+      PSJdbcTableData tableData = null;
 
-          Collections.sort(schemasToSort);
+      List<PSJdbcTableSchema> schemasToSort = new ArrayList<>();
+      for (int i = 0; i < tableNames.size(); i++) {
+        String tblName = tableNames.get(i).trim();
 
-          for (PSJdbcTableSchema sortedSchema : schemasToSort)
-          {
-              collSchema.add(sortedSchema);
-
-              tableData = sortedSchema.getTableData();
-              if(tableData != null) {
-                  collData.add(tableData);
-              }
-
-          }
-
-          schemaDoc.appendChild(collSchema.toXml(schemaDoc));
-          dataDoc.appendChild(collData.toXml(dataDoc));
-          File defFile = new File(tableDefFile);
-          defFile.getParentFile().mkdirs();
-
-          File dataFile = new File(tableDataFile);
-          dataFile.getParentFile().mkdirs();
-
-          try (OutputStream os = new FileOutputStream(new File(tableDefFile))) {
-              PSXmlDocumentBuilder.write(schemaDoc, os);
-          }
-
-          try (OutputStream os = new FileOutputStream(new File(tableDataFile))) {
-              PSXmlDocumentBuilder.write(dataDoc, os);
-          }
-        } catch (IOException | PSJdbcTableFactoryException | SAXException | SQLException ex) {
-            PSLogger.logInfo(ERROR + ex.getMessage());
-            PSLogger.logInfo(ex);
-        }
-
-      finally
-      {
-         if (conn != null){
-           try{
-               conn.close();
-           }catch (SQLException ex){
-               PSLogger.logInfo("ERROR : " + ex.getMessage());
-               PSLogger.logInfo(ex);
-           }
-         }
-      }
-   }
-
-    private List<String> filterTableNames(List<String> tableNames) {
-       return tableNames.stream().filter(name -> !name.endsWith("_BAK")).collect(Collectors.toList());
-    }
-
-    private List<String> getTableNames(Connection conn, PSJdbcDbmsDef dbmsDef) throws SQLException {
-        DatabaseMetaData dmd = conn.getMetaData();
-        List<String> tableNames = new ArrayList<>();
         try {
-            String[] types = {"TABLE"};
-            ResultSet rs = dmd.getTables(dbmsDef.getDataBase(), dbmsDef.getSchema(), "%", types);
-
-            while (rs.next()) {
-                tableNames.add(rs.getString("TABLE_NAME"));
-            }
+          tableSchema = PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, tblName, true);
+          if (tableSchema != null) {
+            schemasToSort.add(tableSchema);
+          }
+        } catch (PSJdbcTableFactoryException ex) {
+          PSLogger.logInfo(ERROR + ex.getMessage());
+          PSLogger.logInfo(ex);
         }
-        catch (SQLException ex) {
-            PSLogger.logInfo("ERROR : " + ex.getMessage());
-            PSLogger.logInfo(ex);
-            throw ex;
+      }
+
+      Collections.sort(schemasToSort);
+
+      for (PSJdbcTableSchema sortedSchema : schemasToSort) {
+        collSchema.add(sortedSchema);
+
+        tableData = sortedSchema.getTableData();
+        if (tableData != null) {
+          collData.add(tableData);
         }
+      }
 
-        return tableNames;
+      schemaDoc.appendChild(collSchema.toXml(schemaDoc));
+      dataDoc.appendChild(collData.toXml(dataDoc));
+      File defFile = new File(tableDefFile);
+      defFile.getParentFile().mkdirs();
+
+      File dataFile = new File(tableDataFile);
+      dataFile.getParentFile().mkdirs();
+
+      try (OutputStream os = new FileOutputStream(new File(tableDefFile))) {
+        PSXmlDocumentBuilder.write(schemaDoc, os);
+      }
+
+      try (OutputStream os = new FileOutputStream(new File(tableDataFile))) {
+        PSXmlDocumentBuilder.write(dataDoc, os);
+      }
+    } catch (IOException | PSJdbcTableFactoryException | SAXException | SQLException ex) {
+      PSLogger.logInfo(ERROR + ex.getMessage());
+      PSLogger.logInfo(ex);
+    } finally {
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException ex) {
+          PSLogger.logInfo("ERROR : " + ex.getMessage());
+          PSLogger.logInfo(ex);
+        }
+      }
+    }
+  }
+
+  private List<String> filterTableNames(List<String> tableNames) {
+    return tableNames.stream().filter(name -> !name.endsWith("_BAK")).collect(Collectors.toList());
+  }
+
+  private List<String> getTableNames(Connection conn, PSJdbcDbmsDef dbmsDef) throws SQLException {
+    DatabaseMetaData dmd = conn.getMetaData();
+    List<String> tableNames = new ArrayList<>();
+    try {
+      String[] types = {"TABLE"};
+      ResultSet rs = dmd.getTables(dbmsDef.getDataBase(), dbmsDef.getSchema(), "%", types);
+
+      while (rs.next()) {
+        tableNames.add(rs.getString("TABLE_NAME"));
+      }
+    } catch (SQLException ex) {
+      PSLogger.logInfo("ERROR : " + ex.getMessage());
+      PSLogger.logInfo(ex);
+      throw ex;
     }
 
+    return tableNames;
+  }
 
-    /***************************************************************************
-    * Bean properties
-    ***************************************************************************/
+  /***************************************************************************
+   * Bean properties
+   ***************************************************************************/
 
-   /**
-    * Returns the name of tables whose backup is to be created.
-    *
-    * @return the name of tables whose backup is to be created,
-    * never <code>null</code>, may be empty array
-    */
-   public String[] getTableIncludes()
-   {
-      return tableIncludes;
-   }
+  /**
+   * Returns the name of tables whose backup is to be created.
+   *
+   * @return the name of tables whose backup is to be created,
+   * never <code>null</code>, may be empty array
+   */
+  public String[] getTableIncludes() {
+    return tableIncludes;
+  }
 
-   /**
-    * Sets the name of tables whose backup is to be created.
-    *
-    * @param tableIncludes name of tables whose backup is to be created,
-    * never <code>null</code>, may be empty array
-    */
-   public void setTableIncludes(String tableIncludes)
-   {
-      this.tableIncludes = convertToArray(tableIncludes);
-   }
+  /**
+   * Sets the name of tables whose backup is to be created.
+   *
+   * @param tableIncludes name of tables whose backup is to be created,
+   * never <code>null</code>, may be empty array
+   */
+  public void setTableIncludes(String tableIncludes) {
+    this.tableIncludes = convertToArray(tableIncludes);
+  }
 
-    /**
-     * Returns the name of tables whose backup is to be created.
-     *
-     * @return the name of tables whose backup is to be created,
-     * never <code>null</code>, may be empty array
-     */
-    public String[] getTableExcludes()
-    {
-        return this.tableExcludes;
-    }
+  /**
+   * Returns the name of tables whose backup is to be created.
+   *
+   * @return the name of tables whose backup is to be created,
+   * never <code>null</code>, may be empty array
+   */
+  public String[] getTableExcludes() {
+    return this.tableExcludes;
+  }
 
-    /**
-     * Sets the name of tables whose backup is to be created.
-     *
-     * @param tableExcludes name of tables whose backup is to be created,
-     * never <code>null</code>, may be empty array
-     */
-    public void setTableExcludes(String tableExcludes)
-    {
-        this.tableIncludes = convertToArray(tableExcludes);
-    }
+  /**
+   * Sets the name of tables whose backup is to be created.
+   *
+   * @param tableExcludes name of tables whose backup is to be created,
+   * never <code>null</code>, may be empty array
+   */
+  public void setTableExcludes(String tableExcludes) {
+    this.tableIncludes = convertToArray(tableExcludes);
+  }
 
+  public String getTableDefFile() {
+    return tableDefFile;
+  }
 
-   public String getTableDefFile() { return tableDefFile; }
+  public String getTableDataFile() {
+    return tableDataFile;
+  }
 
-    public String getTableDataFile() { return tableDataFile; }
+  public void setTableDefFile(String tableDefFile) {
+    this.tableDefFile = tableDefFile;
+  }
 
+  public void setTableDataFile(String tableDataFile) {
+    this.tableDataFile = tableDataFile;
+  }
 
-    public void setTableDefFile(String tableDefFile) { this.tableDefFile = tableDefFile;}
-    public void setTableDataFile(String tableDataFile) { this.tableDataFile = tableDataFile;}
+  /**************************************************************************
+   * properties
+   **************************************************************************/
 
-    /**************************************************************************
-    * properties
-    **************************************************************************/
+  /**
+   * Name of tables whose backup is to be created, never <code>null</code>,
+   * may be empty
+   */
+  private String tableDefFile = null;
 
-    /**
-     * Name of tables whose backup is to be created, never <code>null</code>,
-     * may be empty
-     */
-    private String tableDefFile = null;
+  private String tableDataFile = null;
 
-    private String tableDataFile = null;
+  /**
+   * Name of tables whose backup is to be created, never <code>null</code>,
+   * may be empty
+   */
+  private String[] tableIncludes = null;
 
-   /**
-    * Name of tables whose backup is to be created, never <code>null</code>,
-    * may be empty
-    */
-   private String[] tableIncludes= null;
-    /**
-     * Name of tables whose backup is to be created, never <code>null</code>,
-     * may be empty
-     */
-    private String[] tableExcludes= null;
-
+  /**
+   * Name of tables whose backup is to be created, never <code>null</code>,
+   * may be empty
+   */
+  private String[] tableExcludes = null;
 }
-
-

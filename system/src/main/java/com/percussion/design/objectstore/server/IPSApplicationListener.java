@@ -19,11 +19,9 @@ package com.percussion.design.objectstore.server;
 
 import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSApplication;
-import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSSystemValidationException;
-
+import com.percussion.error.PSNotFoundException;
 import java.util.EventListener;
-
 
 /**
  * The IPSApplicationListener interface is implemented by classes
@@ -45,51 +43,48 @@ import java.util.EventListener;
  * @version    1.0
  * @since      1.0
  */
-public interface IPSApplicationListener extends EventListener
-{
-   /**
-    * Changes have been made to the application.
-    * <P>
-    * If the application has been modified, including a rename, the
-    * applicationRenamed method will be called first, then the
-    * applicationUpdated method. If a rename did not occur, 
-    * applicationRenamed will not be called.
-    *
-    * @param   app         the application object
-    */
-   public void applicationUpdated(PSApplication app)
+public interface IPSApplicationListener extends EventListener {
+  /**
+   * Changes have been made to the application.
+   * <P>
+   * If the application has been modified, including a rename, the
+   * applicationRenamed method will be called first, then the
+   * applicationUpdated method. If a rename did not occur,
+   * applicationRenamed will not be called.
+   *
+   * @param   app         the application object
+   */
+  public void applicationUpdated(PSApplication app)
       throws PSSystemValidationException, PSServerException, PSNotFoundException;
 
-   /**
-    * A new application has been created.
-    *
-    * @param   app         the application object
-    */
-   public void applicationCreated(PSApplication app)
+  /**
+   * A new application has been created.
+   *
+   * @param   app         the application object
+   */
+  public void applicationCreated(PSApplication app)
       throws PSSystemValidationException, PSServerException, PSNotFoundException;
 
-   /**
-    * The name of the application has been changed.
-    * <P>
-    * If additional changes have also been made to the application, the
-    * applicationRenamed method will be called first, then the
-    * applicationUpdated method.
-    *
-    * @param   app         the application object
-    *
-    * @param   oldName      the original name of the application
-    *
-    * @param   newName      the new name of the application
-    */
-   public void applicationRenamed(
-      PSApplication app, String oldName, String newName);
+  /**
+   * The name of the application has been changed.
+   * <P>
+   * If additional changes have also been made to the application, the
+   * applicationRenamed method will be called first, then the
+   * applicationUpdated method.
+   *
+   * @param   app         the application object
+   *
+   * @param   oldName      the original name of the application
+   *
+   * @param   newName      the new name of the application
+   */
+  public void applicationRenamed(PSApplication app, String oldName, String newName);
 
-   /**
-    * The application has been removed from the object store.
-    * It is guaranteed that no other information has changed.
-    *
-    * @param   app         the application object
-    */
-   public void applicationRemoved(PSApplication app);
+  /**
+   * The application has been removed from the object store.
+   * It is guaranteed that no other information has changed.
+   *
+   * @param   app         the application object
+   */
+  public void applicationRemoved(PSApplication app);
 }
-

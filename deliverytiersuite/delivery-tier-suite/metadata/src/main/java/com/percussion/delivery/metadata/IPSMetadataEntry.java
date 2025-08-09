@@ -19,85 +19,82 @@ package com.percussion.delivery.metadata;
 
 import java.util.Set;
 
-public interface IPSMetadataEntry
-{
+public interface IPSMetadataEntry {
 
-    /**
-     * @return the name
-     */
-    public String getName();
+  /**
+   * @return the name
+   */
+  public String getName();
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name);
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name);
 
-    /**
-     * @return the folder
-     */
-    public String getFolder();
+  /**
+   * @return the folder
+   */
+  public String getFolder();
 
-    /**
-     * @param folder the folder to set
-     */
-    public void setFolder(String folder);
+  /**
+   * @param folder the folder to set
+   */
+  public void setFolder(String folder);
 
-    /**
-     * @return the page path
-     */
-    public String getPagepath();
+  /**
+   * @return the page path
+   */
+  public String getPagepath();
 
-    /**
-     * @param path the pagepath to set
-     */
-    public void setPagepath(String path);
+  /**
+   * @param path the pagepath to set
+   */
+  public void setPagepath(String path);
 
-    /**
-     * @return the linktext
-     */
-    public String getLinktext();
+  /**
+   * @return the linktext
+   */
+  public String getLinktext();
 
-    /**
-     * @param linktext the linktext to set
-     */
-    public void setLinktext(String linktext);
+  /**
+   * @param linktext the linktext to set
+   */
+  public void setLinktext(String linktext);
 
-    /**
-     * @return the type
-     */
-    public String getType();
+  /**
+   * @return the type
+   */
+  public String getType();
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type);
+  /**
+   * @param type the type to set
+   */
+  public void setType(String type);
 
-    /**
-     * @return the site
-     */
-    public String getSite();
+  /**
+   * @return the site
+   */
+  public String getSite();
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site);
+  /**
+   * @param site the site to set
+   */
+  public void setSite(String site);
 
-    /**
-     * @return the properties. This returns a cloned set of properties changing
-     *         the value of these directly will not affect the property values
-     *         in the entry. To change property values on the entry you must
-     *         passed the properties back to the entries
-     *         {@link #setProperties(Set)} method.
-     */
-    public Set<IPSMetadataProperty> getProperties();
+  /**
+   * @return the properties. This returns a cloned set of properties changing the value of these
+   *     directly will not affect the property values in the entry. To change property values on the
+   *     entry you must passed the properties back to the entries {@link #setProperties(Set)}
+   *     method.
+   */
+  public Set<IPSMetadataProperty> getProperties();
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(Set<IPSMetadataProperty> properties);
+  /**
+   * @param properties the properties to set
+   */
+  public void setProperties(Set<IPSMetadataProperty> properties);
 
-    public void addProperty(IPSMetadataProperty prop);
+  public void addProperty(IPSMetadataProperty prop);
 
-    public void clearProperties();
-
+  public void clearProperties();
 }

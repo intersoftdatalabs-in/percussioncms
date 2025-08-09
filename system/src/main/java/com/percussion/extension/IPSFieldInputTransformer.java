@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * 
+ *
  */
 package com.percussion.extension;
 
@@ -25,8 +25,8 @@ package com.percussion.extension;
  * <p>
  * The field value is available in a request parameter of the same name and can
  * be obtained either by configuring a Single HTML Parameter replacement value
- * as an input parameter to the extension, or else directly from the request 
- * context. The transformed value should be returned by the 
+ * as an input parameter to the extension, or else directly from the request
+ * context. The transformed value should be returned by the
  * <code>processUdf()</code> method.
  * <p>
  * At run-time, the extension handler that handles this extension will
@@ -48,7 +48,4 @@ package com.percussion.extension;
  * copies of the variable.
  *
  */
-public interface IPSFieldInputTransformer extends IPSUdfProcessor
-{
-
-}
+public interface IPSFieldInputTransformer extends IPSUdfProcessor {}

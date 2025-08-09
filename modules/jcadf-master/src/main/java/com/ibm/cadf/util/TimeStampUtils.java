@@ -17,34 +17,28 @@
 
 package com.ibm.cadf.util;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 
-public class TimeStampUtils
-{
+public class TimeStampUtils {
 
-    public static String getCurrentTime(String timeZone)
-    {
+  public static String getCurrentTime(String timeZone) {
 
-        FastDateFormat format = FastDateFormat.getInstance(Constants.DEFAULT_TIME_FORMAT,
-                TimeZone.getTimeZone(timeZone),Locale.US);
+    FastDateFormat format =
+        FastDateFormat.getInstance(
+            Constants.DEFAULT_TIME_FORMAT, TimeZone.getTimeZone(timeZone), Locale.US);
 
-        return format.format(new Date());
+    return format.format(new Date());
+  }
 
-    }
+  public static String getCurrentTime() {
+    return getCurrentTime("UTC");
+  }
 
-    public static String getCurrentTime()
-    {
-        return getCurrentTime("UTC");
-    }
-
-    public static boolean isValid(String timesmap)
-    {
-        return StringUtils.isNotEmpty(timesmap);
-    }
-
+  public static boolean isValid(String timesmap) {
+    return StringUtils.isNotEmpty(timesmap);
+  }
 }

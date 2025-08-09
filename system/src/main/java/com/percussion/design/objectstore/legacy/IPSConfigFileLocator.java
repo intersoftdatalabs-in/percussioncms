@@ -23,21 +23,18 @@ import java.io.File;
  * Interface to provide file locations of each of the configuration files used
  * by an {@link IPSComponentConverter}.
  */
-public interface IPSConfigFileLocator
-{
-   /**
-    * Get the location of the server configuration file.
-    * 
-    * @return The file, never <code>null</code>.
-    */
-   public File getServerConfigFile();
+public interface IPSConfigFileLocator {
+  /**
+   * Get the location of the server configuration file.
+   *
+   * @return The file, never <code>null</code>.
+   */
+  public File getServerConfigFile();
 
-   /**
-    * Get the location of the Spring beans configuration file.
-    * 
-    * @return The file, never <code>null</code>.
-    */
-   public File getSpringConfigFile();
-
-
+  /**
+   * Get the location of the Spring beans configuration file.
+   *
+   * @return The file, never <code>null</code>.
+   */
+  public File getSpringConfigFile();
 }

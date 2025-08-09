@@ -28,67 +28,69 @@ import org.apache.logging.log4j.Logger;
 
 public class MainIAInstall extends CustomCodeAction {
 
-    private static final Logger log = LogManager.getLogger(MainIAInstall.class);
+  private static final Logger log = LogManager.getLogger(MainIAInstall.class);
 
-    public static final int ESTIMATED_LINES=30000;
+  public static final int ESTIMATED_LINES = 30000;
 
-    public static InstallerProxy installProxy=null;
+  public static InstallerProxy installProxy = null;
 
-    @Override
-    public void install(InstallerProxy installerProxy) throws InstallException {
-      try {
-          installProxy = installerProxy;
+  @Override
+  public void install(InstallerProxy installerProxy) throws InstallException {
+    try {
+      installProxy = installerProxy;
 
-          String installDir =  installProxy.substitute("$USER_INSTALL_DIR$");
-         Main.main(new String[]{installDir});
-         Boolean error=Main.error;
-         if(error){
-       PercussionCustomRuleFailureCase.rulePass=true;
-         }else{
-             PercussionCustomRuleSuccess.rulePass=true;
-         }
-      }catch(Exception e){
-          log.error(PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      String installDir = installProxy.substitute("$USER_INSTALL_DIR$");
+      Main.main(new String[] {installDir});
+      Boolean error = Main.error;
+      if (error) {
+        PercussionCustomRuleFailureCase.rulePass = true;
+      } else {
+        PercussionCustomRuleSuccess.rulePass = true;
       }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+  }
 
-    @Override
-    public void uninstall(UninstallerProxy uninstallerProxy) throws InstallException {
-        //TODO: Not currently implemented
-    }
+  @Override
+  public void uninstall(UninstallerProxy uninstallerProxy) throws InstallException {
+    // TODO: Not currently implemented
+  }
 
-    @Override
-    public String getInstallStatusMessage() {
-        return "Installing files...";
-    }
+  @Override
+  public String getInstallStatusMessage() {
+    return "Installing files...";
+  }
 
-    @Override
-    public String getUninstallStatusMessage() {
-        return "Uninstalling files...";
-    }
+  @Override
+  public String getUninstallStatusMessage() {
+    return "Uninstalling files...";
+  }
 
-    @Override
-    public long getEstimatedTimeToInstall(InstallerProxy installerProxy) {
-        return 100;
-    }
+  @Override
+  public long getEstimatedTimeToInstall(InstallerProxy installerProxy) {
+    return 100;
+  }
 
-    @Override
-    public long getEstimatedTimeToUninstall(UninstallerProxy uninstallerProxy) {
-        return 100;
-    }
-    public static void showProgress(ProgressAccess progressAccess, int lineNo, String actionTitle, String lineText) {
-        try {
-            progressAccess.setProgressTitle(actionTitle);
-            progressAccess.setProgressStatusText(lineText);
-            progressAccess.setProgressPercentage(calculatePercentage(lineNo));
-        }catch (Exception e){
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-    }
+  @Override
+  public long getEstimatedTimeToUninstall(UninstallerProxy uninstallerProxy) {
+    return 100;
+  }
 
-    public static float calculatePercentage(int lineNo){
-        return (lineNo * 100) / ESTIMATED_LINES;
+  public static void showProgress(
+      ProgressAccess progressAccess, int lineNo, String actionTitle, String lineText) {
+    try {
+      progressAccess.setProgressTitle(actionTitle);
+      progressAccess.setProgressStatusText(lineText);
+      progressAccess.setProgressPercentage(calculatePercentage(lineNo));
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+  }
+
+  public static float calculatePercentage(int lineNo) {
+    return (lineNo * 100) / ESTIMATED_LINES;
+  }
 }

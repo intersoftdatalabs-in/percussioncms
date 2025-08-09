@@ -21,7 +21,7 @@ package com.percussion.extension;
  * interface are usually registered with the extensions manager for use in the
  * evaluation of jexl expressions. The classes are instantiated and bound to a
  * set naming scheme. $rx.name is bound for each system context class and
- * $user.name is bound for each user context class. 
+ * $user.name is bound for each user context class.
  * <p>
  * For example, $rx.codec is
  * bound to the implementation class for codec utilities. This bound name can
@@ -30,11 +30,10 @@ package com.percussion.extension;
  * <p>
  * The velocity tools are typically also bound, but they do not implement this
  * marker interface.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
-public interface IPSJexlExpression extends IPSExtension
-{
-   // No methods defined
+public interface IPSJexlExpression extends IPSExtension {
+  // No methods defined
 }

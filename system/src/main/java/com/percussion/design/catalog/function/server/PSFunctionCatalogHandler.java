@@ -18,7 +18,6 @@
 package com.percussion.design.catalog.function.server;
 
 import com.percussion.design.catalog.PSCatalogRequestHandler;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,26 +26,22 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see com.percussion.server.IPSRequestHandler
  */
-public class PSFunctionCatalogHandler extends PSCatalogRequestHandler
-{
-   /**
-    * Construct the database functions catalog handler.
-    *
-    * @throws IllegalArgumentException if <code>dbFuncMgr</code> is
-    * <code>null</code>
-    */
-   public PSFunctionCatalogHandler()
-   {
-      m_catalogHandlers = new ConcurrentHashMap();
-      addHandler(new PSDatabaseFunctionCatalogHandler());
-   }
+public class PSFunctionCatalogHandler extends PSCatalogRequestHandler {
+  /**
+   * Construct the database functions catalog handler.
+   *
+   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is
+   * <code>null</code>
+   */
+  public PSFunctionCatalogHandler() {
+    m_catalogHandlers = new ConcurrentHashMap();
+    addHandler(new PSDatabaseFunctionCatalogHandler());
+  }
 
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
+  /**
+   * Shutdown the request handler, freeing any associated resources.
+   */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 }
-

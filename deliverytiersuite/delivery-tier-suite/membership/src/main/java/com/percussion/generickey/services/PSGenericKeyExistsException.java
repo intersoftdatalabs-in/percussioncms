@@ -16,15 +16,11 @@
  */
 package com.percussion.generickey.services;
 
-public class PSGenericKeyExistsException extends Exception
-{
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+public class PSGenericKeyExistsException extends Exception {
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    public PSGenericKeyExistsException(String resetKey)
-    {
-        super("Key already exists: " + resetKey);
-    }
+  public PSGenericKeyExistsException(String resetKey) {
+    super("Key already exists: " + resetKey);
+  }
 }

@@ -20,7 +20,6 @@ package com.percussion.search;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.server.IPSRequestContext;
-
 import java.util.List;
 
 /**
@@ -38,24 +37,23 @@ import java.util.List;
  * <p>
  * <em>The implementation of this extension must be thread safe.</em>
  */
-public interface IPSSearchResultsProcessor extends IPSExtension
-{
-   /**
-    * The actual implementation of the row processing as described in the class
-    * description.
-    * 
-    * @param params parameters to the extension as documented in the definition
-    *           of the extension. Never <code>null</code>, may be empty.
-    * @param rows a list of the search result
-    *           {@link com.percussion.search.IPSSearchResultRow rows}, These
-    *           are the rows the implementer may want to modify. Never
-    *           <code>null</code> or empty.
-    * @param request request context object, never <code>null</code>.
-    * @return A list of modified rows. Must not be <code>null</code> may be
-    *         empty.
-    * @throws PSExtensionProcessingException implementation can throw this
-    *            exception if any error occurs during processing.
-    */
-   List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
-         throws PSExtensionProcessingException;
+public interface IPSSearchResultsProcessor extends IPSExtension {
+  /**
+   * The actual implementation of the row processing as described in the class
+   * description.
+   *
+   * @param params parameters to the extension as documented in the definition
+   *           of the extension. Never <code>null</code>, may be empty.
+   * @param rows a list of the search result
+   *           {@link com.percussion.search.IPSSearchResultRow rows}, These
+   *           are the rows the implementer may want to modify. Never
+   *           <code>null</code> or empty.
+   * @param request request context object, never <code>null</code>.
+   * @return A list of modified rows. Must not be <code>null</code> may be
+   *         empty.
+   * @throws PSExtensionProcessingException implementation can throw this
+   *            exception if any error occurs during processing.
+   */
+  List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
+      throws PSExtensionProcessingException;
 }

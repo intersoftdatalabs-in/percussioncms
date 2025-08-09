@@ -20,20 +20,15 @@ package com.percussion.delivery.feeds.services;
  * @author erikserating
  *
  */
-public interface IPSConnectionInfo
-{
+public interface IPSConnectionInfo {
 
-    
-    public String getUrl();
+  public String getUrl();
 
-   
-    public String getUsername();
+  public String getUsername();
 
-    
-    public String getPassword();
+  public String getPassword();
 
-    public String getEncrypted();
+  public String getEncrypted();
 
-    public long getId();
-
+  public long getId();
 }

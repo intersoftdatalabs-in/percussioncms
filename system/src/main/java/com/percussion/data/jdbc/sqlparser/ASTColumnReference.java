@@ -26,24 +26,20 @@ public class ASTColumnReference extends SimpleNode {
     super(p, id);
   }
 
-  public void setTable(String table)
-  {
-     m_table = table;
+  public void setTable(String table) {
+    m_table = table;
   }
 
-  public String getTable()
-  {
-     return m_table;
+  public String getTable() {
+    return m_table;
   }
 
-  public void setColumn(String column)
-  {
-     m_column = column;
+  public void setColumn(String column) {
+    m_column = column;
   }
 
-  public String getColumn()
-  {
-     return m_column;
+  public String getColumn() {
+    return m_column;
   }
 
   private String m_column = null;

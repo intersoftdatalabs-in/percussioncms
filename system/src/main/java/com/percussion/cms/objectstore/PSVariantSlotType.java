@@ -28,194 +28,170 @@ import org.w3c.dom.Element;
  * RXVARIANTSLOTTYPE table.
  * @deprecated use the assembly service instead
  */
-public class PSVariantSlotType extends PSDbComponent
-{
-   /**
-    * Creates an instance from a previously serialized (using <code>toXml
-    * </code>) object.
-    *
-    * @param source A valid element that meets the dtd defined in the
-    *    description of {@link #toXml(Document)}. Never <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException If the supplied source element does
-    *    not conform to the dtd defined in the <code>fromXml<code> method.
-    */
-   public PSVariantSlotType(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      super(source);
-      fromXml(source);
-   }
+public class PSVariantSlotType extends PSDbComponent {
+  /**
+   * Creates an instance from a previously serialized (using <code>toXml
+   * </code>) object.
+   *
+   * @param source A valid element that meets the dtd defined in the
+   *    description of {@link #toXml(Document)}. Never <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException If the supplied source element does
+   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   */
+  public PSVariantSlotType(Element source) throws PSUnknownNodeTypeException {
+    super(source);
+    fromXml(source);
+  }
 
-   /**
-    * Create a record from information from the assembly manager. Note that due
-    * to Java, we cannot check the arguments before calling super.
-    * 
-    * @param guid the guid of the variant, never <code>null</code>
-    * @param slot the slot, never <code>null</code>
-    */
-   public PSVariantSlotType(IPSGuid guid, IPSTemplateSlot slot) {
-      super(createKey((int) guid.longValue(), (int) slot.getGUID().longValue()));
-   }
+  /**
+   * Create a record from information from the assembly manager. Note that due
+   * to Java, we cannot check the arguments before calling super.
+   *
+   * @param guid the guid of the variant, never <code>null</code>
+   * @param slot the slot, never <code>null</code>
+   */
+  public PSVariantSlotType(IPSGuid guid, IPSTemplateSlot slot) {
+    super(createKey((int) guid.longValue(), (int) slot.getGUID().longValue()));
+  }
 
-   /**
-    * @return Slot Id.
-    */
-   public int getSlotId()
-   {
-      return getKeyPartInt(KEY_SLOTID, -1);
-   }
+  /**
+   * @return Slot Id.
+   */
+  public int getSlotId() {
+    return getKeyPartInt(KEY_SLOTID, -1);
+  }
 
+  /**
+   * @return variant id.
+   */
+  public int getVariantId() {
+    return getKeyPartInt(KEY_VARIANTID, -1);
+  }
 
-   /**
-    * @return variant id.
-    */
-   public int getVariantId()
-   {
-      return getKeyPartInt(KEY_VARIANTID, -1); 
-   }
-   
-   /**
-    * Serializes this object into an xml element that can be attached to the
-    * supplied document. It will conform to the following dtd:
-    * <pre>
-    * <!ELEMENT VARIANTID (#PCDATA)>
-    * <!ELEMENT SLOTID (#PCDATA)>
-    * <!ELEMENT PSXKey (VARIANTID, SLOTID)>
-    * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
-    * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
-    * <!ELEMENT PSXVariantSlotType (PSXKey )>
-    * <!ATTLIST  PSXVariantSlotType state CDATA #REQUIRED>
-    * </pre>
-    *
-    * @param doc Used to generate the element. Never <code>null</code>.
-    *
-    * @return the generated element, never <code>null</code>.
-    */
-   public Element toXml(Document doc)
-   {
-      if (null == doc)
-         throw new IllegalArgumentException("doc must be supplied");
+  /**
+   * Serializes this object into an xml element that can be attached to the
+   * supplied document. It will conform to the following dtd:
+   * <pre>
+   * <!ELEMENT VARIANTID (#PCDATA)>
+   * <!ELEMENT SLOTID (#PCDATA)>
+   * <!ELEMENT PSXKey (VARIANTID, SLOTID)>
+   * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
+   * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
+   * <!ELEMENT PSXVariantSlotType (PSXKey )>
+   * <!ATTLIST  PSXVariantSlotType state CDATA #REQUIRED>
+   * </pre>
+   *
+   * @param doc Used to generate the element. Never <code>null</code>.
+   *
+   * @return the generated element, never <code>null</code>.
+   */
+  public Element toXml(Document doc) {
+    if (null == doc) throw new IllegalArgumentException("doc must be supplied");
 
-      Element root = super.toXml(doc);
+    Element root = super.toXml(doc);
 
-      return root;
-   }
-   /*
-    *  (non-Javadoc)
-    * @see com.percussion.cms.objectstore.IPSCmsComponent#fromXml(org.w3c.dom.Element)
-    */
-   public void fromXml(Element sourceNode)
-      throws PSUnknownNodeTypeException
-   {
-      if (null == sourceNode)
-         throw new IllegalArgumentException("sourceNode must be supplied");
+    return root;
+  }
 
-      super.fromXml(sourceNode);
-   }
+  /*
+   *  (non-Javadoc)
+   * @see com.percussion.cms.objectstore.IPSCmsComponent#fromXml(org.w3c.dom.Element)
+   */
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
-   /**
-    * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-    *     PSKey)}.
-    * Since this is a read-only object, this is a not supported operation.
-    * @throws UnsupportedOperationException always.
-    */
-   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen,
-      PSKey parent) throws PSCmsException
-   {
-      throw new UnsupportedOperationException("PSVariantSlotType is read-only.");
-   }
+    super.fromXml(sourceNode);
+  }
 
-   public Object clone()
-   {
-      PSVariantSlotType copy = (PSVariantSlotType)super.clone();
+  /**
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
+   *     PSKey)}.
+   * Since this is a read-only object, this is a not supported operation.
+   * @throws UnsupportedOperationException always.
+   */
+  public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
+      throws PSCmsException {
+    throw new UnsupportedOperationException("PSVariantSlotType is read-only.");
+  }
 
-      return copy;
-   }
+  public Object clone() {
+    PSVariantSlotType copy = (PSVariantSlotType) super.clone();
 
-   /**
-    * Creates the correct key for this component.
-    * 
-    * @param variantid the variant id
-    * 
-    * @return the created key, never <code>null</code>. 
-    */
-   public static PSKey createKey(int variantid)
-   {
-      if (variantid < 0)
-         throw new IllegalArgumentException("variantid may not be < 0");
+    return copy;
+  }
 
-      return createKey(variantid, -1);
-   }
-   
-   /**
-    * Creates the correct key for this component.
-    * @param variantId the variant id
-    * @param slotId the slot id
-    * 
-    * @return the created key, never <code>null</code>.
-    */
-   private static PSKey createKey(int variantId, int slotId)
-   {
-      String[] keyNames = {KEY_VARIANTID, KEY_SLOTID};
-      String[] keyValues = {"" + variantId, "" + slotId};
-      return new PSKey(keyNames, keyValues, true);
-   }
+  /**
+   * Creates the correct key for this component.
+   *
+   * @param variantid the variant id
+   *
+   * @return the created key, never <code>null</code>.
+   */
+  public static PSKey createKey(int variantid) {
+    if (variantid < 0) throw new IllegalArgumentException("variantid may not be < 0");
 
-   /**
-    * Override to create our own Key which is 
-    * {@link com.percussion.design.objectstore.PSLocator}.
-    */
-   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException
-   {
-      if (el == null)
-         throw new IllegalArgumentException("Source element cannot be null.");
+    return createKey(variantid, -1);
+  }
 
-      return new PSKey(el);
-   }
+  /**
+   * Creates the correct key for this component.
+   * @param variantId the variant id
+   * @param slotId the slot id
+   *
+   * @return the created key, never <code>null</code>.
+   */
+  private static PSKey createKey(int variantId, int slotId) {
+    String[] keyNames = {KEY_VARIANTID, KEY_SLOTID};
+    String[] keyValues = {"" + variantId, "" + slotId};
+    return new PSKey(keyNames, keyValues, true);
+  }
 
-   /**
-    * Overrides the base class to compare each of the member properties. This 
-    * class is an exception for this methid's implementation in that we compare 
-    * the key values to decide if two objects are equal or not. This is because
-    * of the fact that this class has no other memeber data other than the key
-    * values. 
-    *
-    * @param o The comparee. If null or not an instance of this class,
-    *    <code>false</code> is returned.
-    *
-    * @return <code>true</code> if all members are equal as defined above,
-    *    otherwise <code>false</code> is returned.
-    */
-   public boolean equals( Object o )
-   {
-      if (!(o instanceof PSVariantSlotType))
-         return false;
+  /**
+   * Override to create our own Key which is
+   * {@link com.percussion.design.objectstore.PSLocator}.
+   */
+  protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
+    if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
-      PSVariantSlotType type = (PSVariantSlotType) o;
+    return new PSKey(el);
+  }
 
-      if (getSlotId() != type.getSlotId())
-         return false;
-      if (getVariantId() != type.getVariantId())
-         return false;
+  /**
+   * Overrides the base class to compare each of the member properties. This
+   * class is an exception for this methid's implementation in that we compare
+   * the key values to decide if two objects are equal or not. This is because
+   * of the fact that this class has no other memeber data other than the key
+   * values.
+   *
+   * @param o The comparee. If null or not an instance of this class,
+   *    <code>false</code> is returned.
+   *
+   * @return <code>true</code> if all members are equal as defined above,
+   *    otherwise <code>false</code> is returned.
+   */
+  public boolean equals(Object o) {
+    if (!(o instanceof PSVariantSlotType)) return false;
 
-      return true;
-   }
+    PSVariantSlotType type = (PSVariantSlotType) o;
 
-   /**
-    * Must be overridden because we overrode equals.
-    *
-    * @return A value computed by concatenating all of the properties into one
-    *    string and taking the hashCode of that. The name is lowercased before
-    *    it is concatenated.
-    */
-   public int hashCode()
-   {
-      return (
-         (KEY_SLOTID + getSlotId()).hashCode()
-            + (KEY_VARIANTID + getVariantId()).hashCode());
-   }
+    if (getSlotId() != type.getSlotId()) return false;
+    if (getVariantId() != type.getVariantId()) return false;
 
-   private final static String KEY_VARIANTID = "VARIANTID";
-   private final static String KEY_SLOTID = "SLOTID";
+    return true;
+  }
+
+  /**
+   * Must be overridden because we overrode equals.
+   *
+   * @return A value computed by concatenating all of the properties into one
+   *    string and taking the hashCode of that. The name is lowercased before
+   *    it is concatenated.
+   */
+  public int hashCode() {
+    return ((KEY_SLOTID + getSlotId()).hashCode() + (KEY_VARIANTID + getVariantId()).hashCode());
+  }
+
+  private static final String KEY_VARIANTID = "VARIANTID";
+  private static final String KEY_SLOTID = "SLOTID";
 }

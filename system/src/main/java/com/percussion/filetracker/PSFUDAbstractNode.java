@@ -26,132 +26,110 @@ import org.w3c.dom.Text;
  * IPSFUDNode that are common for the derived classes . Methods getChildren()
  * and toString() must me overridden by the derived classes.
  */
-public abstract class PSFUDAbstractNode
-   implements IPSFUDNode
-{
-   /**
-    * Constructor.
-    *
-    * @param parent node as IPSFUDNode, can be <code>null</code>
-    *
-    * @param content item element in the XML document as DOM Element, cannot be
-    * <code>null</code>
-    *
-    * @throws PSFUDNullElementException if element is <code>null</code>.
-    *
-    */
-   public PSFUDAbstractNode(IPSFUDNode parent, Element elem)
-      throws PSFUDNullElementException
-   {
-      if(null == elem)
-      {
-         throw new PSFUDNullElementException(MainFrame.getRes().
-                                    getString("errorNullElement"));
-      }
-      m_Parent = parent;
-      m_Element = elem;
-      
-      m_ElementStatus = PSFUDDocMerger.getChildElement(m_Element,
-                                                IPSFUDNode.ELEM_STATUS);
-      if(null == m_ElementStatus)
-         m_ElementStatus = PSFUDDocMerger.createChildElement(m_Element,
-                                                IPSFUDNode.ELEM_STATUS);
-   }
+public abstract class PSFUDAbstractNode implements IPSFUDNode {
+  /**
+   * Constructor.
+   *
+   * @param parent node as IPSFUDNode, can be <code>null</code>
+   *
+   * @param content item element in the XML document as DOM Element, cannot be
+   * <code>null</code>
+   *
+   * @throws PSFUDNullElementException if element is <code>null</code>.
+   *
+   */
+  public PSFUDAbstractNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {
+    if (null == elem) {
+      throw new PSFUDNullElementException(MainFrame.getRes().getString("errorNullElement"));
+    }
+    m_Parent = parent;
+    m_Element = elem;
 
-   /**
-    * Returns the element this class encapsulates
-    *
-    * @return encapsulated DOM Element never <code>null</code>.
-    *
-    */
-   public Element getElement()
-   {
-      return m_Element;
-   }
+    m_ElementStatus = PSFUDDocMerger.getChildElement(m_Element, IPSFUDNode.ELEM_STATUS);
+    if (null == m_ElementStatus)
+      m_ElementStatus = PSFUDDocMerger.createChildElement(m_Element, IPSFUDNode.ELEM_STATUS);
+  }
 
-   /**
-    * returns status code
-    *
-    * @status code as int
-    *
-    * @see IPSFUDNode for status code values
-    *
-    */
-   public int getStatusCode()
-   {
-      if(null != m_Parent && !m_Parent.isRemoteExists())
-         return STATUS_CODE_ABSENT;
+  /**
+   * Returns the element this class encapsulates
+   *
+   * @return encapsulated DOM Element never <code>null</code>.
+   *
+   */
+  public Element getElement() {
+    return m_Element;
+  }
 
-      if(null  == m_ElementStatus)
-         return 0;
+  /**
+   * returns status code
+   *
+   * @status code as int
+   *
+   * @see IPSFUDNode for status code values
+   *
+   */
+  public int getStatusCode() {
+    if (null != m_Parent && !m_Parent.isRemoteExists()) return STATUS_CODE_ABSENT;
 
-      String tmp = m_ElementStatus.getAttribute(ATTRIB_CODE);
-      try
-      {
-         return Integer.parseInt(tmp);
-      }
-      catch(Exception e)
-      {
-         return 0;
-      }
-   }
+    if (null == m_ElementStatus) return 0;
 
-   /**
-    * returns status text, potentially used as tool tip text.
-    *
-    * @return status text as String may be empty but nevel <code>null</code>.
-    *
-    */
-   public String getStatusText()
-   {
-      if(null  == m_ElementStatus)
-         return "";
+    String tmp = m_ElementStatus.getAttribute(ATTRIB_CODE);
+    try {
+      return Integer.parseInt(tmp);
+    } catch (Exception e) {
+      return 0;
+    }
+  }
 
-      Node node = m_ElementStatus.getFirstChild();
-      if(null == node || Node.TEXT_NODE != node.getNodeType())
-         return "";
+  /**
+   * returns status text, potentially used as tool tip text.
+   *
+   * @return status text as String may be empty but nevel <code>null</code>.
+   *
+   */
+  public String getStatusText() {
+    if (null == m_ElementStatus) return "";
 
-      return ((Text)node).getData();
-   }
+    Node node = m_ElementStatus.getFirstChild();
+    if (null == node || Node.TEXT_NODE != node.getNodeType()) return "";
 
-   /**
-    * returns true if remote file exists
-    *
-    *  @return true if remote file exists else false
-    */
-   public boolean isRemoteExists()
-   {
-      if(STATUS_CODE_ABSENT != getStatusCode())
-         return true;
+    return ((Text) node).getData();
+  }
 
-      return false;
-   }
+  /**
+   * returns true if remote file exists
+   *
+   *  @return true if remote file exists else false
+   */
+  public boolean isRemoteExists() {
+    if (STATUS_CODE_ABSENT != getStatusCode()) return true;
 
-   /**
-    * Parent node of this node. Shall not be <code>null</code> except for the
-    * root node.
-    */
-   protected IPSFUDNode m_Parent = null;
+    return false;
+  }
 
-   /**
-    * Node element that is encapsulated by this node , nevel be
-    * <code>null</code> after the this class is instantiated.
-    */
-   protected Element m_Element = null;
+  /**
+   * Parent node of this node. Shall not be <code>null</code> except for the
+   * root node.
+   */
+  protected IPSFUDNode m_Parent = null;
 
-   /**
-    * Reference to status element that is child of current element.
-    * Stored since this required very frequently hence avoiding walking through
-    * evrytime. Never be <code>null</code> after the this class is instantiated.
-    */
-   protected Element m_ElementStatus = null;
+  /**
+   * Node element that is encapsulated by this node , nevel be
+   * <code>null</code> after the this class is instantiated.
+   */
+  protected Element m_Element = null;
 
-   /**
-    * Array of child nodes for this class object is used for caching to improve
-    * performance. This object is obtained only the derived class objects. Null
-    * for leaf nodes. 
-    */
-   protected Object[] m_Children = null;
+  /**
+   * Reference to status element that is child of current element.
+   * Stored since this required very frequently hence avoiding walking through
+   * evrytime. Never be <code>null</code> after the this class is instantiated.
+   */
+  protected Element m_ElementStatus = null;
+
+  /**
+   * Array of child nodes for this class object is used for caching to improve
+   * performance. This object is obtained only the derived class objects. Null
+   * for leaf nodes.
+   */
+  protected Object[] m_Children = null;
 }
-
-

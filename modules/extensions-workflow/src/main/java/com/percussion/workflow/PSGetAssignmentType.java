@@ -17,7 +17,6 @@
 
 package com.percussion.workflow;
 
-
 import com.percussion.data.PSConversionException;
 import com.percussion.error.PSException;
 import com.percussion.error.PSExceptionUtils;
@@ -50,71 +49,60 @@ import org.w3c.dom.Element;
  * archive (com/percussion/cx/images/iconkey.gif). It is recommended that the
  * images match the normal icon images in the content explorer.
  */
-public class PSGetAssignmentType extends PSSimpleJavaUdfExtension
-   implements IPSUdfProcessor
-{
+public class PSGetAssignmentType extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 
-   private static final Logger log = LogManager.getLogger(PSGetAssignmentType.class);
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      if ( null == params || params.length < 1 || null == params[0]
-         || 0 == params[0].toString().trim().length())
-      {
-         return "";
+  private static final Logger log = LogManager.getLogger(PSGetAssignmentType.class);
+
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    if (null == params
+        || params.length < 1
+        || null == params[0]
+        || 0 == params[0].toString().trim().length()) {
+      return "";
+    }
+
+    String noneImage = "", readerImage = "", assigneeImage = "", adminImage = "";
+
+    if (params.length > 1) noneImage = params[1].toString();
+    if (params.length > 2) readerImage = params[2].toString();
+    if (params.length > 3) assigneeImage = params[3].toString();
+    if (params.length > 4) adminImage = params[4].toString();
+
+    String contentid = params[0].toString().trim();
+    // Create a temporary XML result document with key fields.
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element elem = PSXmlDocumentBuilder.createRoot(doc, ELEMENT_ITEM);
+    elem.setAttribute(ATTRIB_CONTENTID, contentid);
+    String result = "Default";
+    String userName = "";
+    try {
+      int assType = PSExitAddPossibleTransitionsEx.getAssignmentType(request, contentid);
+
+      switch (assType) {
+        case PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE:
+          result = noneImage;
+          break;
+        case PSWorkFlowUtils.ASSIGNMENT_TYPE_READER:
+          result = readerImage;
+          break;
+        case PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE:
+          result = assigneeImage;
+          break;
+        case PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN:
+          result = adminImage;
+          break;
+        default:
       }
+    } catch (PSException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
+    }
+    return result;
+  }
 
-      String noneImage = "", readerImage = "", assigneeImage = "", adminImage = "";
-
-      if(params.length > 1)
-         noneImage = params[1].toString();
-      if(params.length > 2)
-         readerImage = params[2].toString();
-      if(params.length > 3)
-         assigneeImage = params[3].toString();
-      if(params.length > 4)
-         adminImage = params[4].toString();
-
-      String contentid = params[0].toString().trim();
-      //Create a temporary XML result document with key fields.
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element elem = PSXmlDocumentBuilder.createRoot(doc, ELEMENT_ITEM);
-      elem.setAttribute(ATTRIB_CONTENTID, contentid);
-      String result = "Default";
-      String userName = "";
-      try
-      {
-         int assType = PSExitAddPossibleTransitionsEx.getAssignmentType(
-               request, contentid);
-
-         switch(assType)
-         {
-            case PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE:
-               result = noneImage;
-            break;
-            case PSWorkFlowUtils.ASSIGNMENT_TYPE_READER:
-               result = readerImage;
-            break;
-            case PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE:
-               result = assigneeImage;
-            break;
-            case PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN:
-               result = adminImage;
-            break;
-            default:
-         }
-      }
-      catch (PSException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSConversionException(e.getErrorCode(),
-            e.getErrorArguments());
-      }
-      return result;
-   }
-   //String constants for the temporary XML document
-   static private final String ELEMENT_ITEM = "Item";
-   static private final String ATTRIB_CONTENTID = "contentid";
+  // String constants for the temporary XML document
+  private static final String ELEMENT_ITEM = "Item";
+  private static final String ATTRIB_CONTENTID = "contentid";
 }
-

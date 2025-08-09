@@ -18,7 +18,6 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,406 +60,337 @@ import java.util.jar.JarOutputStream;
  * </pre>
  *
  */
-public class PSUpdateWarFiles extends PSAction
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      try
-      {
-         m_warFilePath = getRootDir() + File.separator + m_warFilePath;
-         File f = new File(m_warFilePath);
-         if (!(f.exists() && f.isFile()))
-         {
-            PSLogger.logInfo(
-                  "Warning - war file does not exist : " +  m_warFilePath);
-            return;
-         }
-         if ((m_jarFiles == null) || (m_jarFiles.length == 0))
-         {
-            PSLogger.logInfo(
-                  "Note - No jar file to be added to the war file : "
-                  + m_warFilePath);
-            return;
-         }
-         for (int i=0; i < m_jarFiles.length; i++)
-         {
-            if ((m_jarFiles[i] != null) && (m_jarFiles[i].trim().length() > 0))
-            {
-               String jarFilePath = getRootDir() + File.separator
-               + m_jarFiles[i];
-               m_jarFiles[i] = jarFilePath;
-            }
-         }
-
-         updateWarFile();
+public class PSUpdateWarFiles extends PSAction {
+  // see base class
+  @Override
+  public void execute() {
+    try {
+      m_warFilePath = getRootDir() + File.separator + m_warFilePath;
+      File f = new File(m_warFilePath);
+      if (!(f.exists() && f.isFile())) {
+        PSLogger.logInfo("Warning - war file does not exist : " + m_warFilePath);
+        return;
       }
-      catch (Exception e)
-      {
-         PSLogger.logInfo("ERROR : " + e.getMessage());
-         PSLogger.logInfo(e);
+      if ((m_jarFiles == null) || (m_jarFiles.length == 0)) {
+        PSLogger.logInfo("Note - No jar file to be added to the war file : " + m_warFilePath);
+        return;
       }
-   }
-
-   /***************************************************************************
-    * private functions
-    ***************************************************************************/
-
-   /**
-    * Updates the war file <code>warFile</code> by adding the jar files listed
-    * in <code>jarFiles</code> to the  WEB-INF/lib directory of the war file.
-    */
-
-   public void updateWarFile()
-   {
-      File jarFile = new File(m_warFilePath);
-      File tempJarFile = new File(m_warFilePath + ".tmp");
-      JarFile srcJarFile = null;
-
-      try
-      {
-         Set setJarFiles = new HashSet();
-         for (int k=0; k < m_jarFiles.length; k++)
-         {
-            String jarFileName = jarFilesPath
-            + new File(m_jarFiles[k]).getName();
-
-            setJarFiles.add(jarFileName);
-         }
-
-         srcJarFile = new JarFile(jarFile);
-         JarOutputStream tempJar = new JarOutputStream(
-               new FileOutputStream(tempJarFile));
-
-         byte[] buffer = new byte[1024];
-         int bytesRead;
-
-         try
-         {
-            String resolvedFile;
-
-            if (!m_isRemoveFiles)
-            {
-               //add files
-               for (int k=0;k < m_jarFiles.length;k++)
-               {
-                  // Open the given file.
-                  resolvedFile = m_jarFiles[k];
-
-                  FileInputStream file = new FileInputStream(resolvedFile);
-
-                  try
-                  {
-                     // Create a jar entry and add it to the temp jar.
-                     JarEntry entry = new JarEntry(jarFilesPath
-                           + new File(resolvedFile).getName());
-
-                     tempJar.putNextEntry(entry);
-
-                     // Read the file and write it to the jar.
-                     while ((bytesRead = file.read(buffer)) != -1)
-                     {
-                        tempJar.write(buffer, 0, bytesRead);
-                     }
-
-                     PSLogger.logInfo(entry.getName() + " added.");
-                  }
-                  catch (IOException ioe)
-                  {
-                     PSLogger.logInfo("ERROR : " + ioe.getMessage());
-                     PSLogger.logInfo(ioe);
-                  }
-                  finally
-                  {
-                     if (file != null)
-                     {
-                        try
-                        {
-                           file.close();
-                        }
-                        catch (Exception e)
-                        {
-                           // no-op
-                        }
-                     }
-                  }
-               }
-            }
-
-            // Loop through the jar entries and add/remove them to/from the temp jar,
-            // skipping the entry that was added/(to be removed) to/from the temp jar already.
-            for (Enumeration srcJarEntries = srcJarFile.entries(); srcJarEntries.hasMoreElements(); )
-            {
-               // Get the next entry.
-               JarEntry srcJarEntry = (JarEntry) srcJarEntries.nextElement();
-
-               String entryName = srcJarEntry.getName();
-
-               //copy src jar entries from the source to the dest except for those that were already added
-
-               if (setJarFiles.contains(entryName)) //is it on the list we were given?
-               {
-                  String msg = m_isRemoveFiles ? " removed from archive : " :
-                     " skiped - already added to archive : ";
-
-                  PSLogger.logInfo("File : " + entryName + msg
-                        + new File(m_warFilePath).getAbsolutePath());
-
-                  continue; //skip this src. entry it was either copied already or we want to remove it
-               }
-               else
-               {
-                  // If the entry has not been added already or if removing not on the remove list, then copy it.
-                  copyJarEntry(srcJarFile, tempJar, srcJarEntry);
-               }
-            }
-         }
-         catch (Exception ex)
-         {
-            PSLogger.logInfo(ex.getLocalizedMessage());
-            PSLogger.logInfo(ex);
-            tempJar.putNextEntry(new JarEntry("stub"));
-         }
-         finally
-         {
-            if (tempJar != null)
-            {
-               try
-               {
-                  tempJar.close();
-               }
-               catch (Exception e)
-               {
-                  // no-op
-               }
-            }
-         }
+      for (int i = 0; i < m_jarFiles.length; i++) {
+        if ((m_jarFiles[i] != null) && (m_jarFiles[i].trim().length() > 0)) {
+          String jarFilePath = getRootDir() + File.separator + m_jarFiles[i];
+          m_jarFiles[i] = jarFilePath;
+        }
       }
-      catch (Exception ex)
-      {
-         PSLogger.logInfo(ex.getLocalizedMessage());
-         PSLogger.logInfo(ex);
-      }
-      finally
-      {
-         if (srcJarFile != null)
-         {
-            try
-            {
-               srcJarFile.close();
-            }
-            catch (IOException e)
-            {
-               // no-op
-            }
-         }
-      }
-      if (!jarFile.delete())
-         PSLogger.logInfo("Failed to delete : " + jarFile.getAbsolutePath());
-      if (!tempJarFile.renameTo(jarFile))
-         PSLogger.logInfo("Failed to rename : " + tempJarFile.getAbsolutePath()
-               + " to : " + jarFile.getAbsolutePath());
-   }
 
-   /**
-    * Copies jar entry from one jar to another.
-    * @param srcJarFile src. jar file to copy entries from.
-    * @param destJar dest. jar output stream to copy entry into.
-    * @param srcJarEntry jarentry to copy to the dest jar.
-    * @throws IOException
-    */
-   private void copyJarEntry(
-         JarFile srcJarFile,
-         JarOutputStream destJar,
-         JarEntry srcJarEntry)
-   throws IOException
-   {
+      updateWarFile();
+    } catch (Exception e) {
+      PSLogger.logInfo("ERROR : " + e.getMessage());
+      PSLogger.logInfo(e);
+    }
+  }
+
+  /***************************************************************************
+   * private functions
+   ***************************************************************************/
+
+  /**
+   * Updates the war file <code>warFile</code> by adding the jar files listed
+   * in <code>jarFiles</code> to the  WEB-INF/lib directory of the war file.
+   */
+  public void updateWarFile() {
+    File jarFile = new File(m_warFilePath);
+    File tempJarFile = new File(m_warFilePath + ".tmp");
+    JarFile srcJarFile = null;
+
+    try {
+      Set setJarFiles = new HashSet();
+      for (int k = 0; k < m_jarFiles.length; k++) {
+        String jarFileName = jarFilesPath + new File(m_jarFiles[k]).getName();
+
+        setJarFiles.add(jarFileName);
+      }
+
+      srcJarFile = new JarFile(jarFile);
+      JarOutputStream tempJar = new JarOutputStream(new FileOutputStream(tempJarFile));
+
       byte[] buffer = new byte[1024];
-
       int bytesRead;
 
-      // Get an input stream for the entry.
-      InputStream entryStream = srcJarFile.getInputStream(srcJarEntry);
+      try {
+        String resolvedFile;
 
-      // Read the entry and write it to the dest jar.
-      destJar.putNextEntry(srcJarEntry);
+        if (!m_isRemoveFiles) {
+          // add files
+          for (int k = 0; k < m_jarFiles.length; k++) {
+            // Open the given file.
+            resolvedFile = m_jarFiles[k];
 
-      while ((bytesRead = entryStream.read(buffer)) != -1)
-      {
-         destJar.write(buffer, 0, bytesRead);
+            FileInputStream file = new FileInputStream(resolvedFile);
+
+            try {
+              // Create a jar entry and add it to the temp jar.
+              JarEntry entry = new JarEntry(jarFilesPath + new File(resolvedFile).getName());
+
+              tempJar.putNextEntry(entry);
+
+              // Read the file and write it to the jar.
+              while ((bytesRead = file.read(buffer)) != -1) {
+                tempJar.write(buffer, 0, bytesRead);
+              }
+
+              PSLogger.logInfo(entry.getName() + " added.");
+            } catch (IOException ioe) {
+              PSLogger.logInfo("ERROR : " + ioe.getMessage());
+              PSLogger.logInfo(ioe);
+            } finally {
+              if (file != null) {
+                try {
+                  file.close();
+                } catch (Exception e) {
+                  // no-op
+                }
+              }
+            }
+          }
+        }
+
+        // Loop through the jar entries and add/remove them to/from the temp jar,
+        // skipping the entry that was added/(to be removed) to/from the temp jar already.
+        for (Enumeration srcJarEntries = srcJarFile.entries(); srcJarEntries.hasMoreElements(); ) {
+          // Get the next entry.
+          JarEntry srcJarEntry = (JarEntry) srcJarEntries.nextElement();
+
+          String entryName = srcJarEntry.getName();
+
+          // copy src jar entries from the source to the dest except for those that were already
+          // added
+
+          if (setJarFiles.contains(entryName)) // is it on the list we were given?
+          {
+            String msg =
+                m_isRemoveFiles
+                    ? " removed from archive : "
+                    : " skiped - already added to archive : ";
+
+            PSLogger.logInfo(
+                "File : " + entryName + msg + new File(m_warFilePath).getAbsolutePath());
+
+            continue; // skip this src. entry it was either copied already or we want to remove it
+          } else {
+            // If the entry has not been added already or if removing not on the remove list, then
+            // copy it.
+            copyJarEntry(srcJarFile, tempJar, srcJarEntry);
+          }
+        }
+      } catch (Exception ex) {
+        PSLogger.logInfo(ex.getLocalizedMessage());
+        PSLogger.logInfo(ex);
+        tempJar.putNextEntry(new JarEntry("stub"));
+      } finally {
+        if (tempJar != null) {
+          try {
+            tempJar.close();
+          } catch (Exception e) {
+            // no-op
+          }
+        }
       }
-   }
+    } catch (Exception ex) {
+      PSLogger.logInfo(ex.getLocalizedMessage());
+      PSLogger.logInfo(ex);
+    } finally {
+      if (srcJarFile != null) {
+        try {
+          srcJarFile.close();
+        } catch (IOException e) {
+          // no-op
+        }
+      }
+    }
+    if (!jarFile.delete()) PSLogger.logInfo("Failed to delete : " + jarFile.getAbsolutePath());
+    if (!tempJarFile.renameTo(jarFile))
+      PSLogger.logInfo(
+          "Failed to rename : "
+              + tempJarFile.getAbsolutePath()
+              + " to : "
+              + jarFile.getAbsolutePath());
+  }
 
-   /***************************************************************************
-    * Bean properties
-    ***************************************************************************/
+  /**
+   * Copies jar entry from one jar to another.
+   * @param srcJarFile src. jar file to copy entries from.
+   * @param destJar dest. jar output stream to copy entry into.
+   * @param srcJarEntry jarentry to copy to the dest jar.
+   * @throws IOException
+   */
+  private void copyJarEntry(JarFile srcJarFile, JarOutputStream destJar, JarEntry srcJarEntry)
+      throws IOException {
+    byte[] buffer = new byte[1024];
 
-   /**
-    * Returns the absolute path of the war file.
-    * @return the absolute path of the war file,
-    * never <code>null</code> or empty
-    */
-   public String getWarFile()
-   {
-      return m_warFilePath;
-   }
+    int bytesRead;
 
-   /**
-    * Sets the absolute path of the war file.
-    * @param warFile the absolute path of the war file,
-    * never <code>null</code> or empty
-    * @throws IllegalArgumentException if warFile is <code>null</code>
-    * or empty
-    */
-   public void setWarFile(String warFile)
-   {
-      if ((warFile == null) || (warFile.trim().length() < 1))
-         throw new IllegalArgumentException(
-         "warFile may not be null or empty");
-      this.m_warFilePath = warFile;
-   }
+    // Get an input stream for the entry.
+    InputStream entryStream = srcJarFile.getInputStream(srcJarEntry);
 
-   /**
-    * Returns the path of the jar files which should be prepended to the jar file
-    * name, when adding the jar file to the new war file.
-    * @return the path of the jar files which should be prepended to the jar file
-    * name, when adding the jar file to the new war file,
-    * never <code>null</code>, may be empty
-    */
-   public String getJarFilesPath()
-   {
-      return jarFilesPath;
-   }
+    // Read the entry and write it to the dest jar.
+    destJar.putNextEntry(srcJarEntry);
 
-   /**
-    * Sets the path of the jar files which should be prepended to the jar file
-    * name, when adding the jar file to the new war file.
-    * @param jarFilesPath the path of the jar files which should be prepended
-    * to the jar file name, when adding the jar file to the new war file,
-    * may be <code>null</code> or empty
-    */
-   public void setJarFilesPath(String jarFilesPath)
-   {
-      if (jarFilesPath == null)
-         jarFilesPath = "";
-      this.jarFilesPath = jarFilesPath;
-   }
+    while ((bytesRead = entryStream.read(buffer)) != -1) {
+      destJar.write(buffer, 0, bytesRead);
+    }
+  }
 
-   /**
-    * Returns the list of jar files to be added to the war file.
-    * @return list of war to be added to the war file, may be <code>null</code>
-    * or empty array.
-    */
-   public String[] getJarFiles()
-   {
-      return m_jarFiles;
-   }
+  /***************************************************************************
+   * Bean properties
+   ***************************************************************************/
 
-   /**
-    * Sets the list of jar files to be added to the war file.
-    * @param jarFiles list of jar files to be added to the war file,
-    * may be <code>null</code> or empty array.
-    */
-   public void setJarFiles(String[] jarFiles)
-   {
-      this.m_jarFiles = jarFiles;
-   }
+  /**
+   * Returns the absolute path of the war file.
+   * @return the absolute path of the war file,
+   * never <code>null</code> or empty
+   */
+  public String getWarFile() {
+    return m_warFilePath;
+  }
 
-   /**
-    * Set isRemoveFiles.
-    * @param b
-    */
-   public void setRemoveFiles(boolean b)
-   {
-      m_isRemoveFiles = b;
-   }
+  /**
+   * Sets the absolute path of the war file.
+   * @param warFile the absolute path of the war file,
+   * never <code>null</code> or empty
+   * @throws IllegalArgumentException if warFile is <code>null</code>
+   * or empty
+   */
+  public void setWarFile(String warFile) {
+    if ((warFile == null) || (warFile.trim().length() < 1))
+      throw new IllegalArgumentException("warFile may not be null or empty");
+    this.m_warFilePath = warFile;
+  }
 
-   /**
-    * Is RemoveFiles?.
-    * @return
-    */
-   public boolean isRemoveFiles()
-   {
-      return m_isRemoveFiles;
-   }
+  /**
+   * Returns the path of the jar files which should be prepended to the jar file
+   * name, when adding the jar file to the new war file.
+   * @return the path of the jar files which should be prepended to the jar file
+   * name, when adding the jar file to the new war file,
+   * never <code>null</code>, may be empty
+   */
+  public String getJarFilesPath() {
+    return jarFilesPath;
+  }
 
+  /**
+   * Sets the path of the jar files which should be prepended to the jar file
+   * name, when adding the jar file to the new war file.
+   * @param jarFilesPath the path of the jar files which should be prepended
+   * to the jar file name, when adding the jar file to the new war file,
+   * may be <code>null</code> or empty
+   */
+  public void setJarFilesPath(String jarFilesPath) {
+    if (jarFilesPath == null) jarFilesPath = "";
+    this.jarFilesPath = jarFilesPath;
+  }
 
-   /**************************************************************************
-    * properties
-    **************************************************************************/
+  /**
+   * Returns the list of jar files to be added to the war file.
+   * @return list of war to be added to the war file, may be <code>null</code>
+   * or empty array.
+   */
+  public String[] getJarFiles() {
+    return m_jarFiles;
+  }
 
-   /**
-    * Path of the war file to update, never <code>null</code> or empty.
-    * The path contains the path of the war file relative to the Rhythmyx root.
-    * The war file should already be installed on the destination system.
-    */
-   private String m_warFilePath =
-      "InstallableApps/RemotePublisher/Rhythmyx.war";
+  /**
+   * Sets the list of jar files to be added to the war file.
+   * @param jarFiles list of jar files to be added to the war file,
+   * may be <code>null</code> or empty array.
+   */
+  public void setJarFiles(String[] jarFiles) {
+    this.m_jarFiles = jarFiles;
+  }
 
-   /**
-    * The path of the jar files which should be prepended to the jar file name,
-    * when adding the jar file to the new war file.
-    * For example, for jar files in the soap.jar file, this will be equal
-    * to "soap/WEB-INF/lib". Never <code>null</code>, may be empty.
-    */
-   private String jarFilesPath = "soap/WEB-INF/lib/";
+  /**
+   * Set isRemoveFiles.
+   * @param b
+   */
+  public void setRemoveFiles(boolean b) {
+    m_isRemoveFiles = b;
+  }
 
-   /**
-    * The list of jar files to be added to the WEB-INF/lib directory of the war
-    * file, may be <code>null</code> or empty array. The files in this list
-    * should already be installed on the destination system. The path is
-    * relative to the Rhythmyx root.
-    */
-   private String[] m_jarFiles = new String[]
-                                            {
-         "rxconfig/Installer/temp/soap/WEB-INF/lib/rxdbpublisher.jar",
-         "rxconfig/Installer/temp/soap/WEB-INF/lib/rxportal.jar"
-                                            };
+  /**
+   * Is RemoveFiles?.
+   * @return
+   */
+  public boolean isRemoveFiles() {
+    return m_isRemoveFiles;
+  }
 
-   /**
-    * Flag that indicates that we want to remove a file.
-    */
-   private boolean m_isRemoveFiles = false;
+  /**************************************************************************
+   * properties
+   **************************************************************************/
 
-   /**************************************************************************
-    * main
-    **************************************************************************/
+  /**
+   * Path of the war file to update, never <code>null</code> or empty.
+   * The path contains the path of the war file relative to the Rhythmyx root.
+   * The war file should already be installed on the destination system.
+   */
+  private String m_warFilePath = "InstallableApps/RemotePublisher/Rhythmyx.war";
 
-   public static void main(String[] args)
-   {
-      String warFile =
-         "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/soap.war";
+  /**
+   * The path of the jar files which should be prepended to the jar file name,
+   * when adding the jar file to the new war file.
+   * For example, for jar files in the soap.jar file, this will be equal
+   * to "soap/WEB-INF/lib". Never <code>null</code>, may be empty.
+   */
+  private String jarFilesPath = "soap/WEB-INF/lib/";
 
-      //remove file
-      String[] jarFiles = new String[]
-                                     {
-            "rxbea.jar", //file doesn't have to exist to be able to remove it
-                                     };
+  /**
+   * The list of jar files to be added to the WEB-INF/lib directory of the war
+   * file, may be <code>null</code> or empty array. The files in this list
+   * should already be installed on the destination system. The path is
+   * relative to the Rhythmyx root.
+   */
+  private String[] m_jarFiles =
+      new String[] {
+        "rxconfig/Installer/temp/soap/WEB-INF/lib/rxdbpublisher.jar",
+        "rxconfig/Installer/temp/soap/WEB-INF/lib/rxportal.jar"
+      };
 
-      PSUpdateWarFiles warFileUpdate = new PSUpdateWarFiles();
-      warFileUpdate.setRemoveFiles(true);
-      warFileUpdate.setWarFile(warFile);
-      warFileUpdate.setJarFiles(jarFiles);
-      warFileUpdate.setJarFilesPath("WEB-INF/lib/");
-      warFileUpdate.updateWarFile();
+  /**
+   * Flag that indicates that we want to remove a file.
+   */
+  private boolean m_isRemoveFiles = false;
 
-      //add file
-      //file obviously must exist in this case
-      jarFiles = new String[]
-                            {
-            "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/rxbea.jar",
-                            };
+  /**************************************************************************
+   * main
+   **************************************************************************/
 
-      PSUpdateWarFiles warFileUpdate2 = new PSUpdateWarFiles();
-      warFileUpdate2.setRemoveFiles(false);
-      warFileUpdate2.setWarFile(warFile);
-      warFileUpdate2.setJarFiles(jarFiles);
-      warFileUpdate2.setJarFilesPath("WEB-INF/lib/");
-      warFileUpdate2.updateWarFile();
-   }
+  public static void main(String[] args) {
+    String warFile = "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/soap.war";
+
+    // remove file
+    String[] jarFiles =
+        new String[] {
+          "rxbea.jar", // file doesn't have to exist to be able to remove it
+        };
+
+    PSUpdateWarFiles warFileUpdate = new PSUpdateWarFiles();
+    warFileUpdate.setRemoveFiles(true);
+    warFileUpdate.setWarFile(warFile);
+    warFileUpdate.setJarFiles(jarFiles);
+    warFileUpdate.setJarFilesPath("WEB-INF/lib/");
+    warFileUpdate.updateWarFile();
+
+    // add file
+    // file obviously must exist in this case
+    jarFiles =
+        new String[] {
+          "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/rxbea.jar",
+        };
+
+    PSUpdateWarFiles warFileUpdate2 = new PSUpdateWarFiles();
+    warFileUpdate2.setRemoveFiles(false);
+    warFileUpdate2.setWarFile(warFile);
+    warFileUpdate2.setJarFiles(jarFiles);
+    warFileUpdate2.setJarFilesPath("WEB-INF/lib/");
+    warFileUpdate2.updateWarFile();
+  }
 }
-
-
-
-

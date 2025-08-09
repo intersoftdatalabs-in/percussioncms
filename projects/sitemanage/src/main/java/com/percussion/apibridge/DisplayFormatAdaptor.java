@@ -27,19 +27,17 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.*;
-import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * Provides the API implementation for the Display Format Resource.
@@ -48,127 +46,131 @@ import java.util.Map;
 @Lazy
 public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
-    private final IPSUiDesignWs designWs;
+  private final IPSUiDesignWs designWs;
 
-    @Autowired
-    public DisplayFormatAdaptor(IPSUiDesignWs designWs) {
-        this.designWs = designWs;
-    }
+  @Autowired
+  public DisplayFormatAdaptor(IPSUiDesignWs designWs) {
+    this.designWs = designWs;
+  }
 
-    @Override
-    public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+  @Override
+  public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
 
-    @Override
-    public void deleteDisplayFormats(List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+  @Override
+  public void deleteDisplayFormats(
+      List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
 
-    @Override
-    public List<DisplayFormat> findAllDisplayFormats()
-            throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
-        var ret = new ArrayList<DisplayFormat>();
-        var displayFormats = designWs.findDisplayFormats(null, null);
-        var guids = new ArrayList<IPSGuid>();
-        for (var c : displayFormats) {
-            guids.add(c.getGUID());
-        }
-        var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-        var currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        var dfs = designWs.loadDisplayFormats(guids, false, false, currentSession, currentUser);
-        for (var f : dfs) {
-            ret.add(copyDisplayFormat(f));
-        }
-        return ret;
+  @Override
+  public List<DisplayFormat> findAllDisplayFormats()
+      throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
+    var ret = new ArrayList<DisplayFormat>();
+    var displayFormats = designWs.findDisplayFormats(null, null);
+    var guids = new ArrayList<IPSGuid>();
+    for (var c : displayFormats) {
+      guids.add(c.getGUID());
     }
+    var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+    var currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+    var dfs = designWs.loadDisplayFormats(guids, false, false, currentSession, currentUser);
+    for (var f : dfs) {
+      ret.add(copyDisplayFormat(f));
+    }
+    return ret;
+  }
 
-    private DisplayFormatPropertyList copyDisplayFormatProps(PSDFProperties props) {
-        // TODO: Implement property copying if needed.
-        return new DisplayFormatPropertyList(new ArrayList<>());
-    }
+  private DisplayFormatPropertyList copyDisplayFormatProps(PSDFProperties props) {
+    // TODO: Implement property copying if needed.
+    return new DisplayFormatPropertyList(new ArrayList<>());
+  }
 
-    private DisplayFormat copyDisplayFormat(PSDisplayFormat f)
-            throws PSCmsException, PSUnknownNodeTypeException {
-        var ret = new DisplayFormat();
-        if (f.getPropertyContainer() != null) {
-            ret.setProperties(copyDisplayFormatProps(f.getPropertyContainer()));
-        }
-        ret.setInternalName(f.getInternalName());
-        if (f.getColumnContainer() != null) {
-            ret.setColumns(copyDisplayFormatColumns(f.getColumnContainer()));
-        }
-        if (f.getAllowedCommunities() != null) {
-            ret.setAllowedCommunities(copyAllowedCommunities(f.getAllowedCommunities()));
-        }
-        ret.setAscendingSort(f.isAscendingSort());
-        ret.setDescendingSort(f.isDescendingSort());
-        ret.setInvalidFolderFieldNames(f.getInvalidFolderFieldNames());
-        ret.setDisplayId(f.getDisplayId());
-        ret.setName(f.getName());
-        ret.setLabel(f.getLabel());
-        ret.setDescription(f.getDescription());
-        ret.setDisplayName(f.getDisplayName());
-        ret.setGuid(copyGuid(f.getGUID()));
-        return ret;
+  private DisplayFormat copyDisplayFormat(PSDisplayFormat f)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    var ret = new DisplayFormat();
+    if (f.getPropertyContainer() != null) {
+      ret.setProperties(copyDisplayFormatProps(f.getPropertyContainer()));
     }
+    ret.setInternalName(f.getInternalName());
+    if (f.getColumnContainer() != null) {
+      ret.setColumns(copyDisplayFormatColumns(f.getColumnContainer()));
+    }
+    if (f.getAllowedCommunities() != null) {
+      ret.setAllowedCommunities(copyAllowedCommunities(f.getAllowedCommunities()));
+    }
+    ret.setAscendingSort(f.isAscendingSort());
+    ret.setDescendingSort(f.isDescendingSort());
+    ret.setInvalidFolderFieldNames(f.getInvalidFolderFieldNames());
+    ret.setDisplayId(f.getDisplayId());
+    ret.setName(f.getName());
+    ret.setLabel(f.getLabel());
+    ret.setDescription(f.getDescription());
+    ret.setDisplayName(f.getDisplayName());
+    ret.setGuid(copyGuid(f.getGUID()));
+    return ret;
+  }
 
-    private Guid copyGuid(IPSGuid guid) {
-        var g = new Guid();
-        g.setHostId(guid.getHostId());
-        g.setLongValue(guid.longValue());
-        g.setStringValue(guid.toString());
-        g.setType(guid.getType());
-        g.setUuid(guid.getUUID());
-        g.setUntypedString(guid.toStringUntyped());
-        return g;
-    }
+  private Guid copyGuid(IPSGuid guid) {
+    var g = new Guid();
+    g.setHostId(guid.getHostId());
+    g.setLongValue(guid.longValue());
+    g.setStringValue(guid.toString());
+    g.setType(guid.getType());
+    g.setUuid(guid.getUUID());
+    g.setUntypedString(guid.toStringUntyped());
+    return g;
+  }
 
-    private Map<Guid, String> copyAllowedCommunities(Map<IPSGuid, String> allowedCommunities) {
-        var ret = new HashMap<Guid, String>();
-        for (var e : allowedCommunities.entrySet()) {
-            ret.put(copyGuid(e.getKey()), e.getValue());
-        }
-        return ret;
+  private Map<Guid, String> copyAllowedCommunities(Map<IPSGuid, String> allowedCommunities) {
+    var ret = new HashMap<Guid, String>();
+    for (var e : allowedCommunities.entrySet()) {
+      ret.put(copyGuid(e.getKey()), e.getValue());
     }
+    return ret;
+  }
 
-    private DisplayFormatColumnList copyDisplayFormatColumns(PSDFColumns columnContainer) {
-        var ret = new DisplayFormatColumnList(new ArrayList<>());
-        for (int i = 0; i < columnContainer.size(); i++) {
-            var col = (PSDisplayColumn) columnContainer.get(i);
-            var dfc = new DisplayFormatColumn();
-            dfc.setAscendingSort(col.isAscendingSort());
-            dfc.setCategorized(col.isCategorized());
-            dfc.setDateType(col.isDateType());
-            dfc.setDescendingSort(col.isDescendingSort());
-            dfc.setDescription(col.getDescription());
-            dfc.setDisplayId(col.getDisplayId());
-            dfc.setDisplayName(col.getDisplayName());
-            dfc.setImageType(col.isImageType());
-            dfc.setNumberType(col.isNumberType());
-            dfc.setPosition(col.getPosition());
-            dfc.setWidth(col.getWidth());
-            dfc.setRenderType(col.getRenderType());
-            dfc.setTextType(col.isTextType());
-            dfc.setSource(col.getSource());
-            dfc.setSortOrder(dfc.isAscendingSort());
-            ret.add(dfc);
-        }
-        return ret;
+  private DisplayFormatColumnList copyDisplayFormatColumns(PSDFColumns columnContainer) {
+    var ret = new DisplayFormatColumnList(new ArrayList<>());
+    for (int i = 0; i < columnContainer.size(); i++) {
+      var col = (PSDisplayColumn) columnContainer.get(i);
+      var dfc = new DisplayFormatColumn();
+      dfc.setAscendingSort(col.isAscendingSort());
+      dfc.setCategorized(col.isCategorized());
+      dfc.setDateType(col.isDateType());
+      dfc.setDescendingSort(col.isDescendingSort());
+      dfc.setDescription(col.getDescription());
+      dfc.setDisplayId(col.getDisplayId());
+      dfc.setDisplayName(col.getDisplayName());
+      dfc.setImageType(col.isImageType());
+      dfc.setNumberType(col.isNumberType());
+      dfc.setPosition(col.getPosition());
+      dfc.setWidth(col.getWidth());
+      dfc.setRenderType(col.getRenderType());
+      dfc.setTextType(col.isTextType());
+      dfc.setSource(col.getSource());
+      dfc.setSortOrder(dfc.isAscendingSort());
+      ret.add(dfc);
     }
+    return ret;
+  }
 
-    @Override
-    public DisplayFormat findDisplayFormat(IPSGuid id) throws PSCmsException, PSUnknownNodeTypeException {
-        return copyDisplayFormat(designWs.findDisplayFormat(id));
-    }
+  @Override
+  public DisplayFormat findDisplayFormat(IPSGuid id)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    return copyDisplayFormat(designWs.findDisplayFormat(id));
+  }
 
-    @Override
-    public DisplayFormat findDisplayFormat(String name) throws PSCmsException, PSUnknownNodeTypeException {
-        return copyDisplayFormat(designWs.findDisplayFormat(name));
-    }
+  @Override
+  public DisplayFormat findDisplayFormat(String name)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    return copyDisplayFormat(designWs.findDisplayFormat(name));
+  }
 
-    @Override
-    public void saveDisplayFormats(List<DisplayFormat> displayFormats, boolean release, String session, String user) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+  @Override
+  public void saveDisplayFormats(
+      List<DisplayFormat> displayFormats, boolean release, String session, String user) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
 }

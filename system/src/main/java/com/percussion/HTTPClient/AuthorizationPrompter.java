@@ -34,22 +34,21 @@ package com.percussion.HTTPClient;
  * @since	V0.3-3
  */
 @Deprecated
-public interface AuthorizationPrompter
-{
-    /**
-     * This method is invoked whenever a username and password is required
-     * for an authentication challenge to proceed.
-     *
-     * @param challenge the parsed challenge from the server; the host,
-     *                  port, scheme, realm and params are set to the
-     *                  values given by the server in the challenge.
-     * @param forProxy  true if the info is for a proxy (i.e. this is part of
-     *                  handling a 407 response); false otherwise (i.e. the
-     *                  response code was 401).
-     * @return an NVPair containing the username and password in the name
-     *         and value fields, respectively, or null if the authorization
-     *         challenge handling is to be aborted (e.g. when the user
-     *         hits the <var>Cancel</var> button).
-     */
-    NVPair getUsernamePassword(AuthorizationInfo challenge, boolean forProxy);
+public interface AuthorizationPrompter {
+  /**
+   * This method is invoked whenever a username and password is required
+   * for an authentication challenge to proceed.
+   *
+   * @param challenge the parsed challenge from the server; the host,
+   *                  port, scheme, realm and params are set to the
+   *                  values given by the server in the challenge.
+   * @param forProxy  true if the info is for a proxy (i.e. this is part of
+   *                  handling a 407 response); false otherwise (i.e. the
+   *                  response code was 401).
+   * @return an NVPair containing the username and password in the name
+   *         and value fields, respectively, or null if the authorization
+   *         challenge handling is to be aborted (e.g. when the user
+   *         hits the <var>Cancel</var> button).
+   */
+  NVPair getUsernamePassword(AuthorizationInfo challenge, boolean forProxy);
 }

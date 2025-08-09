@@ -17,14 +17,13 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.w3c.dom.Element;
 
 /**
  * This class presents the interfaces supported by the processor classes, but
@@ -79,132 +78,107 @@ import java.util.Map;
  * @author Paul Howard
  * @version 1.0
  */
-public class PSComponentProcessorProxy  extends PSProcessorProxy
-   implements IPSComponentProcessor
-{
-   // TODO Take a closer look for problems in a multi-thread environment
+public class PSComponentProcessorProxy extends PSProcessorProxy implements IPSComponentProcessor {
+  // TODO Take a closer look for problems in a multi-thread environment
 
-   /**
-    * Creates a proxy for a specific type of processor. Simply delegates to the
-    * base  class.
-    *
-    * @param type  The type of processor for which this class is acting as a
-    *    proxy. See {@link PSProcessorProxy version of the constructor} for more
-    *    details
-    *
-    * @param ctx A context object appropriate for the processor type,
-    * may be <code>null</code> if the processor does not require one.
-    *
-    * @throws PSCmsException If the xml document is not well-formed and
-    *    conformant to its schema.
-    */
-   public PSComponentProcessorProxy(String type, Object ctx)
-      throws PSCmsException
-   {
-      super(type, ctx);
-   }
+  /**
+   * Creates a proxy for a specific type of processor. Simply delegates to the
+   * base  class.
+   *
+   * @param type  The type of processor for which this class is acting as a
+   *    proxy. See {@link PSProcessorProxy version of the constructor} for more
+   *    details
+   *
+   * @param ctx A context object appropriate for the processor type,
+   * may be <code>null</code> if the processor does not require one.
+   *
+   * @throws PSCmsException If the xml document is not well-formed and
+   *    conformant to its schema.
+   */
+  public PSComponentProcessorProxy(String type, Object ctx) throws PSCmsException {
+    super(type, ctx);
+  }
 
-   //see interface for description
-   public PSSaveResults save(IPSDbComponent [] components)
-      throws PSCmsException
-   {
-      if (null == components)
-         throw new IllegalArgumentException("Supplied array cannot be null.");
+  // see interface for description
+  public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
+    if (null == components) throw new IllegalArgumentException("Supplied array cannot be null.");
 
-      Map procGroups = createComponentProcessorGroups(components);
+    Map procGroups = createComponentProcessorGroups(components);
 
-      PSProcessingStatistics totals = new PSProcessingStatistics(0,0);
-      List<IPSDbComponent> resultComps = new ArrayList<>();
-      Iterator iter = procGroups.keySet().iterator();
-      while (iter.hasNext())
-      {
-         PSProcessorCommon proc = (PSProcessorCommon) iter.next();
-         Collection coll = (Collection) procGroups.get(proc);
-         IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
-         coll.toArray(comps);
-         PSSaveResults results = proc.save(comps);
-         PSProcessingStatistics stats = results.getResultStats();
-         totals = new PSProcessingStatistics(
-               totals.getInsertedCount() + stats.getInsertedCount(),
-               totals.getUpdatedCount() + stats.getUpdatedCount(),
-               totals.getDeletedCount() + stats.getDeletedCount(),
-               totals.getSkippedCount() + stats.getSkippedCount(),
-               totals.getErroredCount() + stats.getErroredCount());
-         resultComps.addAll(Arrays.asList(results.getResults()));
-      }
-      IPSDbComponent[] res = new IPSDbComponent[resultComps.size()];
-      resultComps.toArray(res);
-      return new PSSaveResults(res, totals);
-   }
+    PSProcessingStatistics totals = new PSProcessingStatistics(0, 0);
+    List<IPSDbComponent> resultComps = new ArrayList<>();
+    Iterator iter = procGroups.keySet().iterator();
+    while (iter.hasNext()) {
+      PSProcessorCommon proc = (PSProcessorCommon) iter.next();
+      Collection coll = (Collection) procGroups.get(proc);
+      IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
+      coll.toArray(comps);
+      PSSaveResults results = proc.save(comps);
+      PSProcessingStatistics stats = results.getResultStats();
+      totals =
+          new PSProcessingStatistics(
+              totals.getInsertedCount() + stats.getInsertedCount(),
+              totals.getUpdatedCount() + stats.getUpdatedCount(),
+              totals.getDeletedCount() + stats.getDeletedCount(),
+              totals.getSkippedCount() + stats.getSkippedCount(),
+              totals.getErroredCount() + stats.getErroredCount());
+      resultComps.addAll(Arrays.asList(results.getResults()));
+    }
+    IPSDbComponent[] res = new IPSDbComponent[resultComps.size()];
+    resultComps.toArray(res);
+    return new PSSaveResults(res, totals);
+  }
 
-   //see interface for description
-   public Element [] load(String componentType, PSKey [] locators)
-      throws PSCmsException
-   {
-      IPSComponentProcessor proc = getProcessor(componentType);
-      return proc.load(componentType, locators);
-   }
+  // see interface for description
+  public Element[] load(String componentType, PSKey[] locators) throws PSCmsException {
+    IPSComponentProcessor proc = getProcessor(componentType);
+    return proc.load(componentType, locators);
+  }
 
+  // see interface for description
+  public int delete(String componentType, PSKey[] locators) throws PSCmsException {
+    IPSComponentProcessor proc = getProcessor(componentType);
+    return proc.delete(componentType, locators);
+  }
 
-   //see interface for description
-   public int delete(String componentType, PSKey [] locators)
-      throws PSCmsException
-   {
-      IPSComponentProcessor proc = getProcessor(componentType);
-      return proc.delete(componentType, locators);
-   }
+  // see interface for description
+  public int delete(IPSDbComponent[] components) throws PSCmsException {
+    if (null == components || null == components[0]) {
+      throw new IllegalArgumentException("Component array and members cannot be null.");
+    }
 
+    Map procGroups = createComponentProcessorGroups(components);
 
-   //see interface for description
-   public int delete(IPSDbComponent[] components)
-      throws PSCmsException
-   {
-      if (null == components || null == components[0])
-      {
-         throw new IllegalArgumentException(
-               "Component array and members cannot be null.");
-      }
+    int total = 0;
+    Iterator iter = procGroups.keySet().iterator();
+    while (iter.hasNext()) {
+      PSProcessorCommon proc = (PSProcessorCommon) iter.next();
+      Collection coll = (Collection) procGroups.get(proc);
+      IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
+      coll.toArray(comps);
+      total += proc.delete(comps);
+    }
+    return total;
+  }
 
-      Map procGroups = createComponentProcessorGroups(components);
+  // see interface for description
+  public int delete(IPSDbComponent comp) throws PSCmsException {
+    return delete(new IPSDbComponent[] {comp});
+  }
 
-      int total = 0;
-      Iterator iter = procGroups.keySet().iterator();
-      while (iter.hasNext())
-      {
-         PSProcessorCommon proc = (PSProcessorCommon) iter.next();
-         Collection coll = (Collection) procGroups.get(proc);
-         IPSDbComponent[] comps = new IPSDbComponent[coll.size()];
-         coll.toArray(comps);
-         total += proc.delete(comps);
-      }
-      return total;
-   }
+  // see interface for description
+  public void reorder(int insertAt, List comp) throws PSCmsException {
+    throw new UnsupportedOperationException("Not Implemented");
+  }
 
-
-   //see interface for description
-   public int delete(IPSDbComponent comp)
-      throws PSCmsException
-   {
-      return delete(new IPSDbComponent[] {comp});
-   }
-
-   //see interface for description
-   public void reorder(int insertAt, List comp)
-      throws PSCmsException
-   {
-      throw new UnsupportedOperationException("Not Implemented");
-   }
-   /**
-    * Helper method that overrides the base class version to return a specfic
-    * type of processor (component processor) object from the configuration.
-    * @param componentType component type for the processor assumed not
-    * <code>null</code>.
-    * @return IPSRelationshipProcessor object never <code>null</code>
-    */
-   public IPSComponentProcessor getProcessor(String componentType)
-      throws PSCmsException
-   {
-      return (IPSComponentProcessor)m_processorConfig.getProcessor(
-         componentType);
-   }
+  /**
+   * Helper method that overrides the base class version to return a specfic
+   * type of processor (component processor) object from the configuration.
+   * @param componentType component type for the processor assumed not
+   * <code>null</code>.
+   * @return IPSRelationshipProcessor object never <code>null</code>
+   */
+  public IPSComponentProcessor getProcessor(String componentType) throws PSCmsException {
+    return (IPSComponentProcessor) m_processorConfig.getProcessor(componentType);
+  }
 }

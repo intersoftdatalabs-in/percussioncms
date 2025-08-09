@@ -22,8 +22,6 @@ import com.percussion.install.PSLogger;
 import com.percussion.rxfix.PSRxFixCmd;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
-
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,112 +53,95 @@ import java.util.List;
  * </pre>
  *
  */
-public class PSRxFix extends PSAction
-{
-   // see base class
-   
-   @Override
-   public void execute()
-   {
-      String strRootDir = getRootDir();
-      PSProperties props = null;
-      PSJdbcDbmsDef dbmsDef = null;
+public class PSRxFix extends PSAction {
+  // see base class
 
-      if(strRootDir != null)
-      {
-         if (!(strRootDir.endsWith(File.separator)))
-            strRootDir += File.separator;
+  @Override
+  public void execute() {
+    String strRootDir = getRootDir();
+    PSProperties props = null;
+    PSJdbcDbmsDef dbmsDef = null;
 
-         try
-         {
-            //Get the db info
-            props = new PSProperties(strRootDir
-                  + IPSUpgradeModule.REPOSITORY_PROPFILEPATH);
-            props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-            dbmsDef = new PSJdbcDbmsDef(props);
+    if (strRootDir != null) {
+      if (!(strRootDir.endsWith(File.separator))) strRootDir += File.separator;
 
-            //Setup the RxFix tool
-            PSRxFixCmd cmd = new PSRxFixCmd();
-            cmd.setDriver(dbmsDef.getDriverClassName());
-            cmd.setHost(dbmsDef.getServer());
-            cmd.setName(dbmsDef.getDataBase());
-            cmd.setPassword(dbmsDef.getPassword());
-            cmd.setSchema(dbmsDef.getSchema());
-            cmd.setUrl("jdbc:" + dbmsDef.getDriver());
-            cmd.setUser(dbmsDef.getUserId());
+      try {
+        // Get the db info
+        props = new PSProperties(strRootDir + IPSUpgradeModule.REPOSITORY_PROPFILEPATH);
+        props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+        dbmsDef = new PSJdbcDbmsDef(props);
 
-            ArrayList<String> fixes = new ArrayList<String>();
-            for (int i = 0; i < m_fixModules.length; i++)
-               fixes.add(m_fixModules[i]);
+        // Setup the RxFix tool
+        PSRxFixCmd cmd = new PSRxFixCmd();
+        cmd.setDriver(dbmsDef.getDriverClassName());
+        cmd.setHost(dbmsDef.getServer());
+        cmd.setName(dbmsDef.getDataBase());
+        cmd.setPassword(dbmsDef.getPassword());
+        cmd.setSchema(dbmsDef.getSchema());
+        cmd.setUrl("jdbc:" + dbmsDef.getDriver());
+        cmd.setUser(dbmsDef.getUserId());
 
-            cmd.setFixes(fixes);
+        ArrayList<String> fixes = new ArrayList<String>();
+        for (int i = 0; i < m_fixModules.length; i++) fixes.add(m_fixModules[i]);
 
-            //Run RxFix
-            PSLogger.logInfo("#### Running RxFix ####");
-            cmd.execute();
+        cmd.setFixes(fixes);
 
-            //Log the results
-            List results = cmd.getResults();
+        // Run RxFix
+        PSLogger.logInfo("#### Running RxFix ####");
+        cmd.execute();
 
-            if (results.size() == 0)
-               PSLogger.logInfo("No modifications were required");
-            else
-            {
-               for (int i=0; i < results.size(); i++)
-               {
-                  String result = (String) results.get(i);
-                  PSLogger.logInfo(result);
-               }
-            }
+        // Log the results
+        List results = cmd.getResults();
 
-            PSLogger.logInfo("#### Completed RxFix ####");
-         }
-         catch(Exception e)
-         {
-            PSLogger.logError("PSRxFix#execute : "
-                  + e.getMessage());
-            PSLogger.logError("PSRxFix#execute : "
-                  + e);
-         }
+        if (results.size() == 0) PSLogger.logInfo("No modifications were required");
+        else {
+          for (int i = 0; i < results.size(); i++) {
+            String result = (String) results.get(i);
+            PSLogger.logInfo(result);
+          }
+        }
+
+        PSLogger.logInfo("#### Completed RxFix ####");
+      } catch (Exception e) {
+        PSLogger.logError("PSRxFix#execute : " + e.getMessage());
+        PSLogger.logError("PSRxFix#execute : " + e);
       }
-   }
+    }
+  }
 
-   /*************************************************************************
-    * Property Accessors and Mutators
-    *************************************************************************/
+  /*************************************************************************
+   * Property Accessors and Mutators
+   *************************************************************************/
 
-   /**
-    * Accessor for the fix modules property
-    */
-   public String[] getFixModules()
-   {
-      return m_fixModules;
-   }
+  /**
+   * Accessor for the fix modules property
+   */
+  public String[] getFixModules() {
+    return m_fixModules;
+  }
 
-   /**
-    * Mutator for the fix modules property.
-    */
-   public void setFixModules(String fixModules)
-   {
-      m_fixModules = convertToArray(fixModules);
-   }
+  /**
+   * Mutator for the fix modules property.
+   */
+  public void setFixModules(String fixModules) {
+    m_fixModules = convertToArray(fixModules);
+  }
 
-   /***************************************************************************
-    * Bean properties
-    ***************************************************************************/
+  /***************************************************************************
+   * Bean properties
+   ***************************************************************************/
 
-   /**
-    * The list of RxFix modules to be executed.
-    */
-   private String m_fixModules[] = new String[0];
+  /**
+   * The list of RxFix modules to be executed.
+   */
+  private String m_fixModules[] = new String[0];
 
-   /**************************************************************************
-    * private function
-    **************************************************************************/
+  /**************************************************************************
+   * private function
+   **************************************************************************/
 
-   /**************************************************************************
-    * properties
-    **************************************************************************/
-
+  /**************************************************************************
+   * properties
+   **************************************************************************/
 
 }

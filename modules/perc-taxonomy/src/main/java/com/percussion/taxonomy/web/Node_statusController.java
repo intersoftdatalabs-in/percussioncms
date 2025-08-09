@@ -17,45 +17,46 @@
 
 package com.percussion.taxonomy.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
+import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.service.Node_statusService;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.validation.BindException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.percussion.taxonomy.TaxonomySecurityHelper;
-import com.percussion.taxonomy.domain.Node_status;
-import com.percussion.taxonomy.service.Node_statusService;
-
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class Node_statusController {
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    private Node_statusService node_statusService;
+  protected final Logger logger = LogManager.getLogger(getClass());
+  private Node_statusService node_statusService;
 
-    public Node_statusController() {
-        //TODO: Fix me
-       /* setCommandClass(Node_status.class);
-        setCommandName("node_status");
-        */
-    }
+  public Node_statusController() {
+    // TODO: Fix me
+    /* setCommandClass(Node_status.class);
+    setCommandName("node_status");
+    */
+  }
 
-    protected ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-            Object command, BindException errors) throws Exception {
-        //--------------------------- Templated - Modify or replace -----------------------------
-    	TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    	Map<String, Object> myModel = new HashMap<String, Object>();
-        myModel.put("model", new Object());
-        return new ModelAndView("node_status", "model", myModel);
-        //------------------------------------- End Template -----------------------------------------
-    }
+  protected ModelAndView handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Object command,
+      BindException errors)
+      throws Exception {
+    // --------------------------- Templated - Modify or replace -----------------------------
+    TaxonomySecurityHelper.raise_error_if_cannot_admin();
+    Map<String, Object> myModel = new HashMap<String, Object>();
+    myModel.put("model", new Object());
+    return new ModelAndView("node_status", "model", myModel);
+    // ------------------------------------- End Template -----------------------------------------
+  }
 
-    public void setNode_statusService(Node_statusService node_statusService) {
-        this.node_statusService = node_statusService;
-    }
+  public void setNode_statusService(Node_statusService node_statusService) {
+    this.node_statusService = node_statusService;
+  }
 }

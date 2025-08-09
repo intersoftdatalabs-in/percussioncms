@@ -21,12 +21,11 @@ package com.percussion.guitools;
  * of the current page.
  * @author erikserating
  */
-public interface IPSPagingControlListener
-{
-   /**
-    * Method called by paging control whever the current page
-    * value changes.
-    * @param event never <code>null</code>.
-    */
-   public void onPageChange(PSPagingControlEvent event);
+public interface IPSPagingControlListener {
+  /**
+   * Method called by paging control whever the current page
+   * value changes.
+   * @param event never <code>null</code>.
+   */
+  public void onPageChange(PSPagingControlEvent event);
 }

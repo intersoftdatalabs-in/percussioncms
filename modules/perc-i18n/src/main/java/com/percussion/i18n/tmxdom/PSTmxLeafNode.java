@@ -17,53 +17,39 @@
 package com.percussion.i18n.tmxdom;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
  * Implementation of the interface {@link IPSTmxLeafNode}
  */
+public abstract class PSTmxLeafNode extends PSTmxNode implements IPSTmxLeafNode {
+  /**
+   * Value associated with this node. A leaf node will normally have a value
+   * which is a string.
+   */
+  protected String m_Value = null;
 
-public abstract class PSTmxLeafNode
-   extends PSTmxNode
-   implements IPSTmxLeafNode
-{
-   /**
-    * Value associated with this node. A leaf node will normally have a value 
-    * which is a string.
-    */
-   protected String m_Value = null;
+  /*
+   * Implementation of the method defined in the interface
+   */
+  public String getValue() {
+    if (m_Value == null) return "";
+    return m_Value;
+  }
 
-
-   /*
-    * Implementation of the method defined in the interface
-    */
-   public String getValue()
-   {
-      if(m_Value==null)
-         return "";
-      return m_Value;
-   }
-
-   /*
-    * Implementation of the method defined in the interface
-    */
-   public void setValue(String value)
-   {
-      if(value == null)
-         value = "";
-      Node node = m_DOMElement.getFirstChild();
-      if(node instanceof Text)
-      {
-         ((Text)node).setData(value);
-      }
-      else
-      {
-         Text text = m_DOMElement.getOwnerDocument().createTextNode(value);
-         PSXmlDocumentBuilder.copyTree(m_DOMElement.getOwnerDocument(),
-            m_DOMElement, text, false);
-      }
-      m_Value = value;
-   }
+  /*
+   * Implementation of the method defined in the interface
+   */
+  public void setValue(String value) {
+    if (value == null) value = "";
+    Node node = m_DOMElement.getFirstChild();
+    if (node instanceof Text) {
+      ((Text) node).setData(value);
+    } else {
+      Text text = m_DOMElement.getOwnerDocument().createTextNode(value);
+      PSXmlDocumentBuilder.copyTree(m_DOMElement.getOwnerDocument(), m_DOMElement, text, false);
+    }
+    m_Value = value;
+  }
 }

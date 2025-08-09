@@ -30,12 +30,10 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSDeliveryType;
 import com.percussion.system.utils.PSSiteManageBean;
-import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Adaptor for managing Delivery Types in Percussion CMS.
@@ -43,96 +41,95 @@ import java.util.stream.Collectors;
 @PSSiteManageBean
 public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
-    private final IPSPublisherService pubService;
-    private final IPSGuidManager guidMgr;
+  private final IPSPublisherService pubService;
+  private final IPSGuidManager guidMgr;
 
-    public DeliveryTypeAdaptor() {
-        pubService = PSPublisherServiceLocator.getPublisherService();
-        guidMgr = PSGuidManagerLocator.getGuidMgr();
-    }
+  public DeliveryTypeAdaptor() {
+    pubService = PSPublisherServiceLocator.getPublisherService();
+    guidMgr = PSGuidManagerLocator.getGuidMgr();
+  }
 
-    /**
-     * Gets a delivery type by id.
-     */
-    @Override
-    public DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException {
-        try {
-            var guid = new PSGuid(PSTypeEnum.DELIVERY_TYPE, id);
-            var type = pubService.loadDeliveryType(guid);
-            return copyDeliveryType(type);
-        } catch (PSNotFoundException e) {
-            throw new BackendException(e);
-        }
+  /**
+   * Gets a delivery type by id.
+   */
+  @Override
+  public DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException {
+    try {
+      var guid = new PSGuid(PSTypeEnum.DELIVERY_TYPE, id);
+      var type = pubService.loadDeliveryType(guid);
+      return copyDeliveryType(type);
+    } catch (PSNotFoundException e) {
+      throw new BackendException(e);
     }
+  }
 
-    /**
-     * Creates or updates a delivery type.
-     */
-    @Override
-    public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
-        try {
-            if (type.getId() == null || StringUtils.isBlank(type.getId().getStringValue())) {
-                // Create new delivery type
-                var create = pubService.createDeliveryType();
-                create.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
-                create.setName(type.getName());
-                create.setDescription(type.getDescription());
-                create.setBeanName(type.getBeanName());
-                pubService.saveDeliveryType(create);
-                return copyDeliveryType(create);
-            } else {
-                var update = copyDeliveryType(type);
-                pubService.saveDeliveryType(update);
-                // Load after save
-                return copyDeliveryType(pubService.loadDeliveryType(update.getGUID()));
-            }
-        } catch (PSNotFoundException e) {
-            throw new BackendException(e);
-        }
+  /**
+   * Creates or updates a delivery type.
+   */
+  @Override
+  public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
+    try {
+      if (type.getId() == null || StringUtils.isBlank(type.getId().getStringValue())) {
+        // Create new delivery type
+        var create = pubService.createDeliveryType();
+        create.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
+        create.setName(type.getName());
+        create.setDescription(type.getDescription());
+        create.setBeanName(type.getBeanName());
+        pubService.saveDeliveryType(create);
+        return copyDeliveryType(create);
+      } else {
+        var update = copyDeliveryType(type);
+        pubService.saveDeliveryType(update);
+        // Load after save
+        return copyDeliveryType(pubService.loadDeliveryType(update.getGUID()));
+      }
+    } catch (PSNotFoundException e) {
+      throw new BackendException(e);
     }
+  }
 
-    /**
-     * Deletes a delivery type by id.
-     */
-    @Override
-    public void deleteDeliveryTypeById(URI baseURI, String id) throws BackendException {
-        try {
-            var guid = guidMgr.makeGuid(id, PSTypeEnum.DELIVERY_TYPE);
-            var type = pubService.loadDeliveryType(guid);
-            pubService.deleteDeliveryType(type);
-        } catch (PSNotFoundException e) {
-            throw new BackendException(e);
-        }
+  /**
+   * Deletes a delivery type by id.
+   */
+  @Override
+  public void deleteDeliveryTypeById(URI baseURI, String id) throws BackendException {
+    try {
+      var guid = guidMgr.makeGuid(id, PSTypeEnum.DELIVERY_TYPE);
+      var type = pubService.loadDeliveryType(guid);
+      pubService.deleteDeliveryType(type);
+    } catch (PSNotFoundException e) {
+      throw new BackendException(e);
     }
+  }
 
-    /**
-     * Gets the list of DeliveryTypes available on the system.
-     */
-    @Override
-    public List<DeliveryType> getDeliveryTypes(URI baseURI) {
-        return pubService.findAllDeliveryTypes()
-                .stream()
-                .map(this::copyDeliveryType)
-                .collect(Collectors.toList());
-    }
+  /**
+   * Gets the list of DeliveryTypes available on the system.
+   */
+  @Override
+  public List<DeliveryType> getDeliveryTypes(URI baseURI) {
+    return pubService.findAllDeliveryTypes().stream()
+        .map(this::copyDeliveryType)
+        .collect(Collectors.toList());
+  }
 
-    private DeliveryType copyDeliveryType(IPSDeliveryType t) {
-        var ret = new DeliveryType();
-        ret.setBeanName(t.getBeanName());
-        ret.setName(t.getName());
-        ret.setDescription(t.getDescription());
-        ret.setId(ApiUtils.convertGuid(t.getGUID()));
-        ret.setUnpublishingRequiresAssembly(t.isUnpublishingRequiresAssembly());
-        return ret;
-    }
+  private DeliveryType copyDeliveryType(IPSDeliveryType t) {
+    var ret = new DeliveryType();
+    ret.setBeanName(t.getBeanName());
+    ret.setName(t.getName());
+    ret.setDescription(t.getDescription());
+    ret.setId(ApiUtils.convertGuid(t.getGUID()));
+    ret.setUnpublishingRequiresAssembly(t.isUnpublishingRequiresAssembly());
+    return ret;
+  }
 
-    private IPSDeliveryType copyDeliveryType(DeliveryType type) {
-        var ret = new PSDeliveryType();
-        ret.setBeanName(type.getBeanName());
-        ret.setDescription(type.getDescription());
-        ret.setName(type.getName());
-        ret.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
-        ret.setGUID(ApiUtils.convertGuid(type.getId()));
-        return ret;
-    }
+  private IPSDeliveryType copyDeliveryType(DeliveryType type) {
+    var ret = new PSDeliveryType();
+    ret.setBeanName(type.getBeanName());
+    ret.setDescription(type.getDescription());
+    ret.setName(type.getName());
+    ret.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
+    ret.setGUID(ApiUtils.convertGuid(type.getId()));
+    return ret;
+  }
 }

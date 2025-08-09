@@ -17,16 +17,20 @@
 
 /*
  * test.percussion.soln.linkback ContentExplorerLinkbackControllerTest.java
- *  
+ *
  * @author JasonChu
  *
  */
 package linkback;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.servlet.ContentExplorerLinkbackController;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,55 +39,50 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class ContentExplorerLinkbackControllerTest {
 
-    private static final Logger log = LogManager.getLogger(ActionPanelLinkbackControllerTest.class);
+  private static final Logger log = LogManager.getLogger(ActionPanelLinkbackControllerTest.class);
 
-    ContentExplorerLinkbackController cut;
-    String token_nocontentid;
+  ContentExplorerLinkbackController cut;
+  String token_nocontentid;
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @BeforeEach
-    public void setUp() throws Exception {
-        cut = new ContentExplorerLinkbackController();
-        cut.setHelpViewName("helpview");
-        cut.setErrorViewName("errorview");
+  /**
+   * @throws java.lang.Exception
+   */
+  @BeforeEach
+  public void setUp() throws Exception {
+    cut = new ContentExplorerLinkbackController();
+    cut.setHelpViewName("helpview");
+    cut.setErrorViewName("errorview");
 
-        Map<String, Object> pmap = new HashMap<String, Object>();
-        // deliberately missing contentid
-        pmap.put(IPSHtmlParameters.SYS_REVISION, "1");
-        pmap.put(IPSHtmlParameters.SYS_TEMPLATE, "301");
-        pmap.put(IPSHtmlParameters.SYS_FOLDERID, "196");
-        pmap.put(IPSHtmlParameters.SYS_SITEID, "102");
-        StringLinkBackTokenImpl impl = new StringLinkBackTokenImpl();
-        token_nocontentid = impl.encode(pmap);
+    Map<String, Object> pmap = new HashMap<String, Object>();
+    // deliberately missing contentid
+    pmap.put(IPSHtmlParameters.SYS_REVISION, "1");
+    pmap.put(IPSHtmlParameters.SYS_TEMPLATE, "301");
+    pmap.put(IPSHtmlParameters.SYS_FOLDERID, "196");
+    pmap.put(IPSHtmlParameters.SYS_SITEID, "102");
+    StringLinkBackTokenImpl impl = new StringLinkBackTokenImpl();
+    token_nocontentid = impl.encode(pmap);
+  }
+
+  @Test
+  public final void testHandleRequestMissingContentId() {
+    log.debug("Starting testing missing contentid");
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    request.addParameter(LinkbackUtils.LINKBACK_PARAM_NAME, token_nocontentid);
+    request.setMethod("GET");
+
+    try {
+      ModelAndView mav = cut.handleRequest(request, response);
+      assertNotNull(mav);
+      assertEquals("errorview", mav.getViewName());
+      log.debug(mav.getModel().get("message"));
+
+    } catch (Exception ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("Exception");
     }
-
-    @Test
-    public final void testHandleRequestMissingContentId() {
-        log.debug("Starting testing missing contentid");
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        request.addParameter(LinkbackUtils.LINKBACK_PARAM_NAME, token_nocontentid);
-        request.setMethod("GET");
-
-        try {
-            ModelAndView mav = cut.handleRequest(request, response);
-            assertNotNull(mav);
-            assertEquals("errorview", mav.getViewName());
-            log.debug(mav.getModel().get("message"));
-
-        } catch (Exception ex) {
-            log.error("Unexpected Exception " + ex, ex);
-            fail("Exception");
-        }
-    }
+  }
 }

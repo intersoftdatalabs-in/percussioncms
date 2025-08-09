@@ -22,26 +22,24 @@ import org.apache.logging.log4j.Logger;
 /**
  * A utility class used to log elapsed time.
  */
-public class PSTimer
-{
-   PSStopwatch m_watch = new PSStopwatch();
-   private static final Logger log = LogManager.getLogger(PSTimer.class);
+public class PSTimer {
+  PSStopwatch m_watch = new PSStopwatch();
+  private static final Logger log = LogManager.getLogger(PSTimer.class);
 
-   public PSTimer(){
-      //NOOP
-   }
+  public PSTimer() {
+    // NOOP
+  }
 
-   public PSTimer(Logger log){
-      m_watch.start();
-   }
-   /**
-    * Log the message along with the elapsed time.
-    * @param msg the log message, assumed not <code>null</code>.
-    */
-   public void logElapsed(String msg)
-   {
-      m_watch.stop();
-      log.debug( "{} {}",msg, m_watch);
+  public PSTimer(Logger log) {
+    m_watch.start();
+  }
 
-   }
+  /**
+   * Log the message along with the elapsed time.
+   * @param msg the log message, assumed not <code>null</code>.
+   */
+  public void logElapsed(String msg) {
+    m_watch.stop();
+    log.debug("{} {}", msg, m_watch);
+  }
 }

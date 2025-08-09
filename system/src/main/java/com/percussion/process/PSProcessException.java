@@ -21,41 +21,37 @@ import java.util.Objects;
 /**
  * Base exception for exceptions thrown from the process package.
  */
-public class PSProcessException extends Exception
-{
-   /**
-    * Constructs the exception from the specified message
-    *
-    * @param msg the message to wrap in the exception, may not be
-    * {@code null}
-    * @throws IllegalArgumentException if msg is {@code null}
-    */
-   public PSProcessException(String msg)
-   {
-      super(Objects.requireNonNull(msg, "message cannot be null"));
-   }
+public class PSProcessException extends Exception {
+  /**
+   * Constructs the exception from the specified message
+   *
+   * @param msg the message to wrap in the exception, may not be
+   * {@code null}
+   * @throws IllegalArgumentException if msg is {@code null}
+   */
+  public PSProcessException(String msg) {
+    super(Objects.requireNonNull(msg, "message cannot be null"));
+  }
 
-   /**
-    * Constructs the exception from the specified message and cause
-    *
-    * @param msg the message to wrap in the exception, may not be
-    * {@code null}
-    * @param cause the underlying cause of this exception, may be {@code null}
-    * @throws IllegalArgumentException if msg is {@code null}
-    */
-   public PSProcessException(String msg, Throwable cause)
-   {
-      super(Objects.requireNonNull(msg, "message cannot be null"), cause);
-   }
+  /**
+   * Constructs the exception from the specified message and cause
+   *
+   * @param msg the message to wrap in the exception, may not be
+   * {@code null}
+   * @param cause the underlying cause of this exception, may be {@code null}
+   * @throws IllegalArgumentException if msg is {@code null}
+   */
+  public PSProcessException(String msg, Throwable cause) {
+    super(Objects.requireNonNull(msg, "message cannot be null"), cause);
+  }
 
-   /**
-    * Constructs the exception from the specified cause
-    *
-    * @param cause the underlying cause of this exception, may not be {@code null}
-    * @throws IllegalArgumentException if cause is {@code null}
-    */
-   public PSProcessException(Throwable cause)
-   {
-      super(Objects.requireNonNull(cause, "cause cannot be null"));
-   }
+  /**
+   * Constructs the exception from the specified cause
+   *
+   * @param cause the underlying cause of this exception, may not be {@code null}
+   * @throws IllegalArgumentException if cause is {@code null}
+   */
+  public PSProcessException(Throwable cause) {
+    super(Objects.requireNonNull(cause, "cause cannot be null"));
+  }
 }

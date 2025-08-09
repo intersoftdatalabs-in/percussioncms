@@ -32,29 +32,31 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
  * @author Jay Seletz
  */
 public class PSMembershipLoginHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-    private PSMembershipConfiguration membershipConfig;
+  private PSMembershipConfiguration membershipConfig;
 
-    public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
-        this.membershipConfig = membershipConfig;
-    }
+  public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
+    this.membershipConfig = membershipConfig;
+  }
 
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
-        if (membershipConfig.getUseLdap() == null || membershipConfig.getUseLdap().equalsIgnoreCase("no")) {
-            // Get the session id and set the cookie
-            var sessionId = PSMembershipAuthProvider.getAuthenticatedSessionId();
-            if (sessionId != null) {
-                var cookie = new Cookie(membershipConfig.getMembershipSessionCookieName(), sessionId);
-                cookie.setSecure(true);
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-            }
-        } else {
-            super.setUseReferer(false);
-        }
-        // Let handling pass through to base class
-        super.onAuthenticationSuccess(request, response, authentication);
+  @Override
+  public void onAuthenticationSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException, ServletException {
+    if (membershipConfig.getUseLdap() == null
+        || membershipConfig.getUseLdap().equalsIgnoreCase("no")) {
+      // Get the session id and set the cookie
+      var sessionId = PSMembershipAuthProvider.getAuthenticatedSessionId();
+      if (sessionId != null) {
+        var cookie = new Cookie(membershipConfig.getMembershipSessionCookieName(), sessionId);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+      }
+    } else {
+      super.setUseReferer(false);
     }
+    // Let handling pass through to base class
+    super.onAuthenticationSuccess(request, response, authentication);
+  }
 }

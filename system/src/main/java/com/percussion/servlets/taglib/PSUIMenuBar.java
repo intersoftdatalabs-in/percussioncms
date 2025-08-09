@@ -16,42 +16,39 @@
  */
 package com.percussion.servlets.taglib;
 
+import java.io.IOException;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import java.io.IOException;
 
 /**
  * Handle the menubar output
  * @author dougrand
  *
  */
-public class PSUIMenuBar extends UIOutput
-{
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeBegin(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.startElement("div", this);
-      writer.writeAttribute("class", "menu", null);
-      writer.writeAttribute("id", "psPubMenu", null);
-      writer.startElement("ul", this);
-   }
+public class PSUIMenuBar extends UIOutput {
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeBegin(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.startElement("div", this);
+    writer.writeAttribute("class", "menu", null);
+    writer.writeAttribute("id", "psPubMenu", null);
+    writer.startElement("ul", this);
+  }
 
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeEnd(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.endElement("ul");
-      writer.endElement("div");
-      writer.startElement("br", this);
-      writer.writeAttribute("clear", "both", null);
-      writer.endElement("br");
-   }
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeEnd(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.endElement("ul");
+    writer.endElement("div");
+    writer.startElement("br", this);
+    writer.writeAttribute("clear", "both", null);
+    writer.endElement("br");
+  }
 }

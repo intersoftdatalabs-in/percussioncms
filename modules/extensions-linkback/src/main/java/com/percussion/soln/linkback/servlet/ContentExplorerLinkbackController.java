@@ -18,10 +18,9 @@
 package com.percussion.soln.linkback.servlet;
 
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Arrays;
 
 /**
  * Linkback controller to redirect to Rhythmyx Action Panel. The redirect path
@@ -31,15 +30,15 @@ import java.util.Arrays;
  */
 public class ContentExplorerLinkbackController extends GenericLinkbackController {
 
-    @SuppressWarnings("unused")
-    private static final Logger log = LogManager.getLogger(ContentExplorerLinkbackController.class);
+  @SuppressWarnings("unused")
+  private static final Logger log = LogManager.getLogger(ContentExplorerLinkbackController.class);
 
-    private static final String REDIRECT_PATH = "/sys_cx/mainpage.html";
+  private static final String REDIRECT_PATH = "/sys_cx/mainpage.html";
 
-    public ContentExplorerLinkbackController() {
-        super();
-        setRedirectPath(REDIRECT_PATH);
-        setRequiredParameterNames(Arrays.<String> asList(new String[] { IPSHtmlParameters.SYS_CONTENTID }));
-    }
-
+  public ContentExplorerLinkbackController() {
+    super();
+    setRedirectPath(REDIRECT_PATH);
+    setRequiredParameterNames(
+        Arrays.<String>asList(new String[] {IPSHtmlParameters.SYS_CONTENTID}));
+  }
 }

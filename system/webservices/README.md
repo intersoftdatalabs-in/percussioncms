@@ -29,18 +29,15 @@ The module follows a layered architecture:
    - Migrated from legacy Apache Axis to modern JAX-WS
    - Added `@WebService` annotations for contemporary endpoint configuration
    - Improved attachment handling using JAX-WS APIs
-
 2. **Java 11 Features**
    - Replaced legacy collections with Stream API
    - Added `Optional<T>` for null-safe operations
    - Used `var` keyword for improved readability
    - Enhanced exception handling patterns
-
 3. **Enhanced Security & Validation**
    - Improved session management with null-safe operations
    - Enhanced input validation for all service methods
    - Added comprehensive error handling and logging
-
 4. **Performance Optimizations**
    - Efficient GUID conversion using streams
    - Optimized XML processing patterns
@@ -51,6 +48,7 @@ The module follows a layered architecture:
 #### PSBaseSOAPImpl
 
 **Before:**
+
 ```java
 protected HttpServletRequest getServletRequest()
 protected String getRhythmyxSession() throws SOAPException
@@ -58,6 +56,7 @@ protected AttachmentPart[] getAttachments() throws AxisFault
 ```
 
 **After:**
+
 ```java
 protected Optional<HttpServletRequest> getServletRequest()
 protected Optional<String> getRhythmyxSession() throws SOAPException
@@ -87,6 +86,7 @@ protected List<Object> getAttachments()
 ## Usage Examples
 
 ### Authentication
+
 ```java
 // Modern authentication with enhanced error handling
 try {
@@ -100,6 +100,7 @@ try {
 ```
 
 ### Community Loading
+
 ```java
 // Enhanced community loading with Optional handling
 LoadCommunitiesRequest request = new LoadCommunitiesRequest();
@@ -114,6 +115,7 @@ try {
 ```
 
 ### Runtime Visibility Filtering
+
 ```java
 // Optimized ID filtering with stream processing
 long[] contentIds = {1001, 1002, 1003};
@@ -126,6 +128,7 @@ long[] visibleIds = response.getFilteredIds();
 ## Configuration
 
 ### JAX-WS Endpoint Configuration
+
 ```xml
 <!-- Example web.xml configuration for modernized endpoints -->
 <servlet>
@@ -139,7 +142,9 @@ long[] visibleIds = response.getFilteredIds();
 ```
 
 ### Service Location
+
 Services can be located using the modernized locator pattern:
+
 ```java
 IPSSecurityWs securityService = PSSecurityWsLocator.getSecurityWebservice();
 ```
@@ -153,6 +158,7 @@ The module includes comprehensive JUnit5 tests for:
 - Performance regression testing
 
 Run tests with:
+
 ```bash
 mvn test -Dtest=*SecuritySOAP*
 ```
@@ -160,12 +166,14 @@ mvn test -Dtest=*SecuritySOAP*
 ## Dependencies
 
 ### Core Dependencies
+
 - JAX-WS API 2.3+ (replaces legacy Axis)
 - Apache Commons Lang3 3.12+
 - Log4j2 2.17+ (for enhanced logging)
 - Spring Framework 5.3+ (for dependency injection)
 
 ### SOAP Dependencies
+
 - `javax.xml.ws:jaxws-api` - JAX-WS API
 - `javax.xml.soap:javax.xml.soap-api` - SOAP API
 - `com.sun.xml.ws:jaxws-rt` - JAX-WS Runtime
@@ -181,23 +189,24 @@ mvn test -Dtest=*SecuritySOAP*
 When extending or modifying SOAP services:
 
 1. **Use Optional for nullable returns:**
+
    ```java
    // Preferred
    protected Optional<String> getSessionId() { ... }
-   
+
    // Avoid
    protected String getSessionId() { ... } // Can return null
    ```
-
 2. **Leverage Stream API for collections:**
+
    ```java
    // Modern approach
    var filteredIds = ids.stream()
        .filter(this::isVisible)
        .collect(toList());
    ```
-
 3. **Use JAX-WS annotations:**
+
    ```java
    @WebService(endpointInterface = "com.percussion.webservices.IService")
    public class MySOAPImpl extends PSBaseSOAPImpl { ... }
@@ -206,12 +215,14 @@ When extending or modifying SOAP services:
 ## Performance Considerations
 
 ### Optimizations Implemented
+
 - Stream-based collection processing (30% faster than legacy loops)
 - Lazy Optional evaluation for expensive operations
 - Efficient GUID conversion reducing object allocation
 - Enhanced XML processing with reduced DOM manipulation
 
 ### Best Practices
+
 - Use `Optional.orElse()` for default values instead of null checks
 - Prefer `List<T>` over arrays for better type safety
 - Use `var` for improved readability without sacrificing type safety
@@ -219,12 +230,14 @@ When extending or modifying SOAP services:
 ## Security
 
 ### OWASP Compliance
+
 - XXE (XML External Entity) attack prevention
 - Input validation on all service parameters
 - Secure session management with proper timeout handling
 - Enhanced error reporting without information leakage
 
 ### Authentication
+
 - Robust session validation with Optional-based null safety
 - Improved error handling for authentication failures
 - Enhanced logging for security auditing
@@ -245,6 +258,7 @@ When extending or modifying SOAP services:
 ### Logging
 
 Enhanced logging is available at debug level:
+
 ```properties
 # Enable detailed SOAP operation logging
 logger.com.percussion.webservices.security.SecuritySOAPImpl=DEBUG

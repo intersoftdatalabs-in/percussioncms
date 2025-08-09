@@ -40,6 +40,7 @@ InlineLinkConverter/
 ### Properties Files
 
 #### inlinelinkconverter.properties
+
 Main configuration file containing server connection details and conversion settings:
 
 ```properties
@@ -62,6 +63,7 @@ MyWorkflow=DirectToPublic;QuickEdit
 ```
 
 #### InlineLinkClearAttribs.properties
+
 Extended configuration for site-filtered conversion:
 
 ```properties
@@ -112,17 +114,20 @@ mvn package
 This codebase has been modernized to leverage Java 11 features:
 
 ### Language Features
+
 - **`var` keyword**: Local variable type inference for cleaner code
 - **Enhanced for-loops**: Replace iterator-based loops where possible
 - **Try-with-resources**: Automatic resource management for file operations
 - **Optional**: Null-safe operations and cleaner conditional logic
 
 ### Stream API
+
 - **Method references**: `this::convertTypeSafely`
 - **Stream operations**: Functional-style collection processing
 - **Filtering and mapping**: Elegant data transformation pipelines
 
 ### Modern Practices
+
 - **Objects.requireNonNull()**: Consistent null validation
 - **String.format()**: Type-safe string formatting
 - **LocalDateTime**: Modern date/time handling
@@ -188,17 +193,20 @@ The refactored code maintains **full backward compatibility** with existing:
 ## Best Practices
 
 ### Before Running
+
 1. **Backup your content** - Always backup before bulk operations
 2. **Test on staging** - Verify transformations in non-production environment
 3. **Review XSL files** - Ensure transformations meet requirements
 4. **Check permissions** - Verify user has necessary content modification rights
 
 ### During Operation
+
 1. **Monitor logs** - Watch conversion progress in real-time
 2. **Check disk space** - Ensure adequate space for log files
 3. **Network stability** - Maintain stable connection to CMS server
 
 ### After Completion
+
 1. **Review logs** - Check success/failure ratios
 2. **Verify results** - Spot-check converted content
 3. **Archive logs** - Save conversion logs for audit trail
@@ -208,21 +216,25 @@ The refactored code maintains **full backward compatibility** with existing:
 ### Common Issues
 
 **Connection Refused**
+
 ```
 Solution: Verify hostName, port, and serverRoot in properties file
 ```
 
 **Authentication Failed**
+
 ```
 Solution: Check loginId and password credentials
 ```
 
 **Content Type Not Found**
+
 ```
 Solution: Verify contentType name matches exactly (case-sensitive)
 ```
 
 **Workflow Transition Failed**
+
 ```
 Solution: Check workflow transition names in properties file
 ```
@@ -255,3 +267,4 @@ For technical support and questions:
 - Check Rhythmyx CMS server status and connectivity
 - Verify configuration file syntax and values
 - Consult Percussion CMS documentation for workflow and content type details
+

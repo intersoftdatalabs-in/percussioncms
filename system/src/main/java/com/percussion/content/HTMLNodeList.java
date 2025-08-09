@@ -16,24 +16,23 @@
  */
 package com.percussion.content;
 
+import java.util.LinkedList;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.LinkedList;
-
 // REFACTORED: CP-JAVA11
 public class HTMLNodeList extends LinkedList<Node> implements NodeList {
-   public HTMLNodeList() {
-      super();
-   }
+  public HTMLNodeList() {
+    super();
+  }
 
-   @Override
-   public Node item(int index) {
-      return get(index);
-   }
+  @Override
+  public Node item(int index) {
+    return get(index);
+  }
 
-   @Override
-   public int getLength() {
-      return size();
-   }
+  @Override
+  public int getLength() {
+    return size();
+  }
 }

@@ -17,10 +17,9 @@
 
 package com.percussion.ant.packagetool;
 
+import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Expand;
-
-import java.io.File;
 
 /**
  * Unzip the .ppkg to given source folder to given destiantion folder
@@ -31,14 +30,14 @@ import java.io.File;
  *
  * First set the taskdef:
  *
- *  <code>  
+ *  <code>
  *  &lt;taskdef name="psunzippackage"
  *             class="com.percussion.ant.packagetool.PSUnZipPackage"
  *             classpath="c:\lib"/&gt;
  *  </code>
  *
-
- *  <code>  
+ *
+ *  <code>
  *  &lt;PSP4PackageAdd rootdirpath="system/packages"
  *                     zipfilepath="C:\directoryname\perc.gadget.activity.ppkg"
  *
@@ -76,51 +75,48 @@ import java.io.File;
  *
  * </pre>
  */
-public class PSUnZipPackage extends Expand
-{
-   /**
-    * The source package file path(required)
-    */
-   private String m_zipFilePath;
+public class PSUnZipPackage extends Expand {
+  /**
+   * The source package file path(required)
+   */
+  private String m_zipFilePath;
 
-   /**
-    * Root directory where package folder will go. It is required and comes from build.xml
-    */
-   private String m_rootDirPath;
+  /**
+   * Root directory where package folder will go. It is required and comes from build.xml
+   */
+  private String m_rootDirPath;
 
-   /**
-    * @param zipFilePath the zipFilePath to set
-    */
-   public void setZipFilePath(String zipFilePath)
-   {
-      this.m_zipFilePath = zipFilePath;
-   }
+  /**
+   * @param zipFilePath the zipFilePath to set
+   */
+  public void setZipFilePath(String zipFilePath) {
+    this.m_zipFilePath = zipFilePath;
+  }
 
-   /**
-    * @param destinationDir the destinationDir to set
-    */
-   public void setRootDirPath(String rootDir)
-   {
-      this.m_rootDirPath = rootDir;
-   }
+  /**
+   * @param destinationDir the destinationDir to set
+   */
+  public void setRootDirPath(String rootDir) {
+    this.m_rootDirPath = rootDir;
+  }
 
-   @Override
-   public void execute() throws BuildException
-   {
-      if(m_zipFilePath == null || m_zipFilePath.trim().length() ==0)
-         throw new BuildException("zipfilePath can not be null or empty.");
+  @Override
+  public void execute() throws BuildException {
+    if (m_zipFilePath == null || m_zipFilePath.trim().length() == 0)
+      throw new BuildException("zipfilePath can not be null or empty.");
 
-      if(m_rootDirPath == null || m_rootDirPath.trim().length() == 0)
-         throw new BuildException("The rootDirPath cannot be null or empty.");
+    if (m_rootDirPath == null || m_rootDirPath.trim().length() == 0)
+      throw new BuildException("The rootDirPath cannot be null or empty.");
 
-      String destinationDirectory= PSPackageBuildToolHelper.getDestinationDirectoryPath(m_zipFilePath, m_rootDirPath);
-      // Unzips to the following temp folder later that gets deleted
-      File tempDirectory= new File(m_rootDirPath + "/temp");
-      setSrc(new File(m_zipFilePath));
-      setDest(tempDirectory);
-      super.execute();
+    String destinationDirectory =
+        PSPackageBuildToolHelper.getDestinationDirectoryPath(m_zipFilePath, m_rootDirPath);
+    // Unzips to the following temp folder later that gets deleted
+    File tempDirectory = new File(m_rootDirPath + "/temp");
+    setSrc(new File(m_zipFilePath));
+    setDest(tempDirectory);
+    super.execute();
 
-      PSPackageBuildToolHelper.moveFilesToDestinationFolder(tempDirectory, new File(destinationDirectory));
-   }
-
+    PSPackageBuildToolHelper.moveFilesToDestinationFolder(
+        tempDirectory, new File(destinationDirectory));
+  }
 }

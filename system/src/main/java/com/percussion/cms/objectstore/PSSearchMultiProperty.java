@@ -26,43 +26,42 @@ import org.w3c.dom.Element;
  * {@link com.percussion.cms.objectstore.PSSearch}.
  */
 public class PSSearchMultiProperty extends PSMultiValuedProperty {
-   /**
-    * Required ctor to be contained within a {@link
-    * com.percussion.cms.objectstore.PSDbComponentCollection}
-    */
-   public PSSearchMultiProperty(Element src) throws PSUnknownNodeTypeException {
-      super(src);
-   }
-   
-   /**
-    * no args constructor for xstream
-    */
-   public PSSearchMultiProperty() {
-   }
-   
-   /**
-    * Convienve ctor to specify property name.
-    */
-   public PSSearchMultiProperty(String strName) {
-      super(PSSProperty.class, strName);
-   }
+  /**
+   * Required ctor to be contained within a {@link
+   * com.percussion.cms.objectstore.PSDbComponentCollection}
+   */
+  public PSSearchMultiProperty(Element src) throws PSUnknownNodeTypeException {
+    super(src);
+  }
 
-   // see base class for description
-   public String getNodeName() {
-      return XML_NODE_NAME;
-   }
-   
-   // see base class for description
-   protected PSCmsProperty createProperty(String name, String value) {
-      if (name == null) {
-         throw new IllegalArgumentException("name must not be null");
-      }
-      return new PSSProperty(name, value);
-   }
+  /**
+   * no args constructor for xstream
+   */
+  public PSSearchMultiProperty() {}
 
-   // public defines
-   public static final String KEY_COL = "propertyId";
-   public static final String KEY_COL_NAME = "propertyName";
-   public static final String KEY_COL_VAL = "propertyValue";
-   public static final String XML_NODE_NAME = "PSXSearchMultiProperty";
+  /**
+   * Convienve ctor to specify property name.
+   */
+  public PSSearchMultiProperty(String strName) {
+    super(PSSProperty.class, strName);
+  }
+
+  // see base class for description
+  public String getNodeName() {
+    return XML_NODE_NAME;
+  }
+
+  // see base class for description
+  protected PSCmsProperty createProperty(String name, String value) {
+    if (name == null) {
+      throw new IllegalArgumentException("name must not be null");
+    }
+    return new PSSProperty(name, value);
+  }
+
+  // public defines
+  public static final String KEY_COL = "propertyId";
+  public static final String KEY_COL_NAME = "propertyName";
+  public static final String KEY_COL_VAL = "propertyValue";
+  public static final String XML_NODE_NAME = "PSXSearchMultiProperty";
 }

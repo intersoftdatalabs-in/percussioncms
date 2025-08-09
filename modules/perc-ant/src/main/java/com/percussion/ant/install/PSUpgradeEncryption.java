@@ -27,29 +27,22 @@ import org.apache.tools.ant.BuildException;
  */
 public class PSUpgradeEncryption extends PSAction {
 
+  /* TODO: Update encrypted strings in the following files
+          1. rxconfig/Installer/rxrepository.properties
+          2. rconfig/Server/config.xml
+          3. rxconfig/Workflow/rxworkflow.properties
+          4. jetty/base/perc-ds.properties
+          5. USERLOGIN table passwords
+  */
 
-    /* TODO: Update encrypted strings in the following files
-             1. rxconfig/Installer/rxrepository.properties
-             2. rconfig/Server/config.xml
-             3. rxconfig/Workflow/rxworkflow.properties
-             4. jetty/base/perc-ds.properties
-             5. USERLOGIN table passwords
-     */
-
-
-    /**
-     * This will handle initialization of the install logger, loading of
-     * PreviousVersion.properties for upgrades, and setting of the entity
-     * resolver's resolution home used to find DTD's.  It also determines if
-     * all files should be refreshed by date.
-     */
-    @Override
-    public void execute() throws BuildException {
-        super.execute();
-    }
-
-
-
-
-
+  /**
+   * This will handle initialization of the install logger, loading of
+   * PreviousVersion.properties for upgrades, and setting of the entity
+   * resolver's resolution home used to find DTD's.  It also determines if
+   * all files should be refreshed by date.
+   */
+  @Override
+  public void execute() throws BuildException {
+    super.execute();
+  }
 }

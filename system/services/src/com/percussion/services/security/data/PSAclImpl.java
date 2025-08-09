@@ -38,10 +38,10 @@ import javax.persistence.Table;
 import javax.persistence.*;
 import java.io.IOException;
 import java.security.Principal;
-import java.security.acl.AclEntry;
-import java.security.acl.LastOwnerException;
-import java.security.acl.NotOwnerException;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.AclEntry;
+import com.percussion.security.shim.acl.LastOwnerException;
+import com.percussion.security.shim.acl.NotOwnerException;
+import com.percussion.security.shim.acl.Permission;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -153,7 +153,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    /**
     * {@inheritDoc}
     */
-   @Override
+
    public void setName(Principal caller, String aclName) throws NotOwnerException {
       if (caller == null) {
          throw new IllegalArgumentException("caller must not be null");
@@ -216,10 +216,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
       return entry.isOwner();
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   @Override
+   
    public boolean addOwner(Principal caller, Principal owner) throws NotOwnerException {
       if (!isOwner(caller)) {
          throw new NotOwnerException();
@@ -246,7 +243,7 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
    /**
     * {@inheritDoc}
     */
-   @Override
+
    public boolean deleteOwner(Principal caller, Principal owner)
          throws NotOwnerException, LastOwnerException {
       if (caller == null) {
@@ -610,10 +607,15 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
       
       // now handle adds, removes, and updates of entries
       Set<String> matches = new HashSet<>();
-      Enumeration<AclEntry> entryEnum = acl.entries();
-      while (entryEnum.hasMoreElements())
+      Collection<IPSAclEntry> aclEntries;
+      if (acl instanceof PSAclImpl) {
+         aclEntries = ((PSAclImpl) acl).getEntries();
+      } else {
+         throw new IllegalArgumentException("Unsupported IPSAcl implementation: " + acl.getClass().getName());
+      }
+      for (IPSAclEntry entry : aclEntries)
       {
-         PSAclEntryImpl entryImpl = (PSAclEntryImpl) entryEnum.nextElement();
+         PSAclEntryImpl entryImpl = (PSAclEntryImpl) entry;
          matches.add(entryImpl.getName());
          IPSAclEntry tgtEntry = getEntry(entryImpl.getName());
          if (tgtEntry == null)

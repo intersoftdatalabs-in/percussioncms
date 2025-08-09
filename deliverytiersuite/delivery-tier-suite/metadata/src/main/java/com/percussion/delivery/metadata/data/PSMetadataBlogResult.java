@@ -16,61 +16,52 @@
  */
 package com.percussion.delivery.metadata.data;
 
+public class PSMetadataBlogResult {
+  private PSMetadataRestEntry previous;
 
-public class PSMetadataBlogResult
-{
-    private PSMetadataRestEntry previous;
+  private PSMetadataRestEntry current;
 
-    private PSMetadataRestEntry current;
+  private PSMetadataRestEntry next;
 
-    private PSMetadataRestEntry next;
+  /**
+   * @return the previous
+   */
+  public PSMetadataRestEntry getPrevious() {
+    return previous;
+  }
 
-    /**
-     * @return the previous
-     */
-    public PSMetadataRestEntry getPrevious()
-    {
-        return previous;
-    }
+  /**
+   * @param previous the previous to set
+   */
+  public void setPrevious(PSMetadataRestEntry previous) {
+    this.previous = previous;
+  }
 
-    /**
-     * @param previous the previous to set
-     */
-    public void setPrevious(PSMetadataRestEntry previous)
-    {
-        this.previous = previous;
-    }
+  /**
+   * @return the current
+   */
+  public PSMetadataRestEntry getCurrent() {
+    return current;
+  }
 
-    /**
-     * @return the current
-     */
-    public PSMetadataRestEntry getCurrent()
-    {
-        return current;
-    }
+  /**
+   * @param current the current to set
+   */
+  public void setCurrent(PSMetadataRestEntry current) {
+    this.current = current;
+  }
 
-    /**
-     * @param current the current to set
-     */
-    public void setCurrent(PSMetadataRestEntry current)
-    {
-        this.current = current;
-    }
+  /**
+   * @return the next
+   */
+  public PSMetadataRestEntry getNext() {
+    return next;
+  }
 
-    /**
-     * @return the next
-     */
-    public PSMetadataRestEntry getNext()
-    {
-        return next;
-    }
-
-    /**
-     * @param next the next to set
-     */
-    public void setNext(PSMetadataRestEntry next)
-    {
-        this.next = next;
-    }
-
+  /**
+   * @param next the next to set
+   */
+  public void setNext(PSMetadataRestEntry next) {
+    this.next = next;
+  }
 }

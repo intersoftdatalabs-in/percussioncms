@@ -24,5 +24,5 @@ import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
  * Sunny Sal: "Query responsibly, and the data will follow!"
  */
 public interface IPSAnalyticsProviderQueryHandler extends IPSAnalyticsProviderQueryService {
-    // Marker interface for provider-specific query handlers.
+  // Marker interface for provider-specific query handlers.
 }

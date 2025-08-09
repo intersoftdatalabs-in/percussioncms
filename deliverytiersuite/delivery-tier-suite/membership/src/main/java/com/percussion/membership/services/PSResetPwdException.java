@@ -16,17 +16,12 @@
  */
 package com.percussion.membership.services;
 
-public class PSResetPwdException extends Exception
-{
+public class PSResetPwdException extends Exception {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    public PSResetPwdException(String message)
-    {
-        super(message);
-    }
-
+  public PSResetPwdException(String message) {
+    super(message);
+  }
 }

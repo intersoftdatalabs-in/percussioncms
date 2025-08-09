@@ -31,161 +31,166 @@ import com.percussion.server.PSServer;
 import com.percussion.services.notification.PSNotificationHelper;
 import com.percussion.util.IOTools;
 import com.percussion.utils.collections.PSIteratorUtils;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Base class for handlers that package and install files directly to and from 
+ * Base class for handlers that package and install files directly to and from
  * the file system.
  */
-public abstract class PSFileDependencyHandler extends PSDependencyHandler
-{
-   /**
-    * Construct a dependency handler.
-    * 
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be 
-    * <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public PSFileDependencyHandler(PSDependencyDef def, 
-      PSDependencyMap dependencyMap)
-   {
-      super(def, dependencyMap);
-   }
-   
-   
-   /**
-    * This class returns an empty list.  Derrived class should override this
-    * method if they support child types.  See 
-    * {@link PSDependencyHandler#getChildDependencies(PSSecurityToken, 
-    * PSDependency) Base Class} for more info.
-    */
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-         
-      return PSIteratorUtils.emptyIterator();
-   }
-   
-   // see base class
-   @Override
-   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
-      if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
-         throw new IllegalArgumentException("Invalid arguments provided.");
-      }
+public abstract class PSFileDependencyHandler extends PSDependencyHandler {
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public PSFileDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
+    super(def, dependencyMap);
+  }
 
-      var depFile = new File(PSServer.getRxDir().getAbsolutePath(), PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
-      if (!depFile.exists()) {
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()});
-      }
+  /**
+   * This class returns an empty list.  Derrived class should override this
+   * method if they support child types.  See
+   * {@link PSDependencyHandler#getChildDependencies(PSSecurityToken,
+   * PSDependency) Base Class} for more info.
+   */
+  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      return List.of(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, depFile)).iterator();
-   }
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-   // see base class
-   @Override
-   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
-      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(getType())) {
-         throw new IllegalArgumentException("Invalid arguments provided.");
-      }
+    if (!dep.getObjectType().equals(getType()))
+      throw new IllegalArgumentException("dep wrong type");
 
-      var files = archive.getFiles(dep);
-      if (!files.hasNext()) {
-         throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, new Object[]{PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SUPPORT_FILE], dep.getObjectType(), dep.getDependencyId(), dep.getDisplayName()});
-      }
+    return PSIteratorUtils.emptyIterator();
+  }
 
-      var depFile = (PSDependencyFile) files.next();
-      var tgtFile = new File(PSServer.getRxDir().getAbsolutePath(), PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
-      var transAction = tgtFile.exists() ? PSTransactionSummary.ACTION_MODIFIED : PSTransactionSummary.ACTION_CREATED;
+  // see base class
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
+      throw new IllegalArgumentException("Invalid arguments provided.");
+    }
 
-      var parentDir = tgtFile.getParentFile();
-      if (parentDir != null) {
-         parentDir.mkdirs();
-      }
+    var depFile =
+        new File(
+            PSServer.getRxDir().getAbsolutePath(),
+            PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
+    if (!depFile.exists()) {
+      throw new PSDeployException(
+          IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+          new Object[] {dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()});
+    }
 
-      tgtFile.setLastModified(System.currentTimeMillis());
+    return List.of(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, depFile)).iterator();
+  }
 
-      try (var out = new FileOutputStream(tgtFile); var in = archive.getFileData(depFile)) {
-         IOTools.copyStream(in, out);
-      } catch (IOException e) {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
-      }
+  // see base class
+  @Override
+  public void installDependencyFiles(
+      PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+      throws PSDeployException {
+    if (tok == null
+        || archive == null
+        || dep == null
+        || ctx == null
+        || !dep.getObjectType().equals(getType())) {
+      throw new IllegalArgumentException("Invalid arguments provided.");
+    }
 
-      addTransactionLogEntry(dep, ctx, tgtFile.getPath(), PSTransactionSummary.TYPE_FILE, transAction);
-      PSNotificationHelper.notifyFile(tgtFile);
-   }
+    var files = archive.getFiles(dep);
+    if (!files.hasNext()) {
+      throw new PSDeployException(
+          IPSDeploymentErrors.MISSING_DEPENDENCY_FILE,
+          new Object[] {
+            PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SUPPORT_FILE],
+            dep.getObjectType(),
+            dep.getDependencyId(),
+            dep.getDisplayName()
+          });
+    }
 
-   // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      return PSIteratorUtils.emptyIterator();
-   }
-   
-   
-   // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id) 
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-       
-      PSDependency dep = null;
-      
-      id = PSDeployComponentUtils.getNormalizedPath(id);
-      File depFile = new File(id);
-      if (depFile.exists())
-         dep = createDependency(m_def, id, depFile.getName());
-      
-      return dep;
-   }
+    var depFile = (PSDependencyFile) files.next();
+    var tgtFile =
+        new File(
+            PSServer.getRxDir().getAbsolutePath(),
+            PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
+    var transAction =
+        tgtFile.exists()
+            ? PSTransactionSummary.ACTION_MODIFIED
+            : PSTransactionSummary.ACTION_CREATED;
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * Base class returns an empty list.  Derrived class should override this
-    * method if they support child types.
-    * 
-    * @return An empty iterator, never <code>null</code>.
-    */
-   public Iterator getChildTypes()
-   {
-      return PSIteratorUtils.emptyIterator();
-   }
+    var parentDir = tgtFile.getParentFile();
+    if (parentDir != null) {
+      parentDir.mkdirs();
+    }
 
-   // see base class
-   public boolean doesDependencyExist(PSSecurityToken tok, String id) 
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-      
-      return (getDependency(tok, id) != null);
-   }
+    tgtFile.setLastModified(System.currentTimeMillis());
+
+    try (var out = new FileOutputStream(tgtFile);
+        var in = archive.getFileData(depFile)) {
+      IOTools.copyStream(in, out);
+    } catch (IOException e) {
+      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    }
+
+    addTransactionLogEntry(
+        dep, ctx, tgtFile.getPath(), PSTransactionSummary.TYPE_FILE, transAction);
+    PSNotificationHelper.notifyFile(tgtFile);
+  }
+
+  // see base class
+  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    return PSIteratorUtils.emptyIterator();
+  }
+
+  // see base class
+  public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
+
+    PSDependency dep = null;
+
+    id = PSDeployComponentUtils.getNormalizedPath(id);
+    File depFile = new File(id);
+    if (depFile.exists()) dep = createDependency(m_def, id, depFile.getName());
+
+    return dep;
+  }
+
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * Base class returns an empty list.  Derrived class should override this
+   * method if they support child types.
+   *
+   * @return An empty iterator, never <code>null</code>.
+   */
+  public Iterator getChildTypes() {
+    return PSIteratorUtils.emptyIterator();
+  }
+
+  // see base class
+  public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
+
+    return (getDependency(tok, id) != null);
+  }
 }

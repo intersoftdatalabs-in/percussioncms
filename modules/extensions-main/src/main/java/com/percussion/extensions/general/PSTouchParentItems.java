@@ -19,19 +19,14 @@ package com.percussion.extensions.general;
 import com.percussion.extension.IPSWorkflowAction;
 
 /**
- * This workflow action touches all "active assembly parent" items of the 
- * current item. These items are found by searching the related content table 
+ * This workflow action touches all "active assembly parent" items of the
+ * current item. These items are found by searching the related content table
  * for parent items, and then searching for the parents of those items, etc.
  * The relationships are in the 'active assembly' category only.
  * <p>
  * The content items which are found are then updated so that the LastModifyDate
  * column contains the current date & time.
- * 
+ *
  * @see PSTouchItemsWorkflowAction
  */
-public class PSTouchParentItems
-   extends PSTouchItemsWorkflowAction
-   implements IPSWorkflowAction
-{
-
-}
+public class PSTouchParentItems extends PSTouchItemsWorkflowAction implements IPSWorkflowAction {}

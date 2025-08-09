@@ -23,54 +23,45 @@ import org.w3c.dom.Element;
  * See base class for description. Represents a property of a given
  * {@link com.percussion.cms.objectstore.PSDisplayFormat}
  */
-public class PSDFMultiProperty extends PSMultiValuedProperty
-{          
-   /**
-    * Required ctor to be contained within a {@link
-    * com.percussion.cms.objectstore.PSDbComponentCollection}
-    */
-   public PSDFMultiProperty(Element src)
-      throws PSUnknownNodeTypeException
-   {      
-      super(src);      
-   }
-   
-   /**
-    * Convienve ctor to specify property name.
-    */
-   public PSDFMultiProperty(String strName)      
-   {      
-      super(PSDFProperty.class, strName);      
-   }
+public class PSDFMultiProperty extends PSMultiValuedProperty {
+  /**
+   * Required ctor to be contained within a {@link
+   * com.percussion.cms.objectstore.PSDbComponentCollection}
+   */
+  public PSDFMultiProperty(Element src) throws PSUnknownNodeTypeException {
+    super(src);
+  }
 
-   /**
-    * no args constructor
-    */
-   public PSDFMultiProperty()      
-   {      
-      super();      
-   }
-   
-   // see base class for description
-   public String getNodeName()
-   {
-      return XML_NODE_NAME;
-   }
-   
-   // see base class for description
-   protected PSCmsProperty createProperty(String name, String value)
-   {
-      if (name == null)
-         throw new IllegalArgumentException(
-            "name must not be null");
+  /**
+   * Convienve ctor to specify property name.
+   */
+  public PSDFMultiProperty(String strName) {
+    super(PSDFProperty.class, strName);
+  }
 
-      PSDFProperty prop = new PSDFProperty(name, value);
-      return prop;
-   }
+  /**
+   * no args constructor
+   */
+  public PSDFMultiProperty() {
+    super();
+  }
 
-   // public defines
-   public static final String KEY_COL = "propertyId";
-   public static final String KEY_COL_NAME = "propertyName";
-   public static final String KEY_COL_VAL = "propertyValue";
-   public static final String XML_NODE_NAME = "PSXDFMultiProperty";
+  // see base class for description
+  public String getNodeName() {
+    return XML_NODE_NAME;
+  }
+
+  // see base class for description
+  protected PSCmsProperty createProperty(String name, String value) {
+    if (name == null) throw new IllegalArgumentException("name must not be null");
+
+    PSDFProperty prop = new PSDFProperty(name, value);
+    return prop;
+  }
+
+  // public defines
+  public static final String KEY_COL = "propertyId";
+  public static final String KEY_COL_NAME = "propertyName";
+  public static final String KEY_COL_VAL = "propertyValue";
+  public static final String XML_NODE_NAME = "PSXDFMultiProperty";
 }

@@ -51,72 +51,63 @@ import org.w3c.dom.Element;
  * @author Ram
  * @version 1.0
  */
-public class PSPublishMandatory extends PSPublishUnpublishMandatory
-{
-   /**
-    * Returns mode name.
-    * @return the name of the effect mode: "publish",
-    * never <code>null</code>.
-    */
-   protected String getModeName()
-   {
-      return MODE_PUBLISH;
-   }
-   
-   /**
-    * Determines is the given WF state is a desired state or not.
-    * @param elem element with a WF state, may be <code>null</code>.
-    * @return <code>true</code> if the item is in the desired WF state
-    * <code>false</code> otherwise.
-    */
-   protected boolean isItemInDesiredWFState(Element elem)
-   {
-      return (
-         elem != null
-            && (elem.getAttribute("isPublic").equalsIgnoreCase("y")
-               || elem.getAttribute("isPublic").equalsIgnoreCase("i")));
-   }
+public class PSPublishMandatory extends PSPublishUnpublishMandatory {
+  /**
+   * Returns mode name.
+   * @return the name of the effect mode: "publish",
+   * never <code>null</code>.
+   */
+  protected String getModeName() {
+    return MODE_PUBLISH;
+  }
 
+  /**
+   * Determines is the given WF state is a desired state or not.
+   * @param elem element with a WF state, may be <code>null</code>.
+   * @return <code>true</code> if the item is in the desired WF state
+   * <code>false</code> otherwise.
+   */
+  protected boolean isItemInDesiredWFState(Element elem) {
+    return (elem != null
+        && (elem.getAttribute("isPublic").equalsIgnoreCase("y")
+            || elem.getAttribute("isPublic").equalsIgnoreCase("i")));
+  }
 
-   /**
-    * This method is used to determine whether the item is
-    * transitioning into a WF state which should trigger
-    * the relationship engine to execute attempt on this
-    * effect. It is up to the derived class to decide if so.
-    * @param request request context mainly for I18n of the message.
-    * @param isCurrentlyPublic <code>true</code> indicates
-    * that the item is in the public state, <code>false</code>
-    * otherwise.
-    * @param isToPublic <code>true</code> indicates that this
-    * item is transitioning into a public state from a non
-    * public state, <code>false</code> otherwise.
-    * @param isToOutOfPublic <code>true</code> indicates that
-    * this item is transitioning out of a public state from
-    * a public state, <code>false</code> otherwise.
-    * @param result result to set, never <code>null</code>.
-    *
-    * @return <code>true</code> indicates that the trigger
-    * condition has been met, <code>false</code> otherwise.
-    */
-   protected boolean isTransitioningIntoTriggerState(
+  /**
+   * This method is used to determine whether the item is
+   * transitioning into a WF state which should trigger
+   * the relationship engine to execute attempt on this
+   * effect. It is up to the derived class to decide if so.
+   * @param request request context mainly for I18n of the message.
+   * @param isCurrentlyPublic <code>true</code> indicates
+   * that the item is in the public state, <code>false</code>
+   * otherwise.
+   * @param isToPublic <code>true</code> indicates that this
+   * item is transitioning into a public state from a non
+   * public state, <code>false</code> otherwise.
+   * @param isToOutOfPublic <code>true</code> indicates that
+   * this item is transitioning out of a public state from
+   * a public state, <code>false</code> otherwise.
+   * @param result result to set, never <code>null</code>.
+   *
+   * @return <code>true</code> indicates that the trigger
+   * condition has been met, <code>false</code> otherwise.
+   */
+  protected boolean isTransitioningIntoTriggerState(
       IPSRequestContext request,
       boolean isCurrentlyPublic,
       boolean isToPublic,
       boolean isToOutOfPublic,
-      PSEffectResult result)
-   {
-      if (isToPublic)
-      {
-         return true;
-      }
-      else
-      {
-         String[] args = {m_name, "any", "public"};
-         //publish mode
-         result.setWarning(request.getUserLocale(),
-            IPSExtensionErrors.INVALID_TRANSITION_FOR_EFFECT, args);
-         result.setRecurseDependents(false);
-         return false;
-      }
-   }
+      PSEffectResult result) {
+    if (isToPublic) {
+      return true;
+    } else {
+      String[] args = {m_name, "any", "public"};
+      // publish mode
+      result.setWarning(
+          request.getUserLocale(), IPSExtensionErrors.INVALID_TRANSITION_FOR_EFFECT, args);
+      result.setRecurseDependents(false);
+      return false;
+    }
+  }
 }

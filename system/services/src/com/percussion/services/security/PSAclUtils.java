@@ -19,8 +19,8 @@ package com.percussion.services.security;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 
-import java.security.acl.NotOwnerException;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.NotOwnerException;
+import com.percussion.security.shim.acl.Permission;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;

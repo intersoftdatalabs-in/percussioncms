@@ -22,10 +22,9 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.util.Locale;
 
 /**
  * The PSLogError class is used as the base class for all error logging
@@ -47,214 +46,192 @@ import java.util.Locale;
  * @version    1.0
  * @since      1.0
  */
-public abstract class PSLogError extends PSLogInformation  {
+public abstract class PSLogError extends PSLogInformation {
 
-   /**
-     * Construct a log message to report an error condition.
-     *
-    * @param   applId            the id of the application that generated
-    *                              the error
-    */
-   protected PSLogError(int applId)
-   {
-      super(LOG_TYPE, applId);
-   }
+  /**
+   * Construct a log message to report an error condition.
+   *
+   * @param   applId            the id of the application that generated
+   *                              the error
+   */
+  protected PSLogError(int applId) {
+    super(LOG_TYPE, applId);
+  }
 
-   /**
-    * Get the sub-messages (type and text). A sub-message is created
-    * for each piece of information reported when this object was created.
-    *
-    * @return   an array of sub-messages (PSLogSubMessage)
-    */
-   public PSLogSubMessage[] getSubMessages()
-   {
-      return getSubMessages(ms_defaultLocale);
-   }
+  /**
+   * Get the sub-messages (type and text). A sub-message is created
+   * for each piece of information reported when this object was created.
+   *
+   * @return   an array of sub-messages (PSLogSubMessage)
+   */
+  public PSLogSubMessage[] getSubMessages() {
+    return getSubMessages(ms_defaultLocale);
+  }
 
-   /**
-    * Get the sub-messages (type and text). A sub-message is created
-    * for each piece of information reported when this object was created.
-    *
-    * @param   loc   the locale to use
-    *
-    * @return         an array of sub-messages (PSLogSubMessage)
-    */
-   public PSLogSubMessage[] getSubMessages(Locale loc)
-   {
-      /* first time, build it and set the built version's locale */
-      if (m_SubMessages == null) {
-         m_SubMessages         = buildSubMessages(loc);
-         m_SubMessagesLocale   = loc.toString();
+  /**
+   * Get the sub-messages (type and text). A sub-message is created
+   * for each piece of information reported when this object was created.
+   *
+   * @param   loc   the locale to use
+   *
+   * @return         an array of sub-messages (PSLogSubMessage)
+   */
+  public PSLogSubMessage[] getSubMessages(Locale loc) {
+    /* first time, build it and set the built version's locale */
+    if (m_SubMessages == null) {
+      m_SubMessages = buildSubMessages(loc);
+      m_SubMessagesLocale = loc.toString();
+    } else {
+      /* we'll build it in the specified locale, but don't reset the
+       * default version
+       */
+      return buildSubMessages(loc);
+    }
+
+    /* otherwise, return the default version */
+    return m_SubMessages;
+  }
+
+  /**
+   * Errors may have an XML document defined for them which allows a
+   * style sheet to be used to dynamically generate the response with
+   * request specific data.
+   *
+   * @return         the XML document containing the error data
+   */
+  public Document getXmlErrorData() {
+    return getXmlErrorData(ms_defaultLocale);
+  }
+
+  /**
+   * Errors may have an XML document defined for them which allows a
+   * style sheet to be used to dynamically generate the response with
+   * request specific data.
+   *
+   * @param   loc   the locale to use
+   *
+   * @return         the XML document containing the error data
+   */
+  public Document getXmlErrorData(Locale loc) {
+    /* first time, build it and set the built version's locale */
+    if (m_doc == null) {
+      m_doc = buildXmlDocument(loc);
+      m_docLocale = loc.toString();
+    } else if (!m_docLocale.equals(loc.toString())) {
+      /* we'll build it in the specified locale, but don't reset the
+       * default version
+       */
+      return buildXmlDocument(loc);
+    }
+
+    /* otherwise, return the default version */
+    return m_doc;
+  }
+
+  /**
+   * Override toString to get the error text as a readable string.
+   */
+  public java.lang.String toString() {
+    return toString(ms_defaultLocale);
+  }
+
+  /**
+   * Override toString to get the error text as a readable string
+   * in the specified locale.
+   *
+   * @param   loc      the locale to use
+   */
+  public java.lang.String toString(Locale loc) {
+    String ret = "";
+
+    PSLogSubMessage[] msgs = getSubMessages(loc);
+    if (msgs != null) {
+      for (int i = 0; i < msgs.length; i++) {
+        if (msgs[i] != null) {
+          if (i > 0) ret += "  " + msgs[i].getText();
+          else ret += msgs[i].getText();
+        }
       }
-      else {
-         /* we'll build it in the specified locale, but don't reset the
-          * default version
-          */
-         return buildSubMessages(loc);
-      }
+    }
 
-      /* otherwise, return the default version */
-      return m_SubMessages;
-   }
+    if (ret.length() == 0) return this.getClass().getName();
 
-   /**
-    * Errors may have an XML document defined for them which allows a
-    * style sheet to be used to dynamically generate the response with
-    * request specific data.
-    *
-    * @return         the XML document containing the error data
-    */
-   public Document getXmlErrorData()
-   {
-      return getXmlErrorData(ms_defaultLocale);
-   }
+    return ret;
+  }
 
-   /**
-    * Errors may have an XML document defined for them which allows a
-    * style sheet to be used to dynamically generate the response with
-    * request specific data.
-    *
-    * @param   loc   the locale to use
-    *
-    * @return         the XML document containing the error data
-    */
-   public Document getXmlErrorData(Locale loc)
-   {
-      /* first time, build it and set the built version's locale */
-      if (m_doc == null) {
-         m_doc         = buildXmlDocument(loc);
-         m_docLocale   = loc.toString();
-      }
-      else if (!m_docLocale.equals(loc.toString())) {
-         /* we'll build it in the specified locale, but don't reset the
-          * default version
-          */
-         return buildXmlDocument(loc);
-      }
+  /**
+   * sublcasses must override this to build the messages in the
+   * specified locale
+   */
+  protected abstract PSLogSubMessage[] buildSubMessages(Locale loc);
 
-      /* otherwise, return the default version */
-      return m_doc;
-   }
+  /**
+   * The default error document returns a document conforming to the
+   * sys_defaultError.dtd and will contain all error messages available.
+   *
+   * @param loc the locale to use to build the error document, may be
+   *    <code>null</code> in which case the default locale is used.
+   * @return a document conforming to the sys_defaultError.dtd with all
+   *    error messages, never <code>null</code>.
+   */
+  protected Document buildXmlDocument(Locale loc) {
+    PSLogSubMessage[] msgs = getSubMessages(loc);
 
-   /**
-    * Override toString to get the error text as a readable string.
-    */
-   public java.lang.String toString()
-   {
-      return toString(ms_defaultLocale);
-   }
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-   /**
-    * Override toString to get the error text as a readable string
-    * in the specified locale.
-    *
-    * @param   loc      the locale to use
-    */
-   public java.lang.String toString(Locale loc)
-   {
-      String ret = "";
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXLogErrorSet");
+    root.setAttribute("class", PSErrorHumanReadableNames.getHumanReadableName(getClass()));
 
-      PSLogSubMessage[] msgs = getSubMessages(loc);
-      if (msgs != null) {
-         for (int i = 0; i < msgs.length; i++) {
-            if (msgs[i] != null) {
-               if (i > 0)
-                  ret += "  " + msgs[i].getText();
-               else
-                  ret += msgs[i].getText();
-            }
-         }
-      }
+    PSRequest request = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+    if (request != null) {
+      String protocol = request.getUserSession().getOriginalProtocol();
+      String host = request.getUserSession().getOriginalHost();
+      String port = String.valueOf(request.getUserSession().getOriginalPort());
+      String reqroot = PSServer.getRequestRoot();
+      String rxroot = protocol + "://" + host;
+      if (port != null && port.trim().length() > 0) rxroot += ":" + port;
+      rxroot += reqroot;
 
-      if (ret.length() == 0)
-         return this.getClass().getName();
+      root.setAttribute("protocol", protocol);
+      root.setAttribute("host", host);
+      root.setAttribute("port", port);
+      root.setAttribute("root", reqroot);
+      root.setAttribute("rxroot", rxroot);
+    } else {
+      root.setAttribute("host", PSServer.getHostName());
+      root.setAttribute("port", Integer.toString(PSServer.getListenerPort()));
+      root.setAttribute("root", PSServer.getRequestRoot());
+    }
 
-      return ret;
-   }
+    for (int i = 0; i < msgs.length; i++) {
+      Element error = PSXmlDocumentBuilder.addElement(doc, root, "Error", msgs[i].getText());
+      error.setAttribute("id", Integer.toString(i));
+    }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected abstract PSLogSubMessage[] buildSubMessages(Locale loc);
+    return doc;
+  }
 
-   /**
-    * The default error document returns a document conforming to the
-    * sys_defaultError.dtd and will contain all error messages available.
-    *
-    * @param loc the locale to use to build the error document, may be
-    *    <code>null</code> in which case the default locale is used.
-    * @return a document conforming to the sys_defaultError.dtd with all
-    *    error messages, never <code>null</code>.
-    */
-   protected Document buildXmlDocument(Locale loc)
-   {
-      PSLogSubMessage[] msgs = getSubMessages(loc);
+  /**
+   * Error is set as type 1.
+   */
+  private static final int LOG_TYPE = 1;
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+  /**
+   * Get the default locale we'll be using for writing messages.
+   */
+  private static Locale ms_defaultLocale = Locale.getDefault();
 
-       Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXLogErrorSet");
-      root.setAttribute("class",
-         PSErrorHumanReadableNames.getHumanReadableName(getClass()));
+  /**
+   * This is where sub-classes can store their messages.
+   */
+  private PSLogSubMessage[] m_SubMessages = null;
 
-      PSRequest request = (PSRequest) PSRequestInfo
-         .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-      if(request != null)
-      {   
-         String protocol = request.getUserSession().getOriginalProtocol();
-         String host = request.getUserSession().getOriginalHost();
-         String port = String.valueOf(request.getUserSession().getOriginalPort());
-         String reqroot = PSServer.getRequestRoot();
-         String rxroot = protocol + "://" + host;
-         if(port != null && port.trim().length()>0)
-             rxroot += ":" + port;
-         rxroot += reqroot;
-   
-         root.setAttribute("protocol",protocol);
-         root.setAttribute("host", host);
-         root.setAttribute("port", port);
-         root.setAttribute("root", reqroot);
-         root.setAttribute("rxroot", rxroot);
-      }
-      else
-      {
-         root.setAttribute("host", PSServer.getHostName());
-         root.setAttribute("port", Integer.toString(PSServer.getListenerPort()));
-         root.setAttribute("root", PSServer.getRequestRoot());
-      }
-      
-      for (int i=0; i<msgs.length; i++)
-      {
-         Element error = PSXmlDocumentBuilder.addElement(doc, root, "Error",
-            msgs[i].getText());
-         error.setAttribute("id", Integer.toString(i));
-      }
+  private String m_SubMessagesLocale = "";
 
-      return doc;
-   }
+  /**
+   * This is where sub-classes can store their XML data.
+   */
+  private Document m_doc = null;
 
-
-   /**
-    * Error is set as type 1.
-    */
-   private static final int LOG_TYPE = 1;
-
-   /**
-    * Get the default locale we'll be using for writing messages.
-    */
-   private static Locale ms_defaultLocale = Locale.getDefault();
-
-
-
-   /**
-    * This is where sub-classes can store their messages.
-    */
-   private PSLogSubMessage[]   m_SubMessages = null;
-   private String               m_SubMessagesLocale = "";
-
-   /**
-    * This is where sub-classes can store their XML data.
-    */
-   private Document            m_doc = null;
-   private String               m_docLocale = "";
+  private String m_docLocale = "";
 }

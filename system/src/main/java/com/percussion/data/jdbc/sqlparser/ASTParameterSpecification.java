@@ -26,17 +26,15 @@ public class ASTParameterSpecification extends SimpleNode {
     super(p, id);
   }
 
-   public void setName(String name)
-   {
-      name = m_name;
-   }
+  public void setName(String name) {
+    name = m_name;
+  }
 
-   public String getName()
-   {
-      return m_name;
-   }
+  public String getName() {
+    return m_name;
+  }
 
-   private String m_name;
+  private String m_name;
 
   /** Accept the visitor. **/
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {

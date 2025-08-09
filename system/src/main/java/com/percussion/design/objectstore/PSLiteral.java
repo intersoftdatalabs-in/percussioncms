@@ -17,9 +17,8 @@
 
 package com.percussion.design.objectstore;
 
-
 /**
- * The PSLiteral class is used to define a replacement value is a 
+ * The PSLiteral class is used to define a replacement value is a
  * static literal value. Literals of specific types are meant to
  * extend this class.
  *
@@ -29,36 +28,32 @@ package com.percussion.design.objectstore;
  * @version  1.0
  * @since       1.0
  */
-public abstract class PSLiteral
-   extends PSComponent implements IPSBackEndMapping, IPSDocumentMapping
-{
-   /**
-    * The value type associated with this instances of this class.
-    */
-   public static final String      VALUE_TYPE      = "Literal";
-   
-   /**
-    * Default constructor for internal use
-    */
-   protected PSLiteral()
-   {
-      super();
-   }
+public abstract class PSLiteral extends PSComponent
+    implements IPSBackEndMapping, IPSDocumentMapping {
+  /**
+   * The value type associated with this instances of this class.
+   */
+  public static final String VALUE_TYPE = "Literal";
 
-   //  IPSBackEndMapping Interface Implementation
-   public String[] getColumnsForSelect()
-   {
-      return null;
-   }
-   
-   /**
-    * Returns the string representation of this literal.
-    * 
-    * @return the display text; never <code>null</code> or empty.
-    * @see #getValueDisplayText
-    */
-   public String toString()
-   {
-     return getValueDisplayText();
-   }  
+  /**
+   * Default constructor for internal use
+   */
+  protected PSLiteral() {
+    super();
+  }
+
+  //  IPSBackEndMapping Interface Implementation
+  public String[] getColumnsForSelect() {
+    return null;
+  }
+
+  /**
+   * Returns the string representation of this literal.
+   *
+   * @return the display text; never <code>null</code> or empty.
+   * @see #getValueDisplayText
+   */
+  public String toString() {
+    return getValueDisplayText();
+  }
 }

@@ -18,9 +18,7 @@
 package com.percussion.design.objectstore.server;
 
 import com.percussion.design.objectstore.PSServerConfiguration;
-
 import java.util.EventListener;
-
 
 /**
  * The IPSServerConfigurationListener interface is implemented by classes
@@ -42,13 +40,11 @@ import java.util.EventListener;
  * @version    1.0
  * @since      1.0
  */
-public interface IPSServerConfigurationListener extends EventListener
-{
-   /**
-    * Handle notification of changes to the server configuration object.
-    *
-    * @param   config         the configuration object
-    */
-   public void configurationUpdated(PSServerConfiguration config);
+public interface IPSServerConfigurationListener extends EventListener {
+  /**
+   * Handle notification of changes to the server configuration object.
+   *
+   * @param   config         the configuration object
+   */
+  public void configurationUpdated(PSServerConfiguration config);
 }
-

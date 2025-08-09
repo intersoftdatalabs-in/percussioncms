@@ -23,11 +23,11 @@ package com.percussion.analytics.error;
  */
 public interface IPSAnalyticsErrorMessageHandler {
 
-    /**
-     * Returns the proper business message for the analytics exception provided.
-     *
-     * @param e the analytics provider exception that was thrown, not null.
-     * @return the message, never null, may be empty.
-     */
-    String getMessage(PSAnalyticsProviderException e);
+  /**
+   * Returns the proper business message for the analytics exception provided.
+   *
+   * @param e the analytics provider exception that was thrown, not null.
+   * @return the message, never null, may be empty.
+   */
+  String getMessage(PSAnalyticsProviderException e);
 }

@@ -49,24 +49,20 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  *
  */
-public class PSEvalCondition extends PSAction implements Condition
-{
-   /* (non-Javadoc)
-    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
-    */
-   public boolean eval()
-   {
-      Code code = InstallUtil.fetchBrandCode(getRootDir());
-      if (code == null)
-      {
-         PSLogger.logInfo("PSEvalCondition : Brand code is null");
-         return false;
-      }
-      if(code.isAnEval())
-      {
-         PSLogger.logInfo("PSEvalCondition : Brand code is eval");
-         return true;
-      }
+public class PSEvalCondition extends PSAction implements Condition {
+  /* (non-Javadoc)
+   * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
+   */
+  public boolean eval() {
+    Code code = InstallUtil.fetchBrandCode(getRootDir());
+    if (code == null) {
+      PSLogger.logInfo("PSEvalCondition : Brand code is null");
       return false;
-   }
+    }
+    if (code.isAnEval()) {
+      PSLogger.logInfo("PSEvalCondition : Brand code is eval");
+      return true;
+    }
+    return false;
+  }
 }

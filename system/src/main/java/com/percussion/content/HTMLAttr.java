@@ -21,62 +21,57 @@ import org.w3c.dom.Element;
 import org.w3c.dom.TypeInfo;
 
 // REFACTORED: CP-JAVA11
-public class HTMLAttr extends HTMLNode implements Attr
-{
-   public HTMLAttr(String name, String value) {
-      super();
-      m_name = name;
-      setValue(value);
-   }
+public class HTMLAttr extends HTMLNode implements Attr {
+  public HTMLAttr(String name, String value) {
+    super();
+    m_name = name;
+    setValue(value);
+  }
 
-   public int numChildren() {
-      return 0; // attributes have no children
-   }
+  public int numChildren() {
+    return 0; // attributes have no children
+  }
 
-   public String getName() {
-      return getNodeName();
-   }
+  public String getName() {
+    return getNodeName();
+  }
 
-   // Always return true as there are no default attributes in HTML
-   public boolean getSpecified() {
-      return true;
-   }
+  // Always return true as there are no default attributes in HTML
+  public boolean getSpecified() {
+    return true;
+  }
 
-   public String getValue() {
-      return getNodeValue();
-   }
+  public String getValue() {
+    return getNodeValue();
+  }
 
-   public void setValue(String value) {
-      setNodeValue(value);
-   }
+  public void setValue(String value) {
+    setNodeValue(value);
+  }
 
-   public short getNodeType() {
-      return ATTRIBUTE_NODE;
-   }
+  public short getNodeType() {
+    return ATTRIBUTE_NODE;
+  }
 
-   public String toString()
-   {
-      return getName();
-   }
+  public String toString() {
+    return getName();
+  }
 
-   /**
-    * Method introduced later in DOM level 2. Not implemented.
-    */
-   public Element getOwnerElement()
-   {
-      // TODO: implement
-      throw new RuntimeException("Method getOwnerElement not supported");
-   }
+  /**
+   * Method introduced later in DOM level 2. Not implemented.
+   */
+  public Element getOwnerElement() {
+    // TODO: implement
+    throw new RuntimeException("Method getOwnerElement not supported");
+  }
 
-   public TypeInfo getSchemaTypeInfo()
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public TypeInfo getSchemaTypeInfo() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public boolean isId()
-   {
-      // TODO Auto-generated method stub
-      return false;
-   }
+  public boolean isId() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 }

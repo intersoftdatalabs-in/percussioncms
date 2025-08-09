@@ -29,41 +29,37 @@ import java.text.MessageFormat;
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceOutputConversion extends PSTraceMessage {
-   
-   /**
-    * Constructor for this class.
-    *
-    * @param typeFlag the type of trace message this object will generate
-    * @roseuid 39FDE02D02DE
-    */
-   public PSTraceOutputConversion(int typeFlag)
-   {
-      super(typeFlag);
-   }
 
-   //see parent class for javadoc
-   protected String getMessageHeader()
-   {
-      return ms_bundle.getString("traceOutputConv_dispname");
-   }
+  /**
+   * Constructor for this class.
+   *
+   * @param typeFlag the type of trace message this object will generate
+   * @roseuid 39FDE02D02DE
+   */
+  public PSTraceOutputConversion(int typeFlag) {
+    super(typeFlag);
+  }
 
-   /**
-    * Formats the output for the body of the message, extracting the information
-    * required from the source object.
-    *
-    * @param source an array of objects containing the information required for the
-    * trace message:
-    * - String type (i.e. "html")
-    * - String stylesheet name
-    * @return the message body
-    * @roseuid 39FEE2F402FD
-    */
-   protected String getMessageBody(java.lang.Object source) 
-   {
-      Object[] args = (Object[])source;
-      if (args.length != 2)
-         throw new IllegalArgumentException("Invalid number of args");
+  // see parent class for javadoc
+  protected String getMessageHeader() {
+    return ms_bundle.getString("traceOutputConv_dispname");
+  }
 
-      return MessageFormat.format(ms_bundle.getString("traceOutputConv_msg"), args);
-   }
+  /**
+   * Formats the output for the body of the message, extracting the information
+   * required from the source object.
+   *
+   * @param source an array of objects containing the information required for the
+   * trace message:
+   * - String type (i.e. "html")
+   * - String stylesheet name
+   * @return the message body
+   * @roseuid 39FEE2F402FD
+   */
+  protected String getMessageBody(java.lang.Object source) {
+    Object[] args = (Object[]) source;
+    if (args.length != 2) throw new IllegalArgumentException("Invalid number of args");
+
+    return MessageFormat.format(ms_bundle.getString("traceOutputConv_msg"), args);
+  }
 }

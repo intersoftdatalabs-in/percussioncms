@@ -16,107 +16,89 @@
  */
 package com.percussion.tablefactory;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Unit test for PSJdbcUpdateKey.
  */
-public class PSJdbcUpdateKeyTest
-{
+public class PSJdbcUpdateKeyTest {
 
+  /**
+   * Test the def
+   */
+  @Test
+  public void testDef() throws Exception {
+    // build a def with a dupe name
+    List<String> cols = new ArrayList<>();
+    cols.add("col1");
+    cols.add("col2");
+    cols.add("col1");
 
-   /**
-    * Test the def
-    */
-    @Test
-   public void testDef() throws Exception
-   {
-      // build a def with a dupe name
-      List<String> cols = new ArrayList<>();
-      cols.add("col1");
-      cols.add("col2");
-      cols.add("col1");
-
-      boolean caught = false;
-      try
-      {
-         PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-
-      // build def with null name
-      cols = new ArrayList<>();
-      cols.add("col1");
-      cols.add(null);
-
-      caught = false;
-      try
-      {
-         PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-
-      // build def with empty name
-      cols = new ArrayList<>();
-      cols.add("col1");
-      cols.add("");
-
-      caught = false;
-      try
-      {
-         PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-
-      // build def with empty list
-      cols = new ArrayList<>();
-
-      caught = false;
-      try
-      {
-         PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
-      }
-      catch (IllegalArgumentException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-
-      // build valid def
-      cols = new ArrayList<>();
-      cols.add("col1");
-      cols.add("col2");
-      cols.add("col3");
-
+    boolean caught = false;
+    try {
       PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = uc.toXml(doc);
+    // build def with null name
+    cols = new ArrayList<>();
+    cols.add("col1");
+    cols.add(null);
 
-      PSJdbcUpdateKey uc2 = new PSJdbcUpdateKey(el);
-      assertEquals(uc, uc2);
-   }
+    caught = false;
+    try {
+      PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
+    // build def with empty name
+    cols = new ArrayList<>();
+    cols.add("col1");
+    cols.add("");
 
+    caught = false;
+    try {
+      PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
+
+    // build def with empty list
+    cols = new ArrayList<>();
+
+    caught = false;
+    try {
+      PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
+    } catch (IllegalArgumentException e) {
+      caught = true;
+    }
+    assertTrue(caught);
+
+    // build valid def
+    cols = new ArrayList<>();
+    cols.add("col1");
+    cols.add("col2");
+    cols.add("col3");
+
+    PSJdbcUpdateKey uc = new PSJdbcUpdateKey(cols.iterator());
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = uc.toXml(doc);
+
+    PSJdbcUpdateKey uc2 = new PSJdbcUpdateKey(el);
+    assertEquals(uc, uc2);
+  }
 }

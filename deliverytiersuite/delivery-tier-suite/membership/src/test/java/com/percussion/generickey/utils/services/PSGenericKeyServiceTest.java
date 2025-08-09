@@ -16,9 +16,15 @@
  */
 package com.percussion.generickey.utils.services;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.generickey.services.IPSGenericKeyService;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
-import org.junit.jupiter.api.Test;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -27,78 +33,58 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
 import org.springframework.transaction.annotation.Transactional;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.Root;
 
 /**
  * @author leonardohildt
- * 
  */
 @Transactional
- @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
+@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSGenericKeyServiceTest
-{
-    @Autowired
-    private IPSGenericKeyService genericKeyService;
-    
-    @Autowired
-    private SessionFactory sessionFactory;
+public class PSGenericKeyServiceTest {
+  @Autowired private IPSGenericKeyService genericKeyService;
 
+  @Autowired private SessionFactory sessionFactory;
 
-    @BeforeEach
-    public void setUp() throws Exception
-    {
+  @BeforeEach
+  public void setUp() throws Exception {
 
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSGenericKey> deleteQuery = builder.createCriteriaDelete(PSGenericKey.class);
-            Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-            //session.close();
-        }
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSGenericKey> deleteQuery = builder.createCriteriaDelete(PSGenericKey.class);
+      Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      // session.close();
     }
+  }
 
-    private Session getSession(){
+  private Session getSession() {
 
-        return sessionFactory.getCurrentSession();
+    return sessionFactory.getCurrentSession();
+  }
 
-    }
+  @AfterEach
+  public void tearDown() {}
 
-    @AfterEach
-    public void tearDown() {
-    }
+  @Test
+  public void testCreateKey() throws Exception {
+    String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
+    assertNotNull(generatedKey);
+    assertFalse(generatedKey.length() == 0);
+  }
 
-    @Test
-    public void testCreateKey() throws Exception
-    {
-        String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
-        assertNotNull(generatedKey);
-        assertFalse(generatedKey.length() == 0);
-    }
-    
-    @Test
-    public void testValidKey() throws Exception
-    {
-        String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
-        assertNotNull(generatedKey);
-        assertFalse(generatedKey.length() == 0);
-        
-        boolean isValid = genericKeyService.isValidKey(generatedKey);
-        assertTrue(isValid);
-    }
-    
-    /**
-     * Constant to set the duration time one day into milliseconds
-     */
-    private static final long DAY_IN_MILLISECONDS = 86400000;
-   
+  @Test
+  public void testValidKey() throws Exception {
+    String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
+    assertNotNull(generatedKey);
+    assertFalse(generatedKey.length() == 0);
+
+    boolean isValid = genericKeyService.isValidKey(generatedKey);
+    assertTrue(isValid);
+  }
+
+  /** Constant to set the duration time one day into milliseconds */
+  private static final long DAY_IN_MILLISECONDS = 86400000;
 }

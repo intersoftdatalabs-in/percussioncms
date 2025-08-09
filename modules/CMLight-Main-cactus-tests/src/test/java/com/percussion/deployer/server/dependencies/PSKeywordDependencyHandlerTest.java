@@ -18,21 +18,17 @@
  */
 package com.percussion.deployer.server.dependencies;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.security.PSSecurityToken;
-import com.percussion.services.content.IPSContentService;
 import com.percussion.services.content.PSContentServiceLocator;
-import com.percussion.services.content.data.PSKeyword;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSKeywordDependencyHandler}.
@@ -40,44 +36,44 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("IntegrationTest")
 public class PSKeywordDependencyHandlerTest {
 
-    /**
-     * Test the handler.
-     *
-     * @throws Exception if the test fails
-     */
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testHandler() throws Exception {
-        var contentSvc = PSContentServiceLocator.getContentService();
-        var keywords = contentSvc.findKeywordsByLabel(null, null);
-        assertTrue(keywords.size() > 0);
+  /**
+   * Test the handler.
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testHandler() throws Exception {
+    var contentSvc = PSContentServiceLocator.getContentService();
+    var keywords = contentSvc.findKeywordsByLabel(null, null);
+    assertTrue(keywords.size() > 0);
 
-        // test does dependency exist
-        var keyword = keywords.get(0);
+    // test does dependency exist
+    var keyword = keywords.get(0);
 
-        var hdlr =
-                PSDependencyManager.getInstance().getDependencyHandler(
-                        PSKeywordDependencyHandler.DEPENDENCY_TYPE);
+    var hdlr =
+        PSDependencyManager.getInstance()
+            .getDependencyHandler(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
 
-        var tok = new PSSecurityToken("test");
-        assertTrue(hdlr.doesDependencyExist(tok, keyword.getValue()));
-        assertFalse(hdlr.doesDependencyExist(tok, "9999"));
+    var tok = new PSSecurityToken("test");
+    assertTrue(hdlr.doesDependencyExist(tok, keyword.getValue()));
+    assertFalse(hdlr.doesDependencyExist(tok, "9999"));
 
-        // test get dependency, dependencies
-        Set<PSDependency> keywordDeps = new HashSet<>();
-        for (var k : keywords) {
-            var dep = hdlr.getDependency(tok, k.getValue());
-            assertNotNull(dep);
-            keywordDeps.add(dep);
-        }
-
-        Iterator<?> depIter = hdlr.getDependencies(tok);
-        int i = 0;
-        while (depIter.hasNext()) {
-            assertTrue(keywordDeps.contains(depIter.next()));
-            i++;
-        }
-
-        assertEquals(keywordDeps.size(), i);
+    // test get dependency, dependencies
+    Set<PSDependency> keywordDeps = new HashSet<>();
+    for (var k : keywords) {
+      var dep = hdlr.getDependency(tok, k.getValue());
+      assertNotNull(dep);
+      keywordDeps.add(dep);
     }
+
+    Iterator<?> depIter = hdlr.getDependencies(tok);
+    int i = 0;
+    while (depIter.hasNext()) {
+      assertTrue(keywordDeps.contains(depIter.next()));
+      i++;
+    }
+
+    assertEquals(keywordDeps.size(), i);
+  }
 }

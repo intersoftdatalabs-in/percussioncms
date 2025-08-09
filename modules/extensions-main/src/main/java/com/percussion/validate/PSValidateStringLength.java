@@ -21,7 +21,6 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
 
 /**
@@ -50,38 +49,28 @@ import java.io.File;
  * <td>The maximum value length, omit for no upper limit</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
- * 
+ *
  */
-public class PSValidateStringLength extends PSRangeValidator
-{
+public class PSValidateStringLength extends PSRangeValidator {
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      String value;
-      Number min, max;
-      PSExtensionParams ep = new PSExtensionParams(params);
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    String value;
+    Number min, max;
+    PSExtensionParams ep = new PSExtensionParams(params);
 
-      value = ep.getStringParam(0, null, false);
-      min = ep.getNumberParam(1, 0, false);
-      max = ep.getNumberParam(2, Long.MAX_VALUE, false);
+    value = ep.getStringParam(0, null, false);
+    min = ep.getNumberParam(1, 0, false);
+    max = ep.getNumberParam(2, Long.MAX_VALUE, false);
 
-      if (value == null)
-      {
-         return false;
-      }
+    if (value == null) {
+      return false;
+    }
 
-      return checkRange(toDouble(min), new Double(value.length()), toDouble(max),
-            true, true);
+    return checkRange(toDouble(min), new Double(value.length()), toDouble(max), true, true);
+  }
 
-   }
-
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-
-   }
-
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 }

@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-
 package com.percussion.design.objectstore;
 
-import org.w3c.dom.Element;
-
 import java.util.List;
+import org.w3c.dom.Element;
 
 /**
  * The PSSingleHtmlParameter class is used to define a replacement value that is
@@ -29,65 +27,58 @@ import java.util.List;
  *
  * @see         IPSReplacementValue
  */
-public class PSSingleHtmlParameter extends PSHtmlParameter
-{
-   /**
-    * Construct a Java object from its XML representation.
-    *
-    * @param sourceNode the XML element node to construct this object from
-    * @param parentDoc the Java object which is the parent of this object
-    * @param parentComponents   the parent objects of this object
-    *
-    * @throws PSUnknownNodeTypeException if the XML element node is not of the
-    *   appropriate type
-    */
-   public PSSingleHtmlParameter(Element sourceNode, IPSDocument parentDoc,
-                                List parentComponents)
-         throws PSUnknownNodeTypeException
-   {
-      super( sourceNode, parentDoc, parentComponents );
-   }
+public class PSSingleHtmlParameter extends PSHtmlParameter {
+  /**
+   * Construct a Java object from its XML representation.
+   *
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents   the parent objects of this object
+   *
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the
+   *   appropriate type
+   */
+  public PSSingleHtmlParameter(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    super(sourceNode, parentDoc, parentComponents);
+  }
 
-   /**
-    * Constructs a single HTML parameter replacement value.
-    *
-    * @param name the name of the HTML parameter
-    */
-   public PSSingleHtmlParameter(String name)
-   {
-      super( name );
-   }
-   
-   /**
-    * Gets the text which can be displayed to represent this value, using the
-    * format <i>node_type</i>/<i>name</i>.
-    * @return the text, never <code>null</code> or empty
-    */
-   public String getValueDisplayText()
-   {
-      return getNodeName() + "/" + getName();
-   }
+  /**
+   * Constructs a single HTML parameter replacement value.
+   *
+   * @param name the name of the HTML parameter
+   */
+  public PSSingleHtmlParameter(String name) {
+    super(name);
+  }
 
-   /**
-    * Get the type of replacement value this object represents.
-    * @return {@link #VALUE_TYPE}
-    */
-   public String getValueType()
-   {
-      return VALUE_TYPE;
-   }
+  /**
+   * Gets the text which can be displayed to represent this value, using the
+   * format <i>node_type</i>/<i>name</i>.
+   * @return the text, never <code>null</code> or empty
+   */
+  public String getValueDisplayText() {
+    return getNodeName() + "/" + getName();
+  }
 
-   // see PSNamedReplacementValue class for description
-   protected String getNodeName()
-   {
-      return ms_NodeType;
-   }
+  /**
+   * Get the type of replacement value this object represents.
+   * @return {@link #VALUE_TYPE}
+   */
+  public String getValueType() {
+    return VALUE_TYPE;
+  }
 
-   /**
-    * The value type associated with this instances of this class.
-    */
-   public static final String VALUE_TYPE = "SingleHtmlParameter";
+  // see PSNamedReplacementValue class for description
+  protected String getNodeName() {
+    return ms_NodeType;
+  }
 
-   /* package access on this so they may reference each other in fromXml */
-   static final String ms_NodeType = "PSXSingleHtmlParameter";
+  /**
+   * The value type associated with this instances of this class.
+   */
+  public static final String VALUE_TYPE = "SingleHtmlParameter";
+
+  /* package access on this so they may reference each other in fromXml */
+  static final String ms_NodeType = "PSXSingleHtmlParameter";
 }

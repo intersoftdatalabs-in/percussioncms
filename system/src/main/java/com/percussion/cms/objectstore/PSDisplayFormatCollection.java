@@ -17,18 +17,16 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
+
 /**
  * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
- * for details. 
+ * for details.
  */
-public class PSDisplayFormatCollection extends PSDbComponentCollection
-{
-   /**
-    * ctor calls base class. 
-    */
-   public PSDisplayFormatCollection()
-      throws ClassNotFoundException, PSCmsException
-   {
-      super(PSDisplayFormat.class.getName());            
-   }   
+public class PSDisplayFormatCollection extends PSDbComponentCollection {
+  /**
+   * ctor calls base class.
+   */
+  public PSDisplayFormatCollection() throws ClassNotFoundException, PSCmsException {
+    super(PSDisplayFormat.class.getName());
+  }
 }

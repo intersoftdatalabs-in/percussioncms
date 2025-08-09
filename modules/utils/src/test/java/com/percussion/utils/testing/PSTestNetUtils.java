@@ -17,46 +17,46 @@
 
 package com.percussion.utils.testing;
 
-
-
 import java.io.IOException;
 import java.net.ServerSocket;
 
 // TODO: Remove me @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET")
 public class PSTestNetUtils {
 
-    /**
-     * Snagged off of https://gist.github.com/vorburger/3429822
-     * Returns a free port number on localhost.
-     *
-     * Heavily inspired from org.eclipse.jdt.launching.SocketUtil (to avoid a dependency to JDT just because of this).
-     * Slightly improved with close() missing in JDT. And throws exception instead of returning -1.
-     *
-     * @return a free port number on localhost
-     * @throws IllegalStateException if unable to find a free port
-     */
-    // TODO: Remove me @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") //Is just a port check no TLS required
-    public static int findFreePort() {
-        ServerSocket socket = null;
+  /**
+   * Snagged off of https://gist.github.com/vorburger/3429822
+   * Returns a free port number on localhost.
+   *
+   * Heavily inspired from org.eclipse.jdt.launching.SocketUtil (to avoid a dependency to JDT just because of this).
+   * Slightly improved with close() missing in JDT. And throws exception instead of returning -1.
+   *
+   * @return a free port number on localhost
+   * @throws IllegalStateException if unable to find a free port
+   */
+  // TODO: Remove me @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") //Is just a port check no TLS
+  // required
+  public static int findFreePort() {
+    ServerSocket socket = null;
+    try {
+      socket = new ServerSocket(0);
+      socket.setReuseAddress(true);
+      int port = socket.getLocalPort();
+      try {
+        socket.close();
+      } catch (IOException e) {
+        // Ignore IOException on close()
+      }
+      return port;
+    } catch (IOException e) {
+    } finally {
+      if (socket != null) {
         try {
-            socket = new ServerSocket(0);
-            socket.setReuseAddress(true);
-            int port = socket.getLocalPort();
-            try {
-                socket.close();
-            } catch (IOException e) {
-                // Ignore IOException on close()
-            }
-            return port;
+          socket.close();
         } catch (IOException e) {
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
         }
-        throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
+      }
     }
+    throw new IllegalStateException(
+        "Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
+  }
 }

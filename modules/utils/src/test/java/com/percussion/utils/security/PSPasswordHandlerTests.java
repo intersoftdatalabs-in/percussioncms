@@ -17,14 +17,14 @@
 
 package com.percussion.utils.security;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @todo Fix it... fails on Linux buildServer
@@ -32,37 +32,43 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Disabled
 public class PSPasswordHandlerTests {
 
-    private static String savedEncPass;
+  private static String savedEncPass;
 
-    @Test
-    public void testPasswordHandler() throws PSEncryptionException,InterruptedException {
-        String encodedPw = PSPasswordHandler.getHashedPassword("HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE");
-        savedEncPass = encodedPw;
+  @Test
+  public void testPasswordHandler() throws PSEncryptionException, InterruptedException {
+    String encodedPw =
+        PSPasswordHandler.getHashedPassword(
+            "HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE");
+    savedEncPass = encodedPw;
 
-       System.out.println("Encoded:" + encodedPw);
-       System.out.println("Encoded Length:" + encodedPw.length());
-        assertNotNull(encodedPw);
+    System.out.println("Encoded:" + encodedPw);
+    System.out.println("Encoded Length:" + encodedPw.length());
+    assertNotNull(encodedPw);
 
-        assertTrue(PSPasswordHandler.checkHashedPassword("HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE",encodedPw));
+    assertTrue(
+        PSPasswordHandler.checkHashedPassword(
+            "HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE", encodedPw));
 
-        assertFalse(PSPasswordHandler.checkHashedPassword("I'll be home for Christmas",encodedPw));
+    assertFalse(PSPasswordHandler.checkHashedPassword("I'll be home for Christmas", encodedPw));
 
-        try {
-            assertFalse(PSPasswordHandler.checkHashedPassword(null, encodedPw));
-        }catch(IllegalArgumentException e){
-           System.out.println("Null check passed.");
-        }
-
-        try {
-            assertFalse(PSPasswordHandler.checkHashedPassword("test", null));
-        }catch(IllegalArgumentException e){
-           System.out.println("Null check passed.");
-         }
+    try {
+      assertFalse(PSPasswordHandler.checkHashedPassword(null, encodedPw));
+    } catch (IllegalArgumentException e) {
+      System.out.println("Null check passed.");
     }
 
-    @Test
-    public void testSecondTime() throws PSEncryptionException {
-        assertTrue(PSPasswordHandler.checkHashedPassword("HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE","h5ihvAb3oi2/uTS2jeA1GEnPE0zRs4N6viD0wE1AI6FDCU9FR5ccnryu6P820VEqDDBTQTYxPSRQTm1E6McklzOIsT/Us1YmJw8PfJ7QXd7G2GctJcmoIoUIllXScHtp8zdqHw9/MPDzpyjJ/s5lmsgPHxX55/Acl6XHRU+B9fCo0U13su7mtgxNVElsNnRf"));
-
+    try {
+      assertFalse(PSPasswordHandler.checkHashedPassword("test", null));
+    } catch (IllegalArgumentException e) {
+      System.out.println("Null check passed.");
     }
+  }
+
+  @Test
+  public void testSecondTime() throws PSEncryptionException {
+    assertTrue(
+        PSPasswordHandler.checkHashedPassword(
+            "HEY WHADAYA DOIN' WITH YOUR LIFE HEY WHADAYA DOIN' WITH YOUR LIFE",
+            "h5ihvAb3oi2/uTS2jeA1GEnPE0zRs4N6viD0wE1AI6FDCU9FR5ccnryu6P820VEqDDBTQTYxPSRQTm1E6McklzOIsT/Us1YmJw8PfJ7QXd7G2GctJcmoIoUIllXScHtp8zdqHw9/MPDzpyjJ/s5lmsgPHxX55/Acl6XHRU+B9fCo0U13su7mtgxNVElsNnRf"));
+  }
 }

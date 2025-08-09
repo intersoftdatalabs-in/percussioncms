@@ -17,13 +17,9 @@
 
 package com.percussion.utils.thread;
 
-public class PSThreadInterruptedException extends RuntimeException
-{
+public class PSThreadInterruptedException extends RuntimeException {
 
-   public PSThreadInterruptedException()
-   {
-      super();
-      
-   }
-
+  public PSThreadInterruptedException() {
+    super();
+  }
 }

@@ -16,10 +16,9 @@
  */
 package com.percussion.cms;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Collection;
 import java.util.Collections;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * This object is used by the {@link PSActionVisibilityChecker} as a way to
@@ -31,59 +30,54 @@ import java.util.Collections;
  * <p>
  * The same user state may be applied to many
  * {@link PSActionVisibilityObjectState object state} instances.
- * 
+ *
  * @author paulhoward
  */
-public abstract class PSActionVisibilityGlobalState
-{
-   /**
-    * The community to which the user attempting the action is currently logged
-    * into.
-    * 
-    * @return A valid community id, or -1. If -1 is returned, the action will
-    * not be hidden based on the community visibility settings. The default
-    * implementation returns -1.
-    */
-   public int getCommunityUuid()
-   {
-      return -1;
-   }
-   
-   /**
-    * All the roles to which the user attempting the action is a member of
-    * based on his login credentials.
-    * 
-    * @return Never <code>null</code>. The default implementation returns an
-    * empty set.
-    */
-   public Collection<String> getRoles()
-   {
-      return Collections.emptySet();
-   }
-   
-   /**
-    * The locale to which the user attempting the action is currently logged
-    * into.
-    * 
-    * @return A 2 part string of the form 'll-cc', where ll is the 2 letter
-    * language code and cc is the 2 letter country code. Never <code>null</code>
-    * or empty. The default implementation returns 'en-us.'
-    */
-   public String getLocale()
-   {
-      return "en-us";
-   }
-   
-   /**
-    * The 'UI' context that the user is operating in. For example, Drag and
-    * Drop, Single selection, multi-selection, etc.
-    * 
-    * @return Never <code>null</code>, may be empty if there isn't one. The
-    * default implementation returns an empty string, which will never cause the
-    * action to be hidden.
-    */
-   public String getClientContext()
-   {
-      return StringUtils.EMPTY;
-   }
+public abstract class PSActionVisibilityGlobalState {
+  /**
+   * The community to which the user attempting the action is currently logged
+   * into.
+   *
+   * @return A valid community id, or -1. If -1 is returned, the action will
+   * not be hidden based on the community visibility settings. The default
+   * implementation returns -1.
+   */
+  public int getCommunityUuid() {
+    return -1;
+  }
+
+  /**
+   * All the roles to which the user attempting the action is a member of
+   * based on his login credentials.
+   *
+   * @return Never <code>null</code>. The default implementation returns an
+   * empty set.
+   */
+  public Collection<String> getRoles() {
+    return Collections.emptySet();
+  }
+
+  /**
+   * The locale to which the user attempting the action is currently logged
+   * into.
+   *
+   * @return A 2 part string of the form 'll-cc', where ll is the 2 letter
+   * language code and cc is the 2 letter country code. Never <code>null</code>
+   * or empty. The default implementation returns 'en-us.'
+   */
+  public String getLocale() {
+    return "en-us";
+  }
+
+  /**
+   * The 'UI' context that the user is operating in. For example, Drag and
+   * Drop, Single selection, multi-selection, etc.
+   *
+   * @return Never <code>null</code>, may be empty if there isn't one. The
+   * default implementation returns an empty string, which will never cause the
+   * action to be hidden.
+   */
+  public String getClientContext() {
+    return StringUtils.EMPTY;
+  }
 }

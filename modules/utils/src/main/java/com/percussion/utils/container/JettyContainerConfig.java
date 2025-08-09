@@ -21,14 +21,13 @@ import com.percussion.utils.container.config.ContainerConfig;
 
 public class JettyContainerConfig implements ContainerConfig {
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    private String name;
-
+  private String name;
 }

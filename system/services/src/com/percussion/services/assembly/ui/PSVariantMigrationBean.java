@@ -54,7 +54,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.security.acl.NotOwnerException;
+import com.percussion.security.shim.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

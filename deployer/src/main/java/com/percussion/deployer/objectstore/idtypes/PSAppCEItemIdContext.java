@@ -22,281 +22,266 @@ import com.percussion.deployer.objectstore.PSDeployComponentUtils;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Optional;
-import java.util.ResourceBundle;
-
 /**
- * Context to represent an item in a contenteditor that may contain other 
- * contexts, but is really a placeholder for other commonly used objects and 
+ * Context to represent an item in a contenteditor that may contain other
+ * contexts, but is really a placeholder for other commonly used objects and
  * does not have any data of its own.
  */
-public class PSAppCEItemIdContext extends PSApplicationIdContext
-{
-   /**
-    * Construct this context using the supplied type
-    * 
-    * @param type One of the <code>TYPE_xxx</code> values.
-    * 
-    * @throws IllegalArgumentException if <code>type</code> is invalid.
-    */
-   public PSAppCEItemIdContext(int type)
-   {
-      if (!validateType(type))
-         throw new IllegalArgumentException("invalid type");
-      
-      m_type = type;
-   }
+public class PSAppCEItemIdContext extends PSApplicationIdContext {
+  /**
+   * Construct this context using the supplied type
+   *
+   * @param type One of the <code>TYPE_xxx</code> values.
+   *
+   * @throws IllegalArgumentException if <code>type</code> is invalid.
+   */
+  public PSAppCEItemIdContext(int type) {
+    if (!validateType(type)) throw new IllegalArgumentException("invalid type");
 
-   /**
-    * Create this object from its XML representation
-    *
-    * @param source The source element.  See {@link #toXml(Document)} for
-    * the expected format.  May not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException If <code>source</code> is
-    * <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
-    */
-   public PSAppCEItemIdContext(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
+    m_type = type;
+  }
 
-      fromXml(source);
-   }
-   
-   /**
-    * Get the type of field item to which this context refers
-    * 
-    * @return The type, one of the <code>TYPE_XXX</code> values.
-    */
-   public int getType()
-   {
-      return m_type;
-   }
-   
-   //see PSApplicationIdContext
-   public String getDisplayText()
-   {
-      ResourceBundle bundle = getBundle();
-      String text = null;
-      text = bundle.getString("appIdCtxCE" + TYPE_ENUM[m_type]);
-      text = addParentDisplayText(text);
-      
-      return text;
-   }
-   
-   /**
-    * Serializes this object's state to its XML representation.  The format is:
-    * <!--
-    *    PSXApplicationIdContext is a place holder for the root node of the XML
-    *    representation of any class derived from PSApplicationIdContext that
-    *    is this context's parent context.
-    * -->
-    * <pre><code>
-    * &lt;!ELEMENT PSXAppCEFieldItemIdContext (PSXApplicationIDContext?)>
-    * &lt;!ATTLIST PSXAppCEFieldItemIdContext
-    *    type CDATA #REQUIRED
-    * </code></pre>
-    *
-    * See {@link IPSDeployComponent#toXml(Document)} for more info.
-    */
-   public Element toXml(Document doc) {
-      if (doc == null) {
-         throw new IllegalArgumentException("doc should not be null");
+  /**
+   * Create this object from its XML representation
+   *
+   * @param source The source element.  See {@link #toXml(Document)} for
+   * the expected format.  May not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException If <code>source</code> is
+   * <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   */
+  public PSAppCEItemIdContext(Element source) throws PSUnknownNodeTypeException {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
+
+    fromXml(source);
+  }
+
+  /**
+   * Get the type of field item to which this context refers
+   *
+   * @return The type, one of the <code>TYPE_XXX</code> values.
+   */
+  public int getType() {
+    return m_type;
+  }
+
+  // see PSApplicationIdContext
+  public String getDisplayText() {
+    ResourceBundle bundle = getBundle();
+    String text = null;
+    text = bundle.getString("appIdCtxCE" + TYPE_ENUM[m_type]);
+    text = addParentDisplayText(text);
+
+    return text;
+  }
+
+  /**
+   * Serializes this object's state to its XML representation.  The format is:
+   * <!--
+   *    PSXApplicationIdContext is a place holder for the root node of the XML
+   *    representation of any class derived from PSApplicationIdContext that
+   *    is this context's parent context.
+   * -->
+   * <pre><code>
+   * &lt;!ELEMENT PSXAppCEFieldItemIdContext (PSXApplicationIDContext?)>
+   * &lt;!ATTLIST PSXAppCEFieldItemIdContext
+   *    type CDATA #REQUIRED
+   * </code></pre>
+   *
+   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   */
+  public Element toXml(Document doc) {
+    if (doc == null) {
+      throw new IllegalArgumentException("doc should not be null");
+    }
+
+    var root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(XML_ATTR_TYPE, TYPE_ENUM[m_type]);
+    Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
+    return root;
+  }
+
+  /**
+   * Restores this object's state from its XML representation.  See
+   * {@link #toXml(Document)} for format of XML.  See
+   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * signature.
+   */
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+      throw new IllegalArgumentException("sourceNode should not be null");
+    }
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
+    }
+
+    var strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
+    m_type = -1;
+    for (var i = 0; i < TYPE_ENUM.length && m_type == -1; i++) {
+      if (TYPE_ENUM[i].equals(strType)) {
+        m_type = i;
       }
+    }
+    if (!validateType(m_type)) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {XML_NODE_NAME, XML_ATTR_TYPE, strType});
+    }
 
-      var root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(XML_ATTR_TYPE, TYPE_ENUM[m_type]);
-      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
-      return root;
-      
-   }
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    Optional.ofNullable(ctxEl)
+        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+  }
 
-   /**
-    * Restores this object's state from its XML representation.  See
-    * {@link #toXml(Document)} for format of XML.  See
-    * {@link IPSDeployComponent#fromXml(Element)} for more info on method
-    * signature.
-    */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
-      if (sourceNode == null) {
-         throw new IllegalArgumentException("sourceNode should not be null");
-      }
+  // see IPSDeployComponent interface
+  public void copyFrom(IPSDeployComponent obj) {
+    if (obj == null) throw new IllegalArgumentException("obj may not be null");
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
-         );
-      }
+    if (!(obj instanceof PSAppCEItemIdContext))
+      throw new IllegalArgumentException("obj wrong type");
 
-      var strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
-      m_type = -1;
-      for (var i = 0; i < TYPE_ENUM.length && m_type == -1; i++) {
-         if (TYPE_ENUM[i].equals(strType)) {
-            m_type = i;
-         }
-      }
-      if (!validateType(m_type)) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
-            new Object[]{XML_NODE_NAME, XML_ATTR_TYPE, strType}
-         );
-      }
+    PSAppCEItemIdContext other = (PSAppCEItemIdContext) obj;
+    m_type = other.m_type;
+    super.copyFrom(other);
+  }
 
-      var tree = new PSXmlTreeWalker(sourceNode);
-      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
-   }
-   
-   // see IPSDeployComponent interface
-   public void copyFrom(IPSDeployComponent obj)
-   {
-      if ( obj == null )
-         throw new IllegalArgumentException("obj may not be null");
+  // see IPSDeployComponent interface
+  public boolean equals(Object obj) {
+    boolean isEqual = true;
 
-      if (!(obj instanceof PSAppCEItemIdContext))
-         throw new IllegalArgumentException("obj wrong type");
+    if (!(obj instanceof PSAppCEItemIdContext)) isEqual = false;
+    else {
+      PSAppCEItemIdContext other = (PSAppCEItemIdContext) obj;
+      if (m_type != other.m_type) isEqual = false;
+      if (!super.equals(other)) isEqual = false;
+    }
 
-      PSAppCEItemIdContext other = (PSAppCEItemIdContext)obj;
-      m_type = other.m_type;
-      super.copyFrom(other);
-   }
-   
-   // see IPSDeployComponent interface
-   public boolean equals(Object obj)
-   {
-      boolean isEqual = true;
+    return isEqual;
+  }
 
-      if (!(obj instanceof PSAppCEItemIdContext))
-         isEqual = false;
-      else 
-      {
-         PSAppCEItemIdContext other = (PSAppCEItemIdContext)obj;
-         if (m_type != other.m_type)
-            isEqual = false;
-         if (!super.equals(other))
-            isEqual = false;
-      }
-      
-      return isEqual;
-   }
-   
-   // see IPSDeployComponent
-   public int hashCode()
-   {
-      return m_type + super.hashCode();
-   }
-   
-   /**
-    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
-    * 
-    * @param type The value to check.
-    * 
-    * @return <code>true</code> if the type is valid, <code>false</code>
-    * otherwise.
-    */
-   private boolean validateType(int type)
-   {
-      return type >=0 && type < TYPE_ENUM.length;
-   }
-   
-   
-   
-   /**
-    * Root node name of this object's XML representation.
-    */
-   public static final String XML_NODE_NAME = "PSXAppCEItemIdContext";
-   
-   
-   /**
-    * Indicates which part of a <code>PSField</code> this object represents, one 
-    * of the <code>TYPE_XXX</code> values.  Initialized during construction, 
-    * only modified by a call to <code>copyFrom()</code>.
-    */
-   private int m_type;
-   
-   /**
-    * Constant to indicate this context represents the default value of a field.
-    */
-   public static final int TYPE_DEFAULT_VALUE = 0;
-   
-   /**
-    * Constant to indicate this context represents the input translation of a
-    * field.
-    */
-   public static final int TYPE_INPUT_TRANSLATION = 1;
-   
-   /**
-    * Constant to indicate this context represents the output translation of a
-    * field.
-    */
-   public static final int TYPE_OUTPUT_TRANSLATION = 2;
-   
-   /**
-    * Constant to indicate this context represents the validation rule of a
-    * field.
-    */
-   public static final int TYPE_VALIDATION_RULE = 3;
-   
-   /**
-    * Constant to indicate this context represents the visibility rule of a
-    * field.
-    */
-   public static final int TYPE_VISIBILITY_RULE = 4;
-   
-   /**
-    * Constant to indicate this context represents an applywhen from a
-    * field.
-    */
-   public static final int TYPE_APPLY_WHEN = 5;
-   
-   /**
-    * Constant to indicate this context represents a default UI from a UI
-    * defition.
-    */
-   public static final int TYPE_DEFAULT_UI = 6;
-   
-   /**
-    * Constant to indicate this context represents a choices from a ui set.
-    */
-   public static final int TYPE_CHOICES = 7;
-   
-   /**
-    * Constant to indicate this context represents the read only rules from a 
-    * ui set.
-    */
-   public static final int TYPE_READ_ONLY_RULES = 8;
-   
-   /**
-    * Constant to indicate this context represents a data locator from a 
-    * content editor.
-    */
-   public static final int TYPE_DATA_LOCATOR = 9;
-   
-   /**
-    * Constant to indicate this context represents a choice filter from a 
-    * content editor.
-    */
-   public static final int TYPE_CHOICE_FILTER = 10;
-   
-   /**
-    * Enumeration of string constants representing each of the 
-    * <code>TYPE_XXX</code> values, for Xml serialization.  Index of each value
-    * must match its corresponding <code>TYPE_xxx</code> constant value.
-    */
-   private static final String[] TYPE_ENUM = {"DefaultValue", 
-      "InputTranslation", "OutputTranslation", "FieldValidation", 
-      "FieldVisibility", "ApplyWhen", "DefaultUI", "Choices", "ReadOnlyRules",
-      "DataLocator", "ChoiceFilter"};
-      
-   // private xml constant
-   private static final String XML_ATTR_TYPE = "type";
-      
+  // see IPSDeployComponent
+  public int hashCode() {
+    return m_type + super.hashCode();
+  }
+
+  /**
+   * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
+   *
+   * @param type The value to check.
+   *
+   * @return <code>true</code> if the type is valid, <code>false</code>
+   * otherwise.
+   */
+  private boolean validateType(int type) {
+    return type >= 0 && type < TYPE_ENUM.length;
+  }
+
+  /**
+   * Root node name of this object's XML representation.
+   */
+  public static final String XML_NODE_NAME = "PSXAppCEItemIdContext";
+
+  /**
+   * Indicates which part of a <code>PSField</code> this object represents, one
+   * of the <code>TYPE_XXX</code> values.  Initialized during construction,
+   * only modified by a call to <code>copyFrom()</code>.
+   */
+  private int m_type;
+
+  /**
+   * Constant to indicate this context represents the default value of a field.
+   */
+  public static final int TYPE_DEFAULT_VALUE = 0;
+
+  /**
+   * Constant to indicate this context represents the input translation of a
+   * field.
+   */
+  public static final int TYPE_INPUT_TRANSLATION = 1;
+
+  /**
+   * Constant to indicate this context represents the output translation of a
+   * field.
+   */
+  public static final int TYPE_OUTPUT_TRANSLATION = 2;
+
+  /**
+   * Constant to indicate this context represents the validation rule of a
+   * field.
+   */
+  public static final int TYPE_VALIDATION_RULE = 3;
+
+  /**
+   * Constant to indicate this context represents the visibility rule of a
+   * field.
+   */
+  public static final int TYPE_VISIBILITY_RULE = 4;
+
+  /**
+   * Constant to indicate this context represents an applywhen from a
+   * field.
+   */
+  public static final int TYPE_APPLY_WHEN = 5;
+
+  /**
+   * Constant to indicate this context represents a default UI from a UI
+   * defition.
+   */
+  public static final int TYPE_DEFAULT_UI = 6;
+
+  /**
+   * Constant to indicate this context represents a choices from a ui set.
+   */
+  public static final int TYPE_CHOICES = 7;
+
+  /**
+   * Constant to indicate this context represents the read only rules from a
+   * ui set.
+   */
+  public static final int TYPE_READ_ONLY_RULES = 8;
+
+  /**
+   * Constant to indicate this context represents a data locator from a
+   * content editor.
+   */
+  public static final int TYPE_DATA_LOCATOR = 9;
+
+  /**
+   * Constant to indicate this context represents a choice filter from a
+   * content editor.
+   */
+  public static final int TYPE_CHOICE_FILTER = 10;
+
+  /**
+   * Enumeration of string constants representing each of the
+   * <code>TYPE_XXX</code> values, for Xml serialization.  Index of each value
+   * must match its corresponding <code>TYPE_xxx</code> constant value.
+   */
+  private static final String[] TYPE_ENUM = {
+    "DefaultValue",
+    "InputTranslation",
+    "OutputTranslation",
+    "FieldValidation",
+    "FieldVisibility",
+    "ApplyWhen",
+    "DefaultUI",
+    "Choices",
+    "ReadOnlyRules",
+    "DataLocator",
+    "ChoiceFilter"
+  };
+
+  // private xml constant
+  private static final String XML_ATTR_TYPE = "type";
 }

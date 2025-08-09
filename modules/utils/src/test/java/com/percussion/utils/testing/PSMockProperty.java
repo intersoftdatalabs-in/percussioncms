@@ -17,7 +17,8 @@
 package com.percussion.utils.testing;
 
 import com.percussion.utils.jsr170.PSValueFactory;
-
+import java.io.InputStream;
+import java.util.Calendar;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Item;
@@ -36,224 +37,216 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
-import java.io.InputStream;
-import java.util.Calendar;
 
-public class PSMockProperty implements Property
-{
-   private Value m_value = null;
+public class PSMockProperty implements Property {
+  private Value m_value = null;
 
-   public void setValue(Value arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = arg0;
-   }
+  public void setValue(Value arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = arg0;
+  }
 
-   public void setValue(Value[] arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      throw new ValueFormatException("This is a single valued property");
-   }
+  public void setValue(Value[] arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    throw new ValueFormatException("This is a single valued property");
+  }
 
-   public void setValue(String arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(String arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(String[] arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      throw new ValueFormatException("This is a single valued property");
-   }
+  public void setValue(String[] arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    throw new ValueFormatException("This is a single valued property");
+  }
 
-   public void setValue(InputStream arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(InputStream arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(long arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(long arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(double arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(double arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(Calendar arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(Calendar arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(boolean arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(boolean arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public void setValue(Node arg0) throws ValueFormatException,
-         VersionException, LockException, ConstraintViolationException,
-         RepositoryException
-   {
-      m_value = PSValueFactory.createValue((Object) arg0);
-   }
+  public void setValue(Node arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
 
-   public Value getValue() throws ValueFormatException, RepositoryException
-   {
-      return m_value;
-   }
+  public Value getValue() throws ValueFormatException, RepositoryException {
+    return m_value;
+  }
 
-   public Value[] getValues() throws ValueFormatException, RepositoryException
-   {
-      throw new ValueFormatException("This is a single valued property");
-   }
+  public Value[] getValues() throws ValueFormatException, RepositoryException {
+    throw new ValueFormatException("This is a single valued property");
+  }
 
-   public String getString() throws ValueFormatException, RepositoryException
-   {
-      return m_value.getString();
-   }
+  public String getString() throws ValueFormatException, RepositoryException {
+    return m_value.getString();
+  }
 
-   public InputStream getStream() throws ValueFormatException,
-         RepositoryException
-   {
-      return m_value.getStream();
-   }
+  public InputStream getStream() throws ValueFormatException, RepositoryException {
+    return m_value.getStream();
+  }
 
-   public long getLong() throws ValueFormatException, RepositoryException
-   {
-      return m_value.getLong();
-   }
+  public long getLong() throws ValueFormatException, RepositoryException {
+    return m_value.getLong();
+  }
 
-   public double getDouble() throws ValueFormatException, RepositoryException
-   {
-      return m_value.getDouble();
-   }
+  public double getDouble() throws ValueFormatException, RepositoryException {
+    return m_value.getDouble();
+  }
 
-   public Calendar getDate() throws ValueFormatException, RepositoryException
-   {
-      return m_value.getDate();
-   }
+  public Calendar getDate() throws ValueFormatException, RepositoryException {
+    return m_value.getDate();
+  }
 
-   public boolean getBoolean() throws ValueFormatException, RepositoryException
-   {
-      return m_value.getBoolean();
-   }
+  public boolean getBoolean() throws ValueFormatException, RepositoryException {
+    return m_value.getBoolean();
+  }
 
-   public Node getNode() throws ValueFormatException, RepositoryException
-   {
-      throw new RepositoryException("Not supported: getNode()");
-   }
+  public Node getNode() throws ValueFormatException, RepositoryException {
+    throw new RepositoryException("Not supported: getNode()");
+  }
 
-   public long getLength() throws ValueFormatException, RepositoryException
-   {
-      return 0;
-   }
+  public long getLength() throws ValueFormatException, RepositoryException {
+    return 0;
+  }
 
-   public long[] getLengths() throws ValueFormatException, RepositoryException
-   {
-      throw new ValueFormatException("This is a single valued property");
-   }
+  public long[] getLengths() throws ValueFormatException, RepositoryException {
+    throw new ValueFormatException("This is a single valued property");
+  }
 
-   public PropertyDefinition getDefinition() throws RepositoryException
-   {
-      return null;
-   }
+  public PropertyDefinition getDefinition() throws RepositoryException {
+    return null;
+  }
 
-   public int getType() throws RepositoryException
-   {
-      return 0;
-   }
+  public int getType() throws RepositoryException {
+    return 0;
+  }
 
-   public String getPath() throws RepositoryException
-   {
-      return null;
-   }
+  public String getPath() throws RepositoryException {
+    return null;
+  }
 
-   public String getName() throws RepositoryException
-   {
-      return null;
-   }
+  public String getName() throws RepositoryException {
+    return null;
+  }
 
-   public Item getAncestor(int arg0) throws ItemNotFoundException,
-         AccessDeniedException, RepositoryException
-   {
-      return null;
-   }
+  public Item getAncestor(int arg0)
+      throws ItemNotFoundException, AccessDeniedException, RepositoryException {
+    return null;
+  }
 
-   public Node getParent() throws ItemNotFoundException, AccessDeniedException,
-         RepositoryException
-   {
-      return null;
-   }
+  public Node getParent() throws ItemNotFoundException, AccessDeniedException, RepositoryException {
+    return null;
+  }
 
-   public int getDepth() throws RepositoryException
-   {
-      return 0;
-   }
+  public int getDepth() throws RepositoryException {
+    return 0;
+  }
 
-   public Session getSession() throws RepositoryException
-   {
-      return null;
-   }
+  public Session getSession() throws RepositoryException {
+    return null;
+  }
 
-   public boolean isNode()
-   {
-      return false;
-   }
+  public boolean isNode() {
+    return false;
+  }
 
-   public boolean isNew()
-   {
-      return false;
-   }
+  public boolean isNew() {
+    return false;
+  }
 
-   public boolean isModified()
-   {
-      return false;
-   }
+  public boolean isModified() {
+    return false;
+  }
 
-   public boolean isSame(Item arg0) throws RepositoryException
-   {
-      return equals(arg0);
-   }
+  public boolean isSame(Item arg0) throws RepositoryException {
+    return equals(arg0);
+  }
 
-   public void accept(ItemVisitor arg0) throws RepositoryException
-   {
-      arg0.visit((Property) this);
-   }
+  public void accept(ItemVisitor arg0) throws RepositoryException {
+    arg0.visit((Property) this);
+  }
 
-   public void save() throws AccessDeniedException, ItemExistsException,
-         ConstraintViolationException, InvalidItemStateException,
-         ReferentialIntegrityException, VersionException, LockException,
-         NoSuchNodeTypeException, RepositoryException
-   {
-      throw new RepositoryException("Not supported: save()");
-   }
+  public void save()
+      throws AccessDeniedException,
+          ItemExistsException,
+          ConstraintViolationException,
+          InvalidItemStateException,
+          ReferentialIntegrityException,
+          VersionException,
+          LockException,
+          NoSuchNodeTypeException,
+          RepositoryException {
+    throw new RepositoryException("Not supported: save()");
+  }
 
-   public void refresh(boolean arg0) throws InvalidItemStateException,
-         RepositoryException
-   {
-      throw new RepositoryException("Not supported: refresh()");
-   }
+  public void refresh(boolean arg0) throws InvalidItemStateException, RepositoryException {
+    throw new RepositoryException("Not supported: refresh()");
+  }
 
-   public void remove() throws VersionException, LockException,
-         ConstraintViolationException, RepositoryException
-   {
-      throw new RepositoryException("Not supported: remove()");
-   }
-
+  public void remove()
+      throws VersionException, LockException, ConstraintViolationException, RepositoryException {
+    throw new RepositoryException("Not supported: remove()");
+  }
 }

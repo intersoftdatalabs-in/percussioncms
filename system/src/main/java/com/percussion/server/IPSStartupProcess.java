@@ -20,26 +20,24 @@ import java.util.Properties;
 
 /**
  * A process that runs during server startup
- * 
+ *
  * @author JaySeletz
  *
  */
-public interface IPSStartupProcess
-{
+public interface IPSStartupProcess {
 
-   /**
-    * Do any startup work required.  
-    * 
-    * @param startupProps The startup properties, indicating values each process can use to
-    * determine what work, if any, to perform.  Processes may modify these values, which are
-    * then persisted for the next server startup.
-    */
-   void doStartupWork(Properties startupProps) throws Exception;
-   
-   /**
-    * Set the manager on the process at init, process should call {@link IPSStartupProcessManager#addStartupProcess(IPSStartupProcess)}
-    * @param mgr The mgr, not <code>null</code>.
-    */
-   void setStartupProcessManager(IPSStartupProcessManager mgr);
+  /**
+   * Do any startup work required.
+   *
+   * @param startupProps The startup properties, indicating values each process can use to
+   * determine what work, if any, to perform.  Processes may modify these values, which are
+   * then persisted for the next server startup.
+   */
+  void doStartupWork(Properties startupProps) throws Exception;
 
+  /**
+   * Set the manager on the process at init, process should call {@link IPSStartupProcessManager#addStartupProcess(IPSStartupProcess)}
+   * @param mgr The mgr, not <code>null</code>.
+   */
+  void setStartupProcessManager(IPSStartupProcessManager mgr);
 }

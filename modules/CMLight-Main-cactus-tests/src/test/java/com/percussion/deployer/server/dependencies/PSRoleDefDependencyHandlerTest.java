@@ -18,20 +18,17 @@
  */
 package com.percussion.deployer.server.dependencies;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.security.PSSecurityToken;
-import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSRoleDefDependencyHandler}.
@@ -39,44 +36,43 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("IntegrationTest")
 public class PSRoleDefDependencyHandlerTest {
 
-    /**
-     * Test the handler.
-     *
-     * @throws Exception if the test fails
-     */
-    @Test
-    public void testHandler() throws Exception {
-        var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-        var roles = roleMgr.getRhythmyxRoles();
-        assertTrue(roles.size() > 0);
+  /**
+   * Test the handler.
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testHandler() throws Exception {
+    var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
+    var roles = roleMgr.getRhythmyxRoles();
+    assertTrue(roles.size() > 0);
 
-        // test does dependency exist
-        var role = roles.get(0);
+    // test does dependency exist
+    var role = roles.get(0);
 
-        var hdlr =
-                PSDependencyManager.getInstance().getDependencyHandler(
-                        PSRoleDefDependencyHandler.DEPENDENCY_TYPE);
+    var hdlr =
+        PSDependencyManager.getInstance()
+            .getDependencyHandler(PSRoleDefDependencyHandler.DEPENDENCY_TYPE);
 
-        var tok = new PSSecurityToken("test");
-        assertTrue(hdlr.doesDependencyExist(tok, role));
-        assertFalse(hdlr.doesDependencyExist(tok,
-                "This dependency does not exist"));
+    var tok = new PSSecurityToken("test");
+    assertTrue(hdlr.doesDependencyExist(tok, role));
+    assertFalse(hdlr.doesDependencyExist(tok, "This dependency does not exist"));
 
-        // test get dependency, dependencies
-        Set<PSDependency> roleDeps = new HashSet<>();
-        for (var r : roles) {
-            var dep = hdlr.getDependency(tok, r);
-            assertNotNull(dep);
-            roleDeps.add(dep);
-        }
-
-        Iterator<?> depIter = hdlr.getDependencies(tok);
-        int i = 0;
-        while (depIter.hasNext()) {
-            assertTrue(roleDeps.contains((PSDependency) depIter.next()));
-            i++;
-        }
-
-        assertEquals(roleDeps.size(), i);
+    // test get dependency, dependencies
+    Set<PSDependency> roleDeps = new HashSet<>();
+    for (var r : roles) {
+      var dep = hdlr.getDependency(tok, r);
+      assertNotNull(dep);
+      roleDeps.add(dep);
     }
+
+    Iterator<?> depIter = hdlr.getDependencies(tok);
+    int i = 0;
+    while (depIter.hasNext()) {
+      assertTrue(roleDeps.contains((PSDependency) depIter.next()));
+      i++;
+    }
+
+    assertEquals(roleDeps.size(), i);
+  }
 }

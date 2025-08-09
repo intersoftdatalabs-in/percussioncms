@@ -20,51 +20,39 @@ package com.ibm.cadf.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-
-import org.junit.jupiter.api.Test;
-
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import java.text.MessageFormat;
+import org.junit.jupiter.api.Test;
 
-public class CredentialTest
-{
+public class CredentialTest {
 
-    @Test
-    public void testCredentialPositive() throws CADFException, IOException
-    {
-        Credential credential = new Credential("auth token");
-        assertEquals(true, credential.isValid());
+  @Test
+  public void testCredentialPositive() throws CADFException, IOException {
+    Credential credential = new Credential("auth token");
+    assertEquals(true, credential.isValid());
+  }
+
+  @Test
+  public void testCredentialNegative() throws CADFException, IOException {
+
+    try {
+      Credential credential = new Credential(null);
+      credential.isValid();
+      fail("Credential object creation should fail as mandatory field token is not passed");
+    } catch (CADFException ex) {
+      String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token");
+      assertEquals(message, ex.getMessage());
     }
 
-    @Test
-    public void testCredentialNegative() throws CADFException, IOException
-    {
-
-        try
-        {
-            Credential credential = new Credential(null);
-            credential.isValid();
-            fail("Credential object creation should fail as mandatory field token is not passed");
-        }
-        catch (CADFException ex)
-        {
-            String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token");
-            assertEquals(message, ex.getMessage());
-        }
-
-        try
-        {
-            Credential credential = new Credential("");
-            credential.isValid();
-            fail("Credential object creation should fail as mandatory field token is can not be empty");
-        }
-        catch (CADFException ex)
-        {
-            String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token");
-            assertEquals(message, ex.getMessage());
-        }
+    try {
+      Credential credential = new Credential("");
+      credential.isValid();
+      fail("Credential object creation should fail as mandatory field token is can not be empty");
+    } catch (CADFException ex) {
+      String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token");
+      assertEquals(message, ex.getMessage());
     }
-
+  }
 }

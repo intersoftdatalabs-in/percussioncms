@@ -38,35 +38,34 @@ import java.util.Map;
  * </ul>
  * In the case of an Array or List, only the first value will be used. When
  * decoding a token, the values of the parameters will alwasy be Strings.
- * 
+ *
  * @author DavidBenua
- * 
+ *
  */
 public interface LinkbackTokenCodec {
 
-    /**
-     * Encode a link back token based on URL parameters.
-     * 
-     * @param params
-     *            a map of parameters. The names of the parameters must match
-     *            the constants defined in IPSHtmlParameters, and the values
-     *            must be either <code>String</code> or <code>String[]</code>
-     *            representations. Invalid or unknown parameters are ignored.
-     * @return the encoded token.
-     * @throws IllegalArgumentException
-     *             if no valid parameters were specified
-     */
-    String encode(Map<String, Object> params) throws IllegalArgumentException;
+  /**
+   * Encode a link back token based on URL parameters.
+   *
+   * @param params
+   *            a map of parameters. The names of the parameters must match
+   *            the constants defined in IPSHtmlParameters, and the values
+   *            must be either <code>String</code> or <code>String[]</code>
+   *            representations. Invalid or unknown parameters are ignored.
+   * @return the encoded token.
+   * @throws IllegalArgumentException
+   *             if no valid parameters were specified
+   */
+  String encode(Map<String, Object> params) throws IllegalArgumentException;
 
-    /**
-     * Decodes a link back token into its component parameters.
-     * 
-     * @param token
-     *            the encoded token
-     * @return the parameter values.
-     * @throws IllegalArgumentException
-     *             if any unknown or invalid parameters are encountered.
-     */
-    Map<String, String> decode(String token) throws IllegalArgumentException;
-
+  /**
+   * Decodes a link back token into its component parameters.
+   *
+   * @param token
+   *            the encoded token
+   * @return the parameter values.
+   * @throws IllegalArgumentException
+   *             if any unknown or invalid parameters are encountered.
+   */
+  Map<String, String> decode(String token) throws IllegalArgumentException;
 }

@@ -24,28 +24,25 @@ package com.percussion.relationship;
  * for dependents' processing and error details if the test fails for some
  * reason.
  */
-public final class PSAttemptResult extends PSEffectResult
-{
-   /**
-    * Default constructor. Does not do much.
-    */
-   public PSAttemptResult()
-   {
-      // Default constructor
-   }
+public final class PSAttemptResult extends PSEffectResult {
+  /**
+   * Default constructor. Does not do much.
+   */
+  public PSAttemptResult() {
+    // Default constructor
+  }
 
-   /**
-    * Implementation for an abstract method, that does NOT allow to set a
-    * recursion flag by always throwing UnsupportedOperationException.
-    * This is to indicate to the effect implementer that it is an illegal
-    * operation for the attempt method.
-    *
-    * @param recurseDependents flag indicating whether to recurse dependents
-    * @throws UnsupportedOperationException always, as this operation is not allowed for attempt
-    */
-   @Override
-   public void setRecurseDependents(boolean recurseDependents)
-   {
-      throw new UnsupportedOperationException("Recursion not allowed for attempt operations");
-   }
+  /**
+   * Implementation for an abstract method, that does NOT allow to set a
+   * recursion flag by always throwing UnsupportedOperationException.
+   * This is to indicate to the effect implementer that it is an illegal
+   * operation for the attempt method.
+   *
+   * @param recurseDependents flag indicating whether to recurse dependents
+   * @throws UnsupportedOperationException always, as this operation is not allowed for attempt
+   */
+  @Override
+  public void setRecurseDependents(boolean recurseDependents) {
+    throw new UnsupportedOperationException("Recursion not allowed for attempt operations");
+  }
 }

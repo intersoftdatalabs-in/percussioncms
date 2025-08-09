@@ -28,47 +28,47 @@ import java.util.Optional;
 @JsonRootName(value = "Effectiveness")
 public class PSEffectiveness {
 
-    private String name;
-    private Long effectiveness;
+  private String name;
+  private Long effectiveness;
 
-    public PSEffectiveness() {}
+  public PSEffectiveness() {}
 
-    /**
-     * Constructs an effectiveness object.
-     *
-     * @param name see {@link #getName()}.
-     * @param effectiveness see {@link #getEffectiveness()}.
-     */
-    public PSEffectiveness(String name, Long effectiveness) {
-        this.name = Objects.requireNonNull(name, "name must not be null or empty");
-        this.effectiveness = effectiveness;
-    }
+  /**
+   * Constructs an effectiveness object.
+   *
+   * @param name see {@link #getName()}.
+   * @param effectiveness see {@link #getEffectiveness()}.
+   */
+  public PSEffectiveness(String name, Long effectiveness) {
+    this.name = Objects.requireNonNull(name, "name must not be null or empty");
+    this.effectiveness = effectiveness;
+  }
 
-    /**
-     * @return the name of the site, section, or folder, never blank.
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * @return the name of the site, section, or folder, never blank.
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param name must not be blank.
-     */
-    public void setName(String name) {
-        this.name = Objects.requireNonNull(name, "name must not be null or empty");
-    }
+  /**
+   * @param name must not be blank.
+   */
+  public void setName(String name) {
+    this.name = Objects.requireNonNull(name, "name must not be null or empty");
+  }
 
-    /**
-     * @return the calculated effectiveness value for the item.
-     */
-    public Optional<Long> getEffectiveness() {
-        return Optional.ofNullable(effectiveness);
-    }
+  /**
+   * @return the calculated effectiveness value for the item.
+   */
+  public Optional<Long> getEffectiveness() {
+    return Optional.ofNullable(effectiveness);
+  }
 
-    /**
-     * @param effectiveness the effectiveness to set
-     */
-    public void setEffectiveness(Long effectiveness) {
-        this.effectiveness = effectiveness;
-    }
+  /**
+   * @param effectiveness the effectiveness to set
+   */
+  public void setEffectiveness(Long effectiveness) {
+    this.effectiveness = effectiveness;
+  }
 }

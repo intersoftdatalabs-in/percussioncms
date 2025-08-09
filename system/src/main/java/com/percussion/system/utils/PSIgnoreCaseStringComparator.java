@@ -18,17 +18,13 @@ package com.percussion.system.utils;
 
 import java.util.Comparator;
 
-
 /**
  * Sorts strings ignoring case.
- * 
+ *
  * @author Andriy Palamarchuk
  */
-public class PSIgnoreCaseStringComparator implements Comparator<String>
-{
-   public int compare(String s1, String s2)
-   {
-      return s1.toLowerCase().compareTo(s2.toLowerCase());
-   }
+public class PSIgnoreCaseStringComparator implements Comparator<String> {
+  public int compare(String s1, String s2) {
+    return s1.toLowerCase().compareTo(s2.toLowerCase());
+  }
 }
-

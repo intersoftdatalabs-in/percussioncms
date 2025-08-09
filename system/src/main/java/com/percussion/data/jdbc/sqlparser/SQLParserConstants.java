@@ -588,5 +588,4 @@ public interface SQLParserConstants {
     "\"_\"",
     "\"|\"",
   };
-
 }

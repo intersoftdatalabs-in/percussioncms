@@ -28,52 +28,51 @@ package com.percussion.i18n;
  * The text of the error messages is stored in the properties file
  * <code>com.percussion.error.PSErrorStringBundle</code>
  */
-public interface IPSLocaleErrors
-{
-   /**
-    * Invalid column value provided to restore a locale object from the 
-    * database.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The column name</TD></TR>
-    * <TR><TD>1</TD><TD>The column value</TD></TR>
-    * </TABLE>
-    */
-   public static final int INVALID_COLUMN_VALUE = 1801;
+public interface IPSLocaleErrors {
+  /**
+   * Invalid column value provided to restore a locale object from the
+   * database.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The column name</TD></TR>
+   * <TR><TD>1</TD><TD>The column value</TD></TR>
+   * </TABLE>
+   */
+  public static final int INVALID_COLUMN_VALUE = 1801;
 
-   /**
-    * Missing column in row data provided to restore locale object from the
-    * database.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The column name</TD></TR>
-    * </TABLE>
-    */
-   public static final int MISSING_COLUMN = 1802;
-   
-   /**
-    * Error while initializing the locale manager.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The error text</TD></TR>
-    * </TABLE>
-    */
-   public static final int LOCALE_MGR_INIT = 1803;
-   
-   /**
-    * Unexpected error encountered by the locale manager.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The error text</TD></TR>
-    * </TABLE>
-    */
-   public static final int LOCALE_MGR_UNEXPECTED_ERROR = 1804;
+  /**
+   * Missing column in row data provided to restore locale object from the
+   * database.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The column name</TD></TR>
+   * </TABLE>
+   */
+  public static final int MISSING_COLUMN = 1802;
+
+  /**
+   * Error while initializing the locale manager.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The error text</TD></TR>
+   * </TABLE>
+   */
+  public static final int LOCALE_MGR_INIT = 1803;
+
+  /**
+   * Unexpected error encountered by the locale manager.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The error text</TD></TR>
+   * </TABLE>
+   */
+  public static final int LOCALE_MGR_UNEXPECTED_ERROR = 1804;
 }

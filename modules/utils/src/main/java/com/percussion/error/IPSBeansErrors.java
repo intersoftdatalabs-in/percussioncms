@@ -28,18 +28,15 @@ package com.percussion.error;
  * <TR><TD>1001 - 2000</TD><TD>MISC- Miscellaneous</TD></TR>
  * </TABLE>
  */
-public interface IPSBeansErrors
-{
-   /**
-    * An exception occurred while processing xml.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The message from the exception caught,</TD></TR>
-    * </TABLE>
-    */
-   public static final int XML_PROCESSING_ERROR = 1001;
-
-
+public interface IPSBeansErrors {
+  /**
+   * An exception occurred while processing xml.
+   * <p>
+   * The arguments passed in for this message are:
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>The message from the exception caught,</TD></TR>
+   * </TABLE>
+   */
+  public static final int XML_PROCESSING_ERROR = 1001;
 }

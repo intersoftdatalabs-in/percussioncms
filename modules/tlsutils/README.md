@@ -219,17 +219,14 @@ The module now uses log4j2 for all logging output. Configure logging levels:
    - Add JVM arguments: `--add-opens java.base/java.lang=ALL-UNNAMED`
    - Ensure proper module path configuration
    - Check for illegal reflective access warnings
-
 2. **Certificate Validation Failures**
    - Ensure proper trust store configuration
    - Check certificate validity and chain
    - Verify system time is correct
-
 3. **Compilation Issues**
    - Verify Java 11+ is being used
    - Ensure all dependencies are available
    - Check Maven configuration and version
-
 4. **Test Failures**
    - Some tests may require network connectivity
    - Firewall settings may affect SSL connection tests

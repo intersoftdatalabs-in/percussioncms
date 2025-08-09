@@ -33,7 +33,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.*;
 import java.security.Principal;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.Permission;
 import java.util.*;
 
 

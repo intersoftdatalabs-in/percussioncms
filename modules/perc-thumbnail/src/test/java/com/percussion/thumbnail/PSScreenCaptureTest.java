@@ -17,92 +17,83 @@
 
 package com.percussion.thumbnail;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import javax.imageio.ImageIO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class PSScreenCaptureTest {
 
-    protected static final Logger log = LogManager.getLogger();
+  protected static final Logger log = LogManager.getLogger();
 
-    public static final String RXDEPLOYDIR = "rxdeploydir";
+  public static final String RXDEPLOYDIR = "rxdeploydir";
 
-    public static File temp;
+  public static File temp;
 
+  @BeforeEach
+  public void before() throws IOException {
+    /*
+          temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
 
-    @BeforeEach
-    public void before()
-            throws IOException
-    {
-/*
-        temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+          if(!(temp.delete()))
+          {
+              throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+          }
 
-        if(!(temp.delete()))
-        {
-            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-        }
+          if(!(temp.mkdir()))
+          {
+              throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+          }
 
-        if(!(temp.mkdir()))
-        {
-            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-        }
+          System.setProperty(RXDEPLOYDIR, temp.getAbsolutePath());
+          log.info("Temp folder set to " + System.getProperty(RXDEPLOYDIR));
+    */
+  }
 
-        System.setProperty(RXDEPLOYDIR, temp.getAbsolutePath());
-        log.info("Temp folder set to " + System.getProperty(RXDEPLOYDIR));
-  */
-    }
-
-    @After
-    public void after() {
+  @After
+  public void after() {
     /*    String path = System.getProperty(RXDEPLOYDIR);
-        log.info("Cleaup folder "+path);
-        if (temp.exists())
-            temp.delete();
-*/
-    }
+            log.info("Cleaup folder "+path);
+            if (temp.exists())
+                temp.delete();
+    */
+  }
 
+  @Test
+  public void generateEmptyThumb() throws IOException {
+    File file = new File(System.getProperty(RXDEPLOYDIR), "emptythumb.jpg");
+    log.info("Creating empty thumb to " + file.getAbsolutePath());
+    PSScreenCapture.generateEmptyThumb(file.getAbsolutePath());
+    assertTrue(file.exists());
+    BufferedImage bimg = ImageIO.read(file);
+    assertNotNull("File " + file.getAbsolutePath() + " is not an image", bimg);
+  }
 
-    @Test
-    public void generateEmptyThumb() throws IOException {
-            File file = new File(System.getProperty(RXDEPLOYDIR),"emptythumb.jpg");
-            log.info("Creating empty thumb to "+file.getAbsolutePath());
-            PSScreenCapture.generateEmptyThumb(file.getAbsolutePath());
-            assertTrue(file.exists());
-            BufferedImage bimg = ImageIO.read(file);
-            assertNotNull("File "+file.getAbsolutePath()+" is not an image",bimg);
-    }
+  @Test
+  public void takeCapture() throws IOException {
 
-    @Test
-    public void takeCapture() throws IOException {
+    capture(1024, 2048);
+    capture(1024, 512);
+    capture(100, 100);
+  }
 
-        capture(1024,2048);
-        capture(1024,512);
-        capture(100,100);
+  public void capture(int height, int width) throws IOException {
+    File file =
+        new File(System.getProperty(RXDEPLOYDIR), "testimg_" + height + "_" + width + ".jpg");
+    log.info("Taking capture to " + file.getAbsolutePath());
+    PSScreenCapture.takeCapture("https://www.percussion.com", file.getAbsolutePath());
+    assertTrue(file.exists());
+    BufferedImage bimg = ImageIO.read(file);
 
-    }
-
-    public void capture(int height, int width) throws IOException {
-        File file = new File(System.getProperty(RXDEPLOYDIR),"testimg_"+height+"_"+width+".jpg");
-        log.info("Taking capture to "+file.getAbsolutePath());
-        PSScreenCapture.takeCapture("https://www.percussion.com",file.getAbsolutePath());
-        assertTrue(file.exists());
-        BufferedImage bimg = ImageIO.read(file);
-
-        assertEquals(height,bimg.getHeight());
-        assertEquals(width,bimg.getWidth());
-    }
-
+    assertEquals(height, bimg.getHeight());
+    assertEquals(width, bimg.getWidth());
+  }
 }

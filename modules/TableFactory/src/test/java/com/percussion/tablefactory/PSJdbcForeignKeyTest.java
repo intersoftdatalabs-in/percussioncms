@@ -16,45 +16,39 @@
  */
 package com.percussion.tablefactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 /**
  * Unit test for PSJdbcForeignKey.
  */
-public class PSJdbcForeignKeyTest
-{
-   public PSJdbcForeignKeyTest(){
-   }
+public class PSJdbcForeignKeyTest {
+  public PSJdbcForeignKeyTest() {}
 
-   /**
-    * Test the def
-    */
-   @Test
-   public void testDef() throws Exception
-   {
-      PSJdbcForeignKey fk = new PSJdbcForeignKey("col1", "extTable", "extCol1",
-         PSJdbcTableComponent.ACTION_REPLACE);
-      fk.addColumn("col2", "extTable2", "extCol2");
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = fk.toXml(doc);
-      PSJdbcForeignKey fk2 = new PSJdbcForeignKey(el);
-      assertEquals(fk, fk2);
+  /**
+   * Test the def
+   */
+  @Test
+  public void testDef() throws Exception {
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey("col1", "extTable", "extCol1", PSJdbcTableComponent.ACTION_REPLACE);
+    fk.addColumn("col2", "extTable2", "extCol2");
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = fk.toXml(doc);
+    PSJdbcForeignKey fk2 = new PSJdbcForeignKey(el);
+    assertEquals(fk, fk2);
 
-      //Now ForeignKeys are different incase their components are different,
-      // if name is different and components are same, they are considered same
-      fk2.setName("FK_SOME_OTHER_NAME_1");
-      assertEquals(fk, fk2, "Should not be equal");
+    // Now ForeignKeys are different incase their components are different,
+    // if name is different and components are same, they are considered same
+    fk2.setName("FK_SOME_OTHER_NAME_1");
+    assertEquals(fk, fk2, "Should not be equal");
 
-      fk2.addColumn("col3", "extTable3", "extCol3");
-      assertNotEquals(fk, fk2, "Should not be equal");
-
-   }
-
-
+    fk2.addColumn("col3", "extTable3", "extCol3");
+    assertNotEquals(fk, fk2, "Should not be equal");
+  }
 }

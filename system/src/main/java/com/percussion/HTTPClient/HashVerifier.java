@@ -26,16 +26,15 @@ import java.io.IOException;
  * @author	Ronald Tschalär
  */
 @Deprecated
-interface HashVerifier
-{
-    /**
-     * This method is invoked when a digest of a stream has been calculated.
-     * It must verify that the hash (or some function of it) is correct and
-     * throw an IOException if it is not.
-     *
-     * @param hash the calculated hash
-     * @param len  the number of bytes read from the stream
-     * @exception IOException if the verification fails.
-     */
-    public void verifyHash(byte[] hash, long len)  throws IOException;
+interface HashVerifier {
+  /**
+   * This method is invoked when a digest of a stream has been calculated.
+   * It must verify that the hash (or some function of it) is correct and
+   * throw an IOException if it is not.
+   *
+   * @param hash the calculated hash
+   * @param len  the number of bytes read from the stream
+   * @exception IOException if the verification fails.
+   */
+  public void verifyHash(byte[] hash, long len) throws IOException;
 }

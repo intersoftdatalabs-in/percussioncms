@@ -17,199 +17,174 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.w3c.dom.Element;
 
 /**
  * The class that is used to represent properties as defined by
  * 'sys_Params.dtd'.
  */
-public class PSActionParameters
-   extends PSDbComponentCollection
-{
-   /**
-    * The default constructor to create parameters with empty list.
-    */
-   public PSActionParameters()
-   {
-      super(PSActionParameter.class);
-   }
+public class PSActionParameters extends PSDbComponentCollection {
+  /**
+   * The default constructor to create parameters with empty list.
+   */
+  public PSActionParameters() {
+    super(PSActionParameter.class);
+  }
 
-   /**
-    * Constructs this object from the supplied element. See {@link
-    * #toXml(Document) } for the expected form of xml.
-    *
-    * @param element the element to load from, may not be <code>null</code>
-    *
-    * @throws IllegalArgumentException if element is <code>null</code>
-    */
-   public PSActionParameters(Element element)
-      throws PSUnknownNodeTypeException
-   {
-      super(element);
-   }
+  /**
+   * Constructs this object from the supplied element. See {@link
+   * #toXml(Document) } for the expected form of xml.
+   *
+   * @param element the element to load from, may not be <code>null</code>
+   *
+   * @throws IllegalArgumentException if element is <code>null</code>
+   */
+  public PSActionParameters(Element element) throws PSUnknownNodeTypeException {
+    super(element);
+  }
 
+  /**
+   * Gets the value of the specified parameter. Uses case-insensitive
+   * comparison to get the parameter.
+   *
+   * @param name name of the parameter, may not be <code>null</code> or empty.
+   *
+   * @return The parameter value, may be <code>null</code> if the specified
+   * parameter does not exist. Never <code>null</code> if the parameter is
+   * present but may be empty.
+   */
+  public String getParameter(String name) {
+    PSActionParameter param = getParameterObject(name);
+    if (param == null) return null;
+    return param.getValue();
+  }
 
-   /**
-    * Gets the value of the specified parameter. Uses case-insensitive
-    * comparison to get the parameter.
-    *
-    * @param name name of the parameter, may not be <code>null</code> or empty.
-    *
-    * @return The parameter value, may be <code>null</code> if the specified
-    * parameter does not exist. Never <code>null</code> if the parameter is
-    * present but may be empty.
-    */
-   public String getParameter(String name)
-   {
-      PSActionParameter param = getParameterObject(name);
-      if(param == null)
-         return null;
-      return param.getValue();
-   }
+  /**
+   * Sets the specified parameter with supplied value. If the parameter with
+   * that name (case-insensitive) exists it will be replaced. The values are
+   * compared case-sensitive when determing whether the property is dirty.
+   *
+   * @param name name of the parameter, may not be <code>null</code> or empty.
+   * @param value value of the parameter, may be <code>null</code> or empty.
+   */
+  public void setParameter(String name, String value) {
+    if (null == name || name.trim().length() == 0)
+      throw new IllegalArgumentException("Name cannot be null or empty.");
 
-   /**
-    * Sets the specified parameter with supplied value. If the parameter with
-    * that name (case-insensitive) exists it will be replaced. The values are
-    * compared case-sensitive when determing whether the property is dirty.
-    *
-    * @param name name of the parameter, may not be <code>null</code> or empty.
-    * @param value value of the parameter, may be <code>null</code> or empty.
-    */
-   public void setParameter(String name, String value)
-   {
-      if (null == name || name.trim().length() == 0)
-         throw new IllegalArgumentException("Name cannot be null or empty.");
+    if (null == value) value = "";
+    PSActionParameter param = getParameterObject(name);
+    if (null == param) super.add(new PSActionParameter(name, value));
+    else param.setValue(value);
+  }
 
-      if (null == value)
-         value = "";
-      PSActionParameter param = getParameterObject(name);
-      if (null == param)
-         super.add(new PSActionParameter(name, value));
-      else
-         param.setValue(value);
-   }
+  /**
+   * This method is overridden to guarantee that the names of all members
+   * forms a set based on case-insensitive property names.
+   *
+   * @param comp Never <code>null</code>. Must be a PSActionProperty.
+   */
+  public void add(IPSDbComponent comp) {
+    if (null == comp || !(comp instanceof PSActionParameter)) {
+      throw new IllegalArgumentException("Can only add PSActionParameter components");
+    }
 
-   /**
-    * This method is overridden to guarantee that the names of all members
-    * forms a set based on case-insensitive property names.
-    *
-    * @param comp Never <code>null</code>. Must be a PSActionProperty.
-    */
-   public void add(IPSDbComponent comp)
-   {
-      if (null == comp || !(comp instanceof PSActionParameter))
-      {
-         throw new IllegalArgumentException(
-               "Can only add PSActionParameter components");
-      }
+    PSActionParameter newParam = (PSActionParameter) comp;
+    PSActionParameter param = getParameterObject(newParam.getName());
+    if (null != param) param.setValue(newParam.getValue());
+    else super.add(comp);
+  }
 
-      PSActionParameter newParam = (PSActionParameter)comp;
-      PSActionParameter param = getParameterObject(newParam.getName());
-      if (null != param)
-         param.setValue(newParam.getValue());
-      else
-         super.add(comp);
-   }
+  /**
+   * If a property by the supplied name exists in this set, it is removed.
+   * Otherwise, no action is taken.
+   *
+   * @param name If <code>null</code> or empty, no action is taken. The name
+   *    is compared case insensitive.
+   *
+   * @return <code>true</code> if an entry was removed, <code>false</code>
+   *    otherwise.
+   */
+  public boolean removeParameter(String name) {
+    if (null == name || name.trim().length() == 0) return false;
 
-   /**
-    * If a property by the supplied name exists in this set, it is removed.
-    * Otherwise, no action is taken.
-    *
-    * @param name If <code>null</code> or empty, no action is taken. The name
-    *    is compared case insensitive.
-    *
-    * @return <code>true</code> if an entry was removed, <code>false</code>
-    *    otherwise.
-    */
-   public boolean removeParameter(String name)
-   {
-      if (null == name || name.trim().length() == 0)
-         return false;
+    return remove(getParameterObject(name));
+  }
 
-      return remove(getParameterObject(name));
-   }
+  /**
+   * Creates a map of name/value pairs of this parameter collection. The caller
+   * takes over ownership of the returned map. The returned map is sorted in
+   * alpha order.
+   *
+   * @return a map of name/value pair <code>String</code> objects with all
+   *    parameters defined in this collection, never <code>null</code>,
+   *    may be empty.
+   */
+  public Map<String, String> toMap() {
+    // we use a tree map to sort the map in alpha order
+    Map<String, String> params = new TreeMap<>();
+    Iterator<PSActionParameter> parameters = iterator();
+    while (parameters.hasNext()) {
+      PSActionParameter parameter = parameters.next();
+      params.put(parameter.getName(), parameter.getValue());
+    }
+    return params;
+  }
 
-   /**
-    * Creates a map of name/value pairs of this parameter collection. The caller
-    * takes over ownership of the returned map. The returned map is sorted in
-    * alpha order.
-    * 
-    * @return a map of name/value pair <code>String</code> objects with all 
-    *    parameters defined in this collection, never <code>null</code>, 
-    *    may be empty.
-    */
-   public Map<String, String> toMap() {
-      // we use a tree map to sort the map in alpha order
-      Map<String, String> params = new TreeMap<>();
-      Iterator<PSActionParameter> parameters = iterator();
-      while (parameters.hasNext()) {
-         PSActionParameter parameter = parameters.next();
-         params.put(parameter.getName(), parameter.getValue());
-      }
-      return params;
-   }
-   
-   /**
-    * Reset this parameter collection with the name/value pairs from the 
-    * supplied map.
-    * 
-    * @param params a map of name/value pairs to reset this collection with,
-    *    may be <code>null</code> or empty in which case the collection will be
-    *    cleared.
-    */
-   public void fromMap(Map<String, String> params) {
-      if (params == null || params.isEmpty()) {
-         clear();
-         return;
-      }
-      // add or update the new/changed parameters
-      for (Map.Entry<String, String> entry : params.entrySet()) {
-         String name = entry.getKey();
-         String value = entry.getValue();
-         PSActionParameter parameter = getParameterObject(name);
-         if (parameter != null)
-            parameter.setValue(value);
-         else
-            add(new PSActionParameter(name, value));
-      }
-      // remove parameters
-      List<PSActionParameter> toBeRemoved = new ArrayList<>();
-      Iterator<PSActionParameter> parameters = iterator();
-      while (parameters.hasNext()) {
-         PSActionParameter parameter = parameters.next();
-         if (params.get(parameter.getName()) == null)
-            toBeRemoved.add(parameter);
-      }
-      for (PSActionParameter param : toBeRemoved)
-         remove(param);
-   }
+  /**
+   * Reset this parameter collection with the name/value pairs from the
+   * supplied map.
+   *
+   * @param params a map of name/value pairs to reset this collection with,
+   *    may be <code>null</code> or empty in which case the collection will be
+   *    cleared.
+   */
+  public void fromMap(Map<String, String> params) {
+    if (params == null || params.isEmpty()) {
+      clear();
+      return;
+    }
+    // add or update the new/changed parameters
+    for (Map.Entry<String, String> entry : params.entrySet()) {
+      String name = entry.getKey();
+      String value = entry.getValue();
+      PSActionParameter parameter = getParameterObject(name);
+      if (parameter != null) parameter.setValue(value);
+      else add(new PSActionParameter(name, value));
+    }
+    // remove parameters
+    List<PSActionParameter> toBeRemoved = new ArrayList<>();
+    Iterator<PSActionParameter> parameters = iterator();
+    while (parameters.hasNext()) {
+      PSActionParameter parameter = parameters.next();
+      if (params.get(parameter.getName()) == null) toBeRemoved.add(parameter);
+    }
+    for (PSActionParameter param : toBeRemoved) remove(param);
+  }
 
-   /**
-    * Finds the property in this collection that has the specified name.
-    *
-    * @param name Assumed not <code>null</code> or empty. The name is compared
-    *    case insensitive.
-    *
-    * @return A valid parameter, or <code>null</code> if one can't be found.
-    */
-   private PSActionParameter getParameterObject(String name) {
-      Iterator<PSActionParameter> it = iterator();
-      while (it.hasNext()) {
-         PSActionParameter param = it.next();
-         if (param.getName().equalsIgnoreCase(name))
-            return param;
-      }
-      return null;
-   }
+  /**
+   * Finds the property in this collection that has the specified name.
+   *
+   * @param name Assumed not <code>null</code> or empty. The name is compared
+   *    case insensitive.
+   *
+   * @return A valid parameter, or <code>null</code> if one can't be found.
+   */
+  private PSActionParameter getParameterObject(String name) {
+    Iterator<PSActionParameter> it = iterator();
+    while (it.hasNext()) {
+      PSActionParameter param = it.next();
+      if (param.getName().equalsIgnoreCase(name)) return param;
+    }
+    return null;
+  }
 
-   /**
-    * The constant to indicate root node name.
-    */
-   public static final String XML_NODE_NAME = "PSXActionParameters";
+  /**
+   * The constant to indicate root node name.
+   */
+  public static final String XML_NODE_NAME = "PSXActionParameters";
 }

@@ -19,19 +19,15 @@ package com.ibm.cadf.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
-import com.ibm.cadf.exception.CADFException;
+public class HostTest {
 
-public class HostTest
-{
-
-    @Test
-    public void testHostPositive() throws CADFException, IOException
-    {
-        Host host = new Host();
-        assertEquals(true, host.isValid());
-    }
+  @Test
+  public void testHostPositive() throws CADFException, IOException {
+    Host host = new Host();
+    assertEquals(true, host.isValid());
+  }
 }

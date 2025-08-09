@@ -37,91 +37,79 @@ import org.w3c.dom.Element;
  * its functioning.
  */
 public class PSGetSecurityProvidersExit extends PSDefaultExtension
-   implements IPSResultDocumentProcessor
-{
-   /**
-    * See interface for description.
-    *
-    * @return Always <code>false</code>.
-    */
-   public boolean canModifyStyleSheet()
-   {
-      return false;
-   }
+    implements IPSResultDocumentProcessor {
+  /**
+   * See interface for description.
+   *
+   * @return Always <code>false</code>.
+   */
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
 
-   /**
-    * Creates an element ("SecurityProviders") and adds it to the root element
-    * of the document. If no root element exists, then makes it the root
-    * element.
-    * Obtains the security providers from the server configuration object.
-    * Then for each security provider creates an element
-    * ("PSXSecurityProviderInstanceSummary"). Adds the provider type as attribute and
-    * instance name as child element of this element.
-    * The returned Xml document is based on the following DTD:
-    *
-    * <code><pre>
-    *
-    *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
-    *  &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
-    *   &lt;!ATTLIST
-    *    typeName  CDATA       #REQUIRED
-    *    typeId     CDATA       #REQUIRED
-    *   &gt;
-    *
-    *  &lt;!ELEMENT name       (#PCDATA)&gt;
-    *
-    * </pre></code>
-    *
-    * <p>This exit expects no html parameter.
-    *
-    * @param params unused, may be <code>null</code> or empty
-    * @param request request context. Guaranteed not <code>null</code> by the
-    * interface.
-    * @param resultDoc The supplied document. Guaranteed not <code>null</code>
-    * by the interface.
-    *
-    * @return The modified Xml doc, never <code>null</code>
-    *
-    */
-   public Document processResultDocument(Object[] params,
-         IPSRequestContext request, Document resultDoc)
-      throws PSParameterMismatchException, PSExtensionProcessingException
-   {
-      // add the "SecurityProviders" element
-      Element root = resultDoc.getDocumentElement();
-      if (root == null)
-         root = PSXmlDocumentBuilder.createRoot(resultDoc, XML_NODE_NAME);
-      else
-      {
-         root = PSXmlDocumentBuilder.addEmptyElement(resultDoc, root,
-            XML_NODE_NAME);
+  /**
+   * Creates an element ("SecurityProviders") and adds it to the root element
+   * of the document. If no root element exists, then makes it the root
+   * element.
+   * Obtains the security providers from the server configuration object.
+   * Then for each security provider creates an element
+   * ("PSXSecurityProviderInstanceSummary"). Adds the provider type as attribute and
+   * instance name as child element of this element.
+   * The returned Xml document is based on the following DTD:
+   *
+   * <code><pre>
+   *
+   *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
+   *  &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
+   *   &lt;!ATTLIST
+   *    typeName  CDATA       #REQUIRED
+   *    typeId     CDATA       #REQUIRED
+   *   &gt;
+   *
+   *  &lt;!ELEMENT name       (#PCDATA)&gt;
+   *
+   * </pre></code>
+   *
+   * <p>This exit expects no html parameter.
+   *
+   * @param params unused, may be <code>null</code> or empty
+   * @param request request context. Guaranteed not <code>null</code> by the
+   * interface.
+   * @param resultDoc The supplied document. Guaranteed not <code>null</code>
+   * by the interface.
+   *
+   * @return The modified Xml doc, never <code>null</code>
+   *
+   */
+  public Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    // add the "SecurityProviders" element
+    Element root = resultDoc.getDocumentElement();
+    if (root == null) root = PSXmlDocumentBuilder.createRoot(resultDoc, XML_NODE_NAME);
+    else {
+      root = PSXmlDocumentBuilder.addEmptyElement(resultDoc, root, XML_NODE_NAME);
+    }
+
+    // get the server configuration object
+    PSServerConfiguration config = PSServer.getServerConfiguration();
+    PSCollection securityProviders = config.getSecurityProviderInstances();
+    if ((securityProviders != null) && (securityProviders.size() > 0)) {
+      int size = securityProviders.size();
+      for (int i = 0; i < size; i++) {
+        PSSecurityProviderInstanceSummary provider =
+            new PSSecurityProviderInstanceSummary(
+                (PSSecurityProviderInstance) securityProviders.get(i));
+
+        Element el = provider.toXml(resultDoc);
+
+        // append this provider instance to the root
+        root.appendChild(el);
       }
+    }
+    return resultDoc;
+  }
 
-      // get the server configuration object
-      PSServerConfiguration config = PSServer.getServerConfiguration();
-      PSCollection securityProviders = config.getSecurityProviderInstances();
-      if ((securityProviders != null) && (securityProviders.size() > 0))
-      {
-         int size = securityProviders.size();
-         for(int i=0; i < size; i++)
-         {
-            PSSecurityProviderInstanceSummary provider =
-               new PSSecurityProviderInstanceSummary(
-                  (PSSecurityProviderInstance)securityProviders.get(i));
-
-            Element el = provider.toXml(resultDoc);
-
-            // append this provider instance to the root
-            root.appendChild(el);
-         }
-      }
-      return resultDoc;
-   }
-
-   // XML constants for Node names and attribute names
-   private static final String XML_NODE_NAME = "SecurityProviders";
-
-
+  // XML constants for Node names and attribute names
+  private static final String XML_NODE_NAME = "SecurityProviders";
 }
-
-

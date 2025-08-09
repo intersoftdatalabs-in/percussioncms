@@ -17,123 +17,126 @@
 
 package com.percussion.tls;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 
 @ExtendWith(MockitoExtension.class)
 public class TLSUtilsTest {
 
-    @Mock
-    private X509Certificate mockCertificate;
+  @Mock private X509Certificate mockCertificate;
 
-    @Test
-    public void testConvertToPem_ValidCertificate() throws Exception {
-        // Given
-        byte[] testCertBytes = "test certificate data".getBytes();
-        when(mockCertificate.getEncoded()).thenReturn(testCertBytes);
+  @Test
+  public void testConvertToPem_ValidCertificate() throws Exception {
+    // Given
+    byte[] testCertBytes = "test certificate data".getBytes();
+    when(mockCertificate.getEncoded()).thenReturn(testCertBytes);
 
-        // When
-        String result = TLSUtils.convertToPem(mockCertificate);
+    // When
+    String result = TLSUtils.convertToPem(mockCertificate);
 
-        // Then
-        assertNotNull("Result should not be null", result);
-        assertTrue("Result should start with BEGIN CERTIFICATE", 
-                   result.startsWith("-----BEGIN CERTIFICATE-----"));
-        assertTrue("Result should end with END CERTIFICATE", 
-                   result.endsWith("-----END CERTIFICATE-----"));
-        assertTrue("Result should contain base64 encoded data", 
-                   result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh")); // base64 of "test certificate data"
-        
-        verify(mockCertificate).getEncoded();
+    // Then
+    assertNotNull("Result should not be null", result);
+    assertTrue(
+        "Result should start with BEGIN CERTIFICATE",
+        result.startsWith("-----BEGIN CERTIFICATE-----"));
+    assertTrue(
+        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
+    assertTrue(
+        "Result should contain base64 encoded data",
+        result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh")); // base64 of "test certificate data"
+
+    verify(mockCertificate).getEncoded();
+  }
+
+  @Test(expected = CertificateEncodingException.class)
+  public void testConvertToPem_CertificateEncodingException() throws Exception {
+    // Given
+    when(mockCertificate.getEncoded())
+        .thenThrow(new CertificateEncodingException("Encoding failed"));
+
+    // When
+    TLSUtils.convertToPem(mockCertificate);
+
+    // Then - exception should be thrown
+  }
+
+  @Test
+  public void testConvertToPem_EmptyCertificateData() throws Exception {
+    // Given
+    byte[] emptyCertBytes = new byte[0];
+    when(mockCertificate.getEncoded()).thenReturn(emptyCertBytes);
+
+    // When
+    String result = TLSUtils.convertToPem(mockCertificate);
+
+    // Then
+    assertNotNull("Result should not be null", result);
+    assertTrue(
+        "Result should start with BEGIN CERTIFICATE",
+        result.startsWith("-----BEGIN CERTIFICATE-----"));
+    assertTrue(
+        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
+
+    verify(mockCertificate).getEncoded();
+  }
+
+  @Test
+  public void testConvertToPem_LargeCertificateData() throws Exception {
+    // Given
+    byte[] largeCertBytes = new byte[2048];
+    for (int i = 0; i < largeCertBytes.length; i++) {
+      largeCertBytes[i] = (byte) (i % 256);
+    }
+    when(mockCertificate.getEncoded()).thenReturn(largeCertBytes);
+
+    // When
+    String result = TLSUtils.convertToPem(mockCertificate);
+
+    // Then
+    assertNotNull("Result should not be null", result);
+    assertTrue(
+        "Result should start with BEGIN CERTIFICATE",
+        result.startsWith("-----BEGIN CERTIFICATE-----"));
+    assertTrue(
+        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
+    assertTrue("Result should contain multiple lines", result.split("\n").length > 3);
+
+    verify(mockCertificate).getEncoded();
+  }
+
+  @Test
+  public void testConvertToPem_VerifyBase64Formatting() throws Exception {
+    // Given
+    byte[] testCertBytes = "Hello World Certificate Data".getBytes();
+    when(mockCertificate.getEncoded()).thenReturn(testCertBytes);
+
+    // When
+    String result = TLSUtils.convertToPem(mockCertificate);
+
+    // Then
+    String[] lines = result.split("\n");
+    assertTrue("Should have at least 3 lines", lines.length >= 3);
+    assertEquals("First line should be BEGIN CERTIFICATE", "-----BEGIN CERTIFICATE-----", lines[0]);
+    assertEquals(
+        "Last line should be END CERTIFICATE",
+        "-----END CERTIFICATE-----",
+        lines[lines.length - 1]);
+
+    // Verify that middle lines contain valid base64 content
+    for (int i = 1; i < lines.length - 1; i++) {
+      if (!lines[i].trim().isEmpty()) {
+        assertTrue(
+            "Line should contain valid base64 characters",
+            lines[i].matches("^[A-Za-z0-9+/=\\s]*$"));
+      }
     }
 
-    @Test(expected = CertificateEncodingException.class)
-    public void testConvertToPem_CertificateEncodingException() throws Exception {
-        // Given
-        when(mockCertificate.getEncoded()).thenThrow(new CertificateEncodingException("Encoding failed"));
-
-        // When
-        TLSUtils.convertToPem(mockCertificate);
-
-        // Then - exception should be thrown
-    }
-
-    @Test
-    public void testConvertToPem_EmptyCertificateData() throws Exception {
-        // Given
-        byte[] emptyCertBytes = new byte[0];
-        when(mockCertificate.getEncoded()).thenReturn(emptyCertBytes);
-
-        // When
-        String result = TLSUtils.convertToPem(mockCertificate);
-
-        // Then
-        assertNotNull("Result should not be null", result);
-        assertTrue("Result should start with BEGIN CERTIFICATE", 
-                   result.startsWith("-----BEGIN CERTIFICATE-----"));
-        assertTrue("Result should end with END CERTIFICATE", 
-                   result.endsWith("-----END CERTIFICATE-----"));
-        
-        verify(mockCertificate).getEncoded();
-    }
-
-    @Test
-    public void testConvertToPem_LargeCertificateData() throws Exception {
-        // Given
-        byte[] largeCertBytes = new byte[2048];
-        for (int i = 0; i < largeCertBytes.length; i++) {
-            largeCertBytes[i] = (byte) (i % 256);
-        }
-        when(mockCertificate.getEncoded()).thenReturn(largeCertBytes);
-
-        // When
-        String result = TLSUtils.convertToPem(mockCertificate);
-
-        // Then
-        assertNotNull("Result should not be null", result);
-        assertTrue("Result should start with BEGIN CERTIFICATE", 
-                   result.startsWith("-----BEGIN CERTIFICATE-----"));
-        assertTrue("Result should end with END CERTIFICATE", 
-                   result.endsWith("-----END CERTIFICATE-----"));
-        assertTrue("Result should contain multiple lines", 
-                   result.split("\n").length > 3);
-        
-        verify(mockCertificate).getEncoded();
-    }
-
-    @Test
-    public void testConvertToPem_VerifyBase64Formatting() throws Exception {
-        // Given
-        byte[] testCertBytes = "Hello World Certificate Data".getBytes();
-        when(mockCertificate.getEncoded()).thenReturn(testCertBytes);
-
-        // When
-        String result = TLSUtils.convertToPem(mockCertificate);
-
-        // Then
-        String[] lines = result.split("\n");
-        assertTrue("Should have at least 3 lines", lines.length >= 3);
-        assertEquals("First line should be BEGIN CERTIFICATE", 
-                     "-----BEGIN CERTIFICATE-----", lines[0]);
-        assertEquals("Last line should be END CERTIFICATE", 
-                     "-----END CERTIFICATE-----", lines[lines.length - 1]);
-        
-        // Verify that middle lines contain valid base64 content
-        for (int i = 1; i < lines.length - 1; i++) {
-            if (!lines[i].trim().isEmpty()) {
-                assertTrue("Line should contain valid base64 characters", 
-                           lines[i].matches("^[A-Za-z0-9+/=\\s]*$"));
-            }
-        }
-        
-        verify(mockCertificate).getEncoded();
-    }
+    verify(mockCertificate).getEncoded();
+  }
 }

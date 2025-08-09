@@ -19,7 +19,6 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
  * PSUsersNotSupportedException is thrown to indicate that the
  * security provider does not support users.
@@ -28,16 +27,12 @@ import com.percussion.error.PSException;
  * @version    1.0
  * @since      1.0
  */
-public class PSUsersNotSupportedException extends PSException
-{
-   /**
-    * Constructs a users not supported exception with the default
-    * message.
-    */
-   public PSUsersNotSupportedException(java.lang.String provider)
-   {
-      super(IPSSecurityErrors.USERS_NOT_SUPPORTED,
-            new Object[] { provider });
-   }
+public class PSUsersNotSupportedException extends PSException {
+  /**
+   * Constructs a users not supported exception with the default
+   * message.
+   */
+  public PSUsersNotSupportedException(java.lang.String provider) {
+    super(IPSSecurityErrors.USERS_NOT_SUPPORTED, new Object[] {provider});
+  }
 }
-

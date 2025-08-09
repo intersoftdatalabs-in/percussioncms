@@ -23,19 +23,15 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.util.PSPurgableTempFile;
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.util.Date;
 import java.util.Map;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * This class calculates the size of an uploaded file and appends an html
  * parameter with current date value in a given date format.
  */
-public class PSUploadFileAttrs extends PSDefaultExtension
-   implements IPSRequestPreProcessor
-{
-
+public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   /**
    * Does the all the work for the class.  See the class description.
@@ -63,100 +59,81 @@ public class PSUploadFileAttrs extends PSDefaultExtension
    *            -If empty or null HTML Parameters table.
    *            -If file size exceeds the byte limit.
    */
-   public void preProcessRequest( java.lang.Object[] params,
-                             com.percussion.server.IPSRequestContext request)
+  public void preProcessRequest(
+      java.lang.Object[] params, com.percussion.server.IPSRequestContext request)
       throws PSAuthorizationException,
-            PSRequestValidationException,
-            PSParameterMismatchException,
-            PSExtensionProcessingException
-   {
-      // validate parameters
-      if(params.length < 2)
-      {
-         throw new PSExtensionProcessingException( 0,
-                       "One or more parameters missing in PSUploadFileAttrs.");
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    // validate parameters
+    if (params.length < 2) {
+      throw new PSExtensionProcessingException(
+          0, "One or more parameters missing in PSUploadFileAttrs.");
+    }
+    if (params[0] == null || params[0].toString().trim().length() == 0) {
+      throw new PSExtensionProcessingException(
+          0, "Empty or null file name parameter in PSUploadFileAttrs.");
+    }
+    if (params[1] == null || params[1].toString().trim().length() == 0) {
+      throw new PSExtensionProcessingException(
+          0, "Empty or null file size parameterin PSUploadFileAttrs.");
+    }
+
+    String fileNameParam = params[0].toString().trim();
+    String fileSizeParam = params[1].toString().trim();
+
+    String dateParam = null;
+    if (params.length > 2 && null != params[2]) dateParam = params[2].toString().trim();
+
+    String dateFormatString = null;
+    if (params.length > 3 && null != params[3]) dateFormatString = params[3].toString().trim();
+
+    if (null == dateFormatString || dateFormatString.length() < 1) {
+      dateFormatString = "MM/dd/yyyy hh:mm:ss a";
+    } else dateFormatString = dateFormatString.trim();
+
+    Long fileSizeMax = new Long(0L);
+    if (params.length > 4) {
+      try {
+        String tmp = params[4].toString().trim();
+        if (null != tmp) fileSizeMax = new Long(tmp);
+      } catch (Exception e) {
       }
-      if(params[0] == null || params[0].toString().trim().length() == 0)
-      {
-         throw new PSExtensionProcessingException( 0,
-                    "Empty or null file name parameter in PSUploadFileAttrs.");
+    }
+
+    // retrieve file contents from HTML parameters hash table
+    Map<String, Object> htmlParams = request.getParameters();
+    if (htmlParams == null || htmlParams.isEmpty()) {
+      throw new PSExtensionProcessingException(0, "Empty or null HTML Parameters table.");
+    }
+
+    if (!htmlParams.containsKey(fileNameParam)) return;
+
+    PSPurgableTempFile tmpFile = (PSPurgableTempFile) htmlParams.get(fileNameParam);
+
+    if (tmpFile != null) {
+      Long fileSize = new Long(tmpFile.length());
+
+      // check for maximum size limit
+      if (fileSizeMax.intValue() > 0 && fileSize.compareTo(fileSizeMax) > 0) {
+        throw new PSExtensionProcessingException(
+            0,
+            "File size ("
+                + fileSize.toString()
+                + ") exceeds limit of "
+                + fileSizeMax.toString()
+                + " bytes.");
       }
-      if(params[1] == null || params[1].toString().trim().length() == 0)
-      {
-         throw new PSExtensionProcessingException( 0,
-                     "Empty or null file size parameterin PSUploadFileAttrs.");
-      }
+      // write file size to HTML parameters hash table
+      htmlParams.put(fileSizeParam, fileSize.toString());
 
-      String fileNameParam =  params[0].toString().trim();
-      String fileSizeParam =  params[1].toString().trim();
+      if (null == dateParam || dateParam.length() < 1) return;
 
-      String dateParam = null;
-      if(params.length > 2 && null != params[2])
-         dateParam = params[2].toString().trim();
+      FastDateFormat format = FastDateFormat.getInstance(dateFormatString);
+      Date current = new Date();
 
-
-      String dateFormatString = null;
-      if(params.length > 3 && null != params[3])
-         dateFormatString = params[3].toString().trim();
-
-      if(null == dateFormatString || dateFormatString.length() < 1)
-      {
-         dateFormatString = "MM/dd/yyyy hh:mm:ss a";
-      }
-      else
-         dateFormatString = dateFormatString.trim();
-
-      Long   fileSizeMax   = new Long(0L);
-      if(params.length > 4)
-      {
-         try
-         {
-            String tmp = params[4].toString().trim();
-            if(null != tmp)
-               fileSizeMax = new Long(tmp);
-         }
-         catch(Exception e)
-         {
-         }
-      }
-
-      // retrieve file contents from HTML parameters hash table
-      Map<String,Object> htmlParams = request.getParameters();
-      if (htmlParams == null || htmlParams.isEmpty())
-      {
-         throw new PSExtensionProcessingException( 0,
-                                      "Empty or null HTML Parameters table." );
-      }
-
-      if(!htmlParams.containsKey(fileNameParam))
-         return;
-
-      PSPurgableTempFile tmpFile =
-                           (PSPurgableTempFile)htmlParams.get( fileNameParam );
-
-      if(tmpFile != null)
-      {
-         Long fileSize = new Long( tmpFile.length());
-
-         // check for maximum size limit
-         if(fileSizeMax.intValue() > 0 &&
-                                         fileSize.compareTo( fileSizeMax ) > 0)
-         {
-            throw new PSExtensionProcessingException(0,
-               "File size (" + fileSize.toString() +
-               ") exceeds limit of " + fileSizeMax.toString() + " bytes.");
-         }
-         // write file size to HTML parameters hash table
-         htmlParams.put( fileSizeParam, fileSize.toString() );
-
-         if(null == dateParam || dateParam.length() < 1)
-            return;
-
-         FastDateFormat format = FastDateFormat.getInstance(dateFormatString);
-         Date current = new Date();
-
-         // write current date to HTML parameters hash table
-         htmlParams.put(dateParam, format.format(current));
-      }
-   }
+      // write current date to HTML parameters hash table
+      htmlParams.put(dateParam, format.format(current));
+    }
+  }
 }

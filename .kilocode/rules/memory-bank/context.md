@@ -3,6 +3,7 @@
 This document captures the current work focus, recent changes, and next steps for the Percussion CMS modernization effort.
 
 ## Current Work Focus
+
 - Java 11 migration of the multi-module Maven monorepo.
 - Centralizing dependencyManagement and pluginManagement in the parent POM to ensure consistent versions.
 - Test stack alignment: support JUnit 5 with Vintage where legacy JUnit 4 tests remain.
@@ -10,6 +11,7 @@ This document captures the current work focus, recent changes, and next steps fo
 - Resolving enforcer upper bound dependency warnings by central version pins.
 
 ## Recent Changes
+
 - Axis resolution fixed in modules/webservices by aligning Axis properties to 1.4 and avoiding non-existent 1.4.1/1.4.2 artifacts.
 - ojdbc updates: moved modules from ojdbc6 to com.oracle.database.jdbc:ojdbc8, version managed in parent with appropriate scope.
 - Root POM cleanup: removed JaCoCo remnants, ensured CycloneDX and SpotBugs plugins are not active, consolidated versions for JAXB and JUnit.
@@ -18,6 +20,7 @@ This document captures the current work focus, recent changes, and next steps fo
 - Small reactor validations executed to surface dependency issues and refine fixes.
 
 ## Known Issues / Open Items
+
 - perc-system duplicate dependency declaration for org.jmock:jmock-junit5 needs cleanup (single test-scoped entry).
 - junit-platform-launcher 5.13.3 intermittently fails to resolve from Central; temporary pin to 5.13.1 at module or parent may be required.
 - Enforcer upper bound warnings observed:
@@ -29,6 +32,7 @@ This document captures the current work focus, recent changes, and next steps fo
 - Proprietary/IDE-only artifacts (smartgwt, tinymce, caja, perc-jetty-jars) require environment handling or repository setup to avoid blocking builds.
 
 ## Next Steps
+
 1. Fix perc-system POM hygiene:
    - Remove duplicate org.jmock:jmock-junit5 entry.
    - Add test-scoped junit-platform-launcher pin (5.13.1) or manage centrally in parent to stabilize resolution.
@@ -44,7 +48,9 @@ This document captures the current work focus, recent changes, and next steps fo
 7. Run full build on JDK 11 and smoke deploy to DTS tomcat; then enable CI on JDK 11.
 
 ## Notes
+
 - Maintain backward compatibility for customers while modernizing. Avoid jakarta servlet/annotation artifacts.
 - Keep JAXB and Activation external on Java 11 (api and runtime versions managed centrally).
 - Use -U and dependency:tree to diagnose resolution issues; adjust parent management and module exclusions accordingly.
 - DTS = Delivery Tier Suite, the target deployment environment for the delivery-tier-suite modules.  This is deployed seperate from the CMS. Typically on the web server.
+

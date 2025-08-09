@@ -17,23 +17,22 @@
 
 package com.percussion.taxonomy.web.xmlGeneration;
 
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.ElementList;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
 @Root(name = "root")
 public class RootTag {
 
-    @ElementList(inline = true, entry = "item")
-    public List<Item> items;
+  @ElementList(inline = true, entry = "item")
+  public List<Item> items;
 
-    public RootTag() {
-        items = new ArrayList<Item>();
-    }
+  public RootTag() {
+    items = new ArrayList<Item>();
+  }
 
-    public void addItem(Item i) {
-        items.add(i);
-    }
+  public void addItem(Item i) {
+    items.add(i);
+  }
 }

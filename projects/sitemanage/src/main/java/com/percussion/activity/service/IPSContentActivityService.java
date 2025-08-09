@@ -22,7 +22,6 @@ import com.percussion.activity.data.PSContentActivity;
 import com.percussion.activity.data.PSContentActivityRequest;
 import com.percussion.activity.data.PSEffectiveness;
 import com.percussion.activity.data.PSEffectivenessRequest;
-
 import java.util.List;
 
 /**
@@ -32,50 +31,50 @@ import java.util.List;
  */
 public interface IPSContentActivityService extends IPSTrafficService {
 
-    /**
-     * Gets the content activity for the given path and specified duration.
-     *
-     * @param request the content activity request. The path must not be blank, supply "/" for all sites.
-     *                The duration type must not be blank and must be of PSDurationTypeEnum. The duration must be greater than 0.
-     * @return List of {@link PSContentActivity} objects. If the path is root, then the returned list consists of
-     * an activity object for each site and two for assets. The first asset activity is for all the resource type
-     * assets and the second one is for non-resource type assets. If the supplied path is for a site then the returned
-     * list consists of an activity object for each folder under the site and two activity objects for assets similar
-     * to the above.
-     */
-    List<PSContentActivity> getContentActivity(PSContentActivityRequest request);
+  /**
+   * Gets the content activity for the given path and specified duration.
+   *
+   * @param request the content activity request. The path must not be blank, supply "/" for all sites.
+   *                The duration type must not be blank and must be of PSDurationTypeEnum. The duration must be greater than 0.
+   * @return List of {@link PSContentActivity} objects. If the path is root, then the returned list consists of
+   * an activity object for each site and two for assets. The first asset activity is for all the resource type
+   * assets and the second one is for non-resource type assets. If the supplied path is for a site then the returned
+   * list consists of an activity object for each folder under the site and two activity objects for assets similar
+   * to the above.
+   */
+  List<PSContentActivity> getContentActivity(PSContentActivityRequest request);
 
-    /**
-     * Gets the overall effectiveness for the given request.
-     *
-     * @param request the effectiveness request. The path must not be blank, supply "/" for all sites.
-     *                The duration type must not be blank and must be of PSDurationTypeEnum. The duration must be greater than 0.
-     *                The threshold must be greater than or equal to 0.
-     * @return list of effectiveness objects, never {@code null}, may be empty. The entries will be sorted in
-     * descending order by effectiveness value, ascending order by name.
-     */
-    List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request);
+  /**
+   * Gets the overall effectiveness for the given request.
+   *
+   * @param request the effectiveness request. The path must not be blank, supply "/" for all sites.
+   *                The duration type must not be blank and must be of PSDurationTypeEnum. The duration must be greater than 0.
+   *                The threshold must be greater than or equal to 0.
+   * @return list of effectiveness objects, never {@code null}, may be empty. The entries will be sorted in
+   * descending order by effectiveness value, ascending order by name.
+   */
+  List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request);
 
-    /**
-     * The type of the duration, e.g., days, weeks, etc.
-     */
-    enum PSDurationTypeEnum {
-        days,
-        weeks,
-        months,
-        years
-    }
+  /**
+   * The type of the duration, e.g., days, weeks, etc.
+   */
+  enum PSDurationTypeEnum {
+    days,
+    weeks,
+    months,
+    years
+  }
 
-    /**
-     * The usage metric to use when calculating effectiveness.
-     */
-    enum PSUsageEnum {
-        pageviews,
-        unique_pageviews
-    }
+  /**
+   * The usage metric to use when calculating effectiveness.
+   */
+  enum PSUsageEnum {
+    pageviews,
+    unique_pageviews
+  }
 
-    /**
-     * The default timeout (in seconds) after which content activity queries should abort.
-     */
-    int DEFAULT_TIMEOUT = 30;
+  /**
+   * The default timeout (in seconds) after which content activity queries should abort.
+   */
+  int DEFAULT_TIMEOUT = 30;
 }

@@ -20,15 +20,12 @@ package com.ibm.cadf.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TimeStampUtilsTest
-{
+public class TimeStampUtilsTest {
 
-    @Test
-    public void GetCurrentTimeTest()
-    {
-        String currentTime = TimeStampUtils.getCurrentTime();
-        boolean b = currentTime.contains("T");
-        Assertions.assertTrue( b,"timestamp is not expected format");
-    }
-
+  @Test
+  public void GetCurrentTimeTest() {
+    String currentTime = TimeStampUtils.getCurrentTime();
+    boolean b = currentTime.contains("T");
+    Assertions.assertTrue(b, "timestamp is not expected format");
+  }
 }

@@ -18,7 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.dependencies;
 
-
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
@@ -27,71 +26,69 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.utils.collections.PSIteratorUtils;
-
 import java.util.Iterator;
 
 /**
- * Class to handle packaging and deploying a menu action category.  This 
+ * Class to handle packaging and deploying a menu action category.  This
  * includes menu categories, but not menu items or dynamic menus.
  */
-public class PSMenuActionCategoryDependencyHandler extends 
-   PSMenuActionObjectDependencyHandler
-{
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    * @throws PSDeployException if any other error occurs.
-    */
-   public PSMenuActionCategoryDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap) throws PSDeployException
-   {
-      super(def, dependencyMap);
-   }
-   
+public class PSMenuActionCategoryDependencyHandler extends PSMenuActionObjectDependencyHandler {
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if any other error occurs.
+   */
+  public PSMenuActionCategoryDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)
+      throws PSDeployException {
+    super(def, dependencyMap);
+  }
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   // see base class
-   @Override
-   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
-      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
-         throw new IllegalArgumentException("Invalid arguments provided.");
-      }
+  // see base class
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+      throw new IllegalArgumentException("Invalid arguments provided.");
+    }
 
-      return PSIteratorUtils.emptyIterator();
-   }
+    return PSIteratorUtils.emptyIterator();
+  }
 
-   // see base class
-   @Override
-   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
-      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
-         throw new IllegalArgumentException("Invalid arguments provided.");
-      }
+  // see base class
+  @Override
+  public void installDependencyFiles(
+      PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+      throws PSDeployException {
+    if (tok == null
+        || archive == null
+        || dep == null
+        || ctx == null
+        || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+      throw new IllegalArgumentException("Invalid arguments provided.");
+    }
 
-      // Nothing to do, handled by menu action def handler
-   }
-   
-   // see base class
-   protected boolean isLeaf()
-   {
-      return false;
-   }
-   
-   /**
-    * Constant for this handler's supported type
-    */
-   final static String DEPENDENCY_TYPE = "MenuActionCategory";
+    // Nothing to do, handled by menu action def handler
+  }
 
+  // see base class
+  protected boolean isLeaf() {
+    return false;
+  }
 
+  /**
+   * Constant for this handler's supported type
+   */
+  static final String DEPENDENCY_TYPE = "MenuActionCategory";
 }

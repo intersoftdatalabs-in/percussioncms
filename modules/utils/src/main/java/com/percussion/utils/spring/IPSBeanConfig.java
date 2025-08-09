@@ -23,48 +23,46 @@ import org.w3c.dom.Element;
 
 /**
  * Interface to allow classes that are implemented as Spring beans to be loaded
- * from and saved to a Spring beans config file.  See the 
- * {@link PSSpringConfiguration} for more information. 
+ * from and saved to a Spring beans config file.  See the
+ * {@link PSSpringConfiguration} for more information.
  */
-public interface IPSBeanConfig
-{
-   /**
-    * Constant for the root element name for a spring bean.
-    */
-   public static final String BEAN_NODE_NAME = "bean";
+public interface IPSBeanConfig {
+  /**
+   * Constant for the root element name for a spring bean.
+   */
+  public static final String BEAN_NODE_NAME = "bean";
 
-   /**
-    * Serializes the bean to its XML format.  Result must conform to the
-    * "spring-beans.dtd" DTD.
-    * 
-    * @param doc The document to use, never <code>null</code>.
-    * 
-    * @return The "bean" root element, never <code>null</code>. 
-    */
-   public Element toXml(Document doc);
+  /**
+   * Serializes the bean to its XML format.  Result must conform to the
+   * "spring-beans.dtd" DTD.
+   *
+   * @param doc The document to use, never <code>null</code>.
+   *
+   * @return The "bean" root element, never <code>null</code>.
+   */
+  public Element toXml(Document doc);
 
+  /**
+   * Serializes the bean from its XML format.  See {@link #toXml(Document)}
+   * for more info.
+   *
+   * @param source The source "bean" XML root element, never <code>null</code>.
+   *
+   * @throws PSInvalidXmlException If the xml format is invalid for the bean.
+   */
+  public void fromXml(Element source) throws PSInvalidXmlException;
 
-   /**
-    * Serializes the bean from its XML format.  See {@link #toXml(Document)}
-    * for more info.
-    * 
-    * @param source The source "bean" XML root element, never <code>null</code>.
-    * 
-    * @throws PSInvalidXmlException If the xml format is invalid for the bean.
-    */
-   public void fromXml(Element source) throws PSInvalidXmlException;
+  /**
+   * Get the name of this bean.
+   *
+   * @return The name, never <code>null</code> or empty.
+   */
+  public String getBeanName();
 
-   /**
-    * Get the name of this bean.
-    * 
-    * @return The name, never <code>null</code> or empty.
-    */
-   public String getBeanName();
-
-   /**
-    * Get the name of the class used to instantiate this bean.
-    * 
-    * @return The class name, never <code>null</code> or empty.
-    */
-   public String getClassName();
+  /**
+   * Get the name of the class used to instantiate this bean.
+   *
+   * @return The class name, never <code>null</code> or empty.
+   */
+  public String getClassName();
 }

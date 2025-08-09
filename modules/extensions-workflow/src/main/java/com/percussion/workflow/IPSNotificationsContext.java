@@ -27,29 +27,28 @@ package com.percussion.workflow;
  *
  */
 @Deprecated
-public interface IPSNotificationsContext
-{
-/**
- * Gets the subject field for the current entry in the context.
- * @author   Ram
- *
- * @version 1.0
- *
- * @param   none
- *
- * @return  subject 
- */
-   public String getSubject();
-   
-/**
- * Gets Body field for the current entry in the context.
- * @author   Ram
- *
- * @version 1.0
- *
- * @param   none
- *
- * @return  Body 
- */
-   public String getBody();
+public interface IPSNotificationsContext {
+  /**
+   * Gets the subject field for the current entry in the context.
+   * @author   Ram
+   *
+   * @version 1.0
+   *
+   * @param   none
+   *
+   * @return  subject
+   */
+  public String getSubject();
+
+  /**
+   * Gets Body field for the current entry in the context.
+   * @author   Ram
+   *
+   * @version 1.0
+   *
+   * @param   none
+   *
+   * @return  Body
+   */
+  public String getBody();
 }

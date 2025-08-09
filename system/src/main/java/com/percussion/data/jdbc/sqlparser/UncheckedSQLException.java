@@ -23,10 +23,8 @@ package com.percussion.data.jdbc.sqlparser;
  * require us to edit all of the JavaCC generated files
  * and add them to the throws clauses.
  */
-public class UncheckedSQLException extends RuntimeException
-{
-   public UncheckedSQLException(String msg)
-   {
-      super(msg);
-   }
+public class UncheckedSQLException extends RuntimeException {
+  public UncheckedSQLException(String msg) {
+    super(msg);
+  }
 }

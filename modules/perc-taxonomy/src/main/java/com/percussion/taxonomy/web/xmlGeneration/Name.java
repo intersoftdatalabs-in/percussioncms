@@ -22,30 +22,29 @@ import org.simpleframework.xml.Text;
 
 public class Name {
 
-    @Attribute(required = false)
-    public String onclick;
-	
-    @Attribute(required = false)
-    public String href;
-    
-    @Text(data = true)
-    public String text;
+  @Attribute(required = false)
+  public String onclick;
 
-    public Name() {
-    }
+  @Attribute(required = false)
+  public String href;
 
-    public Name(String text) {
-        this.text = text;
-    }
+  @Text(data = true)
+  public String text;
 
-    public Name(String text, String link) {
-        this.text = text;
-        this.href = link;
-    }
-    
-    public Name(String text, String link, String onclick) {
-        this.text = text;
-        this.href = link;
-        this.onclick = onclick;
-    }
+  public Name() {}
+
+  public Name(String text) {
+    this.text = text;
+  }
+
+  public Name(String text, String link) {
+    this.text = text;
+    this.href = link;
+  }
+
+  public Name(String text, String link, String onclick) {
+    this.text = text;
+    this.href = link;
+    this.onclick = onclick;
+  }
 }

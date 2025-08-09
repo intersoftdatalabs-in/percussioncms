@@ -24,38 +24,40 @@ import org.w3c.dom.Element;
  * configuration file to hold the option parameters to process the action. The
  * actionid in this interface will match with that in the config file.
  */
-public interface IPSActionHandler
-{
-   /**
-    * This method actually processes the action.
-    * @param cfgdata DOM element with configuration data for the current action.
-    * Must not be <code>null</code>
-    * @throws PSActionProcessingException if any error occurs during processing
-    */
-   void process(Element cfgdata)
-      throws PSActionProcessingException;
+public interface IPSActionHandler {
+  /**
+   * This method actually processes the action.
+   * @param cfgdata DOM element with configuration data for the current action.
+   * Must not be <code>null</code>
+   * @throws PSActionProcessingException if any error occurs during processing
+   */
+  void process(Element cfgdata) throws PSActionProcessingException;
 
-   /**
-    * Action id to generate the TMX resourecs bundle from Rhythmyx Content
-    * Manager. This bundle typically goes to translation services for translation
-    * to other language(s).
-    */
-   public static final int ACTIONID_GENERATE_TMX_RESOURCES = 1;
-   /**
-    * Action id to merge the translated resource bundle with the master TMX
-    * resource bundle of Rhythmyx.
-    */
-   public static final int ACTIONID_MERGE_MASTER = 2;
-   /**
-    * Action id to exit the program.
-    */
-   public static final int ACTIONID_EXIT = 3;
-   /**
-    * First action id
-    */
-   public static final int ACTIONID_FIRST = ACTIONID_GENERATE_TMX_RESOURCES;
-   /**
-    * Last action id
-    */
-   public static final int ACTIONID_LAST = ACTIONID_EXIT;
+  /**
+   * Action id to generate the TMX resourecs bundle from Rhythmyx Content
+   * Manager. This bundle typically goes to translation services for translation
+   * to other language(s).
+   */
+  public static final int ACTIONID_GENERATE_TMX_RESOURCES = 1;
+
+  /**
+   * Action id to merge the translated resource bundle with the master TMX
+   * resource bundle of Rhythmyx.
+   */
+  public static final int ACTIONID_MERGE_MASTER = 2;
+
+  /**
+   * Action id to exit the program.
+   */
+  public static final int ACTIONID_EXIT = 3;
+
+  /**
+   * First action id
+   */
+  public static final int ACTIONID_FIRST = ACTIONID_GENERATE_TMX_RESOURCES;
+
+  /**
+   * Last action id
+   */
+  public static final int ACTIONID_LAST = ACTIONID_EXIT;
 }

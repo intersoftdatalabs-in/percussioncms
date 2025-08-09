@@ -16,7 +16,7 @@
  */
 
 /**
- * 
+ *
  */
 package com.percussion.extension;
 
@@ -24,7 +24,4 @@ package com.percussion.extension;
  * The IPSItemValidator interface must be implemented by
  * extensions which are item validators.
  */
-public interface IPSItemValidator extends IPSResultDocumentProcessor
-{
-  
-}
+public interface IPSItemValidator extends IPSResultDocumentProcessor {}

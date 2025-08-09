@@ -17,62 +17,61 @@
 
 package com.percussion.taxonomy.domain;
 
-
 /**
  * Taxonomy Node_editor class to represent information of taxon editors.
- *  
+ *
  */
 public class Node_editor {
 
-    private int id;
-    private Node node;
-    private String role;
+  private int id;
+  private Node node;
+  private String role;
 
-    /**
-     * Returns unique id of node editor
-     * @return id - unique int node editor id
-     */
-    public int getId() {
-        return id;
-    }
+  /**
+   * Returns unique id of node editor
+   * @return id - unique int node editor id
+   */
+  public int getId() {
+    return id;
+  }
 
-    /**
-     * Set id of node ediot
-     * @param id - int unique id of node editor
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    /**
-    * Returns node object
-    * @return node - Node object
-    */
-    public Node getNode() {
-        return node;
-    }
+  /**
+   * Set id of node ediot
+   * @param id - int unique id of node editor
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    /**
-     * Set node 
-     * @param node 
-     */
-    public void setNode(Node node) {
-        this.node = node;
-    }
+  /**
+   * Returns node object
+   * @return node - Node object
+   */
+  public Node getNode() {
+    return node;
+  }
 
-    /**
-     * Returns role of node editor
-     * @return - String role of node editor
-     */
-    public String getRole() {
-        return role;
-    }
+  /**
+   * Set node
+   * @param node
+   */
+  public void setNode(Node node) {
+    this.node = node;
+  }
 
-    /**
-     * Set node editor's role
-     * @param role - String role of node editor
-     */
-    public void setRole(String role) {
-      this.role = role;
-   }
+  /**
+   * Returns role of node editor
+   * @return - String role of node editor
+   */
+  public String getRole() {
+    return role;
+  }
+
+  /**
+   * Set node editor's role
+   * @param role - String role of node editor
+   */
+  public void setRole(String role) {
+    this.role = role;
+  }
 }

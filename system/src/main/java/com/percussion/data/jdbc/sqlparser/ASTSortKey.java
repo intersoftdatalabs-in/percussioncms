@@ -26,14 +26,12 @@ public class ASTSortKey extends SimpleNode {
     super(p, id);
   }
 
-  public void setOrdinal(int i)
-  {
-     m_ordinal = i;
+  public void setOrdinal(int i) {
+    m_ordinal = i;
   }
 
-  public int getOrdinal()
-  {
-     return m_ordinal;
+  public int getOrdinal() {
+    return m_ordinal;
   }
 
   private int m_ordinal = -1;

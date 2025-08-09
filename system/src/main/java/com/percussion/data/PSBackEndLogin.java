@@ -19,7 +19,6 @@ package com.percussion.data;
 
 import com.percussion.error.PSErrorException;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
-
 import java.sql.SQLException;
 
 /**
@@ -34,68 +33,64 @@ import java.sql.SQLException;
  */
 // REFACTORED: CP-JAVA11
 public class PSBackEndLogin implements IPSExecutionStep, IPSConnectionInfo {
-   
-   /**
-    * Create a new backend login that uses a JNDI datasource
-    * @param datasource the name of the datasource, 
-    *    may be <code>null</code> or empty to use the default datasource.
-    */
 
-   /**
-    * Constructs a new backend login that uses a JNDI datasource.
-    * @param datasource the name of the datasource, may be {@code null} or empty to use the default datasource.
-    */
-   public PSBackEndLogin(String datasource) {
-      this.m_dataSource = datasource;
-   }
+  /**
+   * Create a new backend login that uses a JNDI datasource
+   * @param datasource the name of the datasource,
+   *    may be <code>null</code> or empty to use the default datasource.
+   */
 
+  /**
+   * Constructs a new backend login that uses a JNDI datasource.
+   * @param datasource the name of the datasource, may be {@code null} or empty to use the default datasource.
+   */
+  public PSBackEndLogin(String datasource) {
+    this.m_dataSource = datasource;
+  }
 
-   @Override
-   public String toString() {
-      return m_dataSource;
-   }
+  @Override
+  public String toString() {
+    return m_dataSource;
+  }
 
-   
+  /**
+   * Gets the datasource used by this login.
+   * @return the datasource, or {@code null} if using the default connection.
+   */
+  public String getDataSource() {
+    return m_dataSource;
+  }
 
-   /**
-    * Gets the datasource used by this login.
-    * @return the datasource, or {@code null} if using the default connection.
-    */
-   public String getDataSource() {
-      return m_dataSource;
-   }
+  /* ************  IPSExecutionStep Interface Implementation ************ */
 
-   /* ************  IPSExecutionStep Interface Implementation ************ */
+  /**
+   * Execute the join of two or more result sets as a step in the
+   * execution plan. Each join may act on a subset of the result sets
+   * defined in the execution data. It will then remove the result sets
+   * and store the merged result set.
+   *
+   * @param   data     execution data is a container for the input data
+   *                   as well as a collection of result sets generated
+   *                   by queries.
+   *
+   * @exception   SQLException
+   *                                             if a SQL error occurs
+   */
 
-   /**
-    * Execute the join of two or more result sets as a step in the
-    * execution plan. Each join may act on a subset of the result sets
-    * defined in the execution data. It will then remove the result sets
-    * and store the merged result set.
-    *
-    * @param   data     execution data is a container for the input data
-    *                   as well as a collection of result sets generated
-    *                   by queries.
-    *
-    * @exception   SQLException
-    *                                             if a SQL error occurs
-    */
+  /**
+   * Executes the backend login step, adding a database connection to the execution data.
+   * @param data execution data containing input and result sets.
+   * @throws SQLException if a SQL error occurs
+   * @throws PSErrorException if a backend error occurs
+   */
+  @Override
+  public void execute(PSExecutionData data) throws SQLException, PSErrorException {
+    data.addDbConnection(this);
+  }
 
-   /**
-    * Executes the backend login step, adding a database connection to the execution data.
-    * @param data execution data containing input and result sets.
-    * @throws SQLException if a SQL error occurs
-    * @throws PSErrorException if a backend error occurs
-    */
-   @Override
-   public void execute(PSExecutionData data) throws SQLException, PSErrorException {
-      data.addDbConnection(this);
-   }
-   
-   /**
-    * The datasource used by this login, may be <code>null</code> to use the 
-    * default connection.
-    */
-   private final String m_dataSource;
+  /**
+   * The datasource used by this login, may be <code>null</code> to use the
+   * default connection.
+   */
+  private final String m_dataSource;
 }
-

@@ -26,24 +26,20 @@ public class ASTTableReference extends SimpleNode {
     super(p, id);
   }
 
-  public void setTable(String table)
-  {
-     m_table = table;
+  public void setTable(String table) {
+    m_table = table;
   }
 
-  public String getTable()
-  {
-     return m_table;
+  public String getTable() {
+    return m_table;
   }
 
-  public void setAlias(String alias)
-  {
-     m_alias = alias;
+  public void setAlias(String alias) {
+    m_alias = alias;
   }
 
-  public String getAlias()
-  {
-     return m_alias;
+  public String getAlias() {
+    return m_alias;
   }
 
   private String m_table;

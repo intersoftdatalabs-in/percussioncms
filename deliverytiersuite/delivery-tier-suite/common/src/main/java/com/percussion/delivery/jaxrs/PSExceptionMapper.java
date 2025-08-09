@@ -20,10 +20,6 @@ package com.percussion.delivery.jaxrs;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.percussion.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -31,50 +27,39 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Provider
-public class PSExceptionMapper implements ExceptionMapper<Exception>{
+public class PSExceptionMapper implements ExceptionMapper<Exception> {
 
-    private static final Logger log = LogManager.getLogger(PSExceptionMapper.class);
-    
-    @Context
-    private HttpServletRequest request;
+  private static final Logger log = LogManager.getLogger(PSExceptionMapper.class);
 
-    @Override
-    public Response toResponse(Exception e)
-    {
-       
-        String clientMsg;
-        Status status;
-         if (e instanceof JsonMappingException)
-        {
-            clientMsg = "Invalid request. JSON property is not of an expected type";
-            status = Response.Status.BAD_REQUEST;
-        } else if (e instanceof JsonParseException)
-        {
-            clientMsg = "Invalid request.  Invalid JSON object";
-            status = Response.Status.BAD_REQUEST;
-        }
-        else if (e instanceof WebApplicationException)
-        {
-            log.debug("WebApplicationException:{}",e.getMessage(),e);
-            return ((WebApplicationException) e).getResponse();
-        }
-        else
-        {
-            clientMsg = "An unexpected error occurred processing the request on the DTS server";
-            status = Status.INTERNAL_SERVER_ERROR;
-            
-        }
+  @Context private HttpServletRequest request;
 
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        
-        return Response
-                .status(status)
-                .entity(clientMsg)
-                .type(MediaType.TEXT_PLAIN)
-                .build();
+  @Override
+  public Response toResponse(Exception e) {
+
+    String clientMsg;
+    Status status;
+    if (e instanceof JsonMappingException) {
+      clientMsg = "Invalid request. JSON property is not of an expected type";
+      status = Response.Status.BAD_REQUEST;
+    } else if (e instanceof JsonParseException) {
+      clientMsg = "Invalid request.  Invalid JSON object";
+      status = Response.Status.BAD_REQUEST;
+    } else if (e instanceof WebApplicationException) {
+      log.debug("WebApplicationException:{}", e.getMessage(), e);
+      return ((WebApplicationException) e).getResponse();
+    } else {
+      clientMsg = "An unexpected error occurred processing the request on the DTS server";
+      status = Status.INTERNAL_SERVER_ERROR;
     }
-    
+
+    log.error(PSExceptionUtils.getMessageForLog(e));
+    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+
+    return Response.status(status).entity(clientMsg).type(MediaType.TEXT_PLAIN).build();
+  }
 }

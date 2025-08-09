@@ -64,9 +64,7 @@ import org.w3c.dom.Node;
  * </p>
  *
  */
-public class PSXdCopyDom extends PSDefaultExtension
-          implements IPSResultDocumentProcessor
-{
+public class PSXdCopyDom extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
    * Copy a subtree of the source XML document into the result document.
    *
@@ -86,62 +84,50 @@ public class PSXdCopyDom extends PSDefaultExtension
    * @throws PSParameterMismatchException This class will never throw this
    * exception.
    *
-  **/
-  public org.w3c.dom.Document processResultDocument(Object[] params,
-           IPSRequestContext request, Document resultDoc)
-             throws PSParameterMismatchException, PSExtensionProcessingException
-    {
+   **/
+  public org.w3c.dom.Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
 
-      PSXmlDomContext contxt = new PSXmlDomContext("PSXdCopyDom",request);
+    PSXmlDomContext contxt = new PSXmlDomContext("PSXdCopyDom", request);
 
-      String sourceObjectName = PSXmlDomUtils.getParameter(params,0,
-                         PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
-      String sourceNodeName = PSXmlDomUtils.getParameter(params,1,".");
-      String destNodeName = PSXmlDomUtils.getParameter(params,2,".");
+    String sourceObjectName =
+        PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
+    String sourceNodeName = PSXmlDomUtils.getParameter(params, 1, ".");
+    String destNodeName = PSXmlDomUtils.getParameter(params, 2, ".");
 
-      try
-      {
-         Document sourceDoc =
-               (Document) request.getPrivateObject( sourceObjectName );
-         if (null == sourceDoc)
-         {
-            contxt.printTraceMessage( "Source object not found: " +
-                  sourceObjectName );
-            return resultDoc;
-         }
-
-         Element sourceNode =
-               PSXmlDomUtils.findElement( sourceNodeName, sourceDoc );
-         if (null == sourceNode)
-         {
-            contxt.printTraceMessage( "Source element " + sourceNodeName +
-                  " not found in source" );
-            return resultDoc;
-         }
-
-         Element destNode =
-               PSXmlDomUtils.findElement( destNodeName, resultDoc );
-         if (null == destNode)
-         {
-            contxt.printTraceMessage( "Destination element " + destNodeName +
-                  " not found in result" );
-            return resultDoc;
-         }
-
-         PSXmlDocumentBuilder.copyTree( resultDoc, destNode, (Node) sourceNode );
+    try {
+      Document sourceDoc = (Document) request.getPrivateObject(sourceObjectName);
+      if (null == sourceDoc) {
+        contxt.printTraceMessage("Source object not found: " + sourceObjectName);
+        return resultDoc;
       }
-      catch (Exception e) { contxt.handleException(e); }
 
-      return resultDoc;
+      Element sourceNode = PSXmlDomUtils.findElement(sourceNodeName, sourceDoc);
+      if (null == sourceNode) {
+        contxt.printTraceMessage("Source element " + sourceNodeName + " not found in source");
+        return resultDoc;
+      }
 
+      Element destNode = PSXmlDomUtils.findElement(destNodeName, resultDoc);
+      if (null == destNode) {
+        contxt.printTraceMessage("Destination element " + destNodeName + " not found in result");
+        return resultDoc;
+      }
+
+      PSXmlDocumentBuilder.copyTree(resultDoc, destNode, (Node) sourceNode);
+    } catch (Exception e) {
+      contxt.handleException(e);
+    }
+
+    return resultDoc;
   }
 
   /**
    * This exit will never modify the style sheet. This method is required by the
    * interface.
    */
-  public boolean canModifyStyleSheet()
-  {
-      return false;
+  public boolean canModifyStyleSheet() {
+    return false;
   }
 }

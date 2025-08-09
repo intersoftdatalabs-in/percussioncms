@@ -20,49 +20,47 @@ package com.percussion.content;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 
-
 /**
  * Similar to HTMLText, but this class specifically represents the context of
  * a CDATA within the HTML.
  */
 // REFACTORED: CP-JAVA11
 public class HTMLCDATA extends HTMLText implements CDATASection {
-   /**
-    * Initializes CDATASection node with an initial value within CDATA.
-    */
-   public HTMLCDATA(String initialValue) {
-      super();
-      setData(initialValue);
-   }
+  /**
+   * Initializes CDATASection node with an initial value within CDATA.
+   */
+  public HTMLCDATA(String initialValue) {
+    super();
+    setData(initialValue);
+  }
 
-   /**
-    * Default constructor.
-    */
-   public HTMLCDATA() {
-      super();
-   }
+  /**
+   * Default constructor.
+   */
+  public HTMLCDATA() {
+    super();
+  }
 
-   /**
-    * Defines this node as a CDATA Section.
-    *
-    * @return CDATA_SECTION_NODE.
-    */
-   public short getNodeType() {
-      return CDATA_SECTION_NODE;
-   }
-   public String getData() throws DOMException
-   {
-      return m_data.toString();
-   }
+  /**
+   * Defines this node as a CDATA Section.
+   *
+   * @return CDATA_SECTION_NODE.
+   */
+  public short getNodeType() {
+    return CDATA_SECTION_NODE;
+  }
 
-   /**
-    * @param data The data string to set/replace the data owned by this CDATA.
-    */
-   public void setData( String data ) throws DOMException
-   {
-      m_data.setLength( 0 );
-      m_data.append( data );
-   }
+  public String getData() throws DOMException {
+    return m_data.toString();
+  }
 
-   private StringBuilder m_data = new StringBuilder();
+  /**
+   * @param data The data string to set/replace the data owned by this CDATA.
+   */
+  public void setData(String data) throws DOMException {
+    m_data.setLength(0);
+    m_data.append(data);
+  }
+
+  private StringBuilder m_data = new StringBuilder();
 }

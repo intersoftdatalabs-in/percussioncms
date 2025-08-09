@@ -19,32 +19,27 @@ package com.ibm.cadf.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
-import com.ibm.cadf.exception.CADFException;
+public class ResourceTest {
 
-public class ResourceTest
-{
+  @Test
+  public void testResourcePositive() throws CADFException, IOException {
+    String initiatorId = Identifier.generateUniqueId();
+    Resource initiator = new Resource(initiatorId);
+    initiator.setTypeURI("/testcase");
+    initiator.setName("AuditLoggerTest");
+    assertEquals(true, initiator.isValid());
+  }
 
-    @Test
-    public void testResourcePositive() throws CADFException, IOException
-    {
-        String initiatorId = Identifier.generateUniqueId();
-        Resource initiator = new Resource(initiatorId);
-        initiator.setTypeURI("/testcase");
-        initiator.setName("AuditLoggerTest");
-        assertEquals(true, initiator.isValid());
-    }
-
-    @Test
-    public void testResourceNegative() throws CADFException, IOException
-    {
-        String initiatorId = Identifier.generateUniqueId();
-        Resource initiator = new Resource(initiatorId);
-        initiator.setTypeURI("");
-        initiator.setName("AuditLoggerTest");
-        assertEquals(false, initiator.isValid());
-    }
+  @Test
+  public void testResourceNegative() throws CADFException, IOException {
+    String initiatorId = Identifier.generateUniqueId();
+    Resource initiator = new Resource(initiatorId);
+    initiator.setTypeURI("");
+    initiator.setName("AuditLoggerTest");
+    assertEquals(false, initiator.isValid());
+  }
 }

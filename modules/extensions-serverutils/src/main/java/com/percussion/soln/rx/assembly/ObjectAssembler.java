@@ -23,13 +23,11 @@ import com.percussion.services.assembly.impl.plugin.PSAssemblerBase;
 
 public abstract class ObjectAssembler<T> extends PSAssemblerBase {
 
-    
-    @Override
-    public IPSAssemblyResult assembleSingle(IPSAssemblyItem assemblyItem) {
-        T object = createObject(assemblyItem);
-        return new XStreamAssemblyResult(assemblyItem, object);
-    }
+  @Override
+  public IPSAssemblyResult assembleSingle(IPSAssemblyItem assemblyItem) {
+    T object = createObject(assemblyItem);
+    return new XStreamAssemblyResult(assemblyItem, object);
+  }
 
-    
-    public abstract T createObject(IPSAssemblyItem assemblyItem);
+  public abstract T createObject(IPSAssemblyItem assemblyItem);
 }

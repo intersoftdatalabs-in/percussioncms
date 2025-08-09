@@ -19,11 +19,9 @@ package com.percussion.delivery.rdbms;
 
 import org.hibernate.dialect.DerbyDialect;
 
-
 public class DerbyTenOneFourDialect extends DerbyDialect {
 
-    public DerbyTenOneFourDialect(){
-        super();
-    }
-
+  public DerbyTenOneFourDialect() {
+    super();
+  }
 }

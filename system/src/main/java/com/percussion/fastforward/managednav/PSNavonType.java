@@ -16,228 +16,216 @@
  */
 package com.percussion.fastforward.managednav;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * @author DavidBenua
- * 
+ *
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class PSNavonType
-{
-   /**
-    * Ctor that takes the navon type string.
-    * 
-    * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
-    *           outside of these, the default type {@link #TYPENAME_OTHER}is
-    *           assumed.
-    */
-   public PSNavonType(String typeName)
-   {
-      if (typeName == null || typeName.length() < 1)
-      {
-         throw new IllegalArgumentException("typeName must not be null or empty");
+public class PSNavonType {
+  /**
+   * Ctor that takes the navon type string.
+   *
+   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
+   *           outside of these, the default type {@link #TYPENAME_OTHER}is
+   *           assumed.
+   */
+  public PSNavonType(String typeName) {
+    if (typeName == null || typeName.length() < 1) {
+      throw new IllegalArgumentException("typeName must not be null or empty");
+    }
+    setType(typeName);
+  }
+
+  /**
+   * Ctor that takes the navon type constant.
+   * @param typeValue must be one of the TYPE_XXXs. If it happens to be
+   *           outside of these, the default type {@link #TYPE_OTHER}is
+   *           assumed.
+   */
+  public PSNavonType(int typeValue) {
+    setType(typeValue);
+  }
+
+  /**
+   * Default ctor.
+   *
+   */
+  public PSNavonType() {}
+
+  /**
+   * @return type of the navon, one of the TYPE_XXX values.
+   */
+  public int getType() {
+    return m_type;
+  }
+
+  /**
+   * Set Navon type.
+   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
+   *           outside of these, the default type {@link #TYPENAME_OTHER}is
+   *           assumed.
+   */
+  public void setType(String typeName) {
+    String compareName;
+    for (int i = 0; i < typeArray.length; i++) {
+      compareName = typeArray[i];
+      if (compareName.equalsIgnoreCase(typeName)) {
+        m_type = i;
+        return;
       }
-      setType(typeName);
-   }
+    }
+    m_type = TYPE_OTHER;
+    return;
+  }
 
-   /**
-    * Ctor that takes the navon type constant.
-    * @param typeValue must be one of the TYPE_XXXs. If it happens to be
-    *           outside of these, the default type {@link #TYPE_OTHER}is
-    *           assumed.
-    */
-   public PSNavonType(int typeValue)
-   {
-      setType(typeValue);
-   }
+  /**
+   * Set Navon type.
+   * @param typeValue must be one of the TYPE_XXXs. If it happens to be
+   *           outside of these, the default type {@link #TYPE_OTHER}is
+   *           assumed.
+   */
+  public void setType(int typeValue) {
+    m_type = typeValue;
+  }
 
-   /**
-    * Default ctor.
-    * 
-    */
-   public PSNavonType()
-   {
-   }
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return typeArray[m_type];
+  }
 
-   /**
-    * @return type of the navon, one of the TYPE_XXX values.
-    */
-   public int getType()
-   {
-      return m_type;
-   }
+  /**
+   * creates the type object for the next level in the tree.
+   *
+   * @param parentType the parent node's type class
+   * @param level the relative level
+   * @return a new type appropriate for the mext level in the tree.
+   */
+  public static PSNavonType getDescendentType(PSNavonType parentType, int level) {
+    int newType = TYPE_ROOT;
+    log.debug("Setting descendent type - parent is {}", parentType.toString());
+    switch (parentType.getType()) {
+      case TYPE_ROOT:
+      case TYPE_ANCESTOR:
+        newType = (level == -1) ? TYPE_SIBLING : TYPE_ANCESTOR_SIBLING;
+        break;
 
-   /**
-    * Set Navon type.
-    * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
-    *           outside of these, the default type {@link #TYPENAME_OTHER}is
-    *           assumed.
-    */
-   public void setType(String typeName)
-   {
-      String compareName;
-      for (int i = 0; i < typeArray.length; i++)
-      {
-         compareName = typeArray[i];
-         if (compareName.equalsIgnoreCase(typeName))
-         {
-            m_type = i;
-            return;
-         }
-      }
-      m_type = TYPE_OTHER;
-      return;
-   }
+      case TYPE_SELF:
+      case TYPE_DESCENDENT:
+        newType = TYPE_DESCENDENT;
+        break;
 
-   /**
-    * Set Navon type.
-    * @param typeValue must be one of the TYPE_XXXs. If it happens to be
-    *           outside of these, the default type {@link #TYPE_OTHER}is
-    *           assumed.
-    */
-   public void setType(int typeValue)
-   {
-      m_type = typeValue;
-   }
+      case TYPE_SIBLING:
+      case TYPE_ANCESTOR_SIBLING:
+      case TYPE_OTHER:
+        newType = TYPE_OTHER;
+        break;
+    }
+    PSNavonType result = new PSNavonType(newType);
+    log.debug("new child type is {}", result.toString());
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
-   public String toString()
-   {
-      return typeArray[m_type];
-   }
+    return result;
+  }
 
-   /**
-    * creates the type object for the next level in the tree.
-    * 
-    * @param parentType the parent node's type class
-    * @param level the relative level
-    * @return a new type appropriate for the mext level in the tree.
-    */
-   public static PSNavonType getDescendentType(PSNavonType parentType, int level)
-   {
-      int newType = TYPE_ROOT;
-      log.debug("Setting descendent type - parent is {}", parentType.toString());
-      switch (parentType.getType())
-      {
+  /**
+   * Navon type relative to the current Navon item. Valid values are one of the
+   * TYPE_XXXs defined in this class. Initialized in the ctors and settable via
+   * {@link #setType(int)}or {@link #setType(String)}. Default is
+   * {@link #TYPE_OTHER}.
+   */
+  private int m_type = TYPE_OTHER;
 
-         case TYPE_ROOT :
-         case TYPE_ANCESTOR :
-            newType = (level == -1) ? TYPE_SIBLING : TYPE_ANCESTOR_SIBLING;
-            break;
+  /**
+   * Reference to Log4j singleton object used to log any errors or debug info.
+   */
+  private static final Logger log = LogManager.getLogger(PSNavonType.class);
 
-         case TYPE_SELF :
-         case TYPE_DESCENDENT :
-            newType = TYPE_DESCENDENT;
-            break;
+  /**
+   * Navon type string to indicate the root of the navigation tree.
+   */
+  public static final String TYPENAME_ROOT = "root";
 
-         case TYPE_SIBLING :
-         case TYPE_ANCESTOR_SIBLING :
-         case TYPE_OTHER :
-            newType = TYPE_OTHER;
-            break;
+  /**
+   * Navon type to indicate the ancestor to the current Navon item.
+   */
+  public static final String TYPENAME_ANCESTOR = "ancestor";
 
-      }
-      PSNavonType result = new PSNavonType(newType);
-      log.debug("new child type is {}", result.toString());
+  /**
+   * Navon type string to indicate the ancestor sibling to the current Navon
+   * item.
+   */
+  public static final String TYPENAME_ANCESTOR_SIBLING = "ancestor-sibling";
 
-      return result;
-   }
+  /**
+   * Navon type string to indicate a sibling to the current Navon item.
+   */
+  public static final String TYPENAME_SIBLING = "sibling";
 
-   /**
-    * Navon type relative to the current Navon item. Valid values are one of the
-    * TYPE_XXXs defined in this class. Initialized in the ctors and settable via
-    * {@link #setType(int)}or {@link #setType(String)}. Default is
-    * {@link #TYPE_OTHER}.
-    */
-   private int m_type = TYPE_OTHER;
+  /**
+   * Navon type string to indicate as self to the current Navon item.
+   */
+  public static final String TYPENAME_SELF = "self";
 
-   /**
-    * Reference to Log4j singleton object used to log any errors or debug info.
-    */
-   private static final Logger log = LogManager.getLogger(PSNavonType.class);
+  /**
+   * Navon type string to indicate the descendent to the current Navon item.
+   */
+  public static final String TYPENAME_DESCENDENT = "descendent";
 
-   /**
-    * Navon type string to indicate the root of the navigation tree.
-    */
-   public static final String TYPENAME_ROOT = "root";
+  /**
+   * Navon type string to indicate as unrelated to the current Navon item.
+   */
+  public static final String TYPENAME_OTHER = "other";
 
-   /**
-    * Navon type to indicate the ancestor to the current Navon item.
-    */
-   public static final String TYPENAME_ANCESTOR = "ancestor";
+  /**
+   * Navon type to indicate the root of the navigation tree.
+   */
+  public static final int TYPE_ROOT = 0;
 
-   /**
-    * Navon type string to indicate the ancestor sibling to the current Navon
-    * item.
-    */
-   public static final String TYPENAME_ANCESTOR_SIBLING = "ancestor-sibling";
+  /**
+   * Navon type to indicate the ancestor to the current Navon item.
+   */
+  public static final int TYPE_ANCESTOR = 1;
 
-   /**
-    * Navon type string to indicate a sibling to the current Navon item.
-    */
-   public static final String TYPENAME_SIBLING = "sibling";
+  /**
+   * Navon type to indicate the ancestor sibling to the current Navon item.
+   */
+  public static final int TYPE_ANCESTOR_SIBLING = 2;
 
-   /**
-    * Navon type string to indicate as self to the current Navon item.
-    */
-   public static final String TYPENAME_SELF = "self";
+  /**
+   * Navon type to indicate a sibling to the current Navon item.
+   */
+  public static final int TYPE_SIBLING = 3;
 
-   /**
-    * Navon type string to indicate the descendent to the current Navon item.
-    */
-   public static final String TYPENAME_DESCENDENT = "descendent";
+  /**
+   * Navon type to indicate as self to the current Navon item.
+   */
+  public static final int TYPE_SELF = 4;
 
-   /**
-    * Navon type string to indicate as unrelated to the current Navon item.
-    */
-   public static final String TYPENAME_OTHER = "other";
+  /**
+   * Navon type to indicate the descendent to the current Navon item.
+   */
+  public static final int TYPE_DESCENDENT = 5;
 
-   /**
-    * Navon type to indicate the root of the navigation tree.
-    */
-   public static final int TYPE_ROOT = 0;
+  /**
+   * Navon type to indicate as unrelated to the current Navon item.
+   */
+  public static final int TYPE_OTHER = 6;
 
-   /**
-    * Navon type to indicate the ancestor to the current Navon item.
-    */
-   public static final int TYPE_ANCESTOR = 1;
-
-   /**
-    * Navon type to indicate the ancestor sibling to the current Navon item.
-    */
-   public static final int TYPE_ANCESTOR_SIBLING = 2;
-
-   /**
-    * Navon type to indicate a sibling to the current Navon item.
-    */
-   public static final int TYPE_SIBLING = 3;
-
-   /**
-    * Navon type to indicate as self to the current Navon item.
-    */
-   public static final int TYPE_SELF = 4;
-
-   /**
-    * Navon type to indicate the descendent to the current Navon item.
-    */
-   public static final int TYPE_DESCENDENT = 5;
-
-   /**
-    * Navon type to indicate as unrelated to the current Navon item.
-    */
-   public static final int TYPE_OTHER = 6;
-
-   /**
-    * String array of all navon types relative to the current one.
-    */
-   private static final String[] typeArray =
-   {TYPENAME_ROOT, TYPENAME_ANCESTOR, TYPENAME_ANCESTOR_SIBLING,
-         TYPENAME_SIBLING, TYPENAME_SELF, TYPENAME_DESCENDENT, TYPENAME_OTHER};
-
+  /**
+   * String array of all navon types relative to the current one.
+   */
+  private static final String[] typeArray = {
+    TYPENAME_ROOT,
+    TYPENAME_ANCESTOR,
+    TYPENAME_ANCESTOR_SIBLING,
+    TYPENAME_SIBLING,
+    TYPENAME_SELF,
+    TYPENAME_DESCENDENT,
+    TYPENAME_OTHER
+  };
 }

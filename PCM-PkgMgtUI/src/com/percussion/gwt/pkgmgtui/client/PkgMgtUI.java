@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.smartgwt.client.core.BaseClass;
 import com.smartgwt.client.data.*;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.Alignment;
@@ -212,7 +213,7 @@ public class PkgMgtUI implements EntryPoint
          public void execute(DSResponse response, Object rawData,
                DSRequest request)
          {
-            Record[] records = response.getData();
+            com.smartgwt.client.data.Record[] records = response.getData();
             String respType = records[0].getAttribute("type");
             if (!respType.equals("FAILURE"))
             {
@@ -238,10 +239,10 @@ public class PkgMgtUI implements EntryPoint
    class SimpleDataSource extends DataSource
    {
       @Override
-      protected void setAttribute(String attribute, boolean value,
+      protected BaseClass setAttribute(String attribute, boolean value,
             boolean allowPostCreate)
       {
-         super.setAttribute(attribute, value, allowPostCreate);
+         return super.setAttribute(attribute, value, allowPostCreate);
       }
    }
 

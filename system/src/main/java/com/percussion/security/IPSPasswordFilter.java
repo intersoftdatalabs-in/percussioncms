@@ -28,24 +28,22 @@ import com.percussion.extension.IPSExtension;
  * IMPORTANT: Implementing classes are required to provide a meaningful
  * no-arguments constructor that will produce a working filter.
  */
-public interface IPSPasswordFilter extends IPSExtension, IPSPasswordFilterUpgrade
-{
-   /**
-    * This method is called by the Percussion CMS security provider before
-    * authenticating a user. The password submitted in the request is
-    * run through this filter, then checked against the stored password
-    * character-for-character.
-    *
-    * @param password The clear-text password to be encrypted. Never
-    * <CODE>null</CODE>.
-    *
-    * @return A string containing the encrypted password. Never
-    * <CODE>null</CODE>.
-    *
-    * @throws IllegalArgumentException If any param is invalid.
-    */
-   public String encrypt(String password);
+public interface IPSPasswordFilter extends IPSExtension, IPSPasswordFilterUpgrade {
+  /**
+   * This method is called by the Percussion CMS security provider before
+   * authenticating a user. The password submitted in the request is
+   * run through this filter, then checked against the stored password
+   * character-for-character.
+   *
+   * @param password The clear-text password to be encrypted. Never
+   * <CODE>null</CODE>.
+   *
+   * @return A string containing the encrypted password. Never
+   * <CODE>null</CODE>.
+   *
+   * @throws IllegalArgumentException If any param is invalid.
+   */
+  public String encrypt(String password);
 
-
-   String getAlgorithm();
+  String getAlgorithm();
 }

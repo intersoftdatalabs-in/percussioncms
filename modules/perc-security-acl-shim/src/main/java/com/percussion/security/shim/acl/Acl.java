@@ -17,24 +17,24 @@
 package com.percussion.security.shim.acl;
 
 import java.security.Principal;
-import javax.security.auth.Subject;
 import java.util.Enumeration;
+import javax.security.auth.Subject;
 
 /**
- * Minimal compatibility interface mirroring java.security.acl.Acl used by legacy code.
- * Semantics: deny overrides allow where applicable; owners control modifications.
+ * Minimal compatibility interface mirroring java.security.acl.Acl used by legacy code. Semantics:
+ * deny overrides allow where applicable; owners control modifications.
  */
 public interface Acl extends Owner {
 
-    String getName();
+  String getName();
 
-    void setName(Principal caller, String name) throws NotOwnerException;
+  void setName(Principal caller, String name) throws NotOwnerException;
 
-    boolean addEntry(Principal caller, AclEntry entry) throws NotOwnerException;
+  boolean addEntry(Principal caller, AclEntry entry) throws NotOwnerException;
 
-    boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException;
+  boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException;
 
-    Enumeration<AclEntry> entries();
+  Enumeration<AclEntry> entries();
 
-    boolean checkPermission(Subject subject, Permission permission);
+  boolean checkPermission(Subject subject, Permission permission);
 }

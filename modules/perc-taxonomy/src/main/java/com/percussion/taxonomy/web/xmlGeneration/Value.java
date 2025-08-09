@@ -18,24 +18,22 @@
 package com.percussion.taxonomy.web.xmlGeneration;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Text;
 
 /**
  * @author Steffen Gates May 9, 2011
  */
 public class Value {
-    
-    @Attribute(required = true)
-    public int langID;
-    
-    @Text
-    public String text;
-    
-    public Value() {}
-    
-    public Value(int langID, String text){
-        this.text = text;
-        this.langID = langID;
-    }
+
+  @Attribute(required = true)
+  public int langID;
+
+  @Text public String text;
+
+  public Value() {}
+
+  public Value(int langID, String text) {
+    this.text = text;
+    this.langID = langID;
+  }
 }

@@ -16,67 +16,59 @@
  */
 package com.percussion.ant.install;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.security.xml.PSSecureXMLUtils;
-
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-public class PSPkgConfigFileEmptyConditionTest
-{
-   @Rule
-   public Path temporaryFolder;
-   /**
-    * Constant for the non-empty package configuration file location.
-    */   
-   private static final String TEST_CFG_FILE_NONEMPTY =
+public class PSPkgConfigFileEmptyConditionTest {
+  @Rule public Path temporaryFolder;
+
+  /**
+   * Constant for the non-empty package configuration file location.
+   */
+  private static final String TEST_CFG_FILE_NONEMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig.xml";
-   
-   /**
-    * Constant for the empty package configuration file location.
-    */
-   private static final String TEST_CFG_FILE_EMPTY =
+
+  /**
+   * Constant for the empty package configuration file location.
+   */
+  private static final String TEST_CFG_FILE_EMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig_Empty.xml";
 
-   @BeforeEach 
-   public void setup(){
-      PSSecureXMLUtils.setupJAXPDefaults();
-   }
+  @BeforeEach
+  public void setup() {
+    PSSecureXMLUtils.setupJAXPDefaults();
+  }
 
-   @Test
-   public void testEval() throws IOException
-   {
-      Path root = temporaryFolder.toPath();
+  @Test
+  public void testEval() throws IOException {
+    Path root = temporaryFolder.toPath();
 
-      PSPkgConfigFileEmptyCondition p = new PSPkgConfigFileEmptyCondition();
-      p.setRootDir(root.toAbsolutePath().toString());
+    PSPkgConfigFileEmptyCondition p = new PSPkgConfigFileEmptyCondition();
+    p.setRootDir(root.toAbsolutePath().toString());
 
-      InputStream is = PSPkgConfigFileEmptyConditionTest.class.getResourceAsStream(TEST_CFG_FILE_EMPTY);
-      Files.copy(is,root.resolve("perc.SystemObjects_defaultConfig_Empty.xml"));
+    InputStream is =
+        PSPkgConfigFileEmptyConditionTest.class.getResourceAsStream(TEST_CFG_FILE_EMPTY);
+    Files.copy(is, root.resolve("perc.SystemObjects_defaultConfig_Empty.xml"));
 
-      is =  PSPkgConfigFileEmptyConditionTest.class.getResourceAsStream(TEST_CFG_FILE_NONEMPTY);
-      Files.copy(is,root.resolve("perc.SystemObjects_defaultConfig.xml"));
+    is = PSPkgConfigFileEmptyConditionTest.class.getResourceAsStream(TEST_CFG_FILE_NONEMPTY);
+    Files.copy(is, root.resolve("perc.SystemObjects_defaultConfig.xml"));
 
+    // test non-empty file
+    p.setRelativeFilePath(("perc.SystemObjects_defaultConfig.xml"));
+    assertFalse(p.eval());
 
-      // test non-empty file
-      p.setRelativeFilePath(("perc.SystemObjects_defaultConfig.xml"));
-      assertFalse(p.eval());
-
-
-      // test empty file
-      p.setRelativeFilePath("perc.SystemObjects_defaultConfig_Empty.xml");
-      assertTrue(p.eval());
-   }
-   
+    // test empty file
+    p.setRelativeFilePath("perc.SystemObjects_defaultConfig_Empty.xml");
+    assertTrue(p.eval());
+  }
 }

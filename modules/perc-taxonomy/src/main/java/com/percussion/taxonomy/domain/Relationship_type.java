@@ -17,55 +17,54 @@
 
 package com.percussion.taxonomy.domain;
 
-
 /**
  * Taxonomy Relationship_type class to represent relationship information between taxons.
- *  
+ *
  */
-public class Relationship_type{
+public class Relationship_type {
 
-   /**
-    * Constant to identify related node
-    */
-   public static final int RELATED = 1;
-   /**
-    * Constant to identify similar node
-    */
-   public static final int SIMILAR = 2;
-   
-   private int id;
-   private String relationship_type;
+  /**
+   * Constant to identify related node
+   */
+  public static final int RELATED = 1;
 
-   /**
-    * Returns unique relationship type id
-    * @return id - int unique id of relationship type
-    */
-   public int getId(){
-     return id;
-   }
+  /**
+   * Constant to identify similar node
+   */
+  public static final int SIMILAR = 2;
 
-   /**
-    * Set unique relationship type id
-    * @param id - unique int value for relationship id  
-    */
-   public void setId(int id){
-     this.id = id;
-   }
+  private int id;
+  private String relationship_type;
 
-   /**
-    * Returns relationship type
-    * @return relationship_type - String relationship type
-    */
-   public String getRelationship_type(){
-     return relationship_type;
-   }
+  /**
+   * Returns unique relationship type id
+   * @return id - int unique id of relationship type
+   */
+  public int getId() {
+    return id;
+  }
 
-   /**
-    * Set Relationship type
-    * @param relationship_type - String value of relationship type
-    */
-   public void setRelationship_type(String relationship_type){
-     this.relationship_type = relationship_type;
-   }
+  /**
+   * Set unique relationship type id
+   * @param id - unique int value for relationship id
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
+  /**
+   * Returns relationship type
+   * @return relationship_type - String relationship type
+   */
+  public String getRelationship_type() {
+    return relationship_type;
+  }
+
+  /**
+   * Set Relationship type
+   * @param relationship_type - String value of relationship type
+   */
+  public void setRelationship_type(String relationship_type) {
+    this.relationship_type = relationship_type;
+  }
 }

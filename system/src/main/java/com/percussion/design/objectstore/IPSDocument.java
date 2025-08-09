@@ -19,7 +19,6 @@ package com.percussion.design.objectstore;
 
 import org.w3c.dom.Document;
 
-
 /**
  * The IPSDocument interface defines required methods for all document level
  * object store objects. There are currently two document level object store
@@ -31,22 +30,22 @@ import org.w3c.dom.Document;
  * @since      1.0
  */
 public interface IPSDocument {
-   /**
-    * This method is called to create an XML document with the appropriate
-    * format for the given object.
-    *
-    * @return    the newly created XML document
-    */
-   public abstract Document toXml();
+  /**
+   * This method is called to create an XML document with the appropriate
+   * format for the given object.
+   *
+   * @return    the newly created XML document
+   */
+  public abstract Document toXml();
 
-   /**
-    * This method is called to populate an object from an XML
-    * document.
-    *
-    * @exception PSUnknownDocTypeException   if the XML document does not
-    *                                        represent a type supported
-    *                                        by the class.
-    */
-   public abstract void fromXml(Document sourceDoc)
+  /**
+   * This method is called to populate an object from an XML
+   * document.
+   *
+   * @exception PSUnknownDocTypeException   if the XML document does not
+   *                                        represent a type supported
+   *                                        by the class.
+   */
+  public abstract void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException;
 }

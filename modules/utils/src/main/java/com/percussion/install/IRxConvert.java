@@ -29,11 +29,10 @@ import java.util.ArrayList;
 public interface IRxConvert {
   /**
    * Converts the installed files.
-   * 
+   *
    * @param files - The list of files to convert.
    * @param conn - The connection pointing to the backend database
    *              specified by rxrepository.properties.
    */
-   public abstract void convert(ArrayList files, Connection conn) throws IOException;
+  public abstract void convert(ArrayList files, Connection conn) throws IOException;
 }
-

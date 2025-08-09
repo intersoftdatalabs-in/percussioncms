@@ -25,62 +25,56 @@ package com.percussion.cms.objectstore;
  *
  * @author paulhoward
  */
-public class PSItemChildLocator extends PSKey
-{
-   /**
-    * 
-    * @param fieldName The submit name of the complex child. Never <code>null
-    * </code> or empty.
-    *  
-    * @param rowId The numeric value that identifies the row in the child 
-    * table that contains the data. Never <code>null</code> or empty.
-    */
-   public PSItemChildLocator(String fieldName, String rowId)
-   {
-      super(new String[] {CONTENTTYPE_PARTNAME, ROWID_PARTNAME}); 
-      if (null == fieldName || fieldName.trim().length() == 0)
-      {
-         throw new IllegalArgumentException("fieldName cannot be null or empty");
-      }
-      if (null == rowId || rowId.trim().length() == 0)
-      {
-         throw new IllegalArgumentException("rowId cannot be null or empty");
-      }
-      setPart(CONTENTTYPE_PARTNAME, fieldName);
-      setPart(ROWID_PARTNAME, rowId);
-   }
-   
-   /**
-    * Returns the fieldName supplied in the ctor. See ctor <code>fieldName
-    * </code> parameter description for more details.
-    * 
-    * @return Never <code>null</code> or empty.
-    */
-   public String getChildContentType()
-   {
-      return getPart(CONTENTTYPE_PARTNAME);
-   }
-   
-   /**
-    * Returns the rowId supplied in the ctor. See ctor <code>rowId</code>
-    * parameter description for more details.
-    * 
-    * @return Never <code>null</code> or empty.
-    */
-   public String getChildRowId()
-   {
-      return super.getPart(ROWID_PARTNAME);
-   }
-   
-   /**
-    * The key part name that contains the submit name of the complex child
-    * field.
-    */
-   private static final String CONTENTTYPE_PARTNAME = "FIELDNAME";
-   
-   /**
-    * The key part name that contains the numeric primary key for the child
-    * table entry.
-    */
-   private static final String ROWID_PARTNAME = "ROWID";
+public class PSItemChildLocator extends PSKey {
+  /**
+   *
+   * @param fieldName The submit name of the complex child. Never <code>null
+   * </code> or empty.
+   *
+   * @param rowId The numeric value that identifies the row in the child
+   * table that contains the data. Never <code>null</code> or empty.
+   */
+  public PSItemChildLocator(String fieldName, String rowId) {
+    super(new String[] {CONTENTTYPE_PARTNAME, ROWID_PARTNAME});
+    if (null == fieldName || fieldName.trim().length() == 0) {
+      throw new IllegalArgumentException("fieldName cannot be null or empty");
+    }
+    if (null == rowId || rowId.trim().length() == 0) {
+      throw new IllegalArgumentException("rowId cannot be null or empty");
+    }
+    setPart(CONTENTTYPE_PARTNAME, fieldName);
+    setPart(ROWID_PARTNAME, rowId);
+  }
+
+  /**
+   * Returns the fieldName supplied in the ctor. See ctor <code>fieldName
+   * </code> parameter description for more details.
+   *
+   * @return Never <code>null</code> or empty.
+   */
+  public String getChildContentType() {
+    return getPart(CONTENTTYPE_PARTNAME);
+  }
+
+  /**
+   * Returns the rowId supplied in the ctor. See ctor <code>rowId</code>
+   * parameter description for more details.
+   *
+   * @return Never <code>null</code> or empty.
+   */
+  public String getChildRowId() {
+    return super.getPart(ROWID_PARTNAME);
+  }
+
+  /**
+   * The key part name that contains the submit name of the complex child
+   * field.
+   */
+  private static final String CONTENTTYPE_PARTNAME = "FIELDNAME";
+
+  /**
+   * The key part name that contains the numeric primary key for the child
+   * table entry.
+   */
+  private static final String ROWID_PARTNAME = "ROWID";
 }

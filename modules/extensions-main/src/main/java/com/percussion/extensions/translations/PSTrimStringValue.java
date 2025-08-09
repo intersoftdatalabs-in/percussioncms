@@ -22,9 +22,7 @@ import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -46,43 +44,30 @@ import org.apache.commons.lang.StringUtils;
  * <td>What to trim, start, end or both. Defaults to both.</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
  */
-public class PSTrimStringValue implements IPSFieldInputTransformer
-{
+public class PSTrimStringValue implements IPSFieldInputTransformer {
 
-   public Object processUdf(Object[] params, 
-         @SuppressWarnings("unused") IPSRequestContext request)
-         throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      String value = ep.getStringParam(0, null, true);
-      String trim = ep.getStringParam(1, "both", false);
-      
-      if (trim.equals("both"))
-      {
-         return value.trim();
-      }
-      else if (trim.equals("start"))
-      {
-         return StringUtils.stripStart(value, " ");
-      }
-      else if (trim.equals("end"))
-      {
-         return StringUtils.stripEnd(value, " ");
-      }
-      else
-      {
-         throw new IllegalArgumentException("Unknown trim value " + trim);
-      }
-   }
+  public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+    String trim = ep.getStringParam(1, "both", false);
 
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      // 
-   }
+    if (trim.equals("both")) {
+      return value.trim();
+    } else if (trim.equals("start")) {
+      return StringUtils.stripStart(value, " ");
+    } else if (trim.equals("end")) {
+      return StringUtils.stripEnd(value, " ");
+    } else {
+      throw new IllegalArgumentException("Unknown trim value " + trim);
+    }
+  }
 
+  @SuppressWarnings("unused")
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    //
+  }
 }

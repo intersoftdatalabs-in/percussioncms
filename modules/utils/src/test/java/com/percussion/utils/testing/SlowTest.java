@@ -20,5 +20,4 @@ package com.percussion.utils.testing;
 /***
  * Marker for slow tests
  */
-public interface SlowTest {
-}
+public interface SlowTest {}

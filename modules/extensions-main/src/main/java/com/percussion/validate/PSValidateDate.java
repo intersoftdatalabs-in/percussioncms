@@ -21,14 +21,13 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
 import java.util.Date;
 
 /**
  * Check a date argument for a range, supplied in the parameters. Note that the
  * range check is an inclusive test. The parameters to this udf consist of the
- * following: 
+ * following:
  * <table>
  * <tr>
  * <th>Param</th>
@@ -65,54 +64,45 @@ import java.util.Date;
  * </table>
  * <p>
  * The values are compared as long time values.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
-public class PSValidateDate extends PSRangeValidator
-{
+public class PSValidateDate extends PSRangeValidator {
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      Date value, min, max;
-      PSExtensionParams ep = new PSExtensionParams(params);
-      Boolean mininclusive, maxinclusive;
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    Date value, min, max;
+    PSExtensionParams ep = new PSExtensionParams(params);
+    Boolean mininclusive, maxinclusive;
 
-      value = ep.getDateParam(0, null, false);
-      min = ep.getDateParam(1, new Date(0), false);
-      mininclusive = ep.getBooleanParam(2, false, false);
-      max = ep.getDateParam(3, new Date(Long.MAX_VALUE), false);
-      maxinclusive = ep.getBooleanParam(4, false, false);
+    value = ep.getDateParam(0, null, false);
+    min = ep.getDateParam(1, new Date(0), false);
+    mininclusive = ep.getBooleanParam(2, false, false);
+    max = ep.getDateParam(3, new Date(Long.MAX_VALUE), false);
+    maxinclusive = ep.getBooleanParam(4, false, false);
 
-      if (value == null)
-      {
-         return false;
-      }
+    if (value == null) {
+      return false;
+    }
 
-      return checkRange(toDouble(min), toDouble(value), toDouble(max),
-            mininclusive, maxinclusive);
-   }
+    return checkRange(toDouble(min), toDouble(value), toDouble(max), mininclusive, maxinclusive);
+  }
 
-   /**
-    * Extract the time as a double value
-    * 
-    * @param value the input value
-    * @return the double value or <code>null</code> if the input is
-    *         <code>null</code>
-    */
-   private Double toDouble(Date value)
-   {
-      if (value == null)
-         return null;
-      
-      return new Double((double) value.getTime());
-   }
+  /**
+   * Extract the time as a double value
+   *
+   * @param value the input value
+   * @return the double value or <code>null</code> if the input is
+   *         <code>null</code>
+   */
+  private Double toDouble(Date value) {
+    if (value == null) return null;
 
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      // 
-   }
+    return new Double((double) value.getTime());
+  }
 
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    //
+  }
 }

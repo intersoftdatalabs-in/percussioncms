@@ -22,47 +22,42 @@ import com.percussion.error.PSNotFoundException;
  * The handler for Java script functions. Takes a body of text that is
  * pre-compiled and stored as an executable object in a 3rd party JS engine.
  */
-public class PSJavaScriptExtensionHandler extends PSExtensionHandler
-{
-   /**
-    * Returns the name of this extension handler.
-    *
-    * @return The name of this handler. Never <code>null</code>.
-    */
-   public String getName()
-   {
-      return "JavaScript";
-   }
+public class PSJavaScriptExtensionHandler extends PSExtensionHandler {
+  /**
+   * Returns the name of this extension handler.
+   *
+   * @return The name of this handler. Never <code>null</code>.
+   */
+  public String getName() {
+    return "JavaScript";
+  }
 
-   /**
-    * Get the extension based on the extension reference.
-    *
-    * See {@link PSExtensionHandler#loadExtension(PSExtensionRef)
-    * loadExtension} in the super class for a description.
-    *
-    * @return a PSJavaScriptUdfExtension object that is ready to be executed.
-    */
-   protected IPSExtension loadExtension(PSExtensionRef ref)
-      throws PSExtensionException, PSNotFoundException
-   {
-      return prepare( getExtensionDef( ref ));
-   }
+  /**
+   * Get the extension based on the extension reference.
+   *
+   * See {@link PSExtensionHandler#loadExtension(PSExtensionRef)
+   * loadExtension} in the super class for a description.
+   *
+   * @return a PSJavaScriptUdfExtension object that is ready to be executed.
+   */
+  protected IPSExtension loadExtension(PSExtensionRef ref)
+      throws PSExtensionException, PSNotFoundException {
+    return prepare(getExtensionDef(ref));
+  }
 
-   /**
-    * See {@link IPSExtensionHandler#prepare(PSExtensionRef) prepare} in the
-    * interface for a description.
-    *
-    * @return a PSJavaScriptUdfExtension object that is ready to be executed.
-    */
-   public IPSExtension prepare( IPSExtensionDef def )
-      throws PSNotFoundException, PSExtensionException
-   {
-      if (def == null)
-         throw new IllegalArgumentException(
-            "prepare: extension definition can't be null");
+  /**
+   * See {@link IPSExtensionHandler#prepare(PSExtensionRef) prepare} in the
+   * interface for a description.
+   *
+   * @return a PSJavaScriptUdfExtension object that is ready to be executed.
+   */
+  public IPSExtension prepare(IPSExtensionDef def)
+      throws PSNotFoundException, PSExtensionException {
+    if (def == null)
+      throw new IllegalArgumentException("prepare: extension definition can't be null");
 
-      PSJavaScriptUdfExtension ext = new PSJavaScriptUdfExtension();
-      ext.init( def, getCodeBase(def) );
-      return ext;
-   }
+    PSJavaScriptUdfExtension ext = new PSJavaScriptUdfExtension();
+    ext.init(def, getCodeBase(def));
+    return ext;
+  }
 }

@@ -21,10 +21,9 @@ import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.w3c.dom.Element;
-
 import java.util.Locale;
 import java.util.Objects;
+import org.w3c.dom.Element;
 
 /**
  * The PSApplicationDesignError class is used to report a design error
@@ -44,72 +43,63 @@ import java.util.Objects;
  */
 public final class PSApplicationDesignError extends PSLogError {
 
-   /**
-    * Report an application design error.
-    * <p>
-    * The application id is most commonly obtained by calling
-    * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-    * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-    *
-    * @param      applId         the id of the application that generated
-    *                            the error
-    *
-    * @param      errorCode      the error code describing the type of error
-    *
-    * @param      errorParams    if the error string associated with the
-    *                            error code specifies parameters, this is
-    *                            an array of values to use to fill the string
-    *                            appropriately. Be sure to include the
-    *                            correct arguments in their correct
-    *                            positions!
-    *
-    * @param      source         the XML sub-tree containing the element(s)
-    *                            causing the error
-    */
-   public PSApplicationDesignError(int applId,
-                                   int errorCode,
-                                   Object[] errorParams,
-                                   Element source)
-   {
-      super(applId);
+  /**
+   * Report an application design error.
+   * <p>
+   * The application id is most commonly obtained by calling
+   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
+   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   *
+   * @param      applId         the id of the application that generated
+   *                            the error
+   *
+   * @param      errorCode      the error code describing the type of error
+   *
+   * @param      errorParams    if the error string associated with the
+   *                            error code specifies parameters, this is
+   *                            an array of values to use to fill the string
+   *                            appropriately. Be sure to include the
+   *                            correct arguments in their correct
+   *                            positions!
+   *
+   * @param      source         the XML sub-tree containing the element(s)
+   *                            causing the error
+   */
+  public PSApplicationDesignError(int applId, int errorCode, Object[] errorParams, Element source) {
+    super(applId);
 
-      m_errorCode = errorCode;
-      m_errorArgs = errorParams;
-      m_source = Objects.isNull(source) ? "" : PSXmlDocumentBuilder.toString(source);
-   }
+    m_errorCode = errorCode;
+    m_errorArgs = errorParams;
+    m_source = Objects.isNull(source) ? "" : PSXmlDocumentBuilder.toString(source);
+  }
 
-   /**
-    * Subclasses must override this to build the messages in the
-    * specified locale
-    */
-   @Override
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      Objects.requireNonNull(loc, "locale cannot be null");
+  /**
+   * Subclasses must override this to build the messages in the
+   * specified locale
+   */
+  @Override
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    Objects.requireNonNull(loc, "locale cannot be null");
 
-      var msgCount = m_source.isEmpty() ? 1 : 2;
-      var msgs = new PSLogSubMessage[msgCount];
+    var msgCount = m_source.isEmpty() ? 1 : 2;
+    var msgs = new PSLogSubMessage[msgCount];
 
-      // Use the errorCode/errorString to format the first submessage
-      msgs[0] = new PSLogSubMessage(
-                                 m_errorCode,
-                                 PSErrorManager.createMessage(m_errorCode,
-                                                               m_errorArgs,
-                                                               loc));
+    // Use the errorCode/errorString to format the first submessage
+    msgs[0] =
+        new PSLogSubMessage(
+            m_errorCode, PSErrorManager.createMessage(m_errorCode, m_errorArgs, loc));
 
-      if (msgCount == 2) {
-         msgs[1] = new PSLogSubMessage(
-                                 IPSServerErrors.RAW_DUMP,
-                                 PSErrorManager.createMessage(
-                                       IPSServerErrors.RAW_DUMP,
-                                       new Object[] { m_source },
-                                       loc));
-      }
+    if (msgCount == 2) {
+      msgs[1] =
+          new PSLogSubMessage(
+              IPSServerErrors.RAW_DUMP,
+              PSErrorManager.createMessage(IPSServerErrors.RAW_DUMP, new Object[] {m_source}, loc));
+    }
 
-      return msgs;
-   }
+    return msgs;
+  }
 
-   private final int m_errorCode;
-   private final Object[] m_errorArgs;
-   private final String m_source;
+  private final int m_errorCode;
+  private final Object[] m_errorArgs;
+  private final String m_source;
 }

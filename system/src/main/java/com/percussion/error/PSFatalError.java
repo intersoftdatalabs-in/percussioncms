@@ -20,7 +20,6 @@ package com.percussion.error;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import com.percussion.server.IPSServerErrors;
-
 import java.util.Locale;
 
 /**
@@ -33,55 +32,46 @@ import java.util.Locale;
  */
 // REFACTORED: CP-JAVA11
 public class PSFatalError extends PSLogError {
-   
-   /**
-    * Report a fatal error which will cause the server to shut down.
-    *
-    * @param      errorCode   the error code describing the type of error
-    *
-    * @param      errorParams   if the error string associated with the
-    *                           error code specifies parameters, this is
-    *                           an array of values to use to fill the string
-    *                           appropriately. Be sure to include the
-    *                           correct arguments in their correct
-    *                           positions!
-    */
-   public PSFatalError(   int errorCode,
-                        Object[] errorParams)
-   {
-      super(0);
-      m_errorCode = errorCode;
-      m_errorArgs = errorParams;
-   }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      PSLogSubMessage[] msgs = new PSLogSubMessage[2];
+  /**
+   * Report a fatal error which will cause the server to shut down.
+   *
+   * @param      errorCode   the error code describing the type of error
+   *
+   * @param      errorParams   if the error string associated with the
+   *                           error code specifies parameters, this is
+   *                           an array of values to use to fill the string
+   *                           appropriately. Be sure to include the
+   *                           correct arguments in their correct
+   *                           positions!
+   */
+  public PSFatalError(int errorCode, Object[] errorParams) {
+    super(0);
+    m_errorCode = errorCode;
+    m_errorArgs = errorParams;
+  }
 
-      /* the generic submessage first */
-      msgs[0]   = new PSLogSubMessage(
-                              IPSServerErrors.FATAL_SERVER_ERROR_MSG,
-                              PSErrorManager.getErrorText(
-                                    IPSServerErrors.FATAL_SERVER_ERROR_MSG,
-                                    false,
-                                    loc));
+  /**
+   * sublcasses must override this to build the messages in the
+   * specified locale
+   */
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 
-      /* use the errorCode/errorParams to format the second submessage */
-      msgs[1]   = new PSLogSubMessage(
-                              m_errorCode,
-                              PSErrorManager.createMessage(   m_errorCode,
-                                                            m_errorArgs,
-                                                            loc));
+    /* the generic submessage first */
+    msgs[0] =
+        new PSLogSubMessage(
+            IPSServerErrors.FATAL_SERVER_ERROR_MSG,
+            PSErrorManager.getErrorText(IPSServerErrors.FATAL_SERVER_ERROR_MSG, false, loc));
 
-      return msgs;
-   }
+    /* use the errorCode/errorParams to format the second submessage */
+    msgs[1] =
+        new PSLogSubMessage(
+            m_errorCode, PSErrorManager.createMessage(m_errorCode, m_errorArgs, loc));
 
+    return msgs;
+  }
 
-   private int         m_errorCode;
-   private Object[]   m_errorArgs;
+  private int m_errorCode;
+  private Object[] m_errorArgs;
 }
-

@@ -25,33 +25,32 @@ import com.percussion.server.PSRequest;
  * This interface is used to persist objects and retrieve objects from different
  * locations (repositories).
  */
-public interface IPSPersister
-{
-   /**
-    * Loads this item from the storage component.  This will populate the
-    * item with definition and data.
-    *
-    * It is important to note you should only access this PSServerItem
-    * with the same request.  Do not access this item with different PSRequest
-    * objects.  This may cause exceptions and corrupted data.
-    *
-    * @param itemId the item locator.  May be <code>null</code> to load an items
-    * defaults.
-    * @param request - the original request that prompted this update/insert
-    * loads the this item from the system.
-    * @throws PSCmsException if error loading item occurs
-    * @throws PSInvalidContentTypeException if content type is invalid.
-    */
-   public void load(PSLocator itemId, PSRequest request) throws PSCmsException,
-      PSInvalidContentTypeException;
+public interface IPSPersister {
+  /**
+   * Loads this item from the storage component.  This will populate the
+   * item with definition and data.
+   *
+   * It is important to note you should only access this PSServerItem
+   * with the same request.  Do not access this item with different PSRequest
+   * objects.  This may cause exceptions and corrupted data.
+   *
+   * @param itemId the item locator.  May be <code>null</code> to load an items
+   * defaults.
+   * @param request - the original request that prompted this update/insert
+   * loads the this item from the system.
+   * @throws PSCmsException if error loading item occurs
+   * @throws PSInvalidContentTypeException if content type is invalid.
+   */
+  public void load(PSLocator itemId, PSRequest request)
+      throws PSCmsException, PSInvalidContentTypeException;
 
-   /**
-    * Persists the this item to the storage component.  Once an object has
-    * been created use this function to update the data for that item on the
-    * server.
-    *
-    * @param request the request that will be used to persist the data.
-    * @throws PSCmsException if an error occurs during peristance.
-    */
-   public void save(PSRequest request) throws PSCmsException;
+  /**
+   * Persists the this item to the storage component.  Once an object has
+   * been created use this function to update the data for that item on the
+   * server.
+   *
+   * @param request the request that will be used to persist the data.
+   * @throws PSCmsException if an error occurs during peristance.
+   */
+  public void save(PSRequest request) throws PSCmsException;
 }

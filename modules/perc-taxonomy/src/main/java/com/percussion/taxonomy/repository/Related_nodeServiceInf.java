@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Related_nodeServiceInf {
 
-    public Collection getAllRelated_nodes();
+  public Collection getAllRelated_nodes();
 
-    public Related_node getRelated_node(int id);
+  public Related_node getRelated_node(int id);
 
-    public void removeRelated_node(Related_node related_node);
+  public void removeRelated_node(Related_node related_node);
 
-    public void saveRelated_node(Related_node related_node);
+  public void saveRelated_node(Related_node related_node);
 }

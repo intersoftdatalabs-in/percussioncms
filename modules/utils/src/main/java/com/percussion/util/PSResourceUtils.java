@@ -26,40 +26,39 @@ import java.nio.file.Path;
 
 public class PSResourceUtils {
 
-    public static String getResourcePath(Class clazz, String resourcePath) {
-        URL url = clazz.getResource(resourcePath);
-        if (url==null)
-            throw new IllegalArgumentException("Cannot load resource "+resourcePath);
-        return url.getPath();
-    }
-    /***
-     * Given a valid resource path, returns the resource as a temporary file
-     * @param clazz The class to use for loading the resource
-     * @param resourcePath The resource path
-     * @param dir  May be null
-     * @return
-     */
-    public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {
-        File ret = File.createTempFile("test","tmp", dir);
-        ret.deleteOnExit();
+  public static String getResourcePath(Class clazz, String resourcePath) {
+    URL url = clazz.getResource(resourcePath);
+    if (url == null) throw new IllegalArgumentException("Cannot load resource " + resourcePath);
+    return url.getPath();
+  }
 
-        InputStream is = clazz.getResourceAsStream(resourcePath);
+  /***
+   * Given a valid resource path, returns the resource as a temporary file
+   * @param clazz The class to use for loading the resource
+   * @param resourcePath The resource path
+   * @param dir  May be null
+   * @return
+   */
+  public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {
+    File ret = File.createTempFile("test", "tmp", dir);
+    ret.deleteOnExit();
 
-        IOTools.copyStreamToFile(is, ret);
-        return ret;
-    }
+    InputStream is = clazz.getResourceAsStream(resourcePath);
 
-    public static File getFakeRxDir() throws IOException {
-        Path p = Files.createTempDirectory("test");
+    IOTools.copyStreamToFile(is, ret);
+    return ret;
+  }
 
-        File ret = p.toFile();
-        ret.deleteOnExit();
+  public static File getFakeRxDir() throws IOException {
+    Path p = Files.createTempDirectory("test");
 
-        return ret;
-    }
+    File ret = p.toFile();
+    ret.deleteOnExit();
 
-    public static File getFakeRxDirFile(Class clazz, String resourcePath) throws IOException {
-        return getFile(clazz, resourcePath, getFakeRxDir());
-    }
+    return ret;
+  }
 
+  public static File getFakeRxDirFile(Class clazz, String resourcePath) throws IOException {
+    return getFile(clazz, resourcePath, getFakeRxDir());
+  }
 }

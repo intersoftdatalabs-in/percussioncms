@@ -16,94 +16,83 @@
  */
 package com.percussion.servlet_utils.container;
 
-import com.percussion.utils.container.PSSecureCredentials;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.w3c.dom.Document;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.percussion.utils.container.PSSecureCredentials;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 /**
  * Test case for the {@link PSSecureCredentials} class.
  */
-public class PSSecureCredentialsTest
-{
-   /**
-    * Test the parameterized ctor and accessors
-    * 
-    * @throws Exception
-    */
-    @Test
-   public void testCtor() throws Exception
-   {
-      String ds = "jdbc/RxDefault";
-      String uid = "sa";
-      String pwd = "demo";
-      PSSecureCredentials creds = new PSSecureCredentials(ds, uid, pwd);
-      assertEquals(ds, creds.getDatasourceName());
-      assertEquals(uid, creds.getUserId());
-      assertEquals(pwd, creds.getPassword());
-      assertEquals("rx.datasource." + ds.replace('/', '_'), 
-         creds.getSecurityDomainName());
-      
-      creds = new PSSecureCredentials(ds, uid, "");
-      assertEquals("", creds.getPassword());
-      creds = new PSSecureCredentials(ds, uid, null);
-      assertEquals("", creds.getPassword());
-      
-      doTestCtor(null, uid, pwd, true);
-      doTestCtor("", uid, pwd, true);
-      doTestCtor(ds, null, pwd, true);
-      doTestCtor(ds, "", pwd, true);   
-      
-   }
-   
-   /**
-    * Test round trip XML serialization
-    * 
-    * @throws Exception
-    */
-    @Test
-   public void testXml() throws Exception
-   {
-      String ds = "jdbc/RxDefault";
-      String uid = "sa";
-      String pwd = "demo";
-      PSSecureCredentials creds = new PSSecureCredentials(ds, uid, pwd);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      assertEquals(creds, new PSSecureCredentials(creds.toXml(doc)));
-      creds = new PSSecureCredentials(ds, uid, "");
-      assertEquals(creds, new PSSecureCredentials(creds.toXml(doc)));
-   }
-   
-   /**
-    * Attempts to construct a {@link PSSecureCredentials} using the supplied 
-    * args.
-    * 
-    * @param ds The datasource, may be <code>null</code>.
-    * @param uid The username, may be <code>null</code> or empty.
-    * @param pwd The password, may be <code>null</code> or empty.
-    * @param shouldThrow <code>true</code> if the supplied args should cause
-    * an exception, <code>false</code> if not.
-    * 
-    * @throws Exception if the test fails.
-    */
-   private void doTestCtor(String ds, String uid, String pwd, 
-      boolean shouldThrow) throws Exception
-   {
-      try
-      {
-         new PSSecureCredentials(ds, uid, pwd);
-      }
-      catch (Exception e)
-      {
-         assertTrue(shouldThrow);
-         return;
-      }
-      
-      assertFalse(shouldThrow);
-   }
-}
+public class PSSecureCredentialsTest {
+  /**
+   * Test the parameterized ctor and accessors
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCtor() throws Exception {
+    String ds = "jdbc/RxDefault";
+    String uid = "sa";
+    String pwd = "demo";
+    PSSecureCredentials creds = new PSSecureCredentials(ds, uid, pwd);
+    assertEquals(ds, creds.getDatasourceName());
+    assertEquals(uid, creds.getUserId());
+    assertEquals(pwd, creds.getPassword());
+    assertEquals("rx.datasource." + ds.replace('/', '_'), creds.getSecurityDomainName());
 
+    creds = new PSSecureCredentials(ds, uid, "");
+    assertEquals("", creds.getPassword());
+    creds = new PSSecureCredentials(ds, uid, null);
+    assertEquals("", creds.getPassword());
+
+    doTestCtor(null, uid, pwd, true);
+    doTestCtor("", uid, pwd, true);
+    doTestCtor(ds, null, pwd, true);
+    doTestCtor(ds, "", pwd, true);
+  }
+
+  /**
+   * Test round trip XML serialization
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testXml() throws Exception {
+    String ds = "jdbc/RxDefault";
+    String uid = "sa";
+    String pwd = "demo";
+    PSSecureCredentials creds = new PSSecureCredentials(ds, uid, pwd);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    assertEquals(creds, new PSSecureCredentials(creds.toXml(doc)));
+    creds = new PSSecureCredentials(ds, uid, "");
+    assertEquals(creds, new PSSecureCredentials(creds.toXml(doc)));
+  }
+
+  /**
+   * Attempts to construct a {@link PSSecureCredentials} using the supplied
+   * args.
+   *
+   * @param ds The datasource, may be <code>null</code>.
+   * @param uid The username, may be <code>null</code> or empty.
+   * @param pwd The password, may be <code>null</code> or empty.
+   * @param shouldThrow <code>true</code> if the supplied args should cause
+   * an exception, <code>false</code> if not.
+   *
+   * @throws Exception if the test fails.
+   */
+  private void doTestCtor(String ds, String uid, String pwd, boolean shouldThrow) throws Exception {
+    try {
+      new PSSecureCredentials(ds, uid, pwd);
+    } catch (Exception e) {
+      assertTrue(shouldThrow);
+      return;
+    }
+
+    assertFalse(shouldThrow);
+  }
+}

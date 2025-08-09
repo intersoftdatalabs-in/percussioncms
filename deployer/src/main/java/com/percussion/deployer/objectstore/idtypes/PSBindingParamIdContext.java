@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
- 
 package com.percussion.deployer.objectstore.idtypes;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
@@ -25,343 +24,315 @@ import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.text.MessageFormat;
+import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.text.MessageFormat;
-import java.util.Optional;
-
 /**
  * ID Context to represent a parameter in a JEXL binding that needs idmapping
- * This context always has a parent context: PSBindingIdContext. The same 
- * parameter can appear n-times in an expression. This context holds the 
+ * This context always has a parent context: PSBindingIdContext. The same
+ * parameter can appear n-times in an expression. This context holds the
  * occurence information.
- * 
+ *
  * @author vamsinukala
  */
+public class PSBindingParamIdContext extends PSApplicationIdContext {
+  /**
+   * Construct this context from a binding context.
+   *
+   * @param index The index into the param list of the JEXL binding this
+   * parameter is from.  May not be less than 0.
+   * @param occur the occurence of this parameter in the JEXL binding. May not
+   * be less than 0
+   * @param param The param, may not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public PSBindingParamIdContext(int index, int occur, PSTextLiteral param) {
+    if (!validateIndex(index)) throw new IllegalArgumentException("index is invalid");
 
-public class PSBindingParamIdContext extends PSApplicationIdContext
-{
-   /**
-    * Construct this context from a binding context.
-    * 
-    * @param index The index into the param list of the JEXL binding this
-    * parameter is from.  May not be less than 0.
-    * @param occur the occurence of this parameter in the JEXL binding. May not
-    * be less than 0
-    * @param param The param, may not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public PSBindingParamIdContext(int index, int occur, PSTextLiteral param)
-   {
-      if (!validateIndex(index))
-         throw new IllegalArgumentException("index is invalid");
-         
-      if (param == null)
-         throw new IllegalArgumentException("param may not be null");
-         
-      m_index = index;
-      m_occurence  = occur;
-      m_param = param;
-   }
-   
-   /** 
-    * Create this object from its XML representation
-    *
-    * @param source The source element.  See {@link #toXml(Document)} for
-    * the expected format.  May not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException If <code>source</code> is
-    * <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
-    */
-   public PSBindingParamIdContext(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
+    if (param == null) throw new IllegalArgumentException("param may not be null");
 
-      fromXml(source);
-   }
+    m_index = index;
+    m_occurence = occur;
+    m_param = param;
+  }
 
-   /**
-    * Get the JEXL binding param to which this context refers.
-    * 
-    * @return The param, never <code>null</code>.
-    */
-   public PSTextLiteral getParam()
-   {
-      return m_param;
-   }
-   
-   
-   /**
-    * Get index of this param within the JEXL binding context
-    * 
-    * @return The index, >=0.
-    */
-   public int getIndex()
-   {
-      return m_index;
-   }
+  /**
+   * Create this object from its XML representation
+   *
+   * @param source The source element.  See {@link #toXml(Document)} for
+   * the expected format.  May not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException If <code>source</code> is
+   * <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   */
+  public PSBindingParamIdContext(Element source) throws PSUnknownNodeTypeException {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
 
-   /**
-    * Get the name of this param.
-    * 
-    * @return The name, may be <code>null</code> if 
-    * {@link #setParamName(String)} has not been called, never empty.
-    */
-   public String getParamName()
-   {
-      return m_paramName;
-   }
-   
-   /**
-    * the occurence of this parameter in a JEXL expression
-    * @return the occurence
-    */
-   public int getOccurence()
-   {
-      return m_occurence;
-   }
+    fromXml(source);
+  }
 
-   /**
-    * see above
-    * @param occurence
-    */
-   public void setOccurence(int occurence)
-   {
-      this.m_occurence = occurence;
-   }
-   
-   /**
-    * Set the name of this param.
-    * 
-    * @param name The name to set, may not be <code>null</code> or empty.
-    */
-   public void setParamName(String name)
-   {
-      if (name == null || name.trim().length() == 0)
-         throw new IllegalArgumentException("name may not be null or empty");
-      
-      m_paramName = name;
-   }
-   
-   //see PSApplicationIdContext
-   public String getDisplayText()
-   {
-      // handle different resource and arg list if name is specified
-      Object[] args = new Object[2];
+  /**
+   * Get the JEXL binding param to which this context refers.
+   *
+   * @return The param, never <code>null</code>.
+   */
+  public PSTextLiteral getParam() {
+    return m_param;
+  }
 
-      args[0] = String.valueOf(m_index);
-      args[1] = m_param.getText();
-      String text = MessageFormat.format(getBundle().getString(
-            "bindingCtxParamIndexValue"), args);
-      text = addParentDisplayText(text);
+  /**
+   * Get index of this param within the JEXL binding context
+   *
+   * @return The index, >=0.
+   */
+  public int getIndex() {
+    return m_index;
+  }
 
-      return text;
-   }
-   
-   //see PSApplicationIdContext
-   public void updateCtxValue(Object value)
-   {
-      if (value == null)
-         throw new IllegalArgumentException("value may not be null");
-      
-      if (!(value instanceof IPSReplacementValue))
-         throw new IllegalArgumentException(
-            "value must be instanceof IPSReplacementValue");
-            
-      if ( value instanceof PSTextLiteral)
-         m_param = (PSTextLiteral)value;
-   }
+  /**
+   * Get the name of this param.
+   *
+   * @return The name, may be <code>null</code> if
+   * {@link #setParamName(String)} has not been called, never empty.
+   */
+  public String getParamName() {
+    return m_paramName;
+  }
 
-   // see base class
-   public String getIdentifier()
-   {
-      return m_paramName;
-   }
-   
-   /**
-    * Serializes this object's state to its XML representation.  The format is:
-    * <!--
-    *    PSXApplicationIdContext is a place holder for the root node of the XML
-    *    representation of any class derived from PSApplicationIdContext that
-    *    is this context's parent context.
-    * -->
-    * <pre><code>
-    * &lt;!ELEMENT PSXBindingParamIdContext (PSXBindingParamValue?>
-    * &lt;!ATTLIST PSXBindingParamIdContext
-    *    index CDATA #REQUIRED
-    *    occur CDATA #REQUIRED
-    *    paramName CDATA #IMPLIED
-    * >
-    * </code></pre>
-    *
-    * See {@link IPSDeployComponent#toXml(Document)} for more info.
-    */
-   public Element toXml(Document doc) {
-      if (doc == null) {
-         throw new IllegalArgumentException("doc should not be null");
-      }
+  /**
+   * the occurence of this parameter in a JEXL expression
+   * @return the occurence
+   */
+  public int getOccurence() {
+    return m_occurence;
+  }
 
-      var root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
-      root.setAttribute(XML_ATTR_OCCUR, String.valueOf(m_occurence));
-      Optional.ofNullable(m_paramName).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
-      root.appendChild(m_param.toXml(doc));
-      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
-      return root;
-   }
-   
-   /**
-    * Restores this object's state from its XML representation.  See
-    * {@link #toXml(Document)} for format of XML.  See
-    * {@link IPSDeployComponent#fromXml(Element)} for more info on method
-    * signature.
-    */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
-      if (sourceNode == null) {
-         throw new IllegalArgumentException("sourceNode should not be null");
-      }
+  /**
+   * see above
+   * @param occurence
+   */
+  public void setOccurence(int occurence) {
+    this.m_occurence = occurence;
+  }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
-         );
-      }
+  /**
+   * Set the name of this param.
+   *
+   * @param name The name to set, may not be <code>null</code> or empty.
+   */
+  public void setParamName(String name) {
+    if (name == null || name.trim().length() == 0)
+      throw new IllegalArgumentException("name may not be null or empty");
 
-      var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
-      m_index = Optional.ofNullable(strIndex)
-         .map(Integer::parseInt)
-         .filter(this::validateIndex)
-         .orElseThrow(() -> new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
-            new Object[]{XML_NODE_NAME, XML_ATTR_INDEX, strIndex}
-         ));
+    m_paramName = name;
+  }
 
-      var strOccur = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OCCUR);
-      m_occurence = Optional.ofNullable(strOccur)
-         .map(Integer::parseInt)
-         .filter(occur -> occur >= 0)
-         .orElseThrow(() -> new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
-            new Object[]{XML_NODE_NAME, XML_ATTR_OCCUR, strOccur}
-         ));
+  // see PSApplicationIdContext
+  public String getDisplayText() {
+    // handle different resource and arg list if name is specified
+    Object[] args = new Object[2];
 
-      m_paramName = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
-         .filter(name -> !name.trim().isEmpty())
-         .orElse(null);
+    args[0] = String.valueOf(m_index);
+    args[1] = m_param.getText();
+    String text = MessageFormat.format(getBundle().getString("bindingCtxParamIndexValue"), args);
+    text = addParentDisplayText(text);
 
-      var tree = new PSXmlTreeWalker(sourceNode);
-      var paramEl = Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
-         .orElseThrow(() -> new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
-            new Object[]{XML_NODE_NAME, "null", "null"}
-         ));
-      m_param = new PSTextLiteral(paramEl, null, null);
+    return text;
+  }
 
-      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
-   }
-   
-   // see IPSDeployComponent interface
-   public void copyFrom(IPSDeployComponent obj)
-   {
-      if ( obj == null )
-         throw new IllegalArgumentException("obj may not be null");
+  // see PSApplicationIdContext
+  public void updateCtxValue(Object value) {
+    if (value == null) throw new IllegalArgumentException("value may not be null");
 
-      if (!(obj instanceof PSBindingParamIdContext))
-         throw new IllegalArgumentException("obj wrong type");
+    if (!(value instanceof IPSReplacementValue))
+      throw new IllegalArgumentException("value must be instanceof IPSReplacementValue");
 
-      PSBindingParamIdContext other = (PSBindingParamIdContext)obj;
-      m_index = other.m_index;
-      m_occurence = other.m_occurence;
-      m_param = other.m_param;
-      super.copyFrom(other);
-   }
-   
-   // see IPSDeployComponent interface
-   public boolean equals(Object obj)
-   {
-      boolean isEqual = true;
+    if (value instanceof PSTextLiteral) m_param = (PSTextLiteral) value;
+  }
 
-      if (!(obj instanceof PSBindingParamIdContext))
-         isEqual = false;
-      else 
-      {
-         // do not include param name as it is dynamic and transient
-         PSBindingParamIdContext other = (PSBindingParamIdContext)obj;
-         if (m_index != other.m_index)
-            isEqual = false;
-         else if ( m_occurence != other.m_occurence )
-            isEqual = false;
-         else if (!m_param.equals(other.m_param))
-            isEqual = false;
-         else if (!super.equals(other))
-            isEqual = false;
-      }
+  // see base class
+  public String getIdentifier() {
+    return m_paramName;
+  }
 
-      return isEqual;
-   }
-   
-   // see IPSDeployComponent
-   public int hashCode()
-   {
+  /**
+   * Serializes this object's state to its XML representation.  The format is:
+   * <!--
+   *    PSXApplicationIdContext is a place holder for the root node of the XML
+   *    representation of any class derived from PSApplicationIdContext that
+   *    is this context's parent context.
+   * -->
+   * <pre><code>
+   * &lt;!ELEMENT PSXBindingParamIdContext (PSXBindingParamValue?>
+   * &lt;!ATTLIST PSXBindingParamIdContext
+   *    index CDATA #REQUIRED
+   *    occur CDATA #REQUIRED
+   *    paramName CDATA #IMPLIED
+   * >
+   * </code></pre>
+   *
+   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   */
+  public Element toXml(Document doc) {
+    if (doc == null) {
+      throw new IllegalArgumentException("doc should not be null");
+    }
+
+    var root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
+    root.setAttribute(XML_ATTR_OCCUR, String.valueOf(m_occurence));
+    Optional.ofNullable(m_paramName).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
+    root.appendChild(m_param.toXml(doc));
+    Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
+    return root;
+  }
+
+  /**
+   * Restores this object's state from its XML representation.  See
+   * {@link #toXml(Document)} for format of XML.  See
+   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * signature.
+   */
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+      throw new IllegalArgumentException("sourceNode should not be null");
+    }
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
+    }
+
+    var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
+    m_index =
+        Optional.ofNullable(strIndex)
+            .map(Integer::parseInt)
+            .filter(this::validateIndex)
+            .orElseThrow(
+                () ->
+                    new PSUnknownNodeTypeException(
+                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+                        new Object[] {XML_NODE_NAME, XML_ATTR_INDEX, strIndex}));
+
+    var strOccur = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OCCUR);
+    m_occurence =
+        Optional.ofNullable(strOccur)
+            .map(Integer::parseInt)
+            .filter(occur -> occur >= 0)
+            .orElseThrow(
+                () ->
+                    new PSUnknownNodeTypeException(
+                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+                        new Object[] {XML_NODE_NAME, XML_ATTR_OCCUR, strOccur}));
+
+    m_paramName =
+        Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
+            .filter(name -> !name.trim().isEmpty())
+            .orElse(null);
+
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var paramEl =
+        Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+            .orElseThrow(
+                () ->
+                    new PSUnknownNodeTypeException(
+                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+                        new Object[] {XML_NODE_NAME, "null", "null"}));
+    m_param = new PSTextLiteral(paramEl, null, null);
+
+    var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+    Optional.ofNullable(ctxEl)
+        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+  }
+
+  // see IPSDeployComponent interface
+  public void copyFrom(IPSDeployComponent obj) {
+    if (obj == null) throw new IllegalArgumentException("obj may not be null");
+
+    if (!(obj instanceof PSBindingParamIdContext))
+      throw new IllegalArgumentException("obj wrong type");
+
+    PSBindingParamIdContext other = (PSBindingParamIdContext) obj;
+    m_index = other.m_index;
+    m_occurence = other.m_occurence;
+    m_param = other.m_param;
+    super.copyFrom(other);
+  }
+
+  // see IPSDeployComponent interface
+  public boolean equals(Object obj) {
+    boolean isEqual = true;
+
+    if (!(obj instanceof PSBindingParamIdContext)) isEqual = false;
+    else {
       // do not include param name as it is dynamic and transient
-      return m_index + m_param.hashCode() + m_occurence + super.hashCode();
-   }
+      PSBindingParamIdContext other = (PSBindingParamIdContext) obj;
+      if (m_index != other.m_index) isEqual = false;
+      else if (m_occurence != other.m_occurence) isEqual = false;
+      else if (!m_param.equals(other.m_param)) isEqual = false;
+      else if (!super.equals(other)) isEqual = false;
+    }
 
-   /**
-    * Check the supplied index to see if it is valid (>=0)
-    * 
-    * @param index The index to check.
-    * 
-    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
-    */
-   private boolean validateIndex(int index)
-   {
-      return index >= 0;
-   }
-   
-   /**
-    * Root node name of this object's XML representation.
-    */
-   public static final String XML_NODE_NAME = "PSXBindingParamIdContext";
- 
-   /**
-    * the occurence of this parameter in the expression such as
-    * a hypothetical stupid expression
-    * occurence is 0, 2, 4 for "301"
-    * $rx.db.foo("301", "356", "301", "344", "301")
-    */
-   private int m_occurence;
-   /**
-    * Index of this param in the parent binding context.  Intialized
-    * during ctor, modfied only by calls to <code>copyFrom()</code>.
-    */
-   private int m_index;
-   
-   /**
-    * Name of this param in the binding's param list.  Initially
-    * <code>null</code>, modified by calls to {@link #setParamName(String)}.
-    */
-   private transient String m_paramName = null;
-   
-   /**
-    * The param this context refers to, never <code>null</code> after
-    * construction, modified by a calls to <code>copyFrom()</code> 
-    * and <code>updateCtxValue()</code>.
-    */
-   private PSTextLiteral m_param;
-   
-   // private xml constant
-   private static final String XML_ATTR_INDEX = "index";
-   private static final String XML_ATTR_OCCUR = "occur";
-   private static final String XML_ATTR_NAME = "paramName";
-   
-   
+    return isEqual;
+  }
+
+  // see IPSDeployComponent
+  public int hashCode() {
+    // do not include param name as it is dynamic and transient
+    return m_index + m_param.hashCode() + m_occurence + super.hashCode();
+  }
+
+  /**
+   * Check the supplied index to see if it is valid (>=0)
+   *
+   * @param index The index to check.
+   *
+   * @return <code>true</code> if it is valid, <code>false</code> otherwise.
+   */
+  private boolean validateIndex(int index) {
+    return index >= 0;
+  }
+
+  /**
+   * Root node name of this object's XML representation.
+   */
+  public static final String XML_NODE_NAME = "PSXBindingParamIdContext";
+
+  /**
+   * the occurence of this parameter in the expression such as
+   * a hypothetical stupid expression
+   * occurence is 0, 2, 4 for "301"
+   * $rx.db.foo("301", "356", "301", "344", "301")
+   */
+  private int m_occurence;
+
+  /**
+   * Index of this param in the parent binding context.  Intialized
+   * during ctor, modfied only by calls to <code>copyFrom()</code>.
+   */
+  private int m_index;
+
+  /**
+   * Name of this param in the binding's param list.  Initially
+   * <code>null</code>, modified by calls to {@link #setParamName(String)}.
+   */
+  private transient String m_paramName = null;
+
+  /**
+   * The param this context refers to, never <code>null</code> after
+   * construction, modified by a calls to <code>copyFrom()</code>
+   * and <code>updateCtxValue()</code>.
+   */
+  private PSTextLiteral m_param;
+
+  // private xml constant
+  private static final String XML_ATTR_INDEX = "index";
+  private static final String XML_ATTR_OCCUR = "occur";
+  private static final String XML_ATTR_NAME = "paramName";
 }

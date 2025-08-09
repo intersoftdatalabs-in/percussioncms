@@ -17,31 +17,27 @@
 package com.percussion.UTComponents;
 
 import com.percussion.guitools.BitmapManager;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /**
  * Creates a small, square button that has 3 dots that is typically used to
  * bring up some sort of browser dialog. The button attempts to maintain a
  * fixed size.
  */
-public class UTBrowseButton extends JButton
-{
-   /**
-    * The standard ctor for the browse button object.
-    */
-   public UTBrowseButton()
-   {
-      ImageIcon icon = BitmapManager.getBitmapManager(this.getClass()).getImage(
-         "images/optional.gif" );
-      setIcon( icon );
-      Dimension d = new Dimension( IUTConstants.FIXED_HEIGHT,
-         IUTConstants.FIXED_HEIGHT );
-      setSize( d );
-      setMaximumSize( d );
-      setMinimumSize( d );
-      setPreferredSize( d );
-      setAlignmentY( CENTER_ALIGNMENT);
-   }
+public class UTBrowseButton extends JButton {
+  /**
+   * The standard ctor for the browse button object.
+   */
+  public UTBrowseButton() {
+    ImageIcon icon =
+        BitmapManager.getBitmapManager(this.getClass()).getImage("images/optional.gif");
+    setIcon(icon);
+    Dimension d = new Dimension(IUTConstants.FIXED_HEIGHT, IUTConstants.FIXED_HEIGHT);
+    setSize(d);
+    setMaximumSize(d);
+    setMinimumSize(d);
+    setPreferredSize(d);
+    setAlignmentY(CENTER_ALIGNMENT);
+  }
 }

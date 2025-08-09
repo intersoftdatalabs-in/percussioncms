@@ -27,315 +27,288 @@ import java.util.List;
  * The PSDtdAttribute class will provide an interface to attribute information.
  */
 public class PSDtdAttribute implements Serializable {
-   /**
-    * Constructor.
-    * @param attr the <code>PSXmlAttributeDecl</code> object that is returned
-    * by the <code>getAttributeDeclarations</code> method of the
-    * <code>PSDtd</code> class.
-    */
-   public PSDtdAttribute(PSXmlAttributeDecl attr)
-   {
-      m_name = attr.getName();
+  /**
+   * Constructor.
+   * @param attr the <code>PSXmlAttributeDecl</code> object that is returned
+   * by the <code>getAttributeDeclarations</code> method of the
+   * <code>PSDtd</code> class.
+   */
+  public PSDtdAttribute(PSXmlAttributeDecl attr) {
+    m_name = attr.getName();
 
-      m_possibleValues = new ArrayList();
+    m_possibleValues = new ArrayList();
 
-      switch (attr.getDeclaredType()) {
+    switch (attr.getDeclaredType()) {
       case PSXmlAttributeDecl.TYPE_NOTATION:
-         m_type = ENOTATION;
-         processEnumeration(attr);
-         break;
+        m_type = ENOTATION;
+        processEnumeration(attr);
+        break;
       case PSXmlAttributeDecl.TYPE_CDATA:
-         m_type = CDATA;
-         break;
+        m_type = CDATA;
+        break;
       case PSXmlAttributeDecl.TYPE_ID:
-         m_type = ID;
-         break;
+        m_type = ID;
+        break;
       case PSXmlAttributeDecl.TYPE_IDREFS:
-         m_type = IDREFS;
-         break;
+        m_type = IDREFS;
+        break;
       case PSXmlAttributeDecl.TYPE_ENTITIES:
-         m_type = ENTITIES;
-         break;
+        m_type = ENTITIES;
+        break;
       case PSXmlAttributeDecl.TYPE_IDREF:
-         m_type = IDREF;
-         break;
+        m_type = IDREF;
+        break;
       case PSXmlAttributeDecl.TYPE_ENUMERATION:
-         m_type = ENUMERATION;
-         processEnumeration(attr);
-         break;
+        m_type = ENUMERATION;
+        processEnumeration(attr);
+        break;
       case PSXmlAttributeDecl.TYPE_NMTOKEN:
-         m_type = TOKEN;
-         break;
+        m_type = TOKEN;
+        break;
       case PSXmlAttributeDecl.TYPE_NMTOKENS:
-         m_type = TOKENS;
-         break;
+        m_type = TOKENS;
+        break;
       case PSXmlAttributeDecl.TYPE_ENTITY:
-         m_type = ENTITY;
-         break;
+        m_type = ENTITY;
+        break;
       case PSXmlAttributeDecl.TYPE_UNKNOWN:
       default:
-         m_type = UNKNOWN;
-      }
+        m_type = UNKNOWN;
+    }
 
-      switch (attr.getDefaultType()) {
+    switch (attr.getDefaultType()) {
       case PSXmlAttributeDecl.DEFAULT_TYPE_FIXED:
-         m_occurrence = FIXED;
-         setDefault(attr);
-         break;
+        m_occurrence = FIXED;
+        setDefault(attr);
+        break;
       case PSXmlAttributeDecl.DEFAULT_TYPE_NOFIXED:
-         m_occurrence = NOFIXED;
-         setDefault(attr);
-         break;
+        m_occurrence = NOFIXED;
+        setDefault(attr);
+        break;
       case PSXmlAttributeDecl.DEFAULT_TYPE_REQUIRED:
-         m_occurrence = REQUIRED;
-         break;
+        m_occurrence = REQUIRED;
+        break;
       default:
-         m_occurrence = IMPLIED;
-         break;
-      }
-   }
+        m_occurrence = IMPLIED;
+        break;
+    }
+  }
 
-   public PSDtdAttribute(String name)
-   {
-      m_name = name;
-      m_occurrence = REQUIRED;
-      m_type = UNKNOWN;
-   }
+  public PSDtdAttribute(String name) {
+    m_name = name;
+    m_occurrence = REQUIRED;
+    m_type = UNKNOWN;
+  }
 
-   /**
-    * Creates a string array of possible values for the attribute represented by
-    * this object.
-    * @param att the <code>PSXmlAttributeDecl</code> object that is returned
-    * by the <code>getAttributeDeclarations</code> method of the
-    * <code>PSDtd</code> class.
-    */
-   private void processEnumeration(PSXmlAttributeDecl att)
-   {
-      // Create string array of possible values
-      if (att.size() == 0)
-         return;
-      m_possibleValues = new ArrayList(att.size());
-      Enumeration e = att.elements();
-      while (e.hasMoreElements()) {
-         m_possibleValues.add((String) e.nextElement());
-      }
-   }
+  /**
+   * Creates a string array of possible values for the attribute represented by
+   * this object.
+   * @param att the <code>PSXmlAttributeDecl</code> object that is returned
+   * by the <code>getAttributeDeclarations</code> method of the
+   * <code>PSDtd</code> class.
+   */
+  private void processEnumeration(PSXmlAttributeDecl att) {
+    // Create string array of possible values
+    if (att.size() == 0) return;
+    m_possibleValues = new ArrayList(att.size());
+    Enumeration e = att.elements();
+    while (e.hasMoreElements()) {
+      m_possibleValues.add((String) e.nextElement());
+    }
+  }
 
-   /**
-    * Sets the default value for the attribute represented by this object.
-    * @param att the <code>PSXmlAttributeDecl</code> object that is returned
-    * by the <code>getAttributeDeclarations</code> method of the
-    * <code>PSDtd</code> class.
-    */
-   private void setDefault(PSXmlAttributeDecl att)
-   {
-      m_default = att.getDefaultStringValue();
-   }
+  /**
+   * Sets the default value for the attribute represented by this object.
+   * @param att the <code>PSXmlAttributeDecl</code> object that is returned
+   * by the <code>getAttributeDeclarations</code> method of the
+   * <code>PSDtd</code> class.
+   */
+  private void setDefault(PSXmlAttributeDecl att) {
+    m_default = att.getDefaultStringValue();
+  }
 
-   /**
-    * Return the default string value for this attribute or
-    * null if it is not a default-containing type.
-    */
-   public String getDefaultStringValue()
-   {
-      return m_default;
-   }
+  /**
+   * Return the default string value for this attribute or
+   * null if it is not a default-containing type.
+   */
+  public String getDefaultStringValue() {
+    return m_default;
+  }
 
-   public String getName()
-   {
-      return m_name;
-   }
+  public String getName() {
+    return m_name;
+  }
 
-  public String getOcurrenceText()
- {
-      String csRet=new String();
-      switch(m_occurrence)
-      {
-         case PSDtdAttribute.REQUIRED:
-             csRet="#REQUIRED";
-         break;
-         case PSDtdAttribute.IMPLIED:
-              csRet="#IMPLIED";
-         break;
-         case  PSDtdAttribute.FIXED:
-               csRet="#FIXED";
-         break;
-         case PSDtdAttribute.NOFIXED:
-               csRet="#NOFIXED";
-         break;
-      }
-      return(csRet);
- }
+  public String getOcurrenceText() {
+    String csRet = new String();
+    switch (m_occurrence) {
+      case PSDtdAttribute.REQUIRED:
+        csRet = "#REQUIRED";
+        break;
+      case PSDtdAttribute.IMPLIED:
+        csRet = "#IMPLIED";
+        break;
+      case PSDtdAttribute.FIXED:
+        csRet = "#FIXED";
+        break;
+      case PSDtdAttribute.NOFIXED:
+        csRet = "#NOFIXED";
+        break;
+    }
+    return (csRet);
+  }
 
- public String getTypeText()
- {
-      String csRet=new String();
-      switch(m_type)
-      {
-        case  PSDtdAttribute.CDATA:
-            csRet="CDATA";
-         break;
-          case  PSDtdAttribute.ID:
-             csRet="ID";
-         break;
-         case  PSDtdAttribute.ENUMERATION:
-              csRet="ENUMERATION";
-         break;
-          case  PSDtdAttribute.IDREF:
-              csRet="IDREF";
-         break;
-          case  PSDtdAttribute.IDREFS:
-               csRet="IDREFS";
-         break;
-          case  PSDtdAttribute.TOKEN:
-               csRet="TOKEN";
-         break;
-         case  PSDtdAttribute.TOKENS:
-                csRet="TOKENS";
-         break;
-          case  PSDtdAttribute.NOTATION:
-                csRet="NOTATION";
-         break;
-          case PSDtdAttribute.ENOTATION:
-                csRet="ENOTATION";
-         break;
-          case PSDtdAttribute.ENTITY:
-               csRet="ENTITY";
-         break;
-            case PSDtdAttribute.ENTITIES:
-               csRet="ENTITIES";
-         break;
-          case PSDtdAttribute.UNKNOWN:
-               csRet="UNKNOWN";
-         break;
-       }
-      return(csRet);
-   }
+  public String getTypeText() {
+    String csRet = new String();
+    switch (m_type) {
+      case PSDtdAttribute.CDATA:
+        csRet = "CDATA";
+        break;
+      case PSDtdAttribute.ID:
+        csRet = "ID";
+        break;
+      case PSDtdAttribute.ENUMERATION:
+        csRet = "ENUMERATION";
+        break;
+      case PSDtdAttribute.IDREF:
+        csRet = "IDREF";
+        break;
+      case PSDtdAttribute.IDREFS:
+        csRet = "IDREFS";
+        break;
+      case PSDtdAttribute.TOKEN:
+        csRet = "TOKEN";
+        break;
+      case PSDtdAttribute.TOKENS:
+        csRet = "TOKENS";
+        break;
+      case PSDtdAttribute.NOTATION:
+        csRet = "NOTATION";
+        break;
+      case PSDtdAttribute.ENOTATION:
+        csRet = "ENOTATION";
+        break;
+      case PSDtdAttribute.ENTITY:
+        csRet = "ENTITY";
+        break;
+      case PSDtdAttribute.ENTITIES:
+        csRet = "ENTITIES";
+        break;
+      case PSDtdAttribute.UNKNOWN:
+        csRet = "UNKNOWN";
+        break;
+    }
+    return (csRet);
+  }
 
-
-
-   /**
-    Return the occurence type for this attribute.
-
-    Possible Values:
-    <code>REQUIRED  </code> - attribute must be defined
-    <code>IMPLIED   </code> - attibute may or may not be defined
-    <code>FIXED    </code> - static attribute value
-    <code>NOFIXED   </code> - attribute value has a default value
-
-    For FIXED and NOFIXED, use getDefaultStringValue to determine
-    either the FIXED value or default value
-    */
-   public int getOccurrence()
-   {
-      return m_occurrence;
-   }
+  /**
+   * Return the occurence type for this attribute.
+   *
+   * Possible Values:
+   * <code>REQUIRED  </code> - attribute must be defined
+   * <code>IMPLIED   </code> - attibute may or may not be defined
+   * <code>FIXED    </code> - static attribute value
+   * <code>NOFIXED   </code> - attribute value has a default value
+   *
+   * For FIXED and NOFIXED, use getDefaultStringValue to determine
+   * either the FIXED value or default value
+   */
+  public int getOccurrence() {
+    return m_occurrence;
+  }
 
   /**
    * Allows this attribute occurrence to be changed.
    * Use the following static variables:
    * <code>PSDtdAttribute.REQUIRED</code>
-    * <code>PSDtdAttribute.IMPLIED</code>
-    * <code>PSDtdAttribute.FIXED</code>
-    * <code>PSDtdAttribute.NOFIXED</code>
+   * <code>PSDtdAttribute.IMPLIED</code>
+   * <code>PSDtdAttribute.FIXED</code>
+   * <code>PSDtdAttribute.NOFIXED</code>
    */
-  public void setOccurrence( int occur )
-  {
+  public void setOccurrence(int occur) {
     m_occurrence = occur;
   }
 
-   /**
-    * Return the type of this attribute.
-    * <p>
-    * Possible Values:
-    * <code>CDATA      </code> - standard data
-    * <code>ID         </code> - unique identifier in XML
-    * <code>ENUMERATION </code> - enumerated pick list*
-    * <code>IDREF      </code> - reference to an XML ID
-    * <code>IDREFS     </code> - whitespace delimited list of IDREFs
-    * <code>TOKEN      </code> - xml name token
-    * <code>TOKENS     </code> - whitespace delimited list of XML name tokens
-    * <code>NOTATION   </code> - notation (not supported by IBM parser!)
-    * <code>ENOTATION  </code> - enumerated notation pick list
-    * <code>ENTITY     </code> - entity
-    * <code>ENTITIES   </code> - whitespace delimited list of entities
-    * <code>UNKNOWN     </code> - unknown?
-    * <p>
-    * - The IBM TXDOM parser comtains enumerated XML name tokens,
-    * and does not include a generic enumerated type
-    *
-    */
-   public int getType()
-   {
-      return m_type;
-   }
+  /**
+   * Return the type of this attribute.
+   * <p>
+   * Possible Values:
+   * <code>CDATA      </code> - standard data
+   * <code>ID         </code> - unique identifier in XML
+   * <code>ENUMERATION </code> - enumerated pick list*
+   * <code>IDREF      </code> - reference to an XML ID
+   * <code>IDREFS     </code> - whitespace delimited list of IDREFs
+   * <code>TOKEN      </code> - xml name token
+   * <code>TOKENS     </code> - whitespace delimited list of XML name tokens
+   * <code>NOTATION   </code> - notation (not supported by IBM parser!)
+   * <code>ENOTATION  </code> - enumerated notation pick list
+   * <code>ENTITY     </code> - entity
+   * <code>ENTITIES   </code> - whitespace delimited list of entities
+   * <code>UNKNOWN     </code> - unknown?
+   * <p>
+   * - The IBM TXDOM parser comtains enumerated XML name tokens,
+   * and does not include a generic enumerated type
+   *
+   */
+  public int getType() {
+    return m_type;
+  }
 
-  void setType( int type )
-  {
+  void setType(int type) {
     m_type = type;
   }
 
-   /**
-    Return the array of possible values for this attribute or
-    null if it is not an enumerated type.  The enumerated types
-    are ENUMERATION and ENOTATION.
-    */
-   public List getPossibleValues()
-   {
-      return Collections.unmodifiableList(m_possibleValues);
-   }
+  /**
+   * Return the array of possible values for this attribute or
+   * null if it is not an enumerated type.  The enumerated types
+   * are ENUMERATION and ENOTATION.
+   */
+  public List getPossibleValues() {
+    return Collections.unmodifiableList(m_possibleValues);
+  }
 
-   public void setPossibleValues(List possibleValues)
-   {
-      m_possibleValues = possibleValues;
-   }
+  public void setPossibleValues(List possibleValues) {
+    m_possibleValues = possibleValues;
+  }
 
-   public void addPossibleValue(String val)
-   {
-      m_possibleValues.add(val);
-   }
+  public void addPossibleValue(String val) {
+    m_possibleValues.add(val);
+  }
 
-   /**
-    Catalog method for this DTD item.
-    */
-   public void catalog(List catalogList, String cur,
-      String sep, String attribId)
-   {
-      if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE)
-      {
-         catalogList.add("TRUNCATED!");
-         return;
-      }
+  /**
+   * Catalog method for this DTD item.
+   */
+  public void catalog(List catalogList, String cur, String sep, String attribId) {
+    if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE) {
+      catalogList.add("TRUNCATED!");
+      return;
+    }
 
-      if (m_name == null)
-         catalogList.add(cur + sep + attribId + "<NULL>");
-      else
-         catalogList.add(cur + sep + attribId + m_name);
-   }
+    if (m_name == null) catalogList.add(cur + sep + attribId + "<NULL>");
+    else catalogList.add(cur + sep + attribId + m_name);
+  }
 
-   int      m_type            = 0;
-   String    m_default         = null;
-   List      m_possibleValues   = null;
-   String   m_name            = null;
-   int      m_occurrence      = 0;
+  int m_type = 0;
+  String m_default = null;
+  List m_possibleValues = null;
+  String m_name = null;
+  int m_occurrence = 0;
 
-   static public final int REQUIRED   = 0;
-   static public final int IMPLIED   = 1;
-   static public final int FIXED      = 2;
-   static public final int NOFIXED   = 3;
+  public static final int REQUIRED = 0;
+  public static final int IMPLIED = 1;
+  public static final int FIXED = 2;
+  public static final int NOFIXED = 3;
 
-   static public final int CDATA         = 0;
-   static public final int ID            = 1;
-   static public final int ENUMERATION   = 2;
-   static public final int IDREF         = 3;
-   static public final int IDREFS      = 4;
-   static public final int TOKEN         = 5;
-   static public final int TOKENS      = 6;
-   static public final int NOTATION      = 7;
-   static public final int ENOTATION   = 8;
-   static public final int ENTITY      = 9;
-   static public final int ENTITIES      = 10;
-   static public final int UNKNOWN      = 11;
-
+  public static final int CDATA = 0;
+  public static final int ID = 1;
+  public static final int ENUMERATION = 2;
+  public static final int IDREF = 3;
+  public static final int IDREFS = 4;
+  public static final int TOKEN = 5;
+  public static final int TOKENS = 6;
+  public static final int NOTATION = 7;
+  public static final int ENOTATION = 8;
+  public static final int ENTITY = 9;
+  public static final int ENTITIES = 10;
+  public static final int UNKNOWN = 11;
 }
-

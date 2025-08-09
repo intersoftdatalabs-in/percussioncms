@@ -18,5 +18,11 @@
 package com.percussion.wrapper;
 
 public enum ProcState {
-    NOT_INSTALLED,STOPPED,STARTING,STARTED,ERROR,STOPPING,FAILED
+  NOT_INSTALLED,
+  STOPPED,
+  STARTING,
+  STARTED,
+  ERROR,
+  STOPPING,
+  FAILED
 }

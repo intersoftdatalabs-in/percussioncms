@@ -20,34 +20,30 @@ package com.percussion.xsl.encoding;
 import com.icl.saxon.charcode.PluggableCharacterSet;
 
 /**
- * Defines the UTF-16LE (little endian) character encoding for the Saxon XSLT 
+ * Defines the UTF-16LE (little endian) character encoding for the Saxon XSLT
  * processor.
  */
-public final class PSUTF16LECharacterSet implements PluggableCharacterSet
-{
-   /**
-    * Gets Java's name for the character encoding supported by this class.
-    * 
-    * @return <code>"UnicodeLittle"</code>
-    */ 
-   public String getEncodingName()
-   {
-      return "UnicodeLittle";
-   }
+public final class PSUTF16LECharacterSet implements PluggableCharacterSet {
+  /**
+   * Gets Java's name for the character encoding supported by this class.
+   *
+   * @return <code>"UnicodeLittle"</code>
+   */
+  public String getEncodingName() {
+    return "UnicodeLittle";
+  }
 
-
-   /**
-    * Every Unicode character can be represented in this encoding, so this
-    * method always returns <code>true</code>.
-    * 
-    * @param i the Unicode of the character to be tested
-    * @return <code>true</code> unless the character is one half of a surrogate
-    * pair.
-    */ 
-   public boolean inCharset(int i)
-   {
-      // return true unless the character is one half of a surrogate pair 
-      // (D800 to DFFF)
-      return (i < 55296 || i > 57343);
-   }
+  /**
+   * Every Unicode character can be represented in this encoding, so this
+   * method always returns <code>true</code>.
+   *
+   * @param i the Unicode of the character to be tested
+   * @return <code>true</code> unless the character is one half of a surrogate
+   * pair.
+   */
+  public boolean inCharset(int i) {
+    // return true unless the character is one half of a surrogate pair
+    // (D800 to DFFF)
+    return (i < 55296 || i > 57343);
+  }
 }

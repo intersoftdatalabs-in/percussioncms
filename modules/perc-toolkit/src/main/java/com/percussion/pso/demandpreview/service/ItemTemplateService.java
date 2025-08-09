@@ -22,21 +22,20 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * Service for locating the publishable template for an item. 
- * 
+ * Service for locating the publishable template for an item.
+ *
  * @author DavidBenua
  *
  */
 public interface ItemTemplateService {
 
-	/**
-	 * Finds the appropriate template based on site and content item. 
-	 * @param site the site
-	 * @param contentId the content item id. 
-	 * @return the appropriate template. Never <code>null</code>. 
-	 * @throws SiteLookUpException when the template cannot be located. 
-	 */
-	public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
-	  throws SiteLookUpException; 
-	
+  /**
+   * Finds the appropriate template based on site and content item.
+   * @param site the site
+   * @param contentId the content item id.
+   * @return the appropriate template. Never <code>null</code>.
+   * @throws SiteLookUpException when the template cannot be located.
+   */
+  public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
+      throws SiteLookUpException;
 }

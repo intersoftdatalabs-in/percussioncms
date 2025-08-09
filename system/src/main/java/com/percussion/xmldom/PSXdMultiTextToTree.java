@@ -17,13 +17,12 @@
 package com.percussion.xmldom;
 
 import com.percussion.extension.IPSResultDocumentProcessor;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A Rhythmyx post-exit called to transform a text node into an XML tree
@@ -32,53 +31,43 @@ import java.util.List;
  * editors with multiple text editors. <code>PSXdTextToTree</code> exit
  * does not support multiple fields with the same name.
  */
-public class PSXdMultiTextToTree extends PSXdTextToTree
-   implements IPSResultDocumentProcessor
-{
-   /**
-    * Returns a list which contains all the elements from the specified document
-    * <code>resultDoc</code> with the specified tag name
-    * <code>textSourceName</code>
-    *
-    * @param resultDoc the document in which to search for the elements with the
-    * specified tag name, may not be <code>null</code>
-    * @param textSourceName the tag name of the element to search for in the
-    * document, the returned list contains the reference to all the elements
-    * in the document with matching tag name, may not be <code>null</code> or
-    * empty
-    *
-    * @return an iterator over all the matching elements in the document, never
-    * <code>null</code>. The list contains <code>org.w3c.dom.Node</code> objects
-    *
-    * @throws IllegalArgumentException if <code>resultDoc</code> is
-    * <code>null</code> or if <code>textSourceName</code> is <code>null</code>
-    * or empty
-    */
-   protected Iterator getNodes(Document resultDoc, String textSourceName)
-   {
-      if (resultDoc == null)
-         throw new IllegalArgumentException("resultDoc may not be null");
+public class PSXdMultiTextToTree extends PSXdTextToTree implements IPSResultDocumentProcessor {
+  /**
+   * Returns a list which contains all the elements from the specified document
+   * <code>resultDoc</code> with the specified tag name
+   * <code>textSourceName</code>
+   *
+   * @param resultDoc the document in which to search for the elements with the
+   * specified tag name, may not be <code>null</code>
+   * @param textSourceName the tag name of the element to search for in the
+   * document, the returned list contains the reference to all the elements
+   * in the document with matching tag name, may not be <code>null</code> or
+   * empty
+   *
+   * @return an iterator over all the matching elements in the document, never
+   * <code>null</code>. The list contains <code>org.w3c.dom.Node</code> objects
+   *
+   * @throws IllegalArgumentException if <code>resultDoc</code> is
+   * <code>null</code> or if <code>textSourceName</code> is <code>null</code>
+   * or empty
+   */
+  protected Iterator getNodes(Document resultDoc, String textSourceName) {
+    if (resultDoc == null) throw new IllegalArgumentException("resultDoc may not be null");
 
-      if (textSourceName == null)
-         throw new IllegalArgumentException(
-            "textSourceName may not be null or empty");
+    if (textSourceName == null)
+      throw new IllegalArgumentException("textSourceName may not be null or empty");
 
-      List nodeList = new ArrayList();
-      NodeList nl = resultDoc.getElementsByTagName(textSourceName);
-      for (int i=0; i < nl.getLength(); i++)
-      {
-         Node sourceNode = (Node)nl.item(i);
-         if (sourceNode != null)
-            nodeList.add(sourceNode);
-      }
-      return nodeList.iterator();
-   }
+    List nodeList = new ArrayList();
+    NodeList nl = resultDoc.getElementsByTagName(textSourceName);
+    for (int i = 0; i < nl.getLength(); i++) {
+      Node sourceNode = (Node) nl.item(i);
+      if (sourceNode != null) nodeList.add(sourceNode);
+    }
+    return nodeList.iterator();
+  }
 
-   /**
-    * The function name used for error handling
-    */
-   protected static final String ms_className = "PSXdMultiTextToTree";
-
+  /**
+   * The function name used for error handling
+   */
+  protected static final String ms_className = "PSXdMultiTextToTree";
 }
-
-

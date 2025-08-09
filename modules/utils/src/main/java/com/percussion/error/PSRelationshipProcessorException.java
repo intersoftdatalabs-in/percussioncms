@@ -19,37 +19,31 @@ package com.percussion.error;
 /**
  * Generic exception class to be used for relationship processing errors.
  */
-public class PSRelationshipProcessorException extends PSException
-{
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object)
-    */ 
-   public PSRelationshipProcessorException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+public class PSRelationshipProcessorException extends PSException {
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object)
+   */
+  public PSRelationshipProcessorException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object[])
+   */
+  public PSRelationshipProcessorException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object[])
-    */ 
-   public PSRelationshipProcessorException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
-
-
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int)
-    */ 
-   public PSRelationshipProcessorException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int)
+   */
+  public PSRelationshipProcessorException(int msgCode) {
+    super(msgCode);
+  }
 }

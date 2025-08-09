@@ -24,12 +24,19 @@ import java.util.Set;
  * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
  */
 public interface IPSPoll {
-    String getId();
-    void setId(String id);
-    String getPollName();
-    void setPollName(String pollName);
-    String getPollQuestion();
-    void setPollQuestion(String pollQuestion);
-    Set<IPSPollAnswer> getPollAnswers();
-    void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
+  String getId();
+
+  void setId(String id);
+
+  String getPollName();
+
+  void setPollName(String pollName);
+
+  String getPollQuestion();
+
+  void setPollQuestion(String pollQuestion);
+
+  Set<IPSPollAnswer> getPollAnswers();
+
+  void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
 }

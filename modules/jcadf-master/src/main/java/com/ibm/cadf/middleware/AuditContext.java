@@ -17,139 +17,113 @@
 
 package com.ibm.cadf.middleware;
 
-public class AuditContext
-{
-    private String targetName;
+public class AuditContext {
+  private String targetName;
 
-    private String targetUrl;
+  private String targetUrl;
 
-    private String targetUsername;
+  private String targetUsername;
 
-    private String targetEndpointName;
-    
-    private String observerName;
+  private String targetEndpointName;
 
-    private String initiatorIP;
+  private String observerName;
 
-    private String iniatorName;
+  private String initiatorIP;
 
-    private String agentName;
-    private String activity;
-    private String guidID;
-    private String path;
+  private String iniatorName;
 
+  private String agentName;
+  private String activity;
+  private String guidID;
+  private String path;
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
+  public String getGuidID() {
+    return guidID;
+  }
 
-    public String getGuidID() {
-        return guidID;
-    }
+  public void setGuidID(String guidID) {
+    this.guidID = guidID;
+  }
 
-    public void setGuidID(String guidID) {
-        this.guidID = guidID;
-    }
+  public String getActivity() {
+    return activity;
+  }
 
+  public void setActivity(String activity) {
+    this.activity = activity;
+  }
 
+  public String getAgentName() {
+    return agentName;
+  }
 
-    public String getActivity() {
-        return activity;
-    }
+  public void setAgentName(String agentName) {
+    this.agentName = agentName;
+  }
 
-    public void setActivity(String activity) {
-        this.activity = activity;
-    }
+  public AuditContext() {}
 
+  public String getTargetName() {
+    return targetName;
+  }
 
-    public String getAgentName() {
-        return agentName;
-    }
+  public void setTargetName(String targetName) {
+    this.targetName = targetName;
+  }
 
-    public void setAgentName(String agentName) {
-        this.agentName = agentName;
-    }
+  public String getTargetUrl() {
+    return targetUrl;
+  }
 
+  public void setTargetUrl(String targetUrl) {
+    this.targetUrl = targetUrl;
+  }
 
+  public String getTargetUsername() {
+    return targetUsername;
+  }
 
-    public AuditContext()
-    {
-    }
+  public void setTargetUsername(String targetUsername) {
+    this.targetUsername = targetUsername;
+  }
 
-    public String getTargetName()
-    {
-        return targetName;
-    }
+  public String getObserverName() {
+    return observerName;
+  }
 
-    public void setTargetName(String targetName)
-    {
-        this.targetName = targetName;
-    }
+  public void setObserverName(String observerName) {
+    this.observerName = observerName;
+  }
 
-    public String getTargetUrl()
-    {
-        return targetUrl;
-    }
+  public String getInitiatorIP() {
+    return initiatorIP;
+  }
 
-    public void setTargetUrl(String targetUrl)
-    {
-        this.targetUrl = targetUrl;
-    }
+  public void setInitiatorIP(String initiatorIP) {
+    this.initiatorIP = initiatorIP;
+  }
 
-    public String getTargetUsername()
-    {
-        return targetUsername;
-    }
+  public String getIniatorName() {
+    return iniatorName;
+  }
 
-    public void setTargetUsername(String targetUsername)
-    {
-        this.targetUsername = targetUsername;
-    }
+  public void setIniatorName(String iniatorName) {
+    this.iniatorName = iniatorName;
+  }
 
-    public String getObserverName()
-    {
-        return observerName;
-    }
+  public String getTargetEndpointName() {
+    return targetEndpointName;
+  }
 
-    public void setObserverName(String observerName)
-    {
-        this.observerName = observerName;
-    }
-
-    public String getInitiatorIP()
-    {
-        return initiatorIP;
-    }
-
-    public void setInitiatorIP(String initiatorIP)
-    {
-        this.initiatorIP = initiatorIP;
-    }
-
-    public String getIniatorName()
-    {
-        return iniatorName;
-    }
-
-    public void setIniatorName(String iniatorName)
-    {
-        this.iniatorName = iniatorName;
-    }
-
-    public String getTargetEndpointName()
-    {
-        return targetEndpointName;
-    }
-
-    public void setTargetEndpointName(String targetEndpointName)
-    {
-        this.targetEndpointName = targetEndpointName;
-    }
-
-    
+  public void setTargetEndpointName(String targetEndpointName) {
+    this.targetEndpointName = targetEndpointName;
+  }
 }

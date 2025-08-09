@@ -27,27 +27,26 @@ import java.util.List;
  * move the cursor position forward until the end or the current row passes
  * the accept method.
  */
-public interface IPSResultSetDataFilter
-{
-   /**
-    * Called to determine if the current row is "acceptable" based on the
-    * criterion. If return {@code false}, the calling class will move the
-    * current cursor of the result set forward until this method returns {@code
-    * true}
-    *
-    * @param data the execution data to operate on, not {@code null}
-    * @param vals the list of values to check against, what it checks them
-    *    against is up to the implementing class, may be {@code null}
-    *
-    * @return {@code true} if the result row is to be accepted in the
-    *    creation of the xml data, otherwise {@code false}
-    */
-   boolean accept(PSExecutionData data, Object[] vals);
+public interface IPSResultSetDataFilter {
+  /**
+   * Called to determine if the current row is "acceptable" based on the
+   * criterion. If return {@code false}, the calling class will move the
+   * current cursor of the result set forward until this method returns {@code
+   * true}
+   *
+   * @param data the execution data to operate on, not {@code null}
+   * @param vals the list of values to check against, what it checks them
+   *    against is up to the implementing class, may be {@code null}
+   *
+   * @return {@code true} if the result row is to be accepted in the
+   *    creation of the xml data, otherwise {@code false}
+   */
+  boolean accept(PSExecutionData data, Object[] vals);
 
-   /**
-    * Return the list of columns for the specified filter.
-    *
-    * @return the list of columns, never {@code null}, may be empty
-    */
-   List<String> getColumns();
+  /**
+   * Return the list of columns for the specified filter.
+   *
+   * @return the list of columns, never {@code null}, may be empty
+   */
+  List<String> getColumns();
 }

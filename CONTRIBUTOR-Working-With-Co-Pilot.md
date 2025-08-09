@@ -1,10 +1,9 @@
-
-
-
 ## Agent Mode
+
 In Agent Mode, Co-Pilot can execute commands and interact with the system on your behalf. This mode is useful for tasks that require automation or when you want Co-Pilot to handle repetitive actions.
 
 ### Context is Everything
+
 When working in Agent mode make sure that the following files are in the IDE plugins Context:
 
 1. .github/copilot-instructions.md
@@ -24,6 +23,7 @@ In the .github/copilot-instructions.md file, we have instructions to try to limi
 Even with those instructions, you may still encounter errors like the following:
 
 #### "Sorry, an error occurred while generating a response"
+
 Basically, this means that the code you asked Co-Pilot to generate is too large for it to handle in one go. We reached the maximum limit for a Session.
 
 The only real way around this is to start a new Agent session and ask Co-Pilot to Continue where it left off. You can do this by providing the last few lines of code that Co-Pilot generated, and then asking it to continue from there.
@@ -44,9 +44,9 @@ It should then continue where it left off.
 
 #### "Oops, maximum tool attempts reached. You can type "continue" to proceed or rephrase your request"
 
-This error seems to be IDE / plugin related. No work-around is known currently.  Just type 'continue' - 
+This error seems to be IDE / plugin related. No work-around is known currently.  Just type 'continue' -
 
-it seems to help to close all class files that are open in the IDE. 
+it seems to help to close all class files that are open in the IDE.
 It also seems to help to make sure that the context still had the instructions and the class it failed on.
 
 Example:

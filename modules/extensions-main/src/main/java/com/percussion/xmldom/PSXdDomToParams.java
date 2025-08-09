@@ -24,7 +24,6 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.xml.PSXmlTreeWalker;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -70,105 +69,88 @@ import org.w3c.dom.Node;
  * </table>
  * </p>
  */
-public class PSXdDomToParams extends PSDefaultExtension implements
-   IPSRequestPreProcessor
-{
-   /**
-    * This method handles the pre-exit request.
-    *
-    * @param params an array of objects representing the parameters.
-    *
-    * @param request the request context for this request
-    *
-    * @throws PSExtensionProcessingException when a run time error is detected.
-    *
-    */
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-          throws PSAuthorizationException,
-                 PSRequestValidationException,
-                 PSParameterMismatchException,
-                 PSExtensionProcessingException
-   {
-      PSXmlDomContext contxt = new PSXmlDomContext(m_extname, request);
-      String sourceName = PSXmlDomUtils.getParameter(params, 0,
-         PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
+public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /**
+   * This method handles the pre-exit request.
+   *
+   * @param params an array of objects representing the parameters.
+   *
+   * @param request the request context for this request
+   *
+   * @throws PSExtensionProcessingException when a run time error is detected.
+   *
+   */
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException,
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    PSXmlDomContext contxt = new PSXmlDomContext(m_extname, request);
+    String sourceName = PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
 
-      m_appendParam =
-         PSXmlDomUtils.getParameter(params, 1, "no").equalsIgnoreCase("yes");
+    m_appendParam = PSXmlDomUtils.getParameter(params, 1, "no").equalsIgnoreCase("yes");
 
-      Document sourceDoc;
-      if(sourceName.equals("InputDocument"))
-      {
-         sourceDoc = request.getInputDocument();
+    Document sourceDoc;
+    if (sourceName.equals("InputDocument")) {
+      sourceDoc = request.getInputDocument();
+    } else {
+      sourceDoc = (Document) request.getPrivateObject(sourceName);
+    }
+
+    if (null == sourceDoc) {
+      // there is no input document.  This is not necessarily an error
+      request.printTraceMessage("no document found");
+      return;
+    }
+
+    extractParams(contxt, sourceDoc, request);
+  }
+
+  /**
+   * Walk the DOM tree and extract the parameters into the HTML parameter map.
+   *
+   * @param cx The context for this exit, assumed not <code>null</code>.
+   *
+   * @param xmlDoc The document to scan, assumed not <code>null</code>.
+   *
+   * @param request The request context, assumed not <code>null</code>.
+   */
+  private void extractParams(PSXmlDomContext cx, Document xmlDoc, IPSRequestContext request) {
+    PSXmlTreeWalker walker = new PSXmlTreeWalker(xmlDoc);
+    // Find the PSXParam element
+    Node realRoot = walker.getCurrent();
+
+    if (realRoot.getNodeName().trim().equals("PSXParam") == false) {
+      // The document root is not PSXParam, let's go look for it.
+      Element PSXroot = walker.getNextElement("PSXParam");
+      if (PSXroot == null) {
+        // <PSXParam> was not found, we can't do much of anything
+        cx.printTraceMessage("<PSXParam> not found");
+        return;
       }
-      else
-      {
-         sourceDoc = (Document) request.getPrivateObject(sourceName);
+    }
+    // Find the first child of PSXParam
+    Element currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_CHILDREN);
+    for (int i = 0; currNode != null; i++) {
+      String tagName = currNode.getTagName();
+      String tagData = walker.getElementData(currNode);
+      if (m_appendParam) {
+        request.appendParameter(tagName, tagData);
+      } else {
+        request.setParameter(tagName, tagData);
       }
 
-      if(null == sourceDoc)
-      {
-         // there is no input document.  This is not necessarily an error
-         request.printTraceMessage("no document found");
-         return;
-      }
+      currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_SIBLINGS);
+    }
+  }
 
-      extractParams(contxt, sourceDoc, request);
-   }
+  /**
+   * Flag indicating parameter appending. Defaults to <code>false</code>.
+   */
+  private boolean m_appendParam = false;
 
-   /**
-    * Walk the DOM tree and extract the parameters into the HTML parameter map.
-    *
-    * @param cx The context for this exit, assumed not <code>null</code>.
-    *
-    * @param xmlDoc The document to scan, assumed not <code>null</code>.
-    *
-    * @param request The request context, assumed not <code>null</code>.
-    */
-   private void extractParams(PSXmlDomContext cx, Document xmlDoc,
-      IPSRequestContext request)
-   {
-      PSXmlTreeWalker walker = new PSXmlTreeWalker(xmlDoc);
-      //Find the PSXParam element
-      Node realRoot = walker.getCurrent();
-
-      if(realRoot.getNodeName().trim().equals("PSXParam") == false )
-      {
-         // The document root is not PSXParam, let's go look for it.
-         Element PSXroot = walker.getNextElement("PSXParam");
-         if(PSXroot == null)
-         {
-            //<PSXParam> was not found, we can't do much of anything
-            cx.printTraceMessage("<PSXParam> not found");
-            return;
-         }
-      }
-      //Find the first child of PSXParam
-      Element currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_CHILDREN);
-      for(int i=0;currNode != null;i++)
-      {
-         String tagName = currNode.getTagName();
-         String tagData = walker.getElementData(currNode);
-         if(m_appendParam)
-         {
-            request.appendParameter(tagName, tagData);
-         }
-         else
-         {
-            request.setParameter(tagName, tagData);
-         }
-
-         currNode = walker.getNextElement(walker.GET_NEXT_ALLOW_SIBLINGS);
-      }
-   }
-
-   /**
-    * Flag indicating parameter appending. Defaults to <code>false</code>.
-    */
-   private boolean m_appendParam = false;
-
-   /**
-    * The name of the class, used for error handling and tracing.
-    */
-   private static final String m_extname = "PSXdDomToParams";
+  /**
+   * The name of the class, used for error handling and tracing.
+   */
+  private static final String m_extname = "PSXdDomToParams";
 }

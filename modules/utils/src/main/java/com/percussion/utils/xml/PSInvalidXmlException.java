@@ -21,52 +21,43 @@ import com.percussion.utils.exceptions.PSBaseException;
 /**
  * Exception to indicate general Xml format errors.
  */
-public class PSInvalidXmlException extends PSBaseException
-{
-   /**
-    * 
-    */
-   private static final long serialVersionUID = 1L;
-   
-   /**
-    *  @see PSBaseException#PSBaseException(int, Object[])
-    */
-   public PSInvalidXmlException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+public class PSInvalidXmlException extends PSBaseException {
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-   /**
-    *  @see PSBaseException#PSBaseException(int, Object[])
-    */
-   public PSInvalidXmlException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
+  /**
+   *  @see PSBaseException#PSBaseException(int, Object[])
+   */
+  public PSInvalidXmlException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   /**
-    *  @see PSBaseException#PSBaseException(int)
-    */
-   public PSInvalidXmlException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   *  @see PSBaseException#PSBaseException(int, Object[])
+   */
+  public PSInvalidXmlException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * @see PSBaseException#PSBaseException(int, Throwable, Object[])
-    */
-   public PSInvalidXmlException(int msgCode, Object[] arrayArgs, 
-      Throwable cause)
-   {
-      super(msgCode, cause, arrayArgs);
-   }
+  /**
+   *  @see PSBaseException#PSBaseException(int)
+   */
+  public PSInvalidXmlException(int msgCode) {
+    super(msgCode);
+  }
 
-   // see base class
-   @Override
-   protected String getResourceBundleBaseName()
-   {
-      return "com.percussion.utils.xml.PSXmlErrorStringBundle";
-   }
-   
+  /**
+   * @see PSBaseException#PSBaseException(int, Throwable, Object[])
+   */
+  public PSInvalidXmlException(int msgCode, Object[] arrayArgs, Throwable cause) {
+    super(msgCode, cause, arrayArgs);
+  }
+
+  // see base class
+  @Override
+  protected String getResourceBundleBaseName() {
+    return "com.percussion.utils.xml.PSXmlErrorStringBundle";
+  }
 }
-

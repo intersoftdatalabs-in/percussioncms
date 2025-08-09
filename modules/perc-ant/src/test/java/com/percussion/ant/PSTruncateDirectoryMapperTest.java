@@ -16,61 +16,46 @@
  */
 package com.percussion.ant;
 
-
-import org.junit.jupiter.api.Test;
 import org.apache.tools.ant.BuildException;
 import org.junit.jupiter.api.Tag;
 
 @Tag("UnitTest")
-public class PSTruncateDirectoryMapperTest extends TestCase
-{
-   public void testSetTo()
-   {
-      final PSTruncateDirectoryMapper mapper = new PSTruncateDirectoryMapper();
-      mapper.setTo("abc/");
-      mapper.setTo("123/");
-      // is mandatory
-      try
-      {
-         mapper.setTo(null);
-         fail();
-      }
-      catch (BuildException success)
-      {
-      }
+public class PSTruncateDirectoryMapperTest extends TestCase {
+  public void testSetTo() {
+    final PSTruncateDirectoryMapper mapper = new PSTruncateDirectoryMapper();
+    mapper.setTo("abc/");
+    mapper.setTo("123/");
+    // is mandatory
+    try {
+      mapper.setTo(null);
+      fail();
+    } catch (BuildException success) {
+    }
 
-      try
-      {
-         mapper.setTo("  ");
-         fail();
-      }
-      catch (BuildException success)
-      {
-      }
-   }
-   
-   public void testMapFileName()
-   {
-      final PSTruncateDirectoryMapper mapper = new PSTruncateDirectoryMapper();
+    try {
+      mapper.setTo("  ");
+      fail();
+    } catch (BuildException success) {
+    }
+  }
 
-      // No match
-      mapper.setTo("com/");
-      assertNull(mapper.mapFileName("src\\org\\linux\\F.XML"));
+  public void testMapFileName() {
+    final PSTruncateDirectoryMapper mapper = new PSTruncateDirectoryMapper();
 
-      // Windows path
-      mapper.setTo("com/");
-      assertEquals("com\\percussion\\F.xml",
-            mapper.mapFileName("src\\com\\percussion\\F.XML")[0]);
-      mapper.setTo("com\\");
-      assertEquals("com\\percussion\\F.xml",
-            mapper.mapFileName("src\\com\\percussion\\F.XML")[0]);
+    // No match
+    mapper.setTo("com/");
+    assertNull(mapper.mapFileName("src\\org\\linux\\F.XML"));
 
-      // Unix path
-      mapper.setTo("com/");
-      assertEquals("com/percussion/F.xml",
-            mapper.mapFileName("src/com/percussion/F.XML")[0]);
-      mapper.setTo("com\\");
-      assertEquals("com/percussion/F.xml",
-            mapper.mapFileName("src/com/percussion/F.XML")[0]);
-   }
+    // Windows path
+    mapper.setTo("com/");
+    assertEquals("com\\percussion\\F.xml", mapper.mapFileName("src\\com\\percussion\\F.XML")[0]);
+    mapper.setTo("com\\");
+    assertEquals("com\\percussion\\F.xml", mapper.mapFileName("src\\com\\percussion\\F.XML")[0]);
+
+    // Unix path
+    mapper.setTo("com/");
+    assertEquals("com/percussion/F.xml", mapper.mapFileName("src/com/percussion/F.XML")[0]);
+    mapper.setTo("com\\");
+    assertEquals("com/percussion/F.xml", mapper.mapFileName("src/com/percussion/F.XML")[0]);
+  }
 }

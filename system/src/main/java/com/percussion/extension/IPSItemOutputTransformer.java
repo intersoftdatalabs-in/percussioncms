@@ -22,5 +22,4 @@ package com.percussion.extension;
  *
  * @author paulhoward
  */
-public interface IPSItemOutputTransformer extends IPSResultDocumentProcessor
-{}
+public interface IPSItemOutputTransformer extends IPSResultDocumentProcessor {}

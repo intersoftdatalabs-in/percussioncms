@@ -18,48 +18,42 @@
 package com.percussion.utils.container.jetty;
 
 import com.percussion.utils.container.IPSHibernateDialectConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSJettyDialectConfig implements IPSHibernateDialectConfig
-{
-   
-   /**
-    * Map of jdbc driver name to hibernate sql dialect, never <code>null</code>,
-    * may be empty. Modified by calls to {@link #setDialects(Map)}.
-    */
-   private static volatile Map<String, String> m_sqlDialects = new HashMap<String, String>();
-   // Refactor to pick up dialects from jetty
-   static {
-      m_sqlDialects.put("jtds:sqlserver", "org.hibernate.dialect.SQLServerDialect");
-      m_sqlDialects.put("inetdae7", "org.hibernate.dialect.SQLServerDialect");
-      m_sqlDialects.put("oracle:thin", "org.hibernate.dialect.DB2Dialect");
-      m_sqlDialects.put("mysql", "org.hibernate.dialect.MySQLInnoDBDialect");
+public class PSJettyDialectConfig implements IPSHibernateDialectConfig {
+
+  /**
+   * Map of jdbc driver name to hibernate sql dialect, never <code>null</code>,
+   * may be empty. Modified by calls to {@link #setDialects(Map)}.
+   */
+  private static volatile Map<String, String> m_sqlDialects = new HashMap<String, String>();
+
+  // Refactor to pick up dialects from jetty
+  static {
+    m_sqlDialects.put("jtds:sqlserver", "org.hibernate.dialect.SQLServerDialect");
+    m_sqlDialects.put("inetdae7", "org.hibernate.dialect.SQLServerDialect");
+    m_sqlDialects.put("oracle:thin", "org.hibernate.dialect.DB2Dialect");
+    m_sqlDialects.put("mysql", "org.hibernate.dialect.MySQLInnoDBDialect");
   }
 
-   @Override
-   public Map<String, String> getDialects()
-   {
-      return m_sqlDialects;
-   }
+  @Override
+  public Map<String, String> getDialects() {
+    return m_sqlDialects;
+  }
 
-   @Override
-   public String getDialectClassName(String driverName)
-   {
-      return m_sqlDialects.get(driverName);
-   }
+  @Override
+  public String getDialectClassName(String driverName) {
+    return m_sqlDialects.get(driverName);
+  }
 
-   @Override
-   public void setDialect(String driverName, String dialectClassName)
-   {
-      m_sqlDialects.put(driverName, dialectClassName);
-   }
+  @Override
+  public void setDialect(String driverName, String dialectClassName) {
+    m_sqlDialects.put(driverName, dialectClassName);
+  }
 
-   @Override
-   public void setDialects(Map<String, String> dialects)
-   {
-      m_sqlDialects = dialects;
-   }
-
+  @Override
+  public void setDialects(Map<String, String> dialects) {
+    m_sqlDialects = dialects;
+  }
 }

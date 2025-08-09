@@ -19,14 +19,12 @@ package com.percussion.servlets.taglib;
 /**
  * A menu bar component that emits the appropriate HTML for the menubar css
  * implementation.
- * 
+ *
  * @author dougrand
  */
-public class PSMenuBarTag extends PSJSFBaseTag
-{
-   @Override
-   public String getComponentType()
-   {
-      return "com.percussion.jsf.MenuBar";
-   }
+public class PSMenuBarTag extends PSJSFBaseTag {
+  @Override
+  public String getComponentType() {
+    return "com.percussion.jsf.MenuBar";
+  }
 }

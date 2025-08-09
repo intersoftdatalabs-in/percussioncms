@@ -21,313 +21,285 @@ import com.percussion.deployer.objectstore.PSDeployComponentUtils;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.text.MessageFormat;
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.text.MessageFormat;
-import java.util.Optional;
-
 /**
  * ID Context to represent a binding in a template
  * This binding is usually a <name, value> pair, but sometimes name may be null.
- * To circumvent problems with name as a key, an index is introduced for the 
+ * To circumvent problems with name as a key, an index is introduced for the
  * binding. Thus bindings are referenced by both an index and a name.
  * @author vamsinukala
  *
  */
-public class PSBindingIdContext extends PSApplicationIdContext
-{
-   /** 
-    * Construct a JEXL binding.  
-    * 
-    * @param  index of the binding, never <code>null</code> or empty
-    * @param  name may be <code>null</code> or empty
-    * @param  value may not be <code>null</code> or empty
-    * 
-    * @throws IllegalArgumentException if <code>index</code> is 
-    * <code>null</code> or empty.
-    */
-   public PSBindingIdContext(String index, String name, String value) {
-      if (StringUtils.isBlank(index))
-         throw new IllegalArgumentException("index may not be null");
-      if (StringUtils.isBlank(value))
-         throw new IllegalArgumentException("value may not be null");
+public class PSBindingIdContext extends PSApplicationIdContext {
+  /**
+   * Construct a JEXL binding.
+   *
+   * @param  index of the binding, never <code>null</code> or empty
+   * @param  name may be <code>null</code> or empty
+   * @param  value may not be <code>null</code> or empty
+   *
+   * @throws IllegalArgumentException if <code>index</code> is
+   * <code>null</code> or empty.
+   */
+  public PSBindingIdContext(String index, String name, String value) {
+    if (StringUtils.isBlank(index)) throw new IllegalArgumentException("index may not be null");
+    if (StringUtils.isBlank(value)) throw new IllegalArgumentException("value may not be null");
 
-      setIndex(Integer.parseInt(index));
-      setName(name);
-      setValue(value);
-   }
+    setIndex(Integer.parseInt(index));
+    setName(name);
+    setValue(value);
+  }
 
-   /**
-    * Create this object from its XML representation
-    *
-    * @param source The source element.  See {@link #toXml(Document)} for
-    * the expected format.  May not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException If <code>source</code> is
-    * <code>null</code>.
-    *
-    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
-    */
-   public PSBindingIdContext(Element source) throws PSUnknownNodeTypeException {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
+  /**
+   * Create this object from its XML representation
+   *
+   * @param source The source element.  See {@link #toXml(Document)} for
+   * the expected format.  May not be <code>null</code>.
+   *
+   * @throws IllegalArgumentException If <code>source</code> is
+   * <code>null</code>.
+   *
+   * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   */
+  public PSBindingIdContext(Element source) throws PSUnknownNodeTypeException {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
 
-      fromXml(source);
-   }
+    fromXml(source);
+  }
 
-   /**
-    * Get the ordinal position of this context's extension in its parent's list.
-    * 
-    * @return The index, will be <code>-1</code> if the index has not been
-    * specified.
-    */
-   public int getIndex()
-   {
-      return m_index;
-   }
+  /**
+   * Get the ordinal position of this context's extension in its parent's list.
+   *
+   * @return The index, will be <code>-1</code> if the index has not been
+   * specified.
+   */
+  public int getIndex() {
+    return m_index;
+  }
 
-   /**
-    * Set the ordinal position of this context's binding in its parent's list.
-    */
-   public void setIndex(int ix)
-   {
-      m_index = ix;
-   }
+  /**
+   * Set the ordinal position of this context's binding in its parent's list.
+   */
+  public void setIndex(int ix) {
+    m_index = ix;
+  }
 
-   /**
-    * the name of the binding
-    * @return name it may be <code>null</code> or empty
-    */
-   public String getName()
-   {
-      return m_name;
-   }
+  /**
+   * the name of the binding
+   * @return name it may be <code>null</code> or empty
+   */
+  public String getName() {
+    return m_name;
+  }
 
-   /**
-    * sets the name of the binding
-    */
+  /**
+   * sets the name of the binding
+   */
+  private void setName(String name) {
+    this.m_name = name;
+  }
 
-   private void setName(String name)
-   {
-      this.m_name = name;
-   }
+  /**
+   * the value of the binding, this is either an expression or a script
+   * @return value it may be <code>null</code> or empty
+   */
+  public String getValue() {
+    return m_value;
+  }
 
-   /**
-    * the value of the binding, this is either an expression or a script
-    * @return value it may be <code>null</code> or empty
-    */
-   public String getValue()
-   {
-      return m_value;
-   }
+  /**
+   * set the value of this binding
+   * @param value
+   */
+  private void setValue(String value) {
+    this.m_value = value;
+  }
 
-   /**
-    * set the value of this binding
-    * @param value
-    */
-   private void setValue(String value)
-   {
-      this.m_value = value;
-   }
+  // see PSApplicationIdContext
+  public String getDisplayText() {
+    String text = null;
 
-   //see PSApplicationIdContext
-   public String getDisplayText()
-   {
-      String text = null;
+    if (StringUtils.isNotBlank(getName())) {
+      text =
+          MessageFormat.format(
+              getBundle().getString("bindingCtxIndexNameValue"),
+              new Object[] {String.valueOf(getIndex()), getName(), getValue()});
+    } else {
+      text =
+          MessageFormat.format(
+              getBundle().getString("bindingCtxIndexValue"),
+              new Object[] {String.valueOf(getIndex()), getValue()});
+    }
+    text = addParentDisplayText(text);
 
-      if (StringUtils.isNotBlank(getName()))
-      {
-         text = MessageFormat.format(getBundle().getString(
-               "bindingCtxIndexNameValue"), new Object[]
-         {String.valueOf(getIndex()), getName(), getValue()});
-      }
-      else
-      {
-         text = MessageFormat.format(getBundle().getString(
-               "bindingCtxIndexValue"), new Object[]
-         {String.valueOf(getIndex()), getValue()});
-      }
-      text = addParentDisplayText(text);
+    return text;
+  }
 
-      return text;
-   }
+  /**
+   * Serializes this object's state to its XML representation.  The format is:
+   * <!--
+   *    PSXApplicationIdContext is a place holder for the root node of the XML
+   *    representation of any class derived from PSApplicationIdContext that
+   *    is this context's parent context.
+   * -->
+   * <pre><code>
+   * &lt;!ELEMENT PSXBindingIdContext
+   * &lt;!ATTLIST  PSXBindingIdContext
+   *    index  CDATA #REQUIRED
+   *    bname  CDATA #IMPLIED
+   *    bValue CDATA #REQUIRED
+   * >
+   * </code></pre>
+   *
+   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   */
+  public Element toXml(Document doc) {
+    if (doc == null) {
+      throw new IllegalArgumentException("doc should not be null");
+    }
 
-   /**
-    * Serializes this object's state to its XML representation.  The format is:
-    * <!--
-    *    PSXApplicationIdContext is a place holder for the root node of the XML
-    *    representation of any class derived from PSApplicationIdContext that
-    *    is this context's parent context.
-    * -->
-    * <pre><code>
-    * &lt;!ELEMENT PSXBindingIdContext 
-    * &lt;!ATTLIST  PSXBindingIdContext   
-    *    index  CDATA #REQUIRED
-    *    bname  CDATA #IMPLIED
-    *    bValue CDATA #REQUIRED
-    * >
-    * </code></pre>
-    *
-    * See {@link IPSDeployComponent#toXml(Document)} for more info.
-    */
-   public Element toXml(Document doc) {
-      if (doc == null) {
-         throw new IllegalArgumentException("doc should not be null");
-      }
+    var root = doc.createElement(XML_NODE_NAME);
+    Optional.ofNullable(m_name).ifPresent(name -> root.setAttribute(XML_ATTR_BNAME, name));
+    root.setAttribute(XML_ATTR_BVALUE, m_value);
+    if (validateIndex(m_index)) {
+      root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
+    }
+    Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
+    return root;
+  }
 
-      var root = doc.createElement(XML_NODE_NAME);
-      Optional.ofNullable(m_name).ifPresent(name -> root.setAttribute(XML_ATTR_BNAME, name));
-      root.setAttribute(XML_ATTR_BVALUE, m_value);
-      if (validateIndex(m_index)) {
-         root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
-      }
-      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
-      return root;
-   }
+  /**
+   * Restores this object's state from its XML representation.  See
+   * {@link #toXml(Document)} for format of XML.  See
+   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * signature.
+   */
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+      throw new IllegalArgumentException("sourceNode should not be null");
+    }
 
-   /**
-    * Restores this object's state from its XML representation.  See
-    * {@link #toXml(Document)} for format of XML.  See
-    * {@link IPSDeployComponent#fromXml(Element)} for more info on method
-    * signature.
-    */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
-      if (sourceNode == null) {
-         throw new IllegalArgumentException("sourceNode should not be null");
-      }
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
+    }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
-         );
-      }
+    m_name =
+        Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_BNAME))
+            .filter(name -> !name.trim().isEmpty())
+            .orElse(null);
 
-      m_name = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_BNAME))
-         .filter(name -> !name.trim().isEmpty())
-         .orElse(null);
+    m_value = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_BVALUE);
 
-      m_value = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_BVALUE);
+    var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
+    m_index =
+        Optional.ofNullable(strIndex)
+            .filter(index -> !index.trim().isEmpty())
+            .map(Integer::parseInt)
+            .filter(this::validateIndex)
+            .orElse(-1);
 
-      var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
-      m_index = Optional.ofNullable(strIndex)
-         .filter(index -> !index.trim().isEmpty())
-         .map(Integer::parseInt)
-         .filter(this::validateIndex)
-         .orElse(-1);
+    if (!validateIndex(m_index) && strIndex != null) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {XML_NODE_NAME, XML_ATTR_INDEX, strIndex});
+    }
 
-      if (!validateIndex(m_index) && strIndex != null) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
-            new Object[]{XML_NODE_NAME, XML_ATTR_INDEX, strIndex}
-         );
-      }
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    Optional.ofNullable(ctxEl)
+        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+  }
 
-      var tree = new PSXmlTreeWalker(sourceNode);
-      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
-   }
+  // see IPSDeployComponent interface
+  public void copyFrom(IPSDeployComponent obj) {
+    if (obj == null) throw new IllegalArgumentException("obj may not be null");
 
-   // see IPSDeployComponent interface
-   public void copyFrom(IPSDeployComponent obj)
-   {
-      if (obj == null)
-         throw new IllegalArgumentException("obj may not be null");
+    if (!(obj instanceof PSBindingIdContext)) throw new IllegalArgumentException("obj wrong type");
 
-      if (!(obj instanceof PSBindingIdContext))
-         throw new IllegalArgumentException("obj wrong type");
+    PSBindingIdContext other = (PSBindingIdContext) obj;
 
+    setName(other.getName());
+    setValue(other.getValue());
+    setIndex(other.getIndex());
+    super.copyFrom(other);
+  }
+
+  // see IPSDeployComponent interface
+  public boolean equals(Object obj) {
+    boolean isEqual = true;
+
+    if (!(obj instanceof PSBindingIdContext)) isEqual = false;
+    else {
       PSBindingIdContext other = (PSBindingIdContext) obj;
+      if (getIndex() != other.getIndex()) isEqual = false;
+      else if (!getValue().equals(other.getValue())) isEqual = false;
+      else if (StringUtils.isNotBlank(getName())
+          && StringUtils.isNotBlank(other.getName())
+          && !getName().equals(other.getName())) isEqual = false;
+      else if (!super.equals(other)) isEqual = false;
+    }
 
-      setName(other.getName());
-      setValue(other.getValue());
-      setIndex(other.getIndex());
-      super.copyFrom(other);
-   }
+    return isEqual;
+  }
 
-   // see IPSDeployComponent interface
-   public boolean equals(Object obj)
-   {
-      boolean isEqual = true;
+  // see IPSDeployComponent
+  public int hashCode() {
+    if (StringUtils.isNotBlank(getName()))
+      return getName().hashCode() + getValue().hashCode() + getIndex() + super.hashCode();
+    else return getValue().hashCode() + getIndex() + super.hashCode();
+  }
 
-      if (!(obj instanceof PSBindingIdContext))
-         isEqual = false;
-      else
-      {
-         PSBindingIdContext other = (PSBindingIdContext) obj;
-         if (getIndex() != other.getIndex())
-            isEqual = false;
-         else if (!getValue().equals(other.getValue()))
-            isEqual = false;
-         else if (StringUtils.isNotBlank(getName())
-               && StringUtils.isNotBlank(other.getName())
-               && !getName().equals(other.getName()))
-            isEqual = false;
-         else if (!super.equals(other))
-            isEqual = false;
-      }
+  /**
+   * Check the supplied index to see if it is valid (>=0)
+   *
+   * @param index The index to check.
+   *
+   * @return <code>true</code> if it is valid, <code>false</code> otherwise.
+   */
+  private boolean validateIndex(int index) {
+    return index >= 0;
+  }
 
-      return isEqual;
-   }
+  /**
+   * the value of the binding, binding has a name, value pair.
+   */
+  private String m_value;
 
-   // see IPSDeployComponent
-   public int hashCode()
-   {
-      if (StringUtils.isNotBlank(getName()))
-         return getName().hashCode() + getValue().hashCode() + getIndex()
-               + super.hashCode();
-      else
-         return getValue().hashCode() + getIndex() + super.hashCode();
-   }
+  /**
+   * the name of the binding, binding has a name, value pair. name may be
+   * <code>null</code>
+   */
+  private String m_name;
 
-   /**
-    * Check the supplied index to see if it is valid (>=0)
-    * 
-    * @param index The index to check.
-    * 
-    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
-    */
-   private boolean validateIndex(int index)
-   {
-      return index >= 0;
-   }
+  /**
+   * Index of this call in its parent's list.  Intialized during ctor, modfied
+   * only by calls to <code>copyFrom()</code>.  Will be <code>-1</code> if an
+   * index has not been specified.
+   */
+  private int m_index = -1;
 
-   /**
-    * the value of the binding, binding has a name, value pair. 
-    */
-   private String m_value;
+  /**
+   * Root node name of this object's XML representation.
+   */
+  public static final String XML_NODE_NAME = "PSXBindingIdContext";
 
-   /**
-    * the name of the binding, binding has a name, value pair. name may be 
-    * <code>null</code>
-    */
-   private String m_name;
+  // private xml constant
+  /**
+   * the binding name if any, may be <code>null</code>
+   */
+  private static final String XML_ATTR_BNAME = "bName";
 
-   /**
-    * Index of this call in its parent's list.  Intialized during ctor, modfied 
-    * only by calls to <code>copyFrom()</code>.  Will be <code>-1</code> if an
-    * index has not been specified.
-    */
-   private int m_index = -1;
+  /**
+   * the binding value may be <code>null</code>
+   */
+  private static final String XML_ATTR_BVALUE = "bValue";
 
-   /**
-    * Root node name of this object's XML representation.
-    */
-   public static final String XML_NODE_NAME = "PSXBindingIdContext";
-
-   // private xml constant
-   /**
-    * the binding name if any, may be <code>null</code>
-    */
-   private static final String XML_ATTR_BNAME = "bName";
-
-   /**
-    * the binding value may be <code>null</code>
-    */
-   private static final String XML_ATTR_BVALUE = "bValue";
-
-   private static final String XML_ATTR_INDEX = "index";
-
+  private static final String XML_ATTR_INDEX = "index";
 }

@@ -19,20 +19,24 @@ package com.ibm.cadf.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
-import com.ibm.cadf.exception.CADFException;
+public class GeolocationTest {
 
-public class GeolocationTest
-{
-
-    @Test
-    public void testCredentialPositive() throws CADFException, IOException
-    {
-        Geolocation geolocation = new Geolocation(Identifier.generateUniqueId(),
-                        "34N 40' 50.12", "34S 40' 50.12", "0", "1", "toronto", "ontario", "ca");
-        assertEquals(true, geolocation.isValid());
-    }
+  @Test
+  public void testCredentialPositive() throws CADFException, IOException {
+    Geolocation geolocation =
+        new Geolocation(
+            Identifier.generateUniqueId(),
+            "34N 40' 50.12",
+            "34S 40' 50.12",
+            "0",
+            "1",
+            "toronto",
+            "ontario",
+            "ca");
+    assertEquals(true, geolocation.isValid());
+  }
 }

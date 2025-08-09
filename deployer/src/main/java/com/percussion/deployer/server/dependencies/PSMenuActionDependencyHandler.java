@@ -18,94 +18,84 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.dependencies;
 
-
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.error.PSDeployException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * Class to handle packaging and deploying a Menu action.
  */
-public class PSMenuActionDependencyHandler  extends PSElementDependencyHandler
-{
+public class PSMenuActionDependencyHandler extends PSElementDependencyHandler {
 
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    * @throws PSDeployException if any other error occurs.
-    */
-   public PSMenuActionDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap) throws PSDeployException
-   {
-      super(def, dependencyMap);
-   }
-   
-   // see base class
-   @Override
-   protected PSDependencyHandler getChildHandler() {
-      if (m_childHandler == null) {
-         m_childHandler = getDependencyHandler(PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
-      }
-      return m_childHandler;
-   }
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if any other error occurs.
+   */
+  public PSMenuActionDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)
+      throws PSDeployException {
+    super(def, dependencyMap);
+  }
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>MenuActionDef</li>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   @Override
-   public Iterator<String> getChildTypes() {
-      return ms_childTypes.iterator();
-   }
+  // see base class
+  @Override
+  protected PSDependencyHandler getChildHandler() {
+    if (m_childHandler == null) {
+      m_childHandler = getDependencyHandler(PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
+    }
+    return m_childHandler;
+  }
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * The child types supported by this handler are:
+   * <ol>
+   * <li>MenuActionDef</li>
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code>
+   * objects, never <code>null</code>, does not contain <code>null</code> or
+   * empty entries.
+   */
+  @Override
+  public Iterator<String> getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
-   /**
-    * Constant for this handler's supported type
-    */
-   public final static String DEPENDENCY_TYPE = "MenuAction";
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   /**
-    * The display format definition handler, initialized by 
-    * <code>getChildHandler()</code> if it is <code>null</code>, will never be 
-    * <code>null</code> after that.
-    */
-   private PSDependencyHandler m_childHandler = null;
+  /**
+   * Constant for this handler's supported type
+   */
+  public static final String DEPENDENCY_TYPE = "MenuAction";
 
-   
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List<String> ms_childTypes = new ArrayList<>();
+  /**
+   * The display format definition handler, initialized by
+   * <code>getChildHandler()</code> if it is <code>null</code>, will never be
+   * <code>null</code> after that.
+   */
+  private PSDependencyHandler m_childHandler = null;
 
-   static
-   {
-      ms_childTypes.add(PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+  /**
+   * List of child types supported by this handler, it will never be
+   * <code>null</code> or empty.
+   */
+  private static List<String> ms_childTypes = new ArrayList<>();
 
-
+  static {
+    ms_childTypes.add(PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
+  }
 }

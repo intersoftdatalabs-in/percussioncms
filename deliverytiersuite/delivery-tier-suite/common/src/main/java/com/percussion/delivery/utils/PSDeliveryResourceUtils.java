@@ -10,18 +10,17 @@ import java.util.Optional;
  */
 public final class PSDeliveryResourceUtils {
 
-    private PSDeliveryResourceUtils() {
-        // Utility class, do not instantiate.
-    }
+  private PSDeliveryResourceUtils() {
+    // Utility class, do not instantiate.
+  }
 
-    /**
-     * Loads a resource as an InputStream.
-     * @param resourcePath Path to the resource.
-     * @return Optional containing InputStream if found, empty otherwise.
-     */
-    public static Optional<InputStream> loadResource(String resourcePath) {
-        var stream = PSDeliveryResourceUtils.class.getClassLoader().getResourceAsStream(resourcePath);
-        return Optional.ofNullable(stream);
-    }
+  /**
+   * Loads a resource as an InputStream.
+   * @param resourcePath Path to the resource.
+   * @return Optional containing InputStream if found, empty otherwise.
+   */
+  public static Optional<InputStream> loadResource(String resourcePath) {
+    var stream = PSDeliveryResourceUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+    return Optional.ofNullable(stream);
+  }
 }
-

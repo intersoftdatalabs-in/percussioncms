@@ -73,108 +73,99 @@ import org.w3c.dom.Document;
  * The special node name "." (period)  will cause the new document fragment
  * to be copied directly underneath the <code>&lt;root&gt;</code> element.
  * <p>
-**/
-public class PSXdDomToText extends PSDefaultExtension implements IPSRequestPreProcessor,
-    IPSResultDocumentProcessor
-{
+ **/
+public class PSXdDomToText extends PSDefaultExtension
+    implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
 
-   /**
-    * This method handles the pre-exit request.
-    *
-    * @param params an array of objects representing the parameters. See the
-    * description under {@link PSXdDomToText} for parameter details.
-    *
-    * @param request the request context for this request
-    *
-    * @throws PSExtensionProcessingException when a run time error is detected.
-    *
-    */
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-      throws PSAuthorizationException, PSRequestValidationException,
-         PSParameterMismatchException, PSExtensionProcessingException
-   {
-      PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
+  /**
+   * This method handles the pre-exit request.
+   *
+   * @param params an array of objects representing the parameters. See the
+   * description under {@link PSXdDomToText} for parameter details.
+   *
+   * @param request the request context for this request
+   *
+   * @throws PSExtensionProcessingException when a run time error is detected.
+   *
+   */
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException,
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
 
-      String sourceObjectName = PSXmlDomUtils.getParameter(params,0,
-         PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
-      String sourceNodeName = PSXmlDomUtils.getParameter(params,1,"");
-      String destName = PSXmlDomUtils.getParameter(params,2,"");
+    String sourceObjectName =
+        PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
+    String sourceNodeName = PSXmlDomUtils.getParameter(params, 1, "");
+    String destName = PSXmlDomUtils.getParameter(params, 2, "");
 
-      Document sourceDoc;
-      if(sourceObjectName.equals("InputDocument"))
-      {
-         sourceDoc = request.getInputDocument();
-      }
-      else 
-      {
-         sourceDoc = (Document)request.getPrivateObject(sourceObjectName);
-      }
+    Document sourceDoc;
+    if (sourceObjectName.equals("InputDocument")) {
+      sourceDoc = request.getInputDocument();
+    } else {
+      sourceDoc = (Document) request.getPrivateObject(sourceObjectName);
+    }
 
-      if(sourceDoc == null) 
-      {
-         request.printTraceMessage("Source Document not present");
-         return;
-      }
+    if (sourceDoc == null) {
+      request.printTraceMessage("Source Document not present");
+      return;
+    }
 
-      String resultText = PSXmlDomUtils.copyTextFromDocument(contxt,sourceDoc,
-         sourceNodeName);
-      request.setParameter(destName, resultText);
-   }
+    String resultText = PSXmlDomUtils.copyTextFromDocument(contxt, sourceDoc, sourceNodeName);
+    request.setParameter(destName, resultText);
+  }
 
-   /**
-    * This method handles the post-exit request.
-    *
-    * @param params an array of objects representing the parameters. See the
-    * description under {@link PSXdDomToText} for parameter details.
-    *
-    * @param request the request context for this request
-    *
-    * @param resultDoc the XML document resulting from the Rhythmyx server
-    * operation.  The output text will be added as an XML node in this document.
-    *
-    * @throws PSExtensionProcessingException when a run time error is detected.
-    *
-    */
-   public org.w3c.dom.Document processResultDocument(Object[] params,
-      IPSRequestContext request, Document resultDoc)
-         throws PSParameterMismatchException, PSExtensionProcessingException
-   {
-      PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
+  /**
+   * This method handles the post-exit request.
+   *
+   * @param params an array of objects representing the parameters. See the
+   * description under {@link PSXdDomToText} for parameter details.
+   *
+   * @param request the request context for this request
+   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server
+   * operation.  The output text will be added as an XML node in this document.
+   *
+   * @throws PSExtensionProcessingException when a run time error is detected.
+   *
+   */
+  public org.w3c.dom.Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
 
-      String sourceObjectName = PSXmlDomUtils.getParameter(params, 0,
-         PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
-      String sourceNodeName = PSXmlDomUtils.getParameter(params, 1, "");
-      String destName = PSXmlDomUtils.getParameter(params, 2, "");
+    String sourceObjectName =
+        PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
+    String sourceNodeName = PSXmlDomUtils.getParameter(params, 1, "");
+    String destName = PSXmlDomUtils.getParameter(params, 2, "");
 
-      Document sourceDoc = (Document)request.getPrivateObject(sourceObjectName);
-      if(sourceDoc == null)
-      {
-         request.printTraceMessage("Source Document not present");
-         return resultDoc;
-      }
-
-      String resultText = PSXmlDomUtils.copyTextFromDocument(contxt, sourceDoc,
-         sourceNodeName);
-
-      try
-      {
-         PSXmlDomUtils.addResultNode(contxt, resultDoc, destName, resultText);
-      }
-      catch (Exception e) { contxt.handleException(e); }
-
+    Document sourceDoc = (Document) request.getPrivateObject(sourceObjectName);
+    if (sourceDoc == null) {
+      request.printTraceMessage("Source Document not present");
       return resultDoc;
-   }
+    }
 
-   /**
-    * This exit will never modify the stylesheet.
-    */
-   public boolean canModifyStyleSheet()
-   {
-      return false;
-   }
+    String resultText = PSXmlDomUtils.copyTextFromDocument(contxt, sourceDoc, sourceNodeName);
 
-   /**
-    * the name of the class: used for error handling.
-    */
-   private static final String  ms_className = "PSXdDomToText";
+    try {
+      PSXmlDomUtils.addResultNode(contxt, resultDoc, destName, resultText);
+    } catch (Exception e) {
+      contxt.handleException(e);
+    }
+
+    return resultDoc;
+  }
+
+  /**
+   * This exit will never modify the stylesheet.
+   */
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
+
+  /**
+   * the name of the class: used for error handling.
+   */
+  private static final String ms_className = "PSXdDomToText";
 }

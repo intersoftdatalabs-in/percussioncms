@@ -20,7 +20,6 @@ package com.percussion.error;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import com.percussion.server.IPSServerErrors;
-
 import java.util.Locale;
 
 /**
@@ -35,8 +34,7 @@ import java.util.Locale;
  * @version   1.0
  * @since     1.0
  */
-public class PSRequestWaitTooLongError extends PSLogError
-{
+public class PSRequestWaitTooLongError extends PSLogError {
   /**
    * Report a request waiting period expiration in the queue
    * <p>
@@ -53,14 +51,11 @@ public class PSRequestWaitTooLongError extends PSLogError
    * @param   sessionId  the session ID of the user making the request
    * @param   size       the current size of the request queue
    */
-  public PSRequestWaitTooLongError(int applId, String sessionId, int size)
-  {
+  public PSRequestWaitTooLongError(int applId, String sessionId, int size) {
     super(applId);
 
-    if (sessionId == null)
-      m_sessId = "";
-    else
-      m_sessId = sessionId;
+    if (sessionId == null) m_sessId = "";
+    else m_sessId = sessionId;
 
     m_size = size;
   }
@@ -69,24 +64,23 @@ public class PSRequestWaitTooLongError extends PSLogError
    * subclasses must override this to build the message in the
    * specified locale
    */
-  protected PSLogSubMessage[] buildSubMessages(Locale loc)
-  {
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[1];
 
-      /* use IPSServerErrors.REQUEST_WAIT_TOO_LONG along with:
-       *     [0] = m_sessId
-       *     [1] = m_size
-       * to format the submessage text
-       */
-    Object[] args = { m_sessId, new Integer(m_size) };
-    msgs[0] = new PSLogSubMessage(IPSServerErrors.REQUEST_WAIT_TOO_LONG,
-                                  PSErrorManager.createMessage(
-                                    IPSServerErrors.REQUEST_WAIT_TOO_LONG,
-                                    args, loc));
+    /* use IPSServerErrors.REQUEST_WAIT_TOO_LONG along with:
+     *     [0] = m_sessId
+     *     [1] = m_size
+     * to format the submessage text
+     */
+    Object[] args = {m_sessId, new Integer(m_size)};
+    msgs[0] =
+        new PSLogSubMessage(
+            IPSServerErrors.REQUEST_WAIT_TOO_LONG,
+            PSErrorManager.createMessage(IPSServerErrors.REQUEST_WAIT_TOO_LONG, args, loc));
 
     return msgs;
   }
 
   private String m_sessId;
-  private int    m_size;
+  private int m_size;
 }

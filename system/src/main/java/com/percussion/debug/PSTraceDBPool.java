@@ -27,58 +27,50 @@ import java.text.MessageFormat;
 // REFACTORED: CP-JAVA11
 public class PSTraceDBPool extends PSTraceMessage {
 
-   /**
-    * Constructor for this class
-    *
-    * @param typeFlag the type of trace message this object will generate
-    * @roseuid 39FDD70103A9
-    */
-   public PSTraceDBPool(int typeFlag)
-   {
-      super(typeFlag);
-   }
+  /**
+   * Constructor for this class
+   *
+   * @param typeFlag the type of trace message this object will generate
+   * @roseuid 39FDD70103A9
+   */
+  public PSTraceDBPool(int typeFlag) {
+    super(typeFlag);
+  }
 
-   // see parent class for javadoc
-   protected String getMessageHeader() 
-   {
-      return ms_bundle.getString("traceDbPool_dispname");
-   }
+  // see parent class for javadoc
+  protected String getMessageHeader() {
+    return ms_bundle.getString("traceDbPool_dispname");
+  }
 
-   /**
-    * Formats the output for the body of the message, extracting the information
-    * required from the source object.
-    *
-    * @param source an array of objects containing the information required for the
-    * trace message:
-    * - Boolean IsNewConnection
-    * - String driver
-    * - String server
-    * - String database
-    * - String userid
-    * - int Wait in Milliseconds
-    *
-    * If IsNewConnection = <code>false</code>, the the others will not be included in
-    * the trace message.
-    * @return the message body
-    * @roseuid 39FEE2F303B9
-    */
-   protected String getMessageBody(java.lang.Object source)
-   {
-      Object[] args = (Object[])source;
-      String message = "";
+  /**
+   * Formats the output for the body of the message, extracting the information
+   * required from the source object.
+   *
+   * @param source an array of objects containing the information required for the
+   * trace message:
+   * - Boolean IsNewConnection
+   * - String driver
+   * - String server
+   * - String database
+   * - String userid
+   * - int Wait in Milliseconds
+   *
+   * If IsNewConnection = <code>false</code>, the the others will not be included in
+   * the trace message.
+   * @return the message body
+   * @roseuid 39FEE2F303B9
+   */
+  protected String getMessageBody(java.lang.Object source) {
+    Object[] args = (Object[]) source;
+    String message = "";
 
-      // if first arg is false, log a message to that effect
-      String foo;
-      if (((String)args[0]).toLowerCase().equals("false"))
-      {
-         message = MessageFormat.format(
-            ms_bundle.getString("traceDbPool_fromPool"), args);
-      }
-      else
-      {
-         message = MessageFormat.format(
-            ms_bundle.getString("traceDbPool_newConnection"), args);
-      }
-      return message;
-   }
+    // if first arg is false, log a message to that effect
+    String foo;
+    if (((String) args[0]).toLowerCase().equals("false")) {
+      message = MessageFormat.format(ms_bundle.getString("traceDbPool_fromPool"), args);
+    } else {
+      message = MessageFormat.format(ms_bundle.getString("traceDbPool_newConnection"), args);
+    }
+    return message;
+  }
 }

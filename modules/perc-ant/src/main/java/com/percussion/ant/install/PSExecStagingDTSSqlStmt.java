@@ -19,14 +19,12 @@ package com.percussion.ant.install;
 
 import java.io.File;
 
-public class PSExecStagingDTSSqlStmt  extends PSExecDTSSqlStmt {
+public class PSExecStagingDTSSqlStmt extends PSExecDTSSqlStmt {
 
-    @Override
-    protected  String getDBPropertyFile(){
-        return getRootDir() + File.separator
-                + "/Staging/Deployment/Server/conf/perc/perc-datasources.properties";
-
-    }
-
+  @Override
+  protected String getDBPropertyFile() {
+    return getRootDir()
+        + File.separator
+        + "/Staging/Deployment/Server/conf/perc/perc-datasources.properties";
+  }
 }
-

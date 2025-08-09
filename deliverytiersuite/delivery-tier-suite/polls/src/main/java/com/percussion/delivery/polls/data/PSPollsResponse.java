@@ -24,33 +24,34 @@ package com.percussion.delivery.polls.data;
  * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
  */
 public class PSPollsResponse {
-    private PollResponseStatus status;
-    private Object result;
+  private PollResponseStatus status;
+  private Object result;
 
-    public PSPollsResponse() {}
+  public PSPollsResponse() {}
 
-    public PSPollsResponse(PollResponseStatus status, Object result) {
-        this.status = status;
-        this.result = result;
-    }
+  public PSPollsResponse(PollResponseStatus status, Object result) {
+    this.status = status;
+    this.result = result;
+  }
 
-    public PollResponseStatus getStatus() {
-        return status;
-    }
+  public PollResponseStatus getStatus() {
+    return status;
+  }
 
-    public void setStatus(PollResponseStatus status) {
-        this.status = status;
-    }
+  public void setStatus(PollResponseStatus status) {
+    this.status = status;
+  }
 
-    public Object getResult() {
-        return result;
-    }
+  public Object getResult() {
+    return result;
+  }
 
-    public void setResult(Object result) {
-        this.result = result;
-    }
+  public void setResult(Object result) {
+    this.result = result;
+  }
 
-    public enum PollResponseStatus {
-        SUCCESS, ERROR
-    }
+  public enum PollResponseStatus {
+    SUCCESS,
+    ERROR
+  }
 }

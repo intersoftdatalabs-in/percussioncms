@@ -21,12 +21,11 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This UDF returns the I18n resource lookup value string for the supplied
@@ -42,66 +41,55 @@ import java.util.List;
  *
  * @see PSI18nUtils#getString
  */
-public class PSLocalizedTextLookup
-   extends PSSimpleJavaUdfExtension
-{
+public class PSLocalizedTextLookup extends PSSimpleJavaUdfExtension {
 
-   private static final Logger log = LogManager.getLogger(PSLocalizedTextLookup.class);
+  private static final Logger log = LogManager.getLogger(PSLocalizedTextLookup.class);
 
-   /* ************ IPSUdfProcessor Interface Implementation ************ */
-   public Object processUdf(Object[] parm1, IPSRequestContext request)
-      throws com.percussion.data.PSConversionException
-   {
-      //Make sure second parameter(lookup key) exists
-      if(parm1 == null ||parm1.length < 2)
-         throw new PSConversionException(0, "Text lookup key must not be empty");
+  /* ************ IPSUdfProcessor Interface Implementation ************ */
+  public Object processUdf(Object[] parm1, IPSRequestContext request)
+      throws com.percussion.data.PSConversionException {
+    // Make sure second parameter(lookup key) exists
+    if (parm1 == null || parm1.length < 2)
+      throw new PSConversionException(0, "Text lookup key must not be empty");
 
-      String lang = "";
-      Object obj = parm1[0];
-      if(obj != null)
-         lang = obj.toString();
-      //If language string is not supplied default to that from user context
-      if(lang == null || lang.trim().length() < 1)
-      {
-         try
-         {
-            if(request != null)
-            {
-               lang = request.getUserContextInformation(
-                  PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG,
-                  PSI18nUtils.DEFAULT_LANG).toString();
-            }
-         }
-         catch(Exception e)
-         {
-            //Do nothing and use the empyt string -> default language
-            request.printTraceMessage(e.getLocalizedMessage());
-         }
+    String lang = "";
+    Object obj = parm1[0];
+    if (obj != null) lang = obj.toString();
+    // If language string is not supplied default to that from user context
+    if (lang == null || lang.trim().length() < 1) {
+      try {
+        if (request != null) {
+          lang =
+              request
+                  .getUserContextInformation(
+                      PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG, PSI18nUtils.DEFAULT_LANG)
+                  .toString();
+        }
+      } catch (Exception e) {
+        // Do nothing and use the empyt string -> default language
+        request.printTraceMessage(e.getLocalizedMessage());
       }
-      List list = new ArrayList(Arrays.asList(parm1));
-      //The first parameter is a language string and not one of the keys,
-      //remove it
-      list.remove(0);
+    }
+    List list = new ArrayList(Arrays.asList(parm1));
+    // The first parameter is a language string and not one of the keys,
+    // remove it
+    list.remove(0);
 
-      return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
-   }
+    return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
+  }
 
-   /*
-    * main method for test purpose
-    * @param args  not used
-    */
-   static public void main(String[] args)
-   {
-      PSLocalizedTextLookup o = new PSLocalizedTextLookup();
-      String[] keys = {"en-us", "psx", "key1", "key2", "key3", "Content Title"};
-      try
-      {
-         System.out.println(o.processUdf(keys, null).toString());
-      }
-      catch(Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+  /*
+   * main method for test purpose
+   * @param args  not used
+   */
+  public static void main(String[] args) {
+    PSLocalizedTextLookup o = new PSLocalizedTextLookup();
+    String[] keys = {"en-us", "psx", "key1", "key2", "key3", "Content Title"};
+    try {
+      System.out.println(o.processUdf(keys, null).toString());
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 }

@@ -18,46 +18,49 @@ package com.percussion.cms.objectstore;
 
 /**
  * This class is used to define rules for elements to be included in the
- * Element returned in {@link PSItemComponent#toXml(Document,PSAcceptElements)} 
- * calls.  This may be expanded at a later date to provide more flexibility of 
- * including and excluding elements based on object values in the 
+ * Element returned in {@link PSItemComponent#toXml(Document,PSAcceptElements)}
+ * calls.  This may be expanded at a later date to provide more flexibility of
+ * including and excluding elements based on object values in the
  * sys_StandardItem.xsd.
  */
 // REFACTORED: CP-JAVA11
 public class PSAcceptElements {
-    /**
-     * Creates an instance with the boolean rules specified by the parameters.
-     *
-     * @param includeFields include fields in toXml call
-     * @param includeChildren include children in toXml call
-     * @param includeRelated include related items in toXml call
-     * @param includeBinary include binary fields in toXml call
-     */
-    public PSAcceptElements(boolean includeFields, boolean includeChildren,
-                            boolean includeRelated, boolean includeBinary) {
-        this.includeFields = includeFields;
-        this.includeChildren = includeChildren;
-        this.includeRelated = includeRelated;
-        this.includeBinary = includeBinary;
-    }
+  /**
+   * Creates an instance with the boolean rules specified by the parameters.
+   *
+   * @param includeFields include fields in toXml call
+   * @param includeChildren include children in toXml call
+   * @param includeRelated include related items in toXml call
+   * @param includeBinary include binary fields in toXml call
+   */
+  public PSAcceptElements(
+      boolean includeFields,
+      boolean includeChildren,
+      boolean includeRelated,
+      boolean includeBinary) {
+    this.includeFields = includeFields;
+    this.includeChildren = includeChildren;
+    this.includeRelated = includeRelated;
+    this.includeBinary = includeBinary;
+  }
 
-    /**
-     * Specifies the inclusion of binary values in {@link PSFieldItem#toXml(Document)} calls.
-     * @return {@code true} if they are to be included, otherwise {@code false}.
-     */
-    public boolean includeBinary() {
-        return includeBinary;
-    }
+  /**
+   * Specifies the inclusion of binary values in {@link PSFieldItem#toXml(Document)} calls.
+   * @return {@code true} if they are to be included, otherwise {@code false}.
+   */
+  public boolean includeBinary() {
+    return includeBinary;
+  }
 
-    /** Indicates if fields should be included in a toXml call, default is {@code true}. */
-    private boolean includeFields = true;
+  /** Indicates if fields should be included in a toXml call, default is {@code true}. */
+  private boolean includeFields = true;
 
-    /** Indicates if children should be included in a toXml call, default is {@code true}. */
-    private boolean includeChildren = true;
+  /** Indicates if children should be included in a toXml call, default is {@code true}. */
+  private boolean includeChildren = true;
 
-    /** Indicates if related items should be included in a toXml call, default is {@code true}. */
-    private boolean includeRelated = true;
+  /** Indicates if related items should be included in a toXml call, default is {@code true}. */
+  private boolean includeRelated = true;
 
-    /** Indicates if binary fields should be included in a toXml call, default is {@code true}. */
-    private boolean includeBinary = true;
+  /** Indicates if binary fields should be included in a toXml call, default is {@code true}. */
+  private boolean includeBinary = true;
 }

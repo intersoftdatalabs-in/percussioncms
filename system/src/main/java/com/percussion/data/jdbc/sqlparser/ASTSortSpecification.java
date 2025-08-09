@@ -29,24 +29,20 @@ public class ASTSortSpecification extends SimpleNode {
   public static final int ASC = 0;
   public static final int DESC = 1;
 
-  public void setCollationName(String coll)
-  {
-     m_coll = coll;
+  public void setCollationName(String coll) {
+    m_coll = coll;
   }
 
-  public String getCollationName()
-  {
-     return m_coll;
+  public String getCollationName() {
+    return m_coll;
   }
 
-  public void setType(int type)
-  {
-     m_type = type;
+  public void setType(int type) {
+    m_type = type;
   }
 
-  public int getType()
-  {
-     return m_type;
+  public int getType() {
+    return m_type;
   }
 
   private int m_type = ASC;

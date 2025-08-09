@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.server.command;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -40,10 +41,9 @@ import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.util.Locale;
 
 /**
  * The PSConsoleCommandShowVersion class implements processing of the
@@ -55,106 +55,91 @@ import java.util.Locale;
  * @version      1.0
  * @since      1.0
  */
-public class PSConsoleCommandShowVersion extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param      cmdArgs      the argument string to use when executing
-    *                           this command
-    *
-    */
-   public PSConsoleCommandShowVersion(String cmdArgs)
-      throws PSIllegalArgumentException
-   {
-      super(cmdArgs);
-   }
+public class PSConsoleCommandShowVersion extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param      cmdArgs      the argument string to use when executing
+   *                           this command
+   *
+   */
+  public PSConsoleCommandShowVersion(String cmdArgs) throws PSIllegalArgumentException {
+    super(cmdArgs);
+  }
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   <P>
-    * The execution of this command results in the following XML document
-    * structure:
-    * <PRE><CODE>
-    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
-    *
-    *      &lt;--
-    *         the command that was executed
-    *      --&gt;
-    *      &lt;ELEMENT command                     (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the result code for the command execution
-    *      --&gt;
-    *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the message text associated with the result code
-    *      --&gt;
-    *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
-    * </CODE></PRE>
-    *   
-    * @param      request                     the requestor object
-    *
-    * @return                                 the result document
-    *
-    * @exception   PSConsoleCommandException   if an error occurs during
-    *                                          execution
-    */
-   public Document execute(PSRequest request)
-      throws PSConsoleCommandException
-   {
-      Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(
-         respDoc, "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName + " " + m_cmdArgs);
+  /**
+   * Execute the command specified by this object. The results are returned
+   * as an XML document of the appropriate structure for the command.
+   *   <P>
+   * The execution of this command results in the following XML document
+   * structure:
+   * <PRE><CODE>
+   *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
+   *
+   *      &lt;--
+   *         the command that was executed
+   *      --&gt;
+   *      &lt;ELEMENT command                     (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the result code for the command execution
+   *      --&gt;
+   *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the message text associated with the result code
+   *      --&gt;
+   *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
+   * </CODE></PRE>
+   *
+   * @param      request                     the requestor object
+   *
+   * @return                                 the result document
+   *
+   * @exception   PSConsoleCommandException   if an error occurs during
+   *                                          execution
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(respDoc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName + " " + m_cmdArgs);
 
-      Locale loc;
-      if (request != null)
-         loc = request.getPreferredLocale();
-      else
-         loc = Locale.getDefault();
+    Locale loc;
+    if (request != null) loc = request.getPreferredLocale();
+    else loc = Locale.getDefault();
 
-      try {
-         String pkg = "com.percussion.util";
-         {
-            // this is an obfuscation-safe way to get the com.percussion.util
-            // package name. Note that Class objects may have null Package objects
-            // if there was no manifest in the jar (or if there was no jar)
-            Class c = new com.percussion.util.PSProperties().getClass();
-            if (c != null)
-            {
-               Package p = c.getPackage();
-               if (p != null)
-                  pkg = p.getName();
-            }
-         }
-
-         PSFormatVersion version = new PSFormatVersion(pkg);
-
-         PSXmlDocumentBuilder.addElement(respDoc, root, "resultCode", "0");
-         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText",
-            version.getVersionString());
-      } catch (Exception e) {
-         String msg;
-         if (e instanceof com.percussion.error.PSException)
-            msg = ((PSException)e).getLocalizedMessage(loc);
-         else
-            msg = e.getMessage();
-
-         Object[] args = { (ms_cmdName + " " + m_cmdArgs), msg };
-         throw new PSConsoleCommandException(
-            IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+    try {
+      String pkg = "com.percussion.util";
+      {
+        // this is an obfuscation-safe way to get the com.percussion.util
+        // package name. Note that Class objects may have null Package objects
+        // if there was no manifest in the jar (or if there was no jar)
+        Class c = new com.percussion.util.PSProperties().getClass();
+        if (c != null) {
+          Package p = c.getPackage();
+          if (p != null) pkg = p.getName();
+        }
       }
 
-      return respDoc;
-   }
+      PSFormatVersion version = new PSFormatVersion(pkg);
 
+      PSXmlDocumentBuilder.addElement(respDoc, root, "resultCode", "0");
+      PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", version.getVersionString());
+    } catch (Exception e) {
+      String msg;
+      if (e instanceof com.percussion.error.PSException)
+        msg = ((PSException) e).getLocalizedMessage(loc);
+      else msg = e.getMessage();
 
-   /**
-    * allow package members to see our command name
-    */
-   final static String   ms_cmdName = "show version";
+      Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
+      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+    }
+
+    return respDoc;
+  }
+
+  /**
+   * allow package members to see our command name
+   */
+  static final String ms_cmdName = "show version";
 }
-

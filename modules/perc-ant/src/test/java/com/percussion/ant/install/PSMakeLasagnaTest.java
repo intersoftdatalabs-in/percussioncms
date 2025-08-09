@@ -16,91 +16,83 @@
  */
 package com.percussion.ant.install;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.utils.io.PathUtils;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 @Tag("UnitTest")
-public class PSMakeLasagnaTest
-{
-    @TempDir
-    public Path temporaryFolder;
+public class PSMakeLasagnaTest {
+  @TempDir public Path temporaryFolder;
 
-    private String rxdeploydir;
+  private String rxdeploydir;
 
-   /**
-    * Constant for the test rxrepository.properties file.
-    */
-   public static final String TEST_RXREPOSITORY_PROPS_FILE = 
+  /**
+   * Constant for the test rxrepository.properties file.
+   */
+  public static final String TEST_RXREPOSITORY_PROPS_FILE =
       "/com/percussion/ant/install/test_rxrepository.properties";
 
-    @BeforeEach
-    public void setUp()
-    {
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());
-    }
+  @BeforeEach
+  public void setUp() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
 
-    @AfterEach
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  @AfterEach
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-   @Test
-   public void testExecute() throws IOException, PSEncryptionException {
-       Path rxDir = PathUtils.getRxPath();
-       File ret = rxDir.toFile();
-       ret.deleteOnExit();
+  @Test
+  public void testExecute() throws IOException, PSEncryptionException {
+    Path rxDir = PathUtils.getRxPath();
+    File ret = rxDir.toFile();
+    ret.deleteOnExit();
 
-        InputStream is = PSMakeLasagnaTest.class.getResourceAsStream(TEST_RXREPOSITORY_PROPS_FILE);
-        File temp =  new File(ret,"rxconfig/Installer/rxrepository.properties");
-        temp.deleteOnExit();
+    InputStream is = PSMakeLasagnaTest.class.getResourceAsStream(TEST_RXREPOSITORY_PROPS_FILE);
+    File temp = new File(ret, "rxconfig/Installer/rxrepository.properties");
+    temp.deleteOnExit();
 
-        FileUtils.copyInputStreamToFile(is, temp);
-        PSMakeLasagna ml;
-       ml = new PSMakeLasagna();
-       ml.setRoot(rxDir.toString());
+    FileUtils.copyInputStreamToFile(is, temp);
+    PSMakeLasagna ml;
+    ml = new PSMakeLasagna();
+    ml.setRoot(rxDir.toString());
 
-      // load the original, un-encrypted password
-      Properties repositoryProps = new Properties();
-      repositoryProps.load(new FileInputStream(temp));
-      String originalPWD = repositoryProps.getProperty(
-            PSJdbcDbmsDef.PWD_PROPERTY);
-      
-      // this will encrypt the password and write it back
-      ml.execute();
-      
-      // load the new, encrypted password
-      repositoryProps = new Properties();
-      repositoryProps.load(new FileInputStream(temp));
-      String newPWD = repositoryProps.getProperty(
-            PSJdbcDbmsDef.PWD_PROPERTY);
-      
-      // verify encryption was successful
-      assertFalse(newPWD.equals(originalPWD));
-      newPWD = PSEncryptor.decryptString(PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR),newPWD);
-      assertTrue(newPWD.equals(originalPWD));
-   }
-   
+    // load the original, un-encrypted password
+    Properties repositoryProps = new Properties();
+    repositoryProps.load(new FileInputStream(temp));
+    String originalPWD = repositoryProps.getProperty(PSJdbcDbmsDef.PWD_PROPERTY);
+
+    // this will encrypt the password and write it back
+    ml.execute();
+
+    // load the new, encrypted password
+    repositoryProps = new Properties();
+    repositoryProps.load(new FileInputStream(temp));
+    String newPWD = repositoryProps.getProperty(PSJdbcDbmsDef.PWD_PROPERTY);
+
+    // verify encryption was successful
+    assertFalse(newPWD.equals(originalPWD));
+    newPWD =
+        PSEncryptor.decryptString(
+            PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR), newPWD);
+    assertTrue(newPWD.equals(originalPWD));
+  }
 }

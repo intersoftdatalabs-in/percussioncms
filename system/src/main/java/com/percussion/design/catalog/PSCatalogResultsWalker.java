@@ -20,9 +20,8 @@ package com.percussion.design.catalog;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 
-
 /**
- * The PSCatalogResultsWalker class is used to simplify processing 
+ * The PSCatalogResultsWalker class is used to simplify processing
  * the XML results of a catalog request.
  * <p>
  * To use the PSCatalogResultsWalker, perform the catalog request and
@@ -41,13 +40,13 @@ import org.w3c.dom.Document;
  *       PSCatalogResultsWalker  cataloger   = new PSCataloger( "myserver",
  *                                                              "myid", "mypw");
  *       Properties              props       = new Properties();
- *       
+ *
  *       props.put("RequestCategory",  "data");
  *       props.put("RequestType",      "Column");
  *       props.put("DriverName",       "odbc");
  *       props.put("ServerName",       "MyServerDSN");
  *       props.put("TableName",        "mytab");
- *       
+ *
  *       Document                xmlDoc   = cataloger.catalog(props);
  *       PSCatalogResultsWalker  walker   = new PSCatalogResultsWalker(xmlDoc);
  *
@@ -86,65 +85,60 @@ import org.w3c.dom.Document;
  */
 public class PSCatalogResultsWalker extends PSXmlTreeWalker {
 
-   /**
-    * Creates a walker for the specified catalog results. Walkers provide
-    * a simplified way to traverse results, which can also be done
-    * using the XML document.
-    *
-    * @param   results  the result document returned by a catalog request
-    */
-   public PSCatalogResultsWalker(Document results)
-   {
-      super(results);
-   }
+  /**
+   * Creates a walker for the specified catalog results. Walkers provide
+   * a simplified way to traverse results, which can also be done
+   * using the XML document.
+   *
+   * @param   results  the result document returned by a catalog request
+   */
+  public PSCatalogResultsWalker(Document results) {
+    super(results);
+  }
 
-   /**
-    * Get the value of a request field. The information sent with the
-    * request is also stored with the result. The request info can be
-    * retrieved using this method. Request fileds are catalog
-    * request specific.
-    *
-    * @param   name              the name of the request field to retrieve
-    *
-    * @return                    the value of the request field
-    */
-   public java.lang.String getRequestData(java.lang.String name)
-   {
-        return getElementData(name, true);
-   }
+  /**
+   * Get the value of a request field. The information sent with the
+   * request is also stored with the result. The request info can be
+   * retrieved using this method. Request fileds are catalog
+   * request specific.
+   *
+   * @param   name              the name of the request field to retrieve
+   *
+   * @return                    the value of the request field
+   */
+  public java.lang.String getRequestData(java.lang.String name) {
+    return getElementData(name, true);
+  }
 
-   /**
-    * Position the walker on the next result object. Results often contain
-    * multiple objects, one for each "result row". By traversing the result
-    * objects, all the result data can be accessed. Result objects
-    * are catalog request specific.
-    *
-    * @param   name              the name of the result object to retrieve
-    *
-    * @return                    <code>true</code> if the walker found the
-    *                            next result object; <code>false</code> if
-    *                            no other objects exist by that name
-    */
-   public boolean nextResultObject(java.lang.String name)
-   {
-        return (getNextElement(name, true, true) != null);
-   }
+  /**
+   * Position the walker on the next result object. Results often contain
+   * multiple objects, one for each "result row". By traversing the result
+   * objects, all the result data can be accessed. Result objects
+   * are catalog request specific.
+   *
+   * @param   name              the name of the result object to retrieve
+   *
+   * @return                    <code>true</code> if the walker found the
+   *                            next result object; <code>false</code> if
+   *                            no other objects exist by that name
+   */
+  public boolean nextResultObject(java.lang.String name) {
+    return (getNextElement(name, true, true) != null);
+  }
 
-   /**
-    * Get the value of a result field. Result fileds are catalog
-    * request specific.
-    * <p>
-    * Before accessing a result field, the walker must be positioned
-    * on a result object. This is done by calling the
-    * {@link #nextResultObject nextResultObject} method.
-    *
-    * @param   name              the name of the result field to retrieve
-    *
-    * @return                    the value of the result field
-    */
-   public java.lang.String getResultData(java.lang.String name)
-   {
-        return getElementData(name, false);
-   }
+  /**
+   * Get the value of a result field. Result fileds are catalog
+   * request specific.
+   * <p>
+   * Before accessing a result field, the walker must be positioned
+   * on a result object. This is done by calling the
+   * {@link #nextResultObject nextResultObject} method.
+   *
+   * @param   name              the name of the result field to retrieve
+   *
+   * @return                    the value of the result field
+   */
+  public java.lang.String getResultData(java.lang.String name) {
+    return getElementData(name, false);
+  }
 }
-

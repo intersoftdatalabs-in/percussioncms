@@ -26,62 +26,62 @@ package com.percussion.content;
  */
 // REFACTORED: CP-JAVA11
 public interface IPSMimeContentTypes {
-   /**
-    * Content transfer encodings.
-    */
-   String MIME_ENC_BINARY = "binary";
+  /**
+   * Content transfer encodings.
+   */
+  String MIME_ENC_BINARY = "binary";
 
-   String MIME_ENC_BASE64 = "base64";
+  String MIME_ENC_BASE64 = "base64";
 
-   String MIME_ENC_QUOPRINT = "quoted-printable";
+  String MIME_ENC_QUOPRINT = "quoted-printable";
 
-   /**
-    * HTML FORMs use this type (same as GET request query string format).
-    */
-   String MIME_TYPE_URLENCODED_FORM = "application/x-www-form-urlencoded";
+  /**
+   * HTML FORMs use this type (same as GET request query string format).
+   */
+  String MIME_TYPE_URLENCODED_FORM = "application/x-www-form-urlencoded";
 
-   /**
-    * HTML FORMs use this type when they have file attachments.
-    */
-   String MIME_TYPE_MULTIPART_FORM = "multipart/form-data";
+  /**
+   * HTML FORMs use this type when they have file attachments.
+   */
+  String MIME_TYPE_MULTIPART_FORM = "multipart/form-data";
 
-   /**
-    * XML data sent as being application specific.
-    */
-   String MIME_TYPE_APPLICATION_XML = "application/xml";
+  /**
+   * XML data sent as being application specific.
+   */
+  String MIME_TYPE_APPLICATION_XML = "application/xml";
 
-   /**
-    * XML data sent as raw text.
-    */
-   String MIME_TYPE_TEXT_XML = "text/xml";
+  /**
+   * XML data sent as raw text.
+   */
+  String MIME_TYPE_TEXT_XML = "text/xml";
 
-   /**
-    * XSL data.
-    */
-   String MIME_TYPE_APPLICATION_XSL = "application/xsl-xml";
+  /**
+   * XSL data.
+   */
+  String MIME_TYPE_APPLICATION_XSL = "application/xsl-xml";
 
-   /**
-    * DTD data.
-    */
-   String MIME_TYPE_APPLICATION_DTD = "application/xml-dtd";
+  /**
+   * DTD data.
+   */
+  String MIME_TYPE_APPLICATION_DTD = "application/xml-dtd";
 
-   /**
-    * HTML data sent as raw text.
-    */
-   String MIME_TYPE_TEXT_HTML = "text/html";
+  /**
+   * HTML data sent as raw text.
+   */
+  String MIME_TYPE_TEXT_HTML = "text/html";
 
-   /**
-    * Raw text data.
-    */
-   String MIME_TYPE_TEXT_PLAIN = "text/plain";
+  /**
+   * Raw text data.
+   */
+  String MIME_TYPE_TEXT_PLAIN = "text/plain";
 
-   /**
-    * An octet stream for unknown MIME types.
-    */
-   String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
+  /**
+   * An octet stream for unknown MIME types.
+   */
+  String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
 
-   /**
-    * JSON MIME type.
-    */
-   String MIME_TYPE_JSON = "application/json";
+  /**
+   * JSON MIME type.
+   */
+  String MIME_TYPE_JSON = "application/json";
 }

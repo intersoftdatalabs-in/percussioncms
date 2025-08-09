@@ -20,18 +20,16 @@ package com.percussion.i18n.tmxdom;
  * This interface defines method common to all leaf nodes. leaf nodes are node
  * That have text values and no other children.
  */
-public interface IPSTmxLeafNode
-   extends IPSTmxNode
-{
-   /**
-    * Method to return value of the TMX leaf node.
-    * @return value of the node, not <code>null</code> may be <code>empty</code>.
-    */
-   public String getValue();
+public interface IPSTmxLeafNode extends IPSTmxNode {
+  /**
+   * Method to return value of the TMX leaf node.
+   * @return value of the node, not <code>null</code> may be <code>empty</code>.
+   */
+  public String getValue();
 
-   /**
-    * Method to set the value for the TMX leaf node.
-    * @param value if <code>null</code> specified empty value is assumed.
-    */
-   public void setValue(String value);
+  /**
+   * Method to set the value for the TMX leaf node.
+   * @param value if <code>null</code> specified empty value is assumed.
+   */
+  public void setValue(String value);
 }

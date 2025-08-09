@@ -19,15 +19,14 @@ package com.percussion.design.objectstore;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import java.io.FileReader;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author RammohanVangapalli
@@ -35,150 +34,118 @@ import java.util.List;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class PSCloneOverrideFieldList extends PSCollectionComponent
-{
+public class PSCloneOverrideFieldList extends PSCollectionComponent {
 
-   private static final Logger log = LogManager.getLogger(PSCloneOverrideFieldList.class);
+  private static final Logger log = LogManager.getLogger(PSCloneOverrideFieldList.class);
 
-   /**
-    * Construct a Java object from its XML representation. See the
-    * {@link #toXml(Document) toXml} method for a description of the XML object.
-    *
-    * @param      sourceNode     the XML element node to construct this
-    *                            object from
-    *
-    * @param      parentDoc      the Java object which is the parent of this
-    *                            object
-    *
-    * @param      parentComponents  the parent objects of this object
-    *
-    * @exception  PSUnknownNodeTypeException
-    *                            if the XML element node is not of the
-    *                            appropriate type
-    */
-   public PSCloneOverrideFieldList(
-      Element sourceNode,
-      IPSDocument parentDoc,
-      List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      this();
-      fromXml(sourceNode, parentDoc, parentComponents);
-   }
+  /**
+   * Construct a Java object from its XML representation. See the
+   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   *
+   * @param      sourceNode     the XML element node to construct this
+   *                            object from
+   *
+   * @param      parentDoc      the Java object which is the parent of this
+   *                            object
+   *
+   * @param      parentComponents  the parent objects of this object
+   *
+   * @exception  PSUnknownNodeTypeException
+   *                            if the XML element node is not of the
+   *                            appropriate type
+   */
+  public PSCloneOverrideFieldList(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    this();
+    fromXml(sourceNode, parentDoc, parentComponents);
+  }
 
-   /**
-    * Constructs an empty <code>PSExtensionCallSet</code>.
-    */
-   public PSCloneOverrideFieldList()
-   {
-      super(PSCloneOverrideField.class);
-   }
+  /**
+   * Constructs an empty <code>PSExtensionCallSet</code>.
+   */
+  public PSCloneOverrideFieldList() {
+    super(PSCloneOverrideField.class);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.design.objectstore.IPSComponent#toXml(org.w3c.dom.Document)
-    */
-   public Element toXml(Document doc)
-   {
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute("id", String.valueOf(m_id));
+  /* (non-Javadoc)
+   * @see com.percussion.design.objectstore.IPSComponent#toXml(org.w3c.dom.Document)
+   */
+  public Element toXml(Document doc) {
+    Element root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute("id", String.valueOf(m_id));
 
-      int size = size();
-      for (int i = 0; i < size; i++)
-      {
-         IPSComponent exit = (IPSComponent) get(i);
-         root.appendChild(exit.toXml(doc));
-      }
+    int size = size();
+    for (int i = 0; i < size; i++) {
+      IPSComponent exit = (IPSComponent) get(i);
+      root.appendChild(exit.toXml(doc));
+    }
 
-      return root;
-   }
+    return root;
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.design.objectstore.IPSComponent#fromXml(org.w3c.dom.Element, com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
-    */
-   public void fromXml(
-      Element sourceNode,
-      IPSDocument parentDoc,
-      List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL,
-            XML_NODE_NAME);
+  /* (non-Javadoc)
+   * @see com.percussion.design.objectstore.IPSComponent#fromXml(org.w3c.dom.Element, com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
+   */
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    if (sourceNode == null)
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
 
-      if (false == XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName()};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            args);
-      }
+    if (false == XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
 
-      String sTemp = sourceNode.getAttribute("id");
-      try
-      {
-         m_id = Integer.parseInt(sTemp);
-      }
-      catch (Exception e)
-      {
-         m_id = 0;
-      }
+    String sTemp = sourceNode.getAttribute("id");
+    try {
+      m_id = Integer.parseInt(sTemp);
+    } catch (Exception e) {
+      m_id = 0;
+    }
 
-      NodeList nl =
-         sourceNode.getElementsByTagName(PSCloneOverrideField.XML_NODE_NAME);
-      Element curElem = null;
-      for (int i = 0; i < nl.getLength(); i++)
-      {
-         curElem = (Element) nl.item(i);
-         PSCloneOverrideField field =
-            new PSCloneOverrideField(curElem, parentDoc, parentComponents);
-         add(field);
-      }
-   }
-   
-   /* (non-Javadoc)
-    * @see java.lang.Object#clone()
-    */
-   public Object clone()
-   {
-      PSCloneOverrideFieldList filedList = new PSCloneOverrideFieldList();
-      Iterator iter = iterator();
-      while (iter.hasNext())
-         filedList.add(((PSCloneOverrideField) iter.next()).clone());
-      return filedList;
-   }
+    NodeList nl = sourceNode.getElementsByTagName(PSCloneOverrideField.XML_NODE_NAME);
+    Element curElem = null;
+    for (int i = 0; i < nl.getLength(); i++) {
+      curElem = (Element) nl.item(i);
+      PSCloneOverrideField field = new PSCloneOverrideField(curElem, parentDoc, parentComponents);
+      add(field);
+    }
+  }
 
-   /**
-    * Name of the root element in the XML representation of this object.  
-    */
-   public static final String XML_NODE_NAME = "PSXCloneOverrideFieldList";
+  /* (non-Javadoc)
+   * @see java.lang.Object#clone()
+   */
+  public Object clone() {
+    PSCloneOverrideFieldList filedList = new PSCloneOverrideFieldList();
+    Iterator iter = iterator();
+    while (iter.hasNext()) filedList.add(((PSCloneOverrideField) iter.next()).clone());
+    return filedList;
+  }
 
-   /**
-    * Main method for testing
-    * @param args
-    */
-   public static void main(String[] args)
-   {
-      try
-      {
-         Document doc =
-            PSXmlDocumentBuilder.createXmlDocument(
-               new FileReader("c:/PSXCloneOverrideFieldList.xml"),
-               false);
+  /**
+   * Name of the root element in the XML representation of this object.
+   */
+  public static final String XML_NODE_NAME = "PSXCloneOverrideFieldList";
 
-         Element elem = doc.getDocumentElement();
-         PSCloneOverrideFieldList list = 
-               new PSCloneOverrideFieldList(elem, null,null);
+  /**
+   * Main method for testing
+   * @param args
+   */
+  public static void main(String[] args) {
+    try {
+      Document doc =
+          PSXmlDocumentBuilder.createXmlDocument(
+              new FileReader("c:/PSXCloneOverrideFieldList.xml"), false);
 
-            System.out.println(
-               "xml = " + PSXmlDocumentBuilder.toString(list.toXml(doc)));
-      }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+      Element elem = doc.getDocumentElement();
+      PSCloneOverrideFieldList list = new PSCloneOverrideFieldList(elem, null, null);
+
+      System.out.println("xml = " + PSXmlDocumentBuilder.toString(list.toXml(doc)));
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 }

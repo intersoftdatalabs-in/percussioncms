@@ -18,24 +18,21 @@ package com.percussion.share.service.exception;
 
 public class PSDataServiceException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    
-    public PSDataServiceException() {
-        super();
-    }
+  public PSDataServiceException() {
+    super();
+  }
 
-    public PSDataServiceException(String message) {
-        super(message);
-    }
+  public PSDataServiceException(String message) {
+    super(message);
+  }
 
-    public PSDataServiceException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSDataServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public PSDataServiceException(Throwable cause) {
-        super(cause);
-    }
-
+  public PSDataServiceException(Throwable cause) {
+    super(cause);
+  }
 }
-

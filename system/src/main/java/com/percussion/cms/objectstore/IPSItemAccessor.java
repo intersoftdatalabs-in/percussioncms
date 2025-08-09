@@ -25,24 +25,22 @@ package com.percussion.cms.objectstore;
  * not in the same package as the extractor and without adding public mutators,
  * that apply to the definition data, to those objects.
  */
-public interface IPSItemAccessor
-{
+public interface IPSItemAccessor {
 
-   /**
-    * Accepts a vistor object.
-    *
-    * @param visitor the object to accept.
-    */
-   void accept(IPSVisitor visitor);
+  /**
+   * Accepts a vistor object.
+   *
+   * @param visitor the object to accept.
+   */
+  void accept(IPSVisitor visitor);
 
-   /**
-    * Returns a <code>PSItemField</code> by name.  The requested field
-    * may not be available, in that case this returns <code>null</code>.
-    *
-    * @param fieldName - the field name to retrieve, must not be
-    * <code>null</code> or empty.
-    * @return - the <code>PSItemField</code> may be <code>null</code>.
-    */
-   public PSItemField getFieldByName(String fieldName);
-
+  /**
+   * Returns a <code>PSItemField</code> by name.  The requested field
+   * may not be available, in that case this returns <code>null</code>.
+   *
+   * @param fieldName - the field name to retrieve, must not be
+   * <code>null</code> or empty.
+   * @return - the <code>PSItemField</code> may be <code>null</code>.
+   */
+  public PSItemField getFieldByName(String fieldName);
 }

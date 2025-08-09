@@ -18,10 +18,9 @@
 package com.percussion.analytics.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Simple data class to represent the analytics provider config.
@@ -30,161 +29,161 @@ import java.util.*;
 @JsonRootName(value = "providerConfig")
 public class PSAnalyticsProviderConfig implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String userid;
-    private String password;
-    private boolean isEncrypted;
-    private String uid;
-    private Map<String, String> params = new HashMap<>();
-    private Map<String, String> extraParamsMap;
-    private ExtraParamsClass extraParams;
+  private String userid;
+  private String password;
+  private boolean isEncrypted;
+  private String uid;
+  private Map<String, String> params = new HashMap<>();
+  private Map<String, String> extraParamsMap;
+  private ExtraParamsClass extraParams;
 
-    public PSAnalyticsProviderConfig() {
-        // Default constructor
+  public PSAnalyticsProviderConfig() {
+    // Default constructor
+  }
+
+  /**
+   * Constructs a config with required fields.
+   *
+   * @param userid        cannot be null or empty.
+   * @param password      cannot be null or empty.
+   * @param isEncrypted   flag indicating that the password is encrypted.
+   * @param extraParamsMap extra params for the analytics provider, may be null or empty.
+   */
+  public PSAnalyticsProviderConfig(
+      String userid, String password, boolean isEncrypted, Map<String, String> extraParamsMap) {
+    if (StringUtils.isBlank(userid)) {
+      throw new IllegalArgumentException("userid cannot be null or empty.");
+    }
+    if (StringUtils.isBlank(password)) {
+      throw new IllegalArgumentException("password cannot be null or empty.");
+    }
+    this.userid = userid;
+    this.password = password;
+    this.isEncrypted = isEncrypted;
+    this.extraParamsMap = extraParamsMap;
+    this.uid = userid;
+
+    // Build ExtraParamsClass from extraParamsMap
+    var pairList = new ArrayList<PSGAPairConfig>();
+    if (this.extraParamsMap != null) {
+      this.extraParamsMap.forEach((k, v) -> pairList.add(new PSGAPairConfig(k, v)));
+    }
+    var extraParamsClass = new ExtraParamsClass();
+    extraParamsClass.setEntry(pairList);
+    this.setExtraParams(extraParamsClass);
+  }
+
+  public String getUserid() {
+    return userid;
+  }
+
+  public void setUserid(String userid) {
+    this.userid = userid;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public boolean isEncrypted() {
+    return isEncrypted;
+  }
+
+  public void setEncrypted(boolean encrypted) {
+    isEncrypted = encrypted;
+  }
+
+  public String getUid() {
+    return uid;
+  }
+
+  public void setUid(String uid) {
+    this.uid = uid;
+  }
+
+  public Map<String, String> getParams() {
+    return params;
+  }
+
+  public void setParams(Map<String, String> params) {
+    this.params = params;
+  }
+
+  public Map<String, String> getExtraParamsMap() {
+    var map = new HashMap<String, String>();
+    var extraParamsClass = this.getExtraParams();
+    if (extraParamsClass != null) {
+      var dataList = extraParamsClass.getEntry();
+      if (dataList != null && !dataList.isEmpty()) {
+        dataList.forEach(t -> map.put(t.getKey(), t.getValue()));
+      }
+    }
+    return map;
+  }
+
+  public void setExtraParamsMap(Map<String, String> extraParamsMap) {
+    this.extraParamsMap = extraParamsMap;
+  }
+
+  public ExtraParamsClass getExtraParams() {
+    return extraParams;
+  }
+
+  public void setExtraParams(ExtraParamsClass extraParams) {
+    this.extraParams = extraParams;
+  }
+
+  /**
+   * Holds extra parameters as a list of key-value pairs.
+   */
+  static class ExtraParamsClass implements Serializable {
+    private List<PSGAPairConfig> entry = new ArrayList<>();
+
+    public List<PSGAPairConfig> getEntry() {
+      return entry;
     }
 
-    /**
-     * Constructs a config with required fields.
-     *
-     * @param userid        cannot be null or empty.
-     * @param password      cannot be null or empty.
-     * @param isEncrypted   flag indicating that the password is encrypted.
-     * @param extraParamsMap extra params for the analytics provider, may be null or empty.
-     */
-    public PSAnalyticsProviderConfig(String userid, String password,
-                                     boolean isEncrypted, Map<String, String> extraParamsMap) {
-        if (StringUtils.isBlank(userid)) {
-            throw new IllegalArgumentException("userid cannot be null or empty.");
-        }
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("password cannot be null or empty.");
-        }
-        this.userid = userid;
-        this.password = password;
-        this.isEncrypted = isEncrypted;
-        this.extraParamsMap = extraParamsMap;
-        this.uid = userid;
+    public void setEntry(List<PSGAPairConfig> entry) {
+      this.entry = entry;
+    }
+  }
 
-        // Build ExtraParamsClass from extraParamsMap
-        var pairList = new ArrayList<PSGAPairConfig>();
-        if (this.extraParamsMap != null) {
-            this.extraParamsMap.forEach((k, v) -> pairList.add(new PSGAPairConfig(k, v)));
-        }
-        var extraParamsClass = new ExtraParamsClass();
-        extraParamsClass.setEntry(pairList);
-        this.setExtraParams(extraParamsClass);
+  /**
+   * Represents a key-value pair for extra parameters.
+   */
+  static class PSGAPairConfig implements Serializable {
+    private String key;
+    private String value;
+
+    public PSGAPairConfig(String key, String value) {
+      this.key = key;
+      this.value = value;
     }
 
-    public String getUserid() {
-        return userid;
+    public PSGAPairConfig() {
+      // Default constructor
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid;
+    public String getKey() {
+      return key;
     }
 
-    public String getPassword() {
-        return password;
+    public void setKey(String key) {
+      this.key = key;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public String getValue() {
+      return value;
     }
 
-    public boolean isEncrypted() {
-        return isEncrypted;
+    public void setValue(String value) {
+      this.value = value;
     }
-
-    public void setEncrypted(boolean encrypted) {
-        isEncrypted = encrypted;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public Map<String, String> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, String> params) {
-        this.params = params;
-    }
-
-    public Map<String, String> getExtraParamsMap() {
-        var map = new HashMap<String, String>();
-        var extraParamsClass = this.getExtraParams();
-        if (extraParamsClass != null) {
-            var dataList = extraParamsClass.getEntry();
-            if (dataList != null && !dataList.isEmpty()) {
-                dataList.forEach(t -> map.put(t.getKey(), t.getValue()));
-            }
-        }
-        return map;
-    }
-
-    public void setExtraParamsMap(Map<String, String> extraParamsMap) {
-        this.extraParamsMap = extraParamsMap;
-    }
-
-    public ExtraParamsClass getExtraParams() {
-        return extraParams;
-    }
-
-    public void setExtraParams(ExtraParamsClass extraParams) {
-        this.extraParams = extraParams;
-    }
-
-    /**
-     * Holds extra parameters as a list of key-value pairs.
-     */
-    static class ExtraParamsClass implements Serializable {
-        private List<PSGAPairConfig> entry = new ArrayList<>();
-
-        public List<PSGAPairConfig> getEntry() {
-            return entry;
-        }
-
-        public void setEntry(List<PSGAPairConfig> entry) {
-            this.entry = entry;
-        }
-    }
-
-    /**
-     * Represents a key-value pair for extra parameters.
-     */
-    static class PSGAPairConfig implements Serializable {
-        private String key;
-        private String value;
-
-        public PSGAPairConfig(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public PSGAPairConfig() {
-            // Default constructor
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
+  }
 }

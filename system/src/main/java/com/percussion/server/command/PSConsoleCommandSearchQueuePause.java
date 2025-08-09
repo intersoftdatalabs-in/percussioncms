@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.server.command;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -39,50 +40,45 @@ import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
 /**
- * Command to pause the queue processing, but allow event to continue to queue.  Noop 
+ * Command to pause the queue processing, but allow event to continue to queue.  Noop
  * if queue is already paused.
- * 
+ *
  */
-public class PSConsoleCommandSearchQueuePause extends PSConsoleCommand
-{
+public class PSConsoleCommandSearchQueuePause extends PSConsoleCommand {
 
-   /**
-    * The constructor for this class. The command arguments are ignored for this
-    * command.
-    * 
-    * @param cmdArgs the argument string to use when executing this command, may
-    * be <code>null</code> or empty.
-    */
-   public PSConsoleCommandSearchQueuePause(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+  /**
+   * The constructor for this class. The command arguments are ignored for this
+   * command.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may
+   * be <code>null</code> or empty.
+   */
+  public PSConsoleCommandSearchQueuePause(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-   //see base class   
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc;
-      doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, 
-         getCommandName());
-      if (null != doc)
-         return doc;
-      String result = PSSearchIndexEventQueue.getInstance().pause() ? "Indexer was paused" : "Indexer was already paused";
-      doc = getResultsDocument(request, getCommandName(), 
-            IPSServerErrors.RAW_DUMP, 
-            new Object[] {result});
-      return doc;
-   }
-   
-   // see base class
-   protected String getCommandName()
-   {
-      return COMMAND_NAME;
-   }
-   
-   /**
-    * The full command that launched this handler. 
-    */
-   private final static String COMMAND_NAME = "search queue pause";
-   
+  // see base class
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc;
+    doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, getCommandName());
+    if (null != doc) return doc;
+    String result =
+        PSSearchIndexEventQueue.getInstance().pause()
+            ? "Indexer was paused"
+            : "Indexer was already paused";
+    doc =
+        getResultsDocument(
+            request, getCommandName(), IPSServerErrors.RAW_DUMP, new Object[] {result});
+    return doc;
+  }
 
+  // see base class
+  protected String getCommandName() {
+    return COMMAND_NAME;
+  }
+
+  /**
+   * The full command that launched this handler.
+   */
+  private static final String COMMAND_NAME = "search queue pause";
 }

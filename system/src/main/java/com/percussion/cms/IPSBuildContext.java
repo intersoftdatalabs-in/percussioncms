@@ -18,7 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,47 +32,42 @@ import org.w3c.dom.Element;
  *
  * @see IPSBuildStep
  */
-public interface IPSBuildContext
-{
-   /**
-    * To create elements, a document is needed.
-    *
-    * @return The document object to which all fields added to this object
-    *    will eventually be added. This object should be treated read-only.
-    */
-   public Document getResultDocument();
+public interface IPSBuildContext {
+  /**
+   * To create elements, a document is needed.
+   *
+   * @return The document object to which all fields added to this object
+   *    will eventually be added. This object should be treated read-only.
+   */
+  public Document getResultDocument();
 
-   /**
-    * If a DisplayField element created by a build step should be hidden, it
-    * should be added using this method after the node is created.
-    *
-    * @param dispNode A DisplayField element that should be visible when
-    *    the editor is rendered. Must not be <code>null</code>.
-    *
-    * @param controlName The name of the control that should render this node.
-    *    Must not be empty.
-    *
-    * @throws IllegalArgumentException if dispNode is <code>null</code> or
-    *    controlName is <code>null</code> or empty.
-    */
-   public void addHiddenField( Element dispNode, String controlName );
+  /**
+   * If a DisplayField element created by a build step should be hidden, it
+   * should be added using this method after the node is created.
+   *
+   * @param dispNode A DisplayField element that should be visible when
+   *    the editor is rendered. Must not be <code>null</code>.
+   *
+   * @param controlName The name of the control that should render this node.
+   *    Must not be empty.
+   *
+   * @throws IllegalArgumentException if dispNode is <code>null</code> or
+   *    controlName is <code>null</code> or empty.
+   */
+  public void addHiddenField(Element dispNode, String controlName);
 
-
-
-   /**
-    * If a DisplayField element created by a build step should be visible when
-    * rendered, it should be added using this method after the node is created.
-    *
-    * @param dispNode A DisplayField element that should be visible when
-    *    the editor is rendered. Must not be <code>null</code>.
-    *
-    * @param controlName The name of the control that should render this node.
-    *    Must not be empty.
-    *
-    * @throws IllegalArgumentException if dispNode is <code>null</code> or
-    *    controlName is <code>null</code> or empty.
-    */
-   public void addVisibleField( Element dispNode, String controlName );
+  /**
+   * If a DisplayField element created by a build step should be visible when
+   * rendered, it should be added using this method after the node is created.
+   *
+   * @param dispNode A DisplayField element that should be visible when
+   *    the editor is rendered. Must not be <code>null</code>.
+   *
+   * @param controlName The name of the control that should render this node.
+   *    Must not be empty.
+   *
+   * @throws IllegalArgumentException if dispNode is <code>null</code> or
+   *    controlName is <code>null</code> or empty.
+   */
+  public void addVisibleField(Element dispNode, String controlName);
 }
-
-

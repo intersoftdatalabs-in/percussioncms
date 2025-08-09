@@ -16,18 +16,15 @@
  */
 package com.percussion.membership.data;
 
-public class PSGetUserResult extends PSMembershipResult
-{
-    private PSUserSummary userSummary;
-    
-    public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary)
-    {
-        super(status, message);
-        this.userSummary = userSummary;
-    }
+public class PSGetUserResult extends PSMembershipResult {
+  private PSUserSummary userSummary;
 
-    public PSUserSummary getUserSummary()
-    {
-        return userSummary;
-    }
+  public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary) {
+    super(status, message);
+    this.userSummary = userSummary;
+  }
+
+  public PSUserSummary getUserSummary() {
+    return userSummary;
+  }
 }

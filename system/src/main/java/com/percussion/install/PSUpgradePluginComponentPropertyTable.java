@@ -23,17 +23,15 @@ import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  * Plugin class to modify RXSYSCOMPONENTPROPERTY table.
@@ -43,127 +41,100 @@ import java.util.Properties;
  * and then generates a sequential number for the newly added PROPERTYID column
  */
 // REFACTORED: CP-JAVA11
-public class PSUpgradePluginComponentPropertyTable implements IPSUpgradePlugin
-{
-   /**
-    * Default constructor
-    */
-   public PSUpgradePluginComponentPropertyTable()
-   {
-   }
+public class PSUpgradePluginComponentPropertyTable implements IPSUpgradePlugin {
+  /**
+   * Default constructor
+   */
+  public PSUpgradePluginComponentPropertyTable() {}
 
-   /**
-    * Implements process method of IPSUpgardePlugin.
-    */
-   
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      FileInputStream in = null;
-      String bkptablename = "RXSYSCOMPONENTPROPERTY" +
-         PSJdbcPlanBuilder.BACKUP_SUFFIX;
-      Connection conn = null;
-      try
-      {
-         in = new FileInputStream(new File(RxUpgrade.getRxRoot() +
-            File.separator + config.REPOSITORY_PROPFILEPATH));
-         Properties props = new Properties();
-         props.load(in);
-         props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-         PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
-         PSJdbcDataTypeMap dataTypeMap =
-            new PSJdbcDataTypeMap(props.getProperty("DB_BACKEND"),
-            props.getProperty("DB_DRIVER_NAME"), null);
-         conn = RxLogTables.createConnection(props);
+  /**
+   * Implements process method of IPSUpgardePlugin.
+   */
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    FileInputStream in = null;
+    String bkptablename = "RXSYSCOMPONENTPROPERTY" + PSJdbcPlanBuilder.BACKUP_SUFFIX;
+    Connection conn = null;
+    try {
+      in =
+          new FileInputStream(
+              new File(RxUpgrade.getRxRoot() + File.separator + config.REPOSITORY_PROPFILEPATH));
+      Properties props = new Properties();
+      props.load(in);
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      PSJdbcDataTypeMap dataTypeMap =
+          new PSJdbcDataTypeMap(
+              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
+      conn = RxLogTables.createConnection(props);
 
-         Document propsDoc = PSUpgradePluginGeneralTables.getTableDataDoc(conn,
-            dbmsDef, dataTypeMap, bkptablename);
-         if(propsDoc == null)
-         {
-            config.getLogStream().println("Could not extract data out "
-               + "of " + bkptablename + " table");
-            config.getLogStream().println("Table upgrade aborted");
-            return null;
-         }
-
-         NodeList propRows = propsDoc.getElementsByTagName("row");
-         if(propRows == null || propRows.getLength() < 1)
-         {
-            config.getLogStream().println(
-               "No data in " + bkptablename + " table");
-            config.getLogStream().println("Table upgrade aborted");
-            return null;
-         }
-
-         Element elem = null;
-         Element temp = null;
-         String value = null;
-         Text text = null;
-         for(int i=0; i<propRows.getLength(); i++)
-         {
-            elem = (Element)propRows.item(i);
-            //Add column PROPERTYID
-            temp = propsDoc.createElement("column");
-            temp.setAttribute("name", "PROPERTYID");
-            try
-            {
-               value = Integer.toString(i+1);
-            }
-            catch(Throwable t)
-            {
-            }
-            text = propsDoc.createTextNode(value);
-            temp.appendChild(text);
-            elem.appendChild(temp);
-         }
-         PSJdbcTableSchema tableSchema = null;
-         tableSchema = PSJdbcTableFactory.catalogTable(conn, dbmsDef,
-            dataTypeMap, "RXSYSCOMPONENTPROPERTY", true);
-         if(tableSchema == null)
-         {
-            config.getLogStream().println(
-               "null value for tableSchema RXSYSCOMPONENTPROPERTY table");
-            config.getLogStream().println("Table upgrade aborted");
-            return null;
-         }
-
-         propsDoc.getDocumentElement().setAttribute("onCreateOnly", "no");
-         PSJdbcTableData tableData =
-            new PSJdbcTableData(propsDoc.getDocumentElement());
-         tableSchema.setTableData(tableData);
-
-         PSJdbcTableFactory.processTable(
-            conn, dbmsDef, tableSchema, config.getLogStream(), false);
+      Document propsDoc =
+          PSUpgradePluginGeneralTables.getTableDataDoc(conn, dbmsDef, dataTypeMap, bkptablename);
+      if (propsDoc == null) {
+        config
+            .getLogStream()
+            .println("Could not extract data out " + "of " + bkptablename + " table");
+        config.getLogStream().println("Table upgrade aborted");
+        return null;
       }
-      catch(Exception e)
-      {
-         e.printStackTrace(config.getLogStream());
+
+      NodeList propRows = propsDoc.getElementsByTagName("row");
+      if (propRows == null || propRows.getLength() < 1) {
+        config.getLogStream().println("No data in " + bkptablename + " table");
+        config.getLogStream().println("Table upgrade aborted");
+        return null;
       }
-      finally
-      {
-         try
-         {
-            if(in != null)
-            {
-               in.close();
-               in =null;
-            }
-         }
-         catch(Throwable t)
-         {
-         }
-         if (conn != null)
-         {
-            try
-            {
-               conn.close();
-            }
-            catch (SQLException e)
-            {
-            }
-            conn = null;
-         }
+
+      Element elem = null;
+      Element temp = null;
+      String value = null;
+      Text text = null;
+      for (int i = 0; i < propRows.getLength(); i++) {
+        elem = (Element) propRows.item(i);
+        // Add column PROPERTYID
+        temp = propsDoc.createElement("column");
+        temp.setAttribute("name", "PROPERTYID");
+        try {
+          value = Integer.toString(i + 1);
+        } catch (Throwable t) {
+        }
+        text = propsDoc.createTextNode(value);
+        temp.appendChild(text);
+        elem.appendChild(temp);
       }
-      config.getLogStream().println("leaving the process() of the plugin...");
-      return null;
-   }
+      PSJdbcTableSchema tableSchema = null;
+      tableSchema =
+          PSJdbcTableFactory.catalogTable(
+              conn, dbmsDef, dataTypeMap, "RXSYSCOMPONENTPROPERTY", true);
+      if (tableSchema == null) {
+        config.getLogStream().println("null value for tableSchema RXSYSCOMPONENTPROPERTY table");
+        config.getLogStream().println("Table upgrade aborted");
+        return null;
+      }
+
+      propsDoc.getDocumentElement().setAttribute("onCreateOnly", "no");
+      PSJdbcTableData tableData = new PSJdbcTableData(propsDoc.getDocumentElement());
+      tableSchema.setTableData(tableData);
+
+      PSJdbcTableFactory.processTable(conn, dbmsDef, tableSchema, config.getLogStream(), false);
+    } catch (Exception e) {
+      e.printStackTrace(config.getLogStream());
+    } finally {
+      try {
+        if (in != null) {
+          in.close();
+          in = null;
+        }
+      } catch (Throwable t) {
+      }
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
+        conn = null;
+      }
+    }
+    config.getLogStream().println("leaving the process() of the plugin...");
+    return null;
+  }
 }

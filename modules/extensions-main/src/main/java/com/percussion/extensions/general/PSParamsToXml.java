@@ -22,13 +22,11 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -59,82 +57,67 @@ import org.w3c.dom.Element;
  * The exit itself is generic in that it takes any number parameters though it
  * is specified as 3 now.
  */
-public class PSParamsToXml extends PSDefaultExtension
-   implements IPSResultDocumentProcessor
-{
+public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
-   /*
-    * Required by the interface. This exit never modifies the stylesheet.
-    * @see IPSResultDocumentProcessor#canModifyStyleSheet()
-    */
-   public boolean canModifyStyleSheet()
-   {
-      return false;
-   }
+  /*
+   * Required by the interface. This exit never modifies the stylesheet.
+   * @see IPSResultDocumentProcessor#canModifyStyleSheet()
+   */
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
 
-   /*
-    * Required by the interface. This exit never modifies the stylesheet.
-    * @see IPSResultDocumentProcessor#canModifyStyleSheet()
-    */
-   public Document processResultDocument(Object[] params,
-         IPSRequestContext request, Document doc)
-      throws PSParameterMismatchException, PSExtensionProcessingException
-   {
-      //Two parameters is the minimum.
-      if(params==null || params.length < 2)
-      {
-         throw new IllegalArgumentException(
-            "params must not be null and should be of size greater than 1");
+  /*
+   * Required by the interface. This exit never modifies the stylesheet.
+   * @see IPSResultDocumentProcessor#canModifyStyleSheet()
+   */
+  public Document processResultDocument(Object[] params, IPSRequestContext request, Document doc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    // Two parameters is the minimum.
+    if (params == null || params.length < 2) {
+      throw new IllegalArgumentException(
+          "params must not be null and should be of size greater than 1");
+    }
+    // Name of the unit element whose children will be the parameters.
+    String unitElemName = params[0].toString();
+    Map map = request.getParameters();
+    String paramName = null;
+    Object obj = null;
+    List values = null;
+    int leastSize = Integer.MAX_VALUE; // Initialize to a large value.
+    Map newMap = new HashMap();
+    for (int i = 1; i < params.length; i++) {
+      if (params[i] == null) continue;
+      paramName = params[i].toString();
+      obj = map.get(paramName);
+      if (obj == null) continue;
+
+      values = new ArrayList();
+
+      if (obj instanceof List) values.addAll((List) obj);
+      else values.add(obj.toString());
+      newMap.put(paramName, values);
+
+      if (leastSize > values.size()) leastSize = values.size();
+    }
+
+    // Make sure not keep the huge value to be a valid one.
+    if (leastSize == Integer.MAX_VALUE) leastSize = 0;
+
+    Iterator keys = null;
+    String key = null;
+    String value = null;
+    for (int i = 0; i < leastSize; i++) {
+      Element unitElem =
+          PSXmlDocumentBuilder.addElement(doc, doc.getDocumentElement(), unitElemName, null);
+      keys = newMap.keySet().iterator();
+      while (keys.hasNext()) {
+        key = keys.next().toString();
+        value = ((List) newMap.get(key)).get(i).toString();
+
+        PSXmlDocumentBuilder.addElement(doc, unitElem, key, value);
       }
-      //Name of the unit element whose children will be the parameters.
-      String unitElemName = params[0].toString();
-      Map map = request.getParameters();
-      String paramName = null;
-      Object obj = null;
-      List values = null;
-      int leastSize = Integer.MAX_VALUE; //Initialize to a large value.
-      Map newMap = new HashMap();
-      for(int i=1; i<params.length; i++)
-      {
-         if(params[i] == null)
-            continue;
-         paramName = params[i].toString();
-         obj = map.get(paramName);
-         if(obj == null)
-            continue;
-
-         values = new ArrayList();
-
-         if(obj instanceof List)
-            values.addAll((List)obj);
-         else
-            values.add(obj.toString());
-         newMap.put(paramName, values);
-
-         if(leastSize > values.size())
-            leastSize = values.size();
-      }
-
-      //Make sure not keep the huge value to be a valid one.
-      if(leastSize == Integer.MAX_VALUE)
-         leastSize = 0;
-
-      Iterator keys = null;
-      String key =null;
-      String value = null;
-      for(int i=0; i<leastSize; i++)
-      {
-         Element unitElem = PSXmlDocumentBuilder.addElement(
-            doc, doc.getDocumentElement(), unitElemName, null);
-         keys = newMap.keySet().iterator();
-         while(keys.hasNext())
-         {
-            key = keys.next().toString();
-            value = ((List)newMap.get(key)).get(i).toString();
-
-            PSXmlDocumentBuilder.addElement(doc, unitElem, key, value);
-         }
-      }
-      return doc;
-   }
+    }
+    return doc;
+  }
 }

@@ -17,23 +17,23 @@
 package com.percussion.security.shim.acl;
 
 /**
- * Compatibility exception mirroring java.security.acl.LastOwnerException.
- * Thrown when attempting to remove the final owner from an ACL.
+ * Compatibility exception mirroring java.security.acl.LastOwnerException. Thrown when attempting to
+ * remove the final owner from an ACL.
  */
 public class LastOwnerException extends Exception {
-    public LastOwnerException() {
-        super();
-    }
+  public LastOwnerException() {
+    super();
+  }
 
-    public LastOwnerException(String message) {
-        super(message);
-    }
+  public LastOwnerException(String message) {
+    super(message);
+  }
 
-    public LastOwnerException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public LastOwnerException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public LastOwnerException(Throwable cause) {
-        super(cause);
-    }
+  public LastOwnerException(Throwable cause) {
+    super(cause);
+  }
 }

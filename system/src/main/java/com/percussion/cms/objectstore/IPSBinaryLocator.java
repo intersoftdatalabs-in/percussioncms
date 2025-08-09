@@ -22,46 +22,43 @@ import com.percussion.util.PSPurgableTempFile;
 /**
  * This interface facilitates the access of binary data from the server.
  */
-public interface IPSBinaryLocator extends Cloneable
-{
-   /**
-    * Returns the actual binary data.
-    *
-    * @return The data as an <code>Object</code>.
-    * @throws PSCmsException if content type cannot be located
-    * @throws PSInvalidContentTypeException if content type is invalid.
-    */
-   public Object getData() throws PSCmsException,
-      PSInvalidContentTypeException;
+public interface IPSBinaryLocator extends Cloneable {
+  /**
+   * Returns the actual binary data.
+   *
+   * @return The data as an <code>Object</code>.
+   * @throws PSCmsException if content type cannot be located
+   * @throws PSInvalidContentTypeException if content type is invalid.
+   */
+  public Object getData() throws PSCmsException, PSInvalidContentTypeException;
 
-   /**
-    * Get the temorary file holding the field data.
-    * 
-    * @return the temporary file, may be <code>null</code> if the field does
-    *    not have any data.
-    * @throws PSCmsException if content type cannot be located
-    * @throws PSInvalidContentTypeException if content type is invalid.
-    */
-   public PSPurgableTempFile getDataFile() throws PSCmsException, 
-      PSInvalidContentTypeException;
-   
-   /**
-    * Implementers should override this method to provide a deep clone. See 
-    * {@link Object#clone()} for more info.
-    */
-   public Object clone();
-   
-   /**
-    * Implementers should override this method to  perform a logical 
-    * equivalency, rather than requiring that the 2 refs point to the same 
-    * object.  See {@link Object#equals(Object)} for more info.
-    */
-   public boolean equals(Object o);
-   
-   /**
-    * Implementers should override this method to implement a behavior different
-    * from the default implementation as necessary.  See 
-    * {@link Object#hashCode()} for more info.
-    */   
-   public int hashCode();
+  /**
+   * Get the temorary file holding the field data.
+   *
+   * @return the temporary file, may be <code>null</code> if the field does
+   *    not have any data.
+   * @throws PSCmsException if content type cannot be located
+   * @throws PSInvalidContentTypeException if content type is invalid.
+   */
+  public PSPurgableTempFile getDataFile() throws PSCmsException, PSInvalidContentTypeException;
+
+  /**
+   * Implementers should override this method to provide a deep clone. See
+   * {@link Object#clone()} for more info.
+   */
+  public Object clone();
+
+  /**
+   * Implementers should override this method to  perform a logical
+   * equivalency, rather than requiring that the 2 refs point to the same
+   * object.  See {@link Object#equals(Object)} for more info.
+   */
+  public boolean equals(Object o);
+
+  /**
+   * Implementers should override this method to implement a behavior different
+   * from the default implementation as necessary.  See
+   * {@link Object#hashCode()} for more info.
+   */
+  public int hashCode();
 }

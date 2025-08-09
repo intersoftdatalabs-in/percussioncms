@@ -23,38 +23,34 @@ package com.percussion.relationship;
  * method}. This information includes whether to test for dependents' processing
  * and error details if the test fails for some reason.
  */
-public class PSTestResult  extends PSEffectResult
-{
-   /**
-    * Implementation for an abstract method, that allows to set a recursion
-    * flag.
-    *
-    * @param recurseDependents
-    */
-   public void setRecurseDependents(boolean recurseDependents)
-   {
-      m_recurseDependents = recurseDependents;
-   }
+public class PSTestResult extends PSEffectResult {
+  /**
+   * Implementation for an abstract method, that allows to set a recursion
+   * flag.
+   *
+   * @param recurseDependents
+   */
+  public void setRecurseDependents(boolean recurseDependents) {
+    m_recurseDependents = recurseDependents;
+  }
 
-   /**
-    * Placeholder for ActivationEndPoint which was used to run Test.
-    * @param isOwner <code>true</code> sets activation end point to owner and
-    * <code>false</code> sets the activation end point to dependent.
-    */
-   public void setActivationEndPoint(boolean isOwner)
-   {
-      m_activationEndPointOwner = isOwner;
-   }
+  /**
+   * Placeholder for ActivationEndPoint which was used to run Test.
+   * @param isOwner <code>true</code> sets activation end point to owner and
+   * <code>false</code> sets the activation end point to dependent.
+   */
+  public void setActivationEndPoint(boolean isOwner) {
+    m_activationEndPointOwner = isOwner;
+  }
 
-   /**
-    * Returns whether ActivationEndPoint which was used to run Test was the
-    * owner.
-    * @return
-    */
-   public boolean isActivationEndPointOwner()
-   {
-      return m_activationEndPointOwner;
-   }
+  /**
+   * Returns whether ActivationEndPoint which was used to run Test was the
+   * owner.
+   * @return
+   */
+  public boolean isActivationEndPointOwner() {
+    return m_activationEndPointOwner;
+  }
 
-   private boolean m_activationEndPointOwner = false;
+  private boolean m_activationEndPointOwner = false;
 }

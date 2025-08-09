@@ -25,15 +25,14 @@ import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * This exit authenticates the current user by means of his role-community
@@ -58,275 +57,228 @@ import java.util.Properties;
  * </UL>
  * </P
  */
-public class PSAuthenticateUser implements IPSRequestPreProcessor
-{
-   /*
-    * Implementation of the interface method
-    */
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-      ms_fullExtensionName = extensionDef.getRef().toString();
-   }
+public class PSAuthenticateUser implements IPSRequestPreProcessor {
+  /*
+   * Implementation of the interface method
+   */
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    ms_fullExtensionName = extensionDef.getRef().toString();
+  }
 
-   /*
-    * Implementation of the interface method
-    */
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-      throws PSExtensionProcessingException
-   {
-      try 
-      {
-         PSServer.verifyCommunity(request);
+  /*
+   * Implementation of the interface method
+   */
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSExtensionProcessingException {
+    try {
+      PSServer.verifyCommunity(request);
+    } catch (Exception e) {
+      PSConsole.printMsg(ms_fullExtensionName, e);
+      throw new PSExtensionProcessingException(ms_fullExtensionName, e);
+    }
+  }
+
+  /**
+   * This mehod retrieves the community id from
+   * "sys_commSupport/communityidlookup" by their community name.
+   * @param request <code>IPSRequestContext</code> object that is available in
+   * the extension's process request method, assumed never <code>null</code>.
+   * @param name Community name, can not be <code>null</null>
+   * @return Community id.
+   * @throws Exception
+   */
+  public static String getCommunityId(IPSRequestContext request, String name) throws Exception {
+    // Backup parameters
+    Map<String, Object> paramsBackup = request.getParameters();
+    Document doc;
+    try {
+      request.setParameter(COMMUNITYNAME, name);
+      IPSInternalRequest iReq = request.getInternalRequest(IREQ_COMMUNITYLOOKUP);
+      try {
+        iReq.makeRequest();
+        doc = iReq.getResultDoc();
+      } finally {
+        if (iReq != null) iReq.cleanUp();
       }
-      catch(Exception e)
-      {
-         PSConsole.printMsg(ms_fullExtensionName, e);
-         throw new PSExtensionProcessingException(ms_fullExtensionName, e);
+    } finally {
+      // restore paramaters
+      request.setParameters(paramsBackup);
+    }
+    NodeList nl = doc.getElementsByTagName(ELEM_COMMUNITY);
+    Element elem = null;
+    if (null != nl) elem = (Element) nl.item(0);
+    return elem.getAttribute(ATTR_COMMID);
+  }
+
+  /**
+   * This method retrieves the list user's role-communities, viz. list of all
+   * communities via his role membership.
+   * @param request <code>IPSRequestContext</code> object that is available in
+   * the extension's process request method, assumed never <code>null</code>.
+   * @return list of user communities (community ids) as Java List object never
+   * <code>null</code> may be empty.
+   *
+   */
+  private List getUserCommunities(IPSRequestContext request) throws Exception {
+    ArrayList list = new ArrayList();
+    // Make an internal request to get the user roles.
+    IPSInternalRequest iReq = request.getInternalRequest(IREQ_USERCOMMUNITIES);
+    Document doc = null;
+    try {
+      iReq.makeRequest();
+      doc = iReq.getResultDoc();
+    } finally {
+      if (iReq != null) iReq.cleanUp();
+    }
+    NodeList nl = doc.getElementsByTagName(ELEM_COMMUNITY);
+    if (nl == null || nl.getLength() < 1) return list;
+
+    Element elem = null;
+    for (int i = 0; i < nl.getLength(); i++) {
+      elem = (Element) nl.item(i);
+      list.add(elem.getAttribute(ATTR_COMMID));
+    }
+    return list;
+  }
+
+  /**
+   * This method retrieves the default community from the first role that
+   * belongs to the user. If user belongs to multiple roles, the first non-empty
+   * value is considered.
+   * @param request <code>IPSRequestContext</code> object that is available in
+   * the extension's process request method, assumed never <code>null</code>.
+   * @return community id of the
+   * @throws Exception, if it cannot retrieve tha role
+   * attribute for any reason.
+   */
+  public static String getUserDefaultCommunity(IPSRequestContext request) throws Exception {
+    return getCommunityId(request, getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY));
+  }
+
+  /**
+   * This method retrieves the value of the given attribute for the user role.
+   * If user happens to be in multiple roles the first non empty value is
+   * considered
+   * @param request <code>IPSRequestContext</code> object that is available in
+   * the extension's process request method, assumed never <code>null</code>.
+   * @param srcAttrName, Name of the role attribute to retrieve, cannot be
+   * <code>null</code>, if <code>null</code> the result will be <code>null</code>.
+   * @return value of the given attribute, may be <code>null</code>
+   * @throws Exception, if it cannot retrieve tha role
+   * attribute for any reason.
+   */
+  public static String getUserRoleAttribute(IPSRequestContext request, String srcAttrName)
+      throws Exception {
+    if (srcAttrName == null) return null;
+    String attrValue = null;
+    List roles = request.getSubjectRoles();
+    Object role = null;
+    List roleAttribs = null;
+    PSAttribute attr = null;
+    List attrList = null;
+    String attrName = null;
+    for (int i = 0; roles != null && i < roles.size(); i++) {
+      role = roles.get(i);
+      if (role == null) continue;
+      roleAttribs = request.getRoleAttributes(role.toString().trim());
+      for (int j = 0; roleAttribs != null && j < roleAttribs.size(); j++) {
+        attr = (PSAttribute) roleAttribs.get(j);
+        if (attr == null) continue;
+        attrName = attr.getName();
+        if (attrName.equals(srcAttrName)) {
+          attrList = attr.getValues();
+          if (attrList != null && attrList.size() > 0) {
+            // we take only the first attribute
+            attrValue = attrList.get(0).toString();
+          }
+        }
+        if (attrValue != null && attrValue.length() > 0) return attrValue;
       }
-   }
+    }
+    return attrValue;
+  }
 
-   /**
-    * This mehod retrieves the community id from
-    * "sys_commSupport/communityidlookup" by their community name.
-    * @param request <code>IPSRequestContext</code> object that is available in
-    * the extension's process request method, assumed never <code>null</code>.
-    * @param name Community name, can not be <code>null</null>
-    * @return Community id.
-    * @throws Exception
-    */
-   public static String getCommunityId(IPSRequestContext request,String name )
-      throws Exception
-   {
-      //Backup parameters
-      Map<String,Object> paramsBackup = request.getParameters();
-      Document doc;
-      try
-      {
-         request.setParameter(COMMUNITYNAME,name);
-         IPSInternalRequest iReq =
-            request.getInternalRequest(IREQ_COMMUNITYLOOKUP);
-         try
-         {
-            iReq.makeRequest();
-            doc = iReq.getResultDoc();
-         }
-         finally
-         {
-            if(iReq != null)
-               iReq.cleanUp();
-         }
+  /**
+   * To know if communities are enabled for the server. Communities are enabled
+   * are enabled or disabled by setting the property variable
+   * 'communities_enabled=yes' (or no).
+   * @return <code>true</code> if communities are enabled.
+   */
+  public static boolean isCommunityEnabled() {
+    return ms_communitiesEnabled;
+  }
+
+  /**
+   * The fully qualified name of this extension. Nerver <code>null</code> or
+   * <code>empty</code> after initialization.
+   */
+  private static String ms_fullExtensionName = "";
+
+  /**
+   * Initial value for the flag indicating of communities are enabled for the
+   * server
+   */
+  private static boolean ms_communitiesEnabled = false;
+
+  /**
+   * Name of the element "Community" in the result document of the internal
+   * request for user communities.
+   */
+  public static final String ELEM_COMMUNITY = "Community";
+
+  /**
+   * Name of the attribute of the communityid of the element "Community" in
+   * the result document of the internal request for user communities.
+   */
+  public static final String ATTR_COMMID = "commid";
+
+  /**
+   * Value of the system default community, hardcoded to 1.
+   */
+  public static final String SYSTEM_COMMUNITY = "1";
+
+  /**
+   * Name of the internal request to get the user communities. This is a
+   * standard Rhythmyx resource meant for internal request.
+   */
+  public static final String IREQ_USERCOMMUNITIES = "sys_commSupport/usercommunities";
+
+  /**
+   * Name of the internal request to get the community id with a c
+   * community name. Requires parameter communityname=value, where value is
+   * a valid community name.
+   */
+  public static final String IREQ_COMMUNITYLOOKUP = "sys_commSupport/communityidlookup";
+
+  /**
+   * Name of the parameter requires for community id lookup. This
+   * paremeter is added when we lookup the community id.
+   */
+  public static final String COMMUNITYNAME = "communityname";
+
+  /**
+   * Name of user default community properties.
+   */
+  public static final String SYS_DEFAULTCOMMUNITY = "sys_defaultCommunity";
+
+  /**
+   * Initialization of the flag ms_communitiesEnabled. This is done based on
+   * the value for the variable "communities_enabled" in the server
+   * configuration file (i.e. server.properties). This is done only during
+   * server startup which means server restart required if the property is
+   * modified in the file.
+   */
+  static {
+    try {
+      Properties serverProp = PSServer.getServerProps();
+      String enabled = serverProp.getProperty("communities_enabled", "no");
+      ms_communitiesEnabled = false;
+      if (enabled.equalsIgnoreCase("yes")) {
+        ms_communitiesEnabled = true;
       }
-      finally
-      {
-         //restore paramaters
-         request.setParameters(paramsBackup);
-      }
-            NodeList nl = doc.getElementsByTagName(ELEM_COMMUNITY);
-            Element elem = null;
-            if(null != nl)
-               elem = (Element)nl.item(0);
-            return elem.getAttribute(ATTR_COMMID);
-   }
-
-   /**
-    * This method retrieves the list user's role-communities, viz. list of all
-    * communities via his role membership.
-    * @param request <code>IPSRequestContext</code> object that is available in
-    * the extension's process request method, assumed never <code>null</code>.
-    * @return list of user communities (community ids) as Java List object never
-    * <code>null</code> may be empty.
-    *
-    */
-   private List getUserCommunities(IPSRequestContext request)
-      throws Exception
-   {
-         ArrayList list = new ArrayList();
-         // Make an internal request to get the user roles.
-         IPSInternalRequest iReq =
-            request.getInternalRequest(IREQ_USERCOMMUNITIES);
-         Document doc = null;
-         try
-         {
-            iReq.makeRequest();
-            doc = iReq.getResultDoc();
-         }
-         finally
-         {
-            if(iReq != null)
-               iReq.cleanUp();
-         }
-         NodeList nl = doc.getElementsByTagName(ELEM_COMMUNITY);
-         if(nl == null || nl.getLength() < 1)
-            return list;
-
-         Element elem = null;
-         for(int i=0; i<nl.getLength(); i++)
-         {
-            elem = (Element)nl.item(i);
-            list.add(elem.getAttribute(ATTR_COMMID));
-         }
-      return list;
-   }
-   /**
-    * This method retrieves the default community from the first role that
-    * belongs to the user. If user belongs to multiple roles, the first non-empty
-    * value is considered.
-    * @param request <code>IPSRequestContext</code> object that is available in
-    * the extension's process request method, assumed never <code>null</code>.
-    * @return community id of the
-    * @throws Exception, if it cannot retrieve tha role
-    * attribute for any reason.
-    */
-   static public String getUserDefaultCommunity(IPSRequestContext request)
-   throws Exception
-   {
-      return getCommunityId(request,
-             getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY));
-   }
-
-   /**
-    * This method retrieves the value of the given attribute for the user role.
-    * If user happens to be in multiple roles the first non empty value is
-    * considered
-    * @param request <code>IPSRequestContext</code> object that is available in
-    * the extension's process request method, assumed never <code>null</code>.
-    * @param srcAttrName, Name of the role attribute to retrieve, cannot be
-    * <code>null</code>, if <code>null</code> the result will be <code>null</code>.
-    * @return value of the given attribute, may be <code>null</code>
-    * @throws Exception, if it cannot retrieve tha role
-    * attribute for any reason.
-    */
-   static public String getUserRoleAttribute(IPSRequestContext request,
-      String srcAttrName )
-   throws Exception
-   {
-      if(srcAttrName == null)
-         return null;
-      String attrValue = null;
-      List roles = request.getSubjectRoles();
-      Object role = null;
-      List roleAttribs = null;
-      PSAttribute attr = null;
-      List attrList = null;
-      String attrName = null;
-      for(int i=0; roles != null && i<roles.size(); i++)
-      {
-         role = roles.get(i);
-         if(role == null)
-            continue;
-         roleAttribs = request.getRoleAttributes(role.toString().trim());
-         for(int j=0; roleAttribs != null && j<roleAttribs.size(); j++)
-         {
-            attr = (PSAttribute)roleAttribs.get(j);
-            if(attr == null)
-               continue;
-            attrName = attr.getName();
-            if(attrName.equals(srcAttrName))
-            {
-               attrList = attr.getValues();
-               if(attrList != null && attrList.size() > 0)
-               {
-                  // we take only the first attribute
-                  attrValue = attrList.get(0).toString();
-               }
-            }
-            if(attrValue != null && attrValue.length() > 0)
-               return attrValue;
-         }
-      }
-      return attrValue;
-   }
-
-   /**
-    * To know if communities are enabled for the server. Communities are enabled
-    * are enabled or disabled by setting the property variable
-    * 'communities_enabled=yes' (or no).
-    * @return <code>true</code> if communities are enabled.
-    */
-   static public boolean isCommunityEnabled()
-   {
-      return ms_communitiesEnabled;
-   }
-
-    /**
-    * The fully qualified name of this extension. Nerver <code>null</code> or
-    * <code>empty</code> after initialization.
-    */
-   static private String ms_fullExtensionName = "";
-
-   /**
-    * Initial value for the flag indicating of communities are enabled for the
-    * server
-    */
-   static private boolean ms_communitiesEnabled = false;
-
-   /**
-    * Name of the element "Community" in the result document of the internal
-    * request for user communities.
-    */
-   static public final String ELEM_COMMUNITY = "Community";
-
-   /**
-    * Name of the attribute of the communityid of the element "Community" in
-    * the result document of the internal request for user communities.
-    */
-   static public final String ATTR_COMMID = "commid";
-
-   /**
-    * Value of the system default community, hardcoded to 1.
-    */
-   static public final String SYSTEM_COMMUNITY = "1";
-
-   /**
-    * Name of the internal request to get the user communities. This is a
-    * standard Rhythmyx resource meant for internal request.
-    */
-   static public final String IREQ_USERCOMMUNITIES =
-         "sys_commSupport/usercommunities";
-
-   /**
-    * Name of the internal request to get the community id with a c
-    * community name. Requires parameter communityname=value, where value is
-    * a valid community name.
-    */
-   static public final String IREQ_COMMUNITYLOOKUP =
-      "sys_commSupport/communityidlookup";
-   /**
-    * Name of the parameter requires for community id lookup. This
-    * paremeter is added when we lookup the community id.
-    */
-   static public final String COMMUNITYNAME = "communityname";
-
-   /**
-    * Name of user default community properties.
-    */
-   static public final String SYS_DEFAULTCOMMUNITY = "sys_defaultCommunity";
-
-   /**
-    * Initialization of the flag ms_communitiesEnabled. This is done based on
-    * the value for the variable "communities_enabled" in the server
-    * configuration file (i.e. server.properties). This is done only during
-    * server startup which means server restart required if the property is
-    * modified in the file.
-    */
-   static
-   {
-      try
-      {
-         Properties serverProp = PSServer.getServerProps();
-         String enabled = serverProp.getProperty("communities_enabled", "no");
-         ms_communitiesEnabled = false;
-         if(enabled.equalsIgnoreCase("yes"))
-         {
-            ms_communitiesEnabled = true;
-         }
-      }
-      catch(Throwable t) //should never happen!
-      {
-         PSConsole.printMsg(ms_fullExtensionName, t);
-      }
-   }
+    } catch (Throwable t) // should never happen!
+    {
+      PSConsole.printMsg(ms_fullExtensionName, t);
+    }
+  }
 }
-
-

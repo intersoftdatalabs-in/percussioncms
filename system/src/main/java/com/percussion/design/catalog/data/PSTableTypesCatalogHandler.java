@@ -22,7 +22,6 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
  * The PSTableTypesCatalogHandler class implements cataloging of
  * table types in the specified back-end database.
@@ -47,7 +46,7 @@ import org.w3c.dom.Element;
  *       repository.
  *     --&gt;
  *    &lt;!ELEMENT datasource      (#PCDATA)&gt;
- *     
+ *
  *    &lt;!ELEMENT TableType              EMPTY&gt;
  *
  *    &lt;--
@@ -59,66 +58,58 @@ import org.w3c.dom.Element;
  * </pre>
  *
  */
-public class PSTableTypesCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSTableTypesCatalogHandler()
-   {
-      super();
-   }
+public class PSTableTypesCatalogHandler implements IPSCatalogHandler {
+  /**
+   * Constructs an instance of this handler.
+   */
+  public PSTableTypesCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>TableTypes</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be omitted to
-    *          indicate the respository</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String) req.get("RequestCategory");
-      if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request
+   * information. The request information for this request type is:
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>TableTypes</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be omitted to
+   *          indicate the respository</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param      req         the request information
+   *
+   * @return                 an XML document containing the appropriate
+   *                         catalog request information
+   *
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"TableTypes".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"TableTypes".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String datasource = (String)req.get("Datasource");
+    String datasource = (String) req.get("Datasource");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-         "PSXTableTypesCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXTableTypesCatalog");
 
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root,"datasource", datasource);
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

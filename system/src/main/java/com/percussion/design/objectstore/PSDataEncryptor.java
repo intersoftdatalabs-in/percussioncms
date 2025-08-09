@@ -19,12 +19,10 @@ package com.percussion.design.objectstore;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.List;
 import java.util.Objects;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * The PSDataEncryptor class defines how data should be encrypted when
@@ -49,292 +47,266 @@ import java.util.Objects;
  * @version    1.0
  * @since      1.0
  */
-public class PSDataEncryptor extends PSComponent
-{
-   /**
-    * Construct a Java object from its XML representation. See the
-    * {@link #toXml(Document) toXml} method for a description of the XML object.
-    *
-    * @param      sourceNode      the XML element node to construct this
-    *                              object from
-    *
-    * @param      parentDoc      the Java object which is the parent of this
-    *                              object
-    *
-    * @param      parentComponents   the parent objects of this object
-    *
-    * @exception   PSUnknownNodeTypeException
-    *                              if the XML element node is not of the
-    *                              appropriate type
-    */
-   public PSDataEncryptor(org.w3c.dom.Element sourceNode,
-      IPSDocument parentDoc, List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      this();
-      fromXml(sourceNode, parentDoc, parentComponents);
-   }
+public class PSDataEncryptor extends PSComponent {
+  /**
+   * Construct a Java object from its XML representation. See the
+   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   *
+   * @param      sourceNode      the XML element node to construct this
+   *                              object from
+   *
+   * @param      parentDoc      the Java object which is the parent of this
+   *                              object
+   *
+   * @param      parentComponents   the parent objects of this object
+   *
+   * @exception   PSUnknownNodeTypeException
+   *                              if the XML element node is not of the
+   *                              appropriate type
+   */
+  public PSDataEncryptor(
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    this();
+    fromXml(sourceNode, parentDoc, parentComponents);
+  }
 
-   /**
-    * Default constructor for fromXml, serialization, etc.
-    */
-   PSDataEncryptor()
-   {
-      this(DEFAULT_KEY_STRENGTH);
-   }
+  /**
+   * Default constructor for fromXml, serialization, etc.
+   */
+  PSDataEncryptor() {
+    this(DEFAULT_KEY_STRENGTH);
+  }
 
-   /**
-    * Constructs a data encryptor object requiring SSL connections using the
-    * specified key strength.
-    *
-    * @param   keyStrength    the minimum number of bits required in the key
-    */
-   public PSDataEncryptor(int keyStrength)
-   {
-      super();
-      m_keyStrength = keyStrength;
-      m_encryption = true;
-   }
+  /**
+   * Constructs a data encryptor object requiring SSL connections using the
+   * specified key strength.
+   *
+   * @param   keyStrength    the minimum number of bits required in the key
+   */
+  public PSDataEncryptor(int keyStrength) {
+    super();
+    m_keyStrength = keyStrength;
+    m_encryption = true;
+  }
 
-   /**
-    * Constructs a data encryptor object. If require is true, SSL connections
-    * are required using the default key strength of 40 bits. Otherwise,
-    * SSL connections are not required.
-    *
-    * @param   require   <code>true</code> to require SSL connections,
-    *                   <code>false</code> otherwise
-    */
-   public PSDataEncryptor(boolean require)
-   {
-      super();
-      m_keyStrength = DEFAULT_KEY_STRENGTH;
-      m_encryption = require;
-   }
+  /**
+   * Constructs a data encryptor object. If require is true, SSL connections
+   * are required using the default key strength of 40 bits. Otherwise,
+   * SSL connections are not required.
+   *
+   * @param   require   <code>true</code> to require SSL connections,
+   *                   <code>false</code> otherwise
+   */
+  public PSDataEncryptor(boolean require) {
+    super();
+    m_keyStrength = DEFAULT_KEY_STRENGTH;
+    m_encryption = require;
+  }
 
-   /**
-    * Is an SSL connection required to secure the data being transferred?
-    *
-    * @return      <code>true</code> if SSL is required,
-    *             <code>false</code> otherwise
-    */
-   public boolean isSSLRequired()
-   {
-      return m_encryption;
-   }
+  /**
+   * Is an SSL connection required to secure the data being transferred?
+   *
+   * @return      <code>true</code> if SSL is required,
+   *             <code>false</code> otherwise
+   */
+  public boolean isSSLRequired() {
+    return m_encryption;
+  }
 
-   /**
-    * Enable or disable requiring SSL connections to secure the data
-    * being transferred. If SSL is being required and a key strength
-    * was not previously set, the default key strength of 40 bits
-    * will be used.
-    *
-    * @param   enable   <code>true</code> to require SSL connections,
-    *                   <code>false</code> otherwise
-    */
-   public void setSSLRequired(boolean enable)
-   {
-      m_encryption = enable;
-   }
+  /**
+   * Enable or disable requiring SSL connections to secure the data
+   * being transferred. If SSL is being required and a key strength
+   * was not previously set, the default key strength of 40 bits
+   * will be used.
+   *
+   * @param   enable   <code>true</code> to require SSL connections,
+   *                   <code>false</code> otherwise
+   */
+  public void setSSLRequired(boolean enable) {
+    m_encryption = enable;
+  }
 
-   /**
-    * Get the minimum SSL key strength which must be used for data
-    * encryption. Key strengths are specified by their size in bits.
-    * The most common algorithms use 40-bit or 128-bit keys.
-    *
-    * @return      the minimum number of bits in the key
-    */
-   public int getKeyStrength()
-   {
-      return m_keyStrength;
-   }
+  /**
+   * Get the minimum SSL key strength which must be used for data
+   * encryption. Key strengths are specified by their size in bits.
+   * The most common algorithms use 40-bit or 128-bit keys.
+   *
+   * @return      the minimum number of bits in the key
+   */
+  public int getKeyStrength() {
+    return m_keyStrength;
+  }
 
-   /**
-    * Set the minimum SSL key strength which must be used for data
-    * encryption. Key strengths are specified by their size in bits.
-    * The most common algorithms use 40-bit or 128-bit keys.
-    *
-    * @param   bits   the minimum number of bits required in the key
-    */
-   public void setKeyStrength(int bits)
-   {
-      m_keyStrength = bits;
-   }
+  /**
+   * Set the minimum SSL key strength which must be used for data
+   * encryption. Key strengths are specified by their size in bits.
+   * The most common algorithms use 40-bit or 128-bit keys.
+   *
+   * @param   bits   the minimum number of bits required in the key
+   */
+  public void setKeyStrength(int bits) {
+    m_keyStrength = bits;
+  }
 
-   /**
-    * Performs a shallow copy of the data in the supplied component to this
-    * component. Derived classes should implement this method for their data,
-    * calling the base class method first.
-    *
-    * @param encryptor a valid PSDataEncryptor.
-    *
-    */
-   public void copyFrom( PSDataEncryptor encryptor )
-   {
-      copyFrom((PSComponent) encryptor );
-      setKeyStrength( encryptor.getKeyStrength());
-      setSSLRequired( encryptor.isSSLRequired());
-   }
+  /**
+   * Performs a shallow copy of the data in the supplied component to this
+   * component. Derived classes should implement this method for their data,
+   * calling the base class method first.
+   *
+   * @param encryptor a valid PSDataEncryptor.
+   *
+   */
+  public void copyFrom(PSDataEncryptor encryptor) {
+    copyFrom((PSComponent) encryptor);
+    setKeyStrength(encryptor.getKeyStrength());
+    setSSLRequired(encryptor.isSSLRequired());
+  }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSDataEncryptor)) return false;
-      if (!super.equals(o)) return false;
-      PSDataEncryptor that = (PSDataEncryptor) o;
-      return m_keyStrength == that.m_keyStrength &&
-              m_encryption == that.m_encryption;
-   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSDataEncryptor)) return false;
+    if (!super.equals(o)) return false;
+    PSDataEncryptor that = (PSDataEncryptor) o;
+    return m_keyStrength == that.m_keyStrength && m_encryption == that.m_encryption;
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(super.hashCode(), m_keyStrength, m_encryption);
-   }
-   /* **************  IPSComponent Interface Implementation ************** */
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), m_keyStrength, m_encryption);
+  }
 
-   /**
-    * This method is called to create a PSXDataEncryptor XML element
-    * node containing the data described in this object.
-    * <p>
-    * The structure of the XML document is:
-    * <pre><code>
-    *    &lt;!--
-    *       PSXDataEncryptor defines how data should be encrypted when
-    *       communicating with a client. Data can be sent in the clear or
-    *       using a Secure Socket Layer (SSL) connection. When using SSL,
-    *       the required key strength can also be defined. The key strength
-    *       is the number of bits in the key. The most common algorithms use
-    *       40-bit or 128-bit keys, where 128-bit keys are significantly more
-    *       secure than 40-bit keys.
-    *
-    *       The lowest level object the PSDataEncryptor object is associated
-    *       with overrides any settings of a higher level object. The
-    *       hierarchy is as follows:
-    *
-    *          - PSXServer
-    *          - PSXApplication (overrides PSXServer)
-    *          - PSXDataSet (overrides PSXApplication)
-    *    --&gt;
-    *    &lt;!ELEMENT PSXDataEncryptor (SSLRequired, keyStrength?)&gt;
-    *
-    *    &lt;!--
-    *       is an SSL connection required to secure the data being transferred?
-    *    --&gt;
-    *    &lt;!ELEMENT SSLRequired      (%PSXIsEnabled)&gt;
-    *
-    *    &lt;!--
-    *       the minimum SSL key strength which must be used for data
-    *       encryption. Key strengths are specified by their size in bits.
-    *       The most common algorithms use 40-bit or 128-bit keys.
-    *    --&gt;
-    *    &lt;!ELEMENT keyStrength      (#PCDATA)&gt;
-    * </code></pre>
-    *
-    * @return     the newly created PSXDataEncryptor XML element node
-    */
-   public Element toXml(Document doc)
-   {
-      Element   root = doc.createElement (ms_NodeType);
-      root.setAttribute("id", String.valueOf(m_id));
+  /* **************  IPSComponent Interface Implementation ************** */
 
-      //private              boolean     m_encryption = false;
-      PSXmlDocumentBuilder.addElement(   doc, root, "SSLRequired",
-         m_encryption ? "yes" : "no");
+  /**
+   * This method is called to create a PSXDataEncryptor XML element
+   * node containing the data described in this object.
+   * <p>
+   * The structure of the XML document is:
+   * <pre><code>
+   *    &lt;!--
+   *       PSXDataEncryptor defines how data should be encrypted when
+   *       communicating with a client. Data can be sent in the clear or
+   *       using a Secure Socket Layer (SSL) connection. When using SSL,
+   *       the required key strength can also be defined. The key strength
+   *       is the number of bits in the key. The most common algorithms use
+   *       40-bit or 128-bit keys, where 128-bit keys are significantly more
+   *       secure than 40-bit keys.
+   *
+   *       The lowest level object the PSDataEncryptor object is associated
+   *       with overrides any settings of a higher level object. The
+   *       hierarchy is as follows:
+   *
+   *          - PSXServer
+   *          - PSXApplication (overrides PSXServer)
+   *          - PSXDataSet (overrides PSXApplication)
+   *    --&gt;
+   *    &lt;!ELEMENT PSXDataEncryptor (SSLRequired, keyStrength?)&gt;
+   *
+   *    &lt;!--
+   *       is an SSL connection required to secure the data being transferred?
+   *    --&gt;
+   *    &lt;!ELEMENT SSLRequired      (%PSXIsEnabled)&gt;
+   *
+   *    &lt;!--
+   *       the minimum SSL key strength which must be used for data
+   *       encryption. Key strengths are specified by their size in bits.
+   *       The most common algorithms use 40-bit or 128-bit keys.
+   *    --&gt;
+   *    &lt;!ELEMENT keyStrength      (#PCDATA)&gt;
+   * </code></pre>
+   *
+   * @return     the newly created PSXDataEncryptor XML element node
+   */
+  public Element toXml(Document doc) {
+    Element root = doc.createElement(ms_NodeType);
+    root.setAttribute("id", String.valueOf(m_id));
 
-      //private              int         m_keyStrength = 40;
-      PSXmlDocumentBuilder.addElement(   doc, root, "keyStrength",
-         String.valueOf(m_keyStrength));
+    // private              boolean     m_encryption = false;
+    PSXmlDocumentBuilder.addElement(doc, root, "SSLRequired", m_encryption ? "yes" : "no");
 
-      return root;
-   }
+    // private              int         m_keyStrength = 40;
+    PSXmlDocumentBuilder.addElement(doc, root, "keyStrength", String.valueOf(m_keyStrength));
 
-   /**
-    * This method is called to populate a PSDataEncryptor Java object
-    * from a PSXDataEncryptor XML element node. See the
-    * {@link #toXml(Document) toXml} method for a description of the XML object.
-    *
-    * @exception   PSUnknownNodeTypeException if the XML element node is not
-    *                                        of type PSXDataEncryptor
-    */
-   public void fromXml(Element sourceNode, IPSDocument parentDoc,
-                       List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+    return root;
+  }
 
-      if (!ms_NodeType.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { ms_NodeType, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
+  /**
+   * This method is called to populate a PSDataEncryptor Java object
+   * from a PSXDataEncryptor XML element node. See the
+   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   *
+   * @exception   PSUnknownNodeTypeException if the XML element node is not
+   *                                        of type PSXDataEncryptor
+   */
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    if (sourceNode == null)
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
 
-      PSXmlTreeWalker   tree = new PSXmlTreeWalker(sourceNode);
+    if (!ms_NodeType.equals(sourceNode.getNodeName())) {
+      Object[] args = {ms_NodeType, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
 
-      String sTemp = tree.getElementData("id");
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+
+    String sTemp = tree.getElementData("id");
+    try {
+      m_id = Integer.parseInt(sTemp);
+    } catch (Exception e) {
+      Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+    }
+
+    // is SSL (encryption) required?
+    sTemp = tree.getElementData("SSLRequired");
+    m_encryption = (sTemp != null) && sTemp.equalsIgnoreCase("yes");
+
+    // what's the key strength?
+    sTemp = tree.getElementData("keyStrength");
+    if ((sTemp == null) && m_encryption) {
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.DATAENC_KEY_STRENGTH_REQD);
+    } else if (sTemp != null) {
       try {
-         m_id = Integer.parseInt(sTemp);
-      } catch (Exception e) {
-         Object[] args = { ms_NodeType, ((sTemp == null) ? "null" : sTemp) };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        m_keyStrength = Integer.parseInt(sTemp);
+      } catch (NumberFormatException e) {
+        Object[] args = {ms_NodeType, "keyStrength", sTemp};
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
       }
+    }
+  }
 
-      // is SSL (encryption) required?
-      sTemp = tree.getElementData("SSLRequired");
-      m_encryption = (sTemp != null) && sTemp.equalsIgnoreCase("yes");
+  /**
+   * Validates this object within the given validation context. The method
+   * signature declares that it throws PSValiditionException, but the
+   * implementation must not directly throw any exceptions. Instead, it
+   * should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation
+   * of <CODE>validate</CODE> should not catch it unless it is to be
+   * rethrown).
+   *
+   * @param   cxt The validation context.
+   *
+   * @throws PSSystemValidationException According to the implementation of the
+   * validation context (on warnings and/or errors).
+   */
+  public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
+    if (!cxt.startValidation(this, null)) return;
 
-      // what's the key strength?
-      sTemp = tree.getElementData("keyStrength");
-      if ((sTemp == null) && m_encryption) {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.DATAENC_KEY_STRENGTH_REQD);
-      }
-      else if (sTemp != null) {
-         try {
-            m_keyStrength = Integer.parseInt(sTemp);
-         } catch (NumberFormatException e) {
-            Object[] args = { ms_NodeType, "keyStrength", sTemp };
-            throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-         }
-      }
-   }
+    if (m_encryption && m_keyStrength <= 0)
+      cxt.validationError(this, 0, "Invalid key strength: " + m_keyStrength);
+  }
 
-   /**
-    * Validates this object within the given validation context. The method
-    * signature declares that it throws PSValiditionException, but the
-    * implementation must not directly throw any exceptions. Instead, it
-    * should register any errors with the validation context, which will
-    * decide whether to throw the exception (in which case the implementation
-    * of <CODE>validate</CODE> should not catch it unless it is to be
-    * rethrown).
-    *
-    * @param   cxt The validation context.
-    *
-    * @throws PSSystemValidationException According to the implementation of the
-    * validation context (on warnings and/or errors).
-    */
-   public void validate(IPSValidationContext cxt) throws PSSystemValidationException
-   {
-      if (!cxt.startValidation(this, null))
-         return;
+  private static final int DEFAULT_KEY_STRENGTH = 40;
 
-      if (m_encryption && m_keyStrength <= 0)
-         cxt.validationError(this, 0, "Invalid key strength: " + m_keyStrength);
-   }
+  // NOTE: when adding members, be sure to update the copyFrom method,
+  // the validate method, the equals method, and the to/fromXml method
+  private int m_keyStrength;
+  private boolean m_encryption;
 
-   private static final int         DEFAULT_KEY_STRENGTH = 40;
-
-
-   // NOTE: when adding members, be sure to update the copyFrom method,
-   // the validate method, the equals method, and the to/fromXml method
-   private              int         m_keyStrength;
-   private              boolean     m_encryption;
-
-   /* public access on this so they may reference each other in fromXml,
-    * including legacy classes */
-   public static final String   ms_NodeType            = "PSXDataEncryptor";
+  /* public access on this so they may reference each other in fromXml,
+   * including legacy classes */
+  public static final String ms_NodeType = "PSXDataEncryptor";
 }
-

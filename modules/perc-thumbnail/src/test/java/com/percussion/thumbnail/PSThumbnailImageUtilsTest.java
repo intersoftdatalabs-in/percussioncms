@@ -17,24 +17,22 @@
 
 package com.percussion.thumbnail;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class PSThumbnailImageUtilsTest {
 
-    @BeforeEach
-    public void setUp() throws Exception {
-    }
+  @BeforeEach
+  public void setUp() throws Exception {}
 
-    @AfterEach
-    public void tearDown() throws Exception {
-    }
+  @AfterEach
+  public void tearDown() throws Exception {}
 
-    @Test
-    public void resizeThumbnail() {
-        //TODO
-    }
+  @Test
+  public void resizeThumbnail() {
+    // TODO
+  }
 }

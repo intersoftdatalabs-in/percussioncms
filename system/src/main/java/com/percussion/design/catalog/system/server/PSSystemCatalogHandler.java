@@ -19,46 +19,40 @@ package com.percussion.design.catalog.system.server;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * The PSSystemCatalogHandler class processes system related catalog
  * requests for the E2 server.
- * 
+ *
  * @see       com.percussion.server.IPSRequestHandler
  *
  * @author      Tas Giakouminakis
  * @version    1.0
  * @since      1.0
  */
-public class PSSystemCatalogHandler
-   extends com.percussion.design.catalog.PSCatalogRequestHandler
-{
-   /**
-    * Construct the data related catalog handler.
-    */
-   public PSSystemCatalogHandler()
-   {
-      super();
-      
-      /* initialize m_catalogHandlers to contain all supported catalog
-       * handlers
-       *
-       * some day, convert this to use JDK 1.2 package info instead of
-       * hardcoded classes
-       */
-      m_catalogHandlers = new ConcurrentHashMap();
-      addHandler(new PSLocaleCatalogHandler());
-      addHandler(new PSMimeTypeCatalogHandler());
-   }
+public class PSSystemCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler {
+  /**
+   * Construct the data related catalog handler.
+   */
+  public PSSystemCatalogHandler() {
+    super();
 
-   /* ************ IPSRequestHandler Interface Implementation ************ */
+    /* initialize m_catalogHandlers to contain all supported catalog
+     * handlers
+     *
+     * some day, convert this to use JDK 1.2 package info instead of
+     * hardcoded classes
+     */
+    m_catalogHandlers = new ConcurrentHashMap();
+    addHandler(new PSLocaleCatalogHandler());
+    addHandler(new PSMimeTypeCatalogHandler());
+  }
 
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
+  /* ************ IPSRequestHandler Interface Implementation ************ */
+
+  /**
+   * Shutdown the request handler, freeing any associated resources.
+   */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 }
-

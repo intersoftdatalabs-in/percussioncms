@@ -20,18 +20,15 @@ package com.percussion.utils.testing;
 /**
  * Add an annotation to a test to mark it as an integration test for Maven
  * @Tag("IntegrationTest")
- * 
+ *
  * add to surefire plugin
  * <excludedGroups>com.percussion.utils.testing.IntegrationTest</excludedGroups>
- * 
+ *
  * add to failsafe plugin
- * 
+ *
  * <groups>com.percussion.utils.testing.IntegrationTest</groups>
- * 
+ *
  * @author stephenbolton
  *
  */
-public interface IntegrationTest
-{
-
-}
+public interface IntegrationTest {}

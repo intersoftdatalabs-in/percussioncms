@@ -17,11 +17,10 @@
 
 package com.percussion.log;
 
+import java.util.Date;
+import javax.naming.NamingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.naming.NamingException;
-import java.util.Date;
 
 /**
  * The PSBackEndLogWriter class implements logging to a back-end data store.
@@ -134,60 +133,43 @@ import java.util.Date;
  * @version   1.0
  * @since        1.0
  */
-public class PSBackEndLogWriter implements IPSLogWriter
-{
-   /**
-    *  Construct a back-end log writer. This is given package access with the
-    *  intent that only the PSLogManager object will instantiate it.
-    *  <p>
-    *
-    *  @throws ClassNotFoundException if the class specified byt he
-    * <code>loggerClassname</code> property cannot be loaded
-    *  @throws NamingException If the default datasource details cannot be
-    * obtained.
-    */
-   PSBackEndLogWriter()
-      
-   {
-      
-   }  
+public class PSBackEndLogWriter implements IPSLogWriter {
+  /**
+   *  Construct a back-end log writer. This is given package access with the
+   *  intent that only the PSLogManager object will instantiate it.
+   *  <p>
+   *
+   *  @throws ClassNotFoundException if the class specified byt he
+   * <code>loggerClassname</code> property cannot be loaded
+   *  @throws NamingException If the default datasource details cannot be
+   * obtained.
+   */
+  PSBackEndLogWriter() {}
 
-   public boolean isOpen()
-   {      
-      return true;
-   }
+  public boolean isOpen() {
+    return true;
+  }
 
-   public void close()
-   {
-            
-   }
+  public void close() {}
 
-   public void write(PSLogInformation msg) throws IllegalStateException
-   {
-      if (!ms_log.isDebugEnabled())
-         return;
-      
-      {
-         PSLogSubMessage[] subMessages = msg.getSubMessages();
-         for (int sequence = 0; sequence < subMessages.length; sequence++)
-         {
-            PSLogSubMessage subMessage = subMessages[sequence];
-            String msgText = subMessage.getText();
-            ms_log.debug(msgText);
-         }
+  public void write(PSLogInformation msg) throws IllegalStateException {
+    if (!ms_log.isDebugEnabled()) return;
+
+    {
+      PSLogSubMessage[] subMessages = msg.getSubMessages();
+      for (int sequence = 0; sequence < subMessages.length; sequence++) {
+        PSLogSubMessage subMessage = subMessages[sequence];
+        String msgText = subMessage.getText();
+        ms_log.debug(msgText);
       }
-   }
+    }
+  }
 
-   public boolean open()
-   {
-      return true;
-   }
+  public boolean open() {
+    return true;
+  }
 
-   public void truncateLog(Date allBefore)
-   {
-            
-   }
-   
-   private static final Logger ms_log = LogManager.getLogger(PSBackEndLogWriter.class);
-   
+  public void truncateLog(Date allBefore) {}
+
+  private static final Logger ms_log = LogManager.getLogger(PSBackEndLogWriter.class);
 }

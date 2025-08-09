@@ -17,50 +17,48 @@
 
 package com.percussion.taxonomy.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.validation.BindException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.service.NodeService;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.percussion.taxonomy.TaxonomySecurityHelper;
-import com.percussion.taxonomy.domain.Node;
-import com.percussion.taxonomy.service.NodeService;
-
-import java.util.Collection;
-
-
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class NodeController {
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    private NodeService nodeService;
+  protected final Logger logger = LogManager.getLogger(getClass());
+  private NodeService nodeService;
 
-    public NodeController() {
-        //TODO: Fix me
-       /* setCommandClass(Node.class);
-        setCommandName("node");
-        */
-    }
+  public NodeController() {
+    // TODO: Fix me
+    /* setCommandClass(Node.class);
+    setCommandName("node");
+    */
+  }
 
-    protected ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-            Object command, BindException errors) throws Exception {
- 
-    	TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    	Collection all = nodeService.getAllNodes(1,1);
-        Map<String, Object> myModel = new HashMap<String, Object>();
-        myModel.put("all", all);
-        myModel.put("node", nodeService.getNode(1,1));
-        return new ModelAndView("node", "model", myModel);
-    }
+  protected ModelAndView handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Object command,
+      BindException errors)
+      throws Exception {
 
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
+    TaxonomySecurityHelper.raise_error_if_cannot_admin();
+    Collection all = nodeService.getAllNodes(1, 1);
+    Map<String, Object> myModel = new HashMap<String, Object>();
+    myModel.put("all", all);
+    myModel.put("node", nodeService.getNode(1, 1));
+    return new ModelAndView("node", "model", myModel);
+  }
+
+  public void setNodeService(NodeService nodeService) {
+    this.nodeService = nodeService;
+  }
 }

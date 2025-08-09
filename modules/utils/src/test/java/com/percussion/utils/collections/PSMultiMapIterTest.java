@@ -16,88 +16,79 @@
  */
 package com.percussion.utils.collections;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.util.HashSet;
-import java.util.Set;
+import org.junit.jupiter.api.Test;
 
-public class PSMultiMapIterTest
-{
-   public PSMultiMapIterTest() {
-   }
+public class PSMultiMapIterTest {
+  public PSMultiMapIterTest() {}
 
-   @Test
-   public void test1() throws Exception
-   {
-      MultiValuedMap map = new ArrayListValuedHashMap<>();
+  @Test
+  public void test1() throws Exception {
+    MultiValuedMap map = new ArrayListValuedHashMap<>();
 
-      map.put("a", 1);
-      map.put("b", 2);
-      map.put("b", 3);
-      map.put("b", 4);
-      map.put("c", 5);
-      map.put("d", 6);
+    map.put("a", 1);
+    map.put("b", 2);
+    map.put("b", 3);
+    map.put("b", 4);
+    map.put("c", 5);
+    map.put("d", 6);
 
-      PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<Integer>(map.asMap(),
-            null);
-      Set<Integer> results = new HashSet<Integer>();
-      int count = 0;
-      while (simple.hasNext())
-      {
-         results.add(simple.next());
-         count++;
-      }
+    PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<Integer>(map.asMap(), null);
+    Set<Integer> results = new HashSet<Integer>();
+    int count = 0;
+    while (simple.hasNext()) {
+      results.add(simple.next());
+      count++;
+    }
 
-      assertEquals(6, count);
-      assertTrue(results.contains(1));
-      assertTrue(results.contains(2));
-      assertTrue(results.contains(3));
-      assertTrue(results.contains(4));
-      assertTrue(results.contains(5));
-      assertTrue(results.contains(6));
+    assertEquals(6, count);
+    assertTrue(results.contains(1));
+    assertTrue(results.contains(2));
+    assertTrue(results.contains(3));
+    assertTrue(results.contains(4));
+    assertTrue(results.contains(5));
+    assertTrue(results.contains(6));
+  }
 
-   }
+  @Test
+  public void test2() throws Exception {
+    MultiValuedMap map = new ArrayListValuedHashMap<>();
 
-   @Test
-   public void test2() throws Exception
-   {
-      MultiValuedMap map = new ArrayListValuedHashMap<>();
+    map.put("a", 1);
+    map.put("b", 2);
+    map.put("b", 3);
+    map.put("b", 4);
+    map.put("c", 5);
+    map.put("d", 6);
 
-      map.put("a", 1);
-      map.put("b", 2);
-      map.put("b", 3);
-      map.put("b", 4);
-      map.put("c", 5);
-      map.put("d", 6);
+    PSMultiMapIterator<Integer> simple =
+        new PSMultiMapIterator<Integer>(
+            map.asMap(),
+            new Predicate() {
 
-      PSMultiMapIterator<Integer> simple = new PSMultiMapIterator<Integer>(map.asMap(),
-            new Predicate()
-            {
-
-               public boolean evaluate(Object o)
-               {
-                  String key = (String) o;
-                  return key.equals("b");
-               }
+              public boolean evaluate(Object o) {
+                String key = (String) o;
+                return key.equals("b");
+              }
             });
 
-      Set<Integer> results = new HashSet<Integer>();
-      int count = 0;
-      while (simple.hasNext())
-      {
-         results.add(simple.next());
-         count++;
-      }
+    Set<Integer> results = new HashSet<Integer>();
+    int count = 0;
+    while (simple.hasNext()) {
+      results.add(simple.next());
+      count++;
+    }
 
-      assertEquals(3, count);
-      assertTrue(results.contains(2));
-      assertTrue(results.contains(3));
-      assertTrue(results.contains(4));
-
-   }
+    assertEquals(3, count);
+    assertTrue(results.contains(2));
+    assertTrue(results.contains(3));
+    assertTrue(results.contains(4));
+  }
 }

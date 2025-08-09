@@ -21,14 +21,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "visit")
 public class PSVisitRestEntry {
-	private String pagePath;
+  private String pagePath;
 
-	public String getPagePath() {
-		return pagePath;
-	}
+  public String getPagePath() {
+    return pagePath;
+  }
 
-	public void setPagePath(String pagePath) {
-		this.pagePath = pagePath;
-	}
-	
+  public void setPagePath(String pagePath) {
+    this.pagePath = pagePath;
+  }
 }

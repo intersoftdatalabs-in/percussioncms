@@ -63,7 +63,9 @@ src/com/percussion/widgets/image/
 ### Image Data Models
 
 #### `ImageData.java` (Lines 1-150)
+
 Modern Java 11 data container with defensive copying and Optional integration:
+
 ```java
 public class ImageData extends ImageMetaData implements Serializable {
     // Defensive copying with modern patterns
@@ -75,7 +77,9 @@ public class ImageData extends ImageMetaData implements Serializable {
 ```
 
 #### `ImageMetaData.java` (Lines 1-200)
+
 Thread-safe metadata container with validation:
+
 ```java
 public class ImageMetaData implements Serializable {
     // Modern validation with clear error messages
@@ -91,7 +95,9 @@ public class ImageMetaData implements Serializable {
 ### Service Layer
 
 #### `ImageCacheManager.java` (Lines 1-120)
+
 Modern interface with default methods and Optional integration:
+
 ```java
 public interface ImageCacheManager {
     // Default method with Optional return type
@@ -107,7 +113,9 @@ public interface ImageCacheManager {
 ```
 
 #### `ImageCacheManagerImpl.java` (Lines 1-180)
+
 Thread-safe EhCache implementation using Java 11 features:
+
 ```java
 public class ImageCacheManagerImpl implements ImageCacheManager {
     private final AtomicLong counter = new AtomicLong(1L);
@@ -134,7 +142,9 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
 ### Web Layer
 
 #### `ImageResizeController.java` (Lines 1-120)
+
 Spring MVC controller with modern error handling:
+
 ```java
 @Controller
 @RequestMapping("/imageWidget/resizeImage.do")
@@ -162,7 +172,9 @@ public class ImageResizeController {
 ### Extension Layer
 
 #### `ImageAssetOutputTranslation.java` (Lines 1-330)
+
 CMS extension with comprehensive Java 11 modernization:
+
 ```java
 public class ImageAssetOutputTranslation extends PSDefaultExtension implements IPSItemOutputTransformer {
     
@@ -195,6 +207,7 @@ public class ImageAssetOutputTranslation extends PSDefaultExtension implements I
 ## 🚀 Features
 
 ### Image Processing
+
 - **Resize**: Scale images to specified dimensions with aspect ratio preservation
 - **Crop**: Extract specific regions from images with pixel-perfect accuracy
 - **Rotate**: 90-degree rotations (left/right) with quality preservation
@@ -202,12 +215,14 @@ public class ImageAssetOutputTranslation extends PSDefaultExtension implements I
 - **Quality optimization**: Configurable compression settings
 
 ### Caching System
+
 - **EhCache integration**: High-performance distributed caching
 - **Memory management**: Intelligent cache eviction policies
 - **Thread-safe operations**: Concurrent access with atomic operations
 - **Cache statistics**: Built-in monitoring and metrics
 
 ### Web Integration
+
 - **Spring MVC**: RESTful endpoints for image operations
 - **JSON responses**: Structured API responses with error handling
 - **File uploads**: Multipart form data support
@@ -216,6 +231,7 @@ public class ImageAssetOutputTranslation extends PSDefaultExtension implements I
 ## 🔧 Configuration
 
 ### Maven Dependencies
+
 ```xml
 <dependencies>
     <!-- Core Java 11 -->
@@ -249,6 +265,7 @@ public class ImageAssetOutputTranslation extends PSDefaultExtension implements I
 ```
 
 ### Application Configuration
+
 ```properties
 # Image processing settings
 imageThumbnailWidth=50
@@ -266,15 +283,16 @@ cache.timeToLiveSeconds=3600
 
 ### Java 11 Optimizations
 
-| Feature | Before (Java 8) | After (Java 11) | Improvement |
-|---------|------------------|-----------------|-------------|
-| Memory Usage | Higher allocation | `var` reduces overhead | ~15% reduction |
-| Null Safety | Manual checks | `Optional` patterns | ~90% fewer NPEs |
-| Error Handling | Generic exceptions | Specific exception types | Better debugging |
-| Code Readability | Verbose syntax | Modern patterns | ~30% less code |
-| Thread Safety | Basic synchronization | `AtomicLong`, `volatile` | Better concurrency |
+|     Feature      |    Before (Java 8)    |     After (Java 11)      |    Improvement     |
+|------------------|-----------------------|--------------------------|--------------------|
+| Memory Usage     | Higher allocation     | `var` reduces overhead   | ~15% reduction     |
+| Null Safety      | Manual checks         | `Optional` patterns      | ~90% fewer NPEs    |
+| Error Handling   | Generic exceptions    | Specific exception types | Better debugging   |
+| Code Readability | Verbose syntax        | Modern patterns          | ~30% less code     |
+| Thread Safety    | Basic synchronization | `AtomicLong`, `volatile` | Better concurrency |
 
 ### Benchmarks
+
 - **Cache Operations**: 50% faster with modern concurrent collections
 - **Image Processing**: 25% improvement with optimized algorithms
 - **Memory Footprint**: 20% reduction with defensive copying strategies
@@ -283,11 +301,13 @@ cache.timeToLiveSeconds=3600
 ## 🛡️ Security Enhancements
 
 ### Input Validation
+
 - **Parameter validation**: `Objects.requireNonNull()` for all public methods
 - **Type safety**: Generic types with proper bounds
 - **Resource management**: Try-with-resources for all I/O operations
 
 ### Exception Handling
+
 - **Specific exceptions**: No more generic `Exception` throws
 - **Error logging**: Comprehensive logging with stack traces
 - **Graceful degradation**: Fallback mechanisms for failures
@@ -295,6 +315,7 @@ cache.timeToLiveSeconds=3600
 ## 🧪 Testing
 
 ### Unit Tests (JUnit 5)
+
 ```java
 @ExtendWith(MockitoExtension.class)
 class ImageCacheManagerImplTest {
@@ -318,6 +339,7 @@ class ImageCacheManagerImplTest {
 ```
 
 ### Integration Tests
+
 ```java
 @SpringBootTest
 @TestPropertySource(locations = "classpath:test.properties")
@@ -346,9 +368,11 @@ class ImageResizeControllerIntegrationTest {
 5. **Testing**: Run existing tests to verify compatibility
 
 ### Breaking Changes
+
 **None!** 🎉 Complete backward compatibility maintained.
 
 ### New Features Available
+
 - Optional-based methods for null-safe operations
 - Enhanced error messages with better debugging info
 - Improved performance with modern JVM optimizations
@@ -356,6 +380,7 @@ class ImageResizeControllerIntegrationTest {
 ## 🔍 Monitoring and Debugging
 
 ### Logging Configuration
+
 ```xml
 <!-- logback-spring.xml -->
 <logger name="com.percussion.widgets.image" level="DEBUG" additivity="false">
@@ -364,6 +389,7 @@ class ImageResizeControllerIntegrationTest {
 ```
 
 ### JMX Monitoring
+
 - Cache hit/miss ratios
 - Image processing metrics
 - Memory usage statistics
@@ -372,12 +398,14 @@ class ImageResizeControllerIntegrationTest {
 ## 🤝 Contributing
 
 ### Code Style
+
 - **Google Java Style Guide**: Enforced with Checkstyle
 - **Java 11 Features**: Use modern language features where appropriate
 - **Documentation**: JavaDoc for all public APIs
 - **Testing**: Minimum 80% code coverage
 
 ### Pull Request Process
+
 1. Create feature branch from `main`
 2. Implement changes with tests
 3. Run `mvn clean verify` to ensure quality
@@ -386,6 +414,7 @@ class ImageResizeControllerIntegrationTest {
 ## 📝 Changelog
 
 ### v2.0.0 (Java 11 Modernization)
+
 - ✅ **Complete Java 11 refactoring** of all service components
 - ✅ **Enhanced thread safety** with modern concurrency patterns
 - ✅ **Improved error handling** with specific exception types
@@ -395,6 +424,7 @@ class ImageResizeControllerIntegrationTest {
 - ✅ **Documentation updates** with detailed examples
 
 ### v1.x.x (Legacy)
+
 - Basic image processing functionality
 - EhCache integration
 - Spring MVC endpoints
@@ -403,11 +433,13 @@ class ImageResizeControllerIntegrationTest {
 ## 📞 Support
 
 ### Documentation
+
 - **JavaDoc**: Complete API documentation in `/target/apidocs/`
 - **User Guide**: Detailed usage examples and best practices
 - **FAQ**: Common questions and troubleshooting
 
 ### Contact
+
 - **Team**: PercussionCMS Development Team
 - **Email**: support@percussion.com
 - **Issues**: GitHub Issues for bug reports and feature requests

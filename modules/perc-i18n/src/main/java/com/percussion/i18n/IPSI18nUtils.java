@@ -17,5 +17,4 @@
 
 package com.percussion.i18n;
 
-public interface IPSI18nUtils {
-}
+public interface IPSI18nUtils {}

@@ -21,389 +21,386 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Defines the definition for a Property. 
- * 
+ * Defines the definition for a Property.
+ *
  * @author natechadwick
  *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "property", propOrder = {
-    "enumValue"
-})
+@XmlType(
+    name = "property",
+    propOrder = {"enumValue"})
 public class PSPropertyDefinition {
-	
-	        @XmlElement(name = "EnumValue")
-	        private List<EnumValue> enumValue;
-	        @XmlAttribute(required = true)
-	        private String name;
-	        @XmlAttribute(name = "display_name")
-	        private String displayName;
-	        @XmlAttribute(name = "default_value")
-	        private String defaultValue;
-	        @XmlAttribute
-	        private String required;
-	        @XmlAttribute
-	        private String datatype;
-	        @XmlAttribute(name="max_length")
-	        private int maxLength;
-	        @XmlAttribute(name= "validation_regex")
-	        private String validationRegEx;
-	        @XmlAttribute(name="validation_message")
-	        private String validationMessage;
-	        @XmlAttribute(name="help_text")
-	        private String helpText;
-	        @XmlAttribute(name="display_regex")
-	        private String displayRegEx;
-	        @XmlAttribute(name="property_value")
-	        private Object propertyValue;
-	        
-	       
 
-	        /**
-	         * Gets the value of the enumValue property.
-	         * 
-	         * <p>
-	         * This accessor method returns a reference to the live list,
-	         * not a snapshot. Therefore any modification you make to the
-	         * returned list will be present inside the JAXB object.
-	         * This is why there is not a <CODE>set</CODE> method for the enumValue property.
-	         * 
-	         * <p>
-	         * For example, to add a new item, do as follows:
-	         * <pre>
-	         *    getEnumValue().add(newItem);
-	         * </pre>
-	         * 
-	         * 
-	         * <p>
-	         * Objects of the following type(s) are allowed in the list
-	         * 
-	         * @return never <code>null</code>.
-	         * 
-	         * 
-	         */
-	        public List<EnumValue> getEnumValue() {
-	            if (enumValue == null) {
-	                enumValue = new ArrayList<>();
-	            }
-	            return this.enumValue;
-	        }
+  @XmlElement(name = "EnumValue")
+  private List<EnumValue> enumValue;
 
-	        /**
-	         * Gets the value of the name property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getName() {
-	            return name;
-	        }
+  @XmlAttribute(required = true)
+  private String name;
 
-	        /**
-	         * Sets the value of the name property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setName(String value) {
-	            this.name = value;
-	        }
+  @XmlAttribute(name = "display_name")
+  private String displayName;
 
-	        /**
-	         * Gets the value of the displayName property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getDisplayName() {
-	            return displayName;
-	        }
+  @XmlAttribute(name = "default_value")
+  private String defaultValue;
 
-	        /**
-	         * Sets the value of the displayName property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDisplayName(String value) {
-	            this.displayName = value;
-	        }
+  @XmlAttribute private String required;
+  @XmlAttribute private String datatype;
 
-	        /**
-	         * Gets the value of the defaultValue property.
-	         * 
-	         * @return default value, it may <code>null</code> if not defined.
-	         *     
-	         */
-	        public String getDefaultValue() {
-	            return defaultValue;
-	        }
+  @XmlAttribute(name = "max_length")
+  private int maxLength;
 
-	        /**
-	         * Sets the value of the defaultValue property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDefaultValue(String value) {
-	            this.defaultValue = value;
-	        }
+  @XmlAttribute(name = "validation_regex")
+  private String validationRegEx;
 
-	        /**
-	         * Gets the value of the required property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getRequired() {
-	            return required;
-	        }
+  @XmlAttribute(name = "validation_message")
+  private String validationMessage;
 
-	        /**
-	         * Sets the value of the required property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setRequired(String value) {
-	            this.required = value;
-	        }
+  @XmlAttribute(name = "help_text")
+  private String helpText;
 
-	        /**
-	         * Gets the value of the datatype property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getDatatype() {
-	            if (datatype == null) {
-	                return "string";
-	            }
-	            return datatype;
-	        }
+  @XmlAttribute(name = "display_regex")
+  private String displayRegEx;
 
-	        /**
-	         * Sets the value of the datatype property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDatatype(String value) {
-	            this.datatype = value;
-	        }
+  @XmlAttribute(name = "property_value")
+  private Object propertyValue;
 
+  /**
+   * Gets the value of the enumValue property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the enumValue property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getEnumValue().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   *
+   * @return never <code>null</code>.
+   *
+   *
+   */
+  public List<EnumValue> getEnumValue() {
+    if (enumValue == null) {
+      enumValue = new ArrayList<>();
+    }
+    return this.enumValue;
+  }
 
-	        /**
-	         * Returns the maximum length that this
-	         * property can contain.
-			 * @return the maxLength
-			 */
-			public int getMaxLength() {
-				return maxLength;
-			}
+  /**
+   * Gets the value of the name property.
+   *
+   * @return
+   *     possible object is
+   *     {@link String }
+   *
+   */
+  public String getName() {
+    return name;
+  }
 
-			/**
-			 * Sets the maximum length that this property
-			 * can contain.
-			 * 
-			 * @param maxLength the maxLength to set
-			 */
-			public void setMaxLength(int maxLength) {
-				this.maxLength = maxLength;
-			}
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value
+   *     allowed object is
+   *     {@link String }
+   *
+   */
+  public void setName(String value) {
+    this.name = value;
+  }
 
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return
+   *     possible object is
+   *     {@link String }
+   *
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-			/**
-			 * Returns a regular expression that can be used to validate
-			 * data input for this property.  May be null.
-			 * 
-			 * @return the validationRegEx
-			 */
-			public String getValidationRegEx() {
-				return validationRegEx;
-			}
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value
+   *     allowed object is
+   *     {@link String }
+   *
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
-			/**
-			 * Sets the Validation regular expression that can be used
-			 * to validate input for this property. 
-			 * 
-			 * @param validationRegEx the validationRegEx to set
-			 */
-			public void setValidationRegEx(String validationRegEx) {
-				this.validationRegEx = validationRegEx;
-			}
+  /**
+   * Gets the value of the defaultValue property.
+   *
+   * @return default value, it may <code>null</code> if not defined.
+   *
+   */
+  public String getDefaultValue() {
+    return defaultValue;
+  }
 
+  /**
+   * Sets the value of the defaultValue property.
+   *
+   * @param value
+   *     allowed object is
+   *     {@link String }
+   *
+   */
+  public void setDefaultValue(String value) {
+    this.defaultValue = value;
+  }
 
-			/**
-			 * Returns the help text to be displayed for this property
-			 * May be null. 
-			 * 
-			 * @return the helpText
-			 */
-			public String getHelpText() {
-				return helpText;
-			}
+  /**
+   * Gets the value of the required property.
+   *
+   * @return
+   *     possible object is
+   *     {@link String }
+   *
+   */
+  public String getRequired() {
+    return required;
+  }
 
-			/**
-			 * Sets the help text to be displayed for this property.
-			 * 
-			 * @param helpText the helpText to set
-			 */
-			public void setHelpText(String helpText) {
-				this.helpText = helpText;
-			}
+  /**
+   * Sets the value of the required property.
+   *
+   * @param value
+   *     allowed object is
+   *     {@link String }
+   *
+   */
+  public void setRequired(String value) {
+    this.required = value;
+  }
 
+  /**
+   * Gets the value of the datatype property.
+   *
+   * @return
+   *     possible object is
+   *     {@link String }
+   *
+   */
+  public String getDatatype() {
+    if (datatype == null) {
+      return "string";
+    }
+    return datatype;
+  }
 
-			/**
-			 * Returns a Regular Expression that can be used to 
-			 * format the display of the property. May be null. 
-			 * 
-			 * @return the displayRegEx
-			 */
-			public String getDisplayRegEx() {
-				return displayRegEx;
-			}
+  /**
+   * Sets the value of the datatype property.
+   *
+   * @param value
+   *     allowed object is
+   *     {@link String }
+   *
+   */
+  public void setDatatype(String value) {
+    this.datatype = value;
+  }
 
-			/**
-			 * Sets a Regular Expression that can be used to 
-			 * format the display of this property. 
-			 * 
-			 * @param displayRegEx the displayRegEx to set
-			 */
-			public void setDisplayRegEx(String displayRegEx) {
-				this.displayRegEx = displayRegEx;
-			}
+  /**
+   * Returns the maximum length that this
+   * property can contain.
+   * @return the maxLength
+   */
+  public int getMaxLength() {
+    return maxLength;
+  }
 
+  /**
+   * Sets the maximum length that this property
+   * can contain.
+   *
+   * @param maxLength the maxLength to set
+   */
+  public void setMaxLength(int maxLength) {
+    this.maxLength = maxLength;
+  }
 
-			/**
-			 * @return the validationMessage
-			 */
-			public String getValidationMessage() {
-				return validationMessage;
-			}
+  /**
+   * Returns a regular expression that can be used to validate
+   * data input for this property.  May be null.
+   *
+   * @return the validationRegEx
+   */
+  public String getValidationRegEx() {
+    return validationRegEx;
+  }
 
-			/**
-			 * @param validationMessage the validationMessage to set
-			 */
-			public void setValidationMessage(String validationMessage) {
-				this.validationMessage = validationMessage;
-			}
+  /**
+   * Sets the Validation regular expression that can be used
+   * to validate input for this property.
+   *
+   * @param validationRegEx the validationRegEx to set
+   */
+  public void setValidationRegEx(String validationRegEx) {
+    this.validationRegEx = validationRegEx;
+  }
 
+  /**
+   * Returns the help text to be displayed for this property
+   * May be null.
+   *
+   * @return the helpText
+   */
+  public String getHelpText() {
+    return helpText;
+  }
 
-			/**
-			 * When populated contains the current value
-			 * if any for this property.
-			 * 
-			 * @return the propertyValue
-			 */
-			public Object getPropertyValue() {
-				return propertyValue;
-			}
+  /**
+   * Sets the help text to be displayed for this property.
+   *
+   * @param helpText the helpText to set
+   */
+  public void setHelpText(String helpText) {
+    this.helpText = helpText;
+  }
 
-			/**
-			 * Sets the Value for this property. 
-			 * 
-			 * @param propertyValue the propertyValue to set
-			 */
-			public void setPropertyValue(Object propertyValue) {
-				this.propertyValue = propertyValue;
-			}
+  /**
+   * Returns a Regular Expression that can be used to
+   * format the display of the property. May be null.
+   *
+   * @return the displayRegEx
+   */
+  public String getDisplayRegEx() {
+    return displayRegEx;
+  }
 
+  /**
+   * Sets a Regular Expression that can be used to
+   * format the display of this property.
+   *
+   * @param displayRegEx the displayRegEx to set
+   */
+  public void setDisplayRegEx(String displayRegEx) {
+    this.displayRegEx = displayRegEx;
+  }
 
-			/**
-	         * <p>Java class for anonymous complex type.
-	         * 
-	         * <p>The following schema fragment specifies the expected content contained within this class.
-	         * 
-	         * <pre>
-	         * &lt;complexType>
-	         *   &lt;complexContent>
-	         *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-	         *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-	         *       &lt;attribute name="display_value" type="{http://www.w3.org/2001/XMLSchema}string" />
-	         *     &lt;/restriction>
-	         *   &lt;/complexContent>
-	         * &lt;/complexType>
-	         * </pre>
-	         * 
-	         * 
-	         */
-	        @XmlAccessorType(XmlAccessType.FIELD)
-	        @XmlType(name = "")
-	        public static class EnumValue {
+  /**
+   * @return the validationMessage
+   */
+  public String getValidationMessage() {
+    return validationMessage;
+  }
 
-	            @XmlAttribute(required = true)
-	            protected String value;
-	            @XmlAttribute(name = "display_value")
-	            protected String displayValue;
+  /**
+   * @param validationMessage the validationMessage to set
+   */
+  public void setValidationMessage(String validationMessage) {
+    this.validationMessage = validationMessage;
+  }
 
-	            /**
-	             * Gets the value of the value property.
-	             * 
-	             * @return
-	             *     possible object is
-	             *     {@link String }
-	             *     
-	             */
-	            public String getValue() {
-	                return value;
-	            }
+  /**
+   * When populated contains the current value
+   * if any for this property.
+   *
+   * @return the propertyValue
+   */
+  public Object getPropertyValue() {
+    return propertyValue;
+  }
 
-	            /**
-	             * Sets the value of the value property.
-	             * 
-	             * @param value
-	             *     allowed object is
-	             *     {@link String }
-	             *     
-	             */
-	            public void setValue(String value) {
-	                this.value = value;
-	            }
+  /**
+   * Sets the Value for this property.
+   *
+   * @param propertyValue the propertyValue to set
+   */
+  public void setPropertyValue(Object propertyValue) {
+    this.propertyValue = propertyValue;
+  }
 
-	            /**
-	             * Gets the value of the displayValue property.
-	             * 
-	             * @return
-	             *     possible object is
-	             *     {@link String }
-	             *     
-	             */
-	            public String getDisplayValue() {
-	                return displayValue;
-	            }
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType>
+   *   &lt;complexContent>
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+   *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *       &lt;attribute name="display_value" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *     &lt;/restriction>
+   *   &lt;/complexContent>
+   * &lt;/complexType>
+   * </pre>
+   *
+   *
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "")
+  public static class EnumValue {
 
-	            /**
-	             * Sets the value of the displayValue property.
-	             * 
-	             * @param value
-	             *     allowed object is
-	             *     {@link String }
-	             *     
-	             */
-	            public void setDisplayValue(String value) {
-	                this.displayValue = value;
-	            }
+    @XmlAttribute(required = true)
+    protected String value;
 
-	        }
-	 }
+    @XmlAttribute(name = "display_value")
+    protected String displayValue;
 
+    /**
+     * Gets the value of the value property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getValue() {
+      return value;
+    }
 
+    /**
+     * Sets the value of the value property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    /**
+     * Gets the value of the displayValue property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getDisplayValue() {
+      return displayValue;
+    }
+
+    /**
+     * Sets the value of the displayValue property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setDisplayValue(String value) {
+      this.displayValue = value;
+    }
+  }
+}

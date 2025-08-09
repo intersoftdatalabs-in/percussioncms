@@ -26,60 +26,60 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "poll")
 public class PSRestPoll {
-    private String pollName;
-    private String pollQuestion;
-    private Map<String, Integer> pollResults;
-    private int totalVotes;
-    private Map<String, Boolean> pollSubmits;
-    private boolean restrictBySession;
+  private String pollName;
+  private String pollQuestion;
+  private Map<String, Integer> pollResults;
+  private int totalVotes;
+  private Map<String, Boolean> pollSubmits;
+  private boolean restrictBySession;
 
-    public PSRestPoll() {}
+  public PSRestPoll() {}
 
-    public String getPollName() {
-        return pollName;
-    }
+  public String getPollName() {
+    return pollName;
+  }
 
-    public void setPollName(String pollName) {
-        this.pollName = pollName;
-    }
+  public void setPollName(String pollName) {
+    this.pollName = pollName;
+  }
 
-    public String getPollQuestion() {
-        return pollQuestion;
-    }
+  public String getPollQuestion() {
+    return pollQuestion;
+  }
 
-    public void setPollQuestion(String pollQuestion) {
-        this.pollQuestion = pollQuestion;
-    }
+  public void setPollQuestion(String pollQuestion) {
+    this.pollQuestion = pollQuestion;
+  }
 
-    public Map<String, Integer> getPollResults() {
-        return pollResults;
-    }
+  public Map<String, Integer> getPollResults() {
+    return pollResults;
+  }
 
-    public void setPollResults(Map<String, Integer> pollResults) {
-        this.pollResults = pollResults;
-    }
+  public void setPollResults(Map<String, Integer> pollResults) {
+    this.pollResults = pollResults;
+  }
 
-    public Map<String, Boolean> getPollSubmits() {
-        return pollSubmits;
-    }
+  public Map<String, Boolean> getPollSubmits() {
+    return pollSubmits;
+  }
 
-    public void setPollSubmits(Map<String, Boolean> pollSubmits) {
-        this.pollSubmits = pollSubmits;
-    }
+  public void setPollSubmits(Map<String, Boolean> pollSubmits) {
+    this.pollSubmits = pollSubmits;
+  }
 
-    public int getTotalVotes() {
-        return totalVotes;
-    }
+  public int getTotalVotes() {
+    return totalVotes;
+  }
 
-    public void setTotalVotes(int totalVotes) {
-        this.totalVotes = totalVotes;
-    }
+  public void setTotalVotes(int totalVotes) {
+    this.totalVotes = totalVotes;
+  }
 
-    public boolean isRestrictBySession() {
-        return restrictBySession;
-    }
+  public boolean isRestrictBySession() {
+    return restrictBySession;
+  }
 
-    public void setRestrictBySession(boolean restrictBySession) {
-        this.restrictBySession = restrictBySession;
-    }
+  public void setRestrictBySession(boolean restrictBySession) {
+    this.restrictBySession = restrictBySession;
+  }
 }

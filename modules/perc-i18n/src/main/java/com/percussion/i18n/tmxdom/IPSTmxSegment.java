@@ -24,7 +24,4 @@ package com.percussion.i18n.tmxdom;
  * </p>
  * @see IPSTmxDtdConstants
  */
-public interface IPSTmxSegment
-   extends IPSTmxLeafNode
-{
-}
+public interface IPSTmxSegment extends IPSTmxLeafNode {}

@@ -26,13 +26,9 @@ import java.util.Comparator;
  */
 public class PSEffectivenessComparator implements Comparator<PSEffectiveness> {
 
-    @Override
-    public int compare(PSEffectiveness ep1, PSEffectiveness ep2) {
-        var eComp = Long.compare(
-                ep2.getEffectiveness().orElse(0L),
-                ep1.getEffectiveness().orElse(0L));
-        return (eComp == 0)
-                ? ep1.getName().compareTo(ep2.getName())
-                : eComp;
-    }
+  @Override
+  public int compare(PSEffectiveness ep1, PSEffectiveness ep2) {
+    var eComp = Long.compare(ep2.getEffectiveness().orElse(0L), ep1.getEffectiveness().orElse(0L));
+    return (eComp == 0) ? ep1.getName().compareTo(ep2.getName()) : eComp;
+  }
 }

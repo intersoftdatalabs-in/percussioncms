@@ -20,12 +20,14 @@ The CMLight-Main-cactus-tests module provides comprehensive integration testing 
 This module has been completely refactored for Java 11 compatibility:
 
 #### **POM Configuration Updates**
+
 - **Java Version**: Updated from Java 8 to Java 11 (lines 19-21 in pom.xml)
 - **Maven Plugins**: Updated to latest Java 11 compatible versions
 - **Dependencies**: Updated JUnit to 4.13.2, Cactus to 1.8.1, Spring to 5.3.23
 - **Module System**: Added proper `--add-opens` JVM arguments for Java 11 module system
 
 #### **Test Framework Enhancements**
+
 - **Generic Types**: Added proper generic type safety throughout test classes
 - **Assertions**: Improved assertion messages for better test failure diagnosis
 - **Code Quality**: Removed deprecated practices and warnings
@@ -123,6 +125,7 @@ The tests are organized using JUnit categories:
 ### Sample Test Classes (Updated for Java 11)
 
 #### PSRoleManagerTest.java (lines 40-86)
+
 ```java
 public void testGetRoles()
 {
@@ -203,22 +206,23 @@ The module provides comprehensive test coverage for:
 ### Common Java 11 Issues
 
 1. **Module System Conflicts**
+
    ```bash
    # Add JVM arguments to resolve module access issues
    --add-opens java.base/java.lang=ALL-UNNAMED
    ```
-
 2. **Compilation Errors**
+
    ```bash
    # Verify Java version
    java -version
    mvn -version
-   
+
    # Clean and recompile
    mvn clean compile
    ```
-
 3. **Test Failures**
+
    ```bash
    # Ensure server is running
    # Check database connectivity
@@ -312,3 +316,4 @@ For issues and questions related to this module:
 2. Verify server configuration and connectivity
 3. Review Java 11 migration documentation
 4. Consult the main Percussion CMS documentation and support channels
+

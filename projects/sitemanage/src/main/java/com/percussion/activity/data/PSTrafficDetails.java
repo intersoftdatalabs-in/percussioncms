@@ -28,46 +28,46 @@ import java.util.Optional;
 @JsonRootName(value = "TrafficDetails")
 public class PSTrafficDetails extends PSItemProperties {
 
-    private int visits;
-    private int visitsDelta;
+  private int visits;
+  private int visitsDelta;
 
-    public PSTrafficDetails() {
-        // Default constructor
-    }
+  public PSTrafficDetails() {
+    // Default constructor
+  }
 
-    /**
-     * Gets the total number of visits for this page.
-     *
-     * @return Optional containing visits count, or empty if not set.
-     */
-    public Optional<Integer> getVisits() {
-        return Optional.of(visits);
-    }
+  /**
+   * Gets the total number of visits for this page.
+   *
+   * @return Optional containing visits count, or empty if not set.
+   */
+  public Optional<Integer> getVisits() {
+    return Optional.of(visits);
+  }
 
-    /**
-     * Gets the delta of visits for this item.
-     *
-     * @return Optional containing visits delta, or empty if not set.
-     */
-    public Optional<Integer> getVisitsDelta() {
-        return Optional.of(visitsDelta);
-    }
+  /**
+   * Gets the delta of visits for this item.
+   *
+   * @return Optional containing visits delta, or empty if not set.
+   */
+  public Optional<Integer> getVisitsDelta() {
+    return Optional.of(visitsDelta);
+  }
 
-    /**
-     * Sets the delta of visits for this item.
-     *
-     * @param visitsDelta the delta of visits
-     */
-    public void setVisitsDelta(int visitsDelta) {
-        this.visitsDelta = visitsDelta;
-    }
+  /**
+   * Sets the delta of visits for this item.
+   *
+   * @param visitsDelta the delta of visits
+   */
+  public void setVisitsDelta(int visitsDelta) {
+    this.visitsDelta = visitsDelta;
+  }
 
-    /**
-     * Sets the total number of visits for this page.
-     *
-     * @param visits the total visits
-     */
-    public void setVisits(int visits) {
-        this.visits = visits;
-    }
+  /**
+   * Sets the total number of visits for this page.
+   *
+   * @param visits the total visits
+   */
+  public void setVisits(int visits) {
+    this.visits = visits;
+  }
 }

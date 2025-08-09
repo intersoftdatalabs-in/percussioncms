@@ -1,15 +1,16 @@
 ## Java 11 Refactoring: DeliveryCSRFToken
 
-  - Class is now immutable and uses `Optional` for null safety.
-  - Added `equals`, `hashCode`, and `toString` methods for value semantics.
-  - All fields are final and set via constructor.
+- Class is now immutable and uses `Optional` for null safety.
+- Added `equals`, `hashCode`, and `toString` methods for value semantics.
+- All fields are final and set via constructor.
 - This improves code safety, maintainability, and aligns with project modernization goals.
 
 **Migration Note:**
 If you previously used setter methods or expected mutable state, update your code to use the constructor and `Optional`-returning getters.
----
+------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Java 11 Refactoring: EasySSLProtocolSocketFactory
+
 - Refactored `com.percussion.delivery.client.EasySSLProtocolSocketFactory` to use Java 11 features and Google Java Style.
   - Replaced legacy types with explicit types (removed unsupported `var` usages).
   - Improved exception handling and code readability.
@@ -19,6 +20,7 @@ If you previously used setter methods or expected mutable state, update your cod
 **Migration Note:**
 
 ---
+
 ## Java 11 Refactoring: EasyX509TrustManager
 
 - Refactored `com.percussion.delivery.client.EasyX509TrustManager` to use Java 11 features and Google Java Style.
@@ -29,7 +31,6 @@ If you previously used setter methods or expected mutable state, update your cod
 
 No migration required; all public APIs are backward compatible.
 
-
 ## Java 11 Refactoring: delivery.client Package
 
 - The entire `com.percussion.delivery.client` package has been refactored to Java 11 standards:
@@ -38,26 +39,26 @@ No migration required; all public APIs are backward compatible.
   - Each class is marked with `// REFACTORED: CP-JAVA11` at the class level.
 - No public API changes; all method signatures remain backward compatible.
 - This package is now tracked in `refactored-java11-packages.txt` and will be skipped in future Java 11 refactoring sessions.
-**Migration Note:**
-No migration required for consumers of this package. All public APIs are backward compatible, but code using deprecated or removed mutability should be updated to use the new immutable patterns.
+  **Migration Note:**
+  No migration required for consumers of this package. All public APIs are backward compatible, but code using deprecated or removed mutability should be updated to use the new immutable patterns.
 
 ---
 
 ## Java 11 Refactoring: delivery.data Package
 
-  - Legacy code and patterns have been modernized for maintainability and performance.
-  - Each class is marked with `// REFACTORED: CP-JAVA11` at the class level.
-
-
+- Legacy code and patterns have been modernized for maintainability and performance.
+- Each class is marked with `// REFACTORED: CP-JAVA11` at the class level.
 
 ## Java 11 Refactoring: delivery.metadata Package
+
 - The entire `com.percussion.delivery.metadata` package (including subpackages any23, extractor, solr) has been refactored to Java 11 standards:
   - All classes are marked with `// REFACTORED: CP-JAVA11` at the class level.
   - Legacy code and patterns have been modernized for maintainability, performance, and security.
-**Migration Note:**
-No migration required for consumers of this package. All public APIs are backward compatible, but code using deprecated or removed mutability should be updated to use the new immutable patterns.
+    **Migration Note:**
+    No migration required for consumers of this package. All public APIs are backward compatible, but code using deprecated or removed mutability should be updated to use the new immutable patterns.
 
 ---
+
 - The entire `com.percussion.delivery.metadata.solr.impl` package has been refactored to Java 11 standards:
   - All classes now use Java 11 features (var, Optional, Streams), improved null checks, and Google Java Style.
   - Legacy code and patterns have been modernized for maintainability, performance, and security.
@@ -303,11 +304,12 @@ No migration required for consumers of this interface. All public APIs are backw
 No migration required for consumers of this package. All public APIs are backward compatible, but code using deprecated or removed mutability should be updated to use the new immutable patterns and null safety improvements.
 
 ---
+
 < I'll be back... with cleaner code >
 _________________________________
-        \   ^__^
-         \  (oo)\\_______
-            (__)\\       )\/\
-                ||----w |
-                ||     ||
+\   ^__^
+\  (oo)\\_______
+(__)\\       )\/\
+||----w |
+||     ||
 

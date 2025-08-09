@@ -17,76 +17,63 @@
 
 package com.ibm.cadf.model;
 
+import com.ibm.cadf.exception.CADFException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 
-import com.ibm.cadf.exception.CADFException;
+public class Metric extends CADFType {
 
-public class Metric extends CADFType
-{
+  private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+  private String metricId;
 
-    private String metricId;
+  private String unit;
 
-    private String unit;
+  private String name;
 
-    private String name;
+  private Map<String, String> annotations;
 
-    private Map<String, String> annotations;
+  public Metric(String metricId, String unit, String name) throws CADFException {
+    super();
+    this.metricId = metricId;
+    this.unit = unit;
+    this.name = name;
+  }
 
-    public Metric(String metricId, String unit, String name) throws CADFException
-    {
-        super();
-        this.metricId = metricId;
-        this.unit = unit;
-        this.name = name;
+  public String getMetricId() {
+    return metricId;
+  }
+
+  public void setMetricId(String metricId) {
+    this.metricId = metricId;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
+
+  public void setUnit(String unit) {
+    this.unit = unit;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void addAnnotation(String key, String value) {
+    if (this.annotations == null) {
+      this.annotations = new HashMap<>();
     }
+    this.annotations.put(key, value);
+  }
 
-    public String getMetricId()
-    {
-        return metricId;
-    }
-
-    public void setMetricId(String metricId)
-    {
-        this.metricId = metricId;
-    }
-
-    public String getUnit()
-    {
-        return unit;
-    }
-
-    public void setUnit(String unit)
-    {
-        this.unit = unit;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public void addAnnotation(String key, String value)
-    {
-        if (this.annotations == null)
-        {
-            this.annotations = new HashMap<>();
-        }
-        this.annotations.put(key, value);
-    }
-
-    @Override
-    public boolean isValid()
-    {
-        return StringUtils.isNotEmpty(metricId) && StringUtils.isNotEmpty(unit);
-    }
+  @Override
+  public boolean isValid() {
+    return StringUtils.isNotEmpty(metricId) && StringUtils.isNotEmpty(unit);
+  }
 }

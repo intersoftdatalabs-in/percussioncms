@@ -34,21 +34,19 @@ import org.apache.lucene.analysis.Analyzer;
  * indexing and searching the content and not useful anywhere else and needs to
  * be avoided.
  */
-public interface IPSLuceneAnalyzer extends IPSExtension
-{
-   /**
-    * Should create an instance of class that implements
-    * org.apache.lucene.analysis.Analyzer and return based on the supplied
-    * locale.
-    * 
-    * @param language The language string in the form of two letter language
-    *           code hyphen two letter country code. For example en-us. The
-    *           intended caller of this method is {@link PSLuceneAnalyzerFactory}
-    * @return An object of the class that implements
-    *         org.apache.lucene.analysis.Analyzer. May be <code>null</code>.
-    * @throws PSExtensionProcessingException if an exception occurs which
-    *            prevents the proper handling of this request.
-    */
-   public Analyzer getAnalyzer(String language)
-         throws PSExtensionProcessingException;
+public interface IPSLuceneAnalyzer extends IPSExtension {
+  /**
+   * Should create an instance of class that implements
+   * org.apache.lucene.analysis.Analyzer and return based on the supplied
+   * locale.
+   *
+   * @param language The language string in the form of two letter language
+   *           code hyphen two letter country code. For example en-us. The
+   *           intended caller of this method is {@link PSLuceneAnalyzerFactory}
+   * @return An object of the class that implements
+   *         org.apache.lucene.analysis.Analyzer. May be <code>null</code>.
+   * @throws PSExtensionProcessingException if an exception occurs which
+   *            prevents the proper handling of this request.
+   */
+  public Analyzer getAnalyzer(String language) throws PSExtensionProcessingException;
 }

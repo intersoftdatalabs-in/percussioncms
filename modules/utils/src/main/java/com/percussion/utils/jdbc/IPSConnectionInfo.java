@@ -19,14 +19,13 @@ package com.percussion.utils.jdbc;
 /**
  * Represents the data required to obtain a connection to a JNDI datasource.
  */
-public interface IPSConnectionInfo
-{
-   /**
-    * The data source, which references the name of an 
-    * {@link IPSDatasourceConfig}, case-insensitively.  
-    * 
-    * @return the datasource, will be <code>null</code> if this info represents
-    * the repository connection.
-    */
-   String getDataSource();
+public interface IPSConnectionInfo {
+  /**
+   * The data source, which references the name of an
+   * {@link IPSDatasourceConfig}, case-insensitively.
+   *
+   * @return the datasource, will be <code>null</code> if this info represents
+   * the repository connection.
+   */
+  String getDataSource();
 }

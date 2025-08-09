@@ -17,64 +17,60 @@
 
 package com.percussion.utils.xml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.security.xml.PSCatalogResolver;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.xml.sax.InputSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.xml.sax.InputSource;
 
 public class PSEntityResolverTest {
 
-    private static final Logger log = LogManager.getLogger(PSEntityResolverTest.class);
+  private static final Logger log = LogManager.getLogger(PSEntityResolverTest.class);
 
-    @TempDir
-    public Path temporaryFolder;
-    private File testInstallRoot;
+  @TempDir public Path temporaryFolder;
+  private File testInstallRoot;
 
-    @BeforeEach
-    public void setup() throws IOException {
-        testInstallRoot = temporaryFolder.resolve("testInstallRoot").toFile();
-        System.setProperty("rxdeploydir",testInstallRoot.getAbsolutePath());
-    }
+  @BeforeEach
+  public void setup() throws IOException {
+    testInstallRoot = temporaryFolder.resolve("testInstallRoot").toFile();
+    System.setProperty("rxdeploydir", testInstallRoot.getAbsolutePath());
+  }
 
-    @Test
-    @Disabled("TODO: Update to use the test XML Catalog")
-    public void testExternalEntityOutsideOfInstall() throws IOException {
-        PSCatalogResolver resolver = new PSCatalogResolver();
-        InputSource src = resolver.resolveEntity("-//W3C//ENTITIES_Latin_1_for_XHTML//EN","https://www.percussion.com/DTD/HTMLlat1x.ent");
+  @Test
+  @Disabled("TODO: Update to use the test XML Catalog")
+  public void testExternalEntityOutsideOfInstall() throws IOException {
+    PSCatalogResolver resolver = new PSCatalogResolver();
+    InputSource src =
+        resolver.resolveEntity(
+            "-//W3C//ENTITIES_Latin_1_for_XHTML//EN",
+            "https://www.percussion.com/DTD/HTMLlat1x.ent");
 
-        assertNotNull(src);
+    assertNotNull(src);
 
-        log.info("Resolved {} to SYSTEM of: {}",src.getPublicId(),src.getSystemId());
-        log.info("=============================");
-        assertNotNull(src.getByteStream());
-        log.info("{}",inputSourceToString(src));
-        assertEquals("-//W3C//ENTITIES_Latin_1_for_XHTML//EN",src.getPublicId());
+    log.info("Resolved {} to SYSTEM of: {}", src.getPublicId(), src.getSystemId());
+    log.info("=============================");
+    assertNotNull(src.getByteStream());
+    log.info("{}", inputSourceToString(src));
+    assertEquals("-//W3C//ENTITIES_Latin_1_for_XHTML//EN", src.getPublicId());
+  }
 
+  private String inputSourceToString(InputSource src) throws IOException {
+    InputStream r = src.getByteStream();
 
+    StringBuilder b = new StringBuilder();
+    int c;
+    while ((c = r.read()) > -1) b.appendCodePoint(c);
 
-    }
-
-    private String inputSourceToString(InputSource src) throws IOException {
-        InputStream r=src.getByteStream();
-
-        StringBuilder b=new StringBuilder();
-        int c;
-        while((c=r.read())>-1)
-            b.appendCodePoint(c);
-
-        return b.toString();
-    }
+    return b.toString();
+  }
 }

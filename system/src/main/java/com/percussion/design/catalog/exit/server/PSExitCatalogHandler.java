@@ -18,7 +18,6 @@
 package com.percussion.design.catalog.exit.server;
 
 import com.percussion.extension.IPSExtensionManager;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,46 +30,39 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version    1.0
  * @since      1.0
  */
-public class PSExitCatalogHandler
-   extends com.percussion.design.catalog.PSCatalogRequestHandler
-{
-   /**
-    * Construct the data related catalog handler.
-    *
-    * @param mgr An initialized extension manager used to perform cataloging.
-    * Must not be <code>null</code>;
-    *
-    * @throws IllegalArgumentException if mgr is <code>null</code>.
-    */
-   public PSExitCatalogHandler( IPSExtensionManager mgr )
-   {
-      super();
+public class PSExitCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler {
+  /**
+   * Construct the data related catalog handler.
+   *
+   * @param mgr An initialized extension manager used to perform cataloging.
+   * Must not be <code>null</code>;
+   *
+   * @throws IllegalArgumentException if mgr is <code>null</code>.
+   */
+  public PSExitCatalogHandler(IPSExtensionManager mgr) {
+    super();
 
-      if ( null == mgr )
-         throw new IllegalArgumentException( "extension mgr can't be null" );
+    if (null == mgr) throw new IllegalArgumentException("extension mgr can't be null");
 
-      /* initialize m_catalogHandlers to contain all supported catalog
-       * handlers
-       *
-       * some day, convert this to use JDK 1.2 package info instead of
-       * hardcoded classes
-       */
-      m_catalogHandlers = new ConcurrentHashMap();
+    /* initialize m_catalogHandlers to contain all supported catalog
+     * handlers
+     *
+     * some day, convert this to use JDK 1.2 package info instead of
+     * hardcoded classes
+     */
+    m_catalogHandlers = new ConcurrentHashMap();
 
-      // These two handlers are in com.percussion.design.catalog.exit.server !!!
-      addHandler(new PSExtensionHandlerCatalogHandler( mgr ));
-      addHandler(new PSExtensionCatalogHandler( mgr ));
-   }
+    // These two handlers are in com.percussion.design.catalog.exit.server !!!
+    addHandler(new PSExtensionHandlerCatalogHandler(mgr));
+    addHandler(new PSExtensionCatalogHandler(mgr));
+  }
 
+  /* ************ IPSRequestHandler Interface Implementation ************ */
 
-   /* ************ IPSRequestHandler Interface Implementation ************ */
-
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
+  /**
+   * Shutdown the request handler, freeing any associated resources.
+   */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 }
-

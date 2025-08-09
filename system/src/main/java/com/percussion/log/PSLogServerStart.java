@@ -34,7 +34,6 @@
 
 package com.percussion.log;
 
-
 /**
  * The PSLogServerStart class is used to log server startup events.
  *
@@ -43,37 +42,35 @@ package com.percussion.log;
  * @since      1.0
  */
 public class PSLogServerStart extends PSLogInformation {
-   
-   /**
-    * Construct a log message identifying the server being started.
-    *
-    * @param   name     the name of the user who started the server
-    */
-   public PSLogServerStart(java.lang.String name)
-   {
-      super(LOG_TYPE, 0);
-      m_Subs = new PSLogSubMessage[1];
-      m_Subs[0] = new PSLogSubMessage(0, name); 
-   }
 
-   /**
-    * Get the sub-messages (type and text). A single sub-message is created
-    * containing the name of the user who started the server.
-    *
-    * @return  an array of sub-messages (PSLogSubMessage)
-    */
-   public PSLogSubMessage[] getSubMessages()
-   {
-      return m_Subs;
-   }
+  /**
+   * Construct a log message identifying the server being started.
+   *
+   * @param   name     the name of the user who started the server
+   */
+  public PSLogServerStart(java.lang.String name) {
+    super(LOG_TYPE, 0);
+    m_Subs = new PSLogSubMessage[1];
+    m_Subs[0] = new PSLogSubMessage(0, name);
+  }
 
-   /**
-    * Server start is set as type 2.
-    */
-   private static final int LOG_TYPE = 2;
+  /**
+   * Get the sub-messages (type and text). A single sub-message is created
+   * containing the name of the user who started the server.
+   *
+   * @return  an array of sub-messages (PSLogSubMessage)
+   */
+  public PSLogSubMessage[] getSubMessages() {
+    return m_Subs;
+  }
 
-   /**
-    *   The array of sub-messages
-    */
-   private PSLogSubMessage[] m_Subs = null;
+  /**
+   * Server start is set as type 2.
+   */
+  private static final int LOG_TYPE = 2;
+
+  /**
+   *   The array of sub-messages
+   */
+  private PSLogSubMessage[] m_Subs = null;
 }

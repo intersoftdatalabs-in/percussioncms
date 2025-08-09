@@ -27,87 +27,86 @@ import com.percussion.error.PSException;
  * @version    1.0
  * @since      1.0
  */
-public class PSAuthorizationException extends PSException
-{
+public class PSAuthorizationException extends PSException {
 
-   /**
-    * Constructs an authorization exception with the default message.
-    * @param resourceType
-    * @param resourceName
-    * @param sessionId
-    */
-    public PSAuthorizationException(String resourceType,
-    String resourceName, String sessionId)
-   {
-      super(IPSSecurityErrors.SESS_NOT_AUTHORIZED,
-            new Object[] { resourceType, resourceName, sessionId } );
-   }
+  /**
+   * Constructs an authorization exception with the default message.
+   * @param resourceType
+   * @param resourceName
+   * @param sessionId
+   */
+  public PSAuthorizationException(String resourceType, String resourceName, String sessionId) {
+    super(
+        IPSSecurityErrors.SESS_NOT_AUTHORIZED,
+        new Object[] {resourceType, resourceName, sessionId});
+  }
 
-   /**
-    * Constructs an authorization exception with the default message.
-    *
-    * @param language   language string to use while lookingup for the
-    * message text in the resource bundle
-    *
-    * @param resourceType
-    * @param resourceName
-    * @param sessionId
-    */
-   public PSAuthorizationException(String language, String resourceType,
-    String resourceName, String sessionId)
-   {
-      super(language, IPSSecurityErrors.SESS_NOT_AUTHORIZED,
-            new Object[] { resourceType, resourceName, sessionId } );
-   }
+  /**
+   * Constructs an authorization exception with the default message.
+   *
+   * @param language   language string to use while lookingup for the
+   * message text in the resource bundle
+   *
+   * @param resourceType
+   * @param resourceName
+   * @param sessionId
+   */
+  public PSAuthorizationException(
+      String language, String resourceType, String resourceName, String sessionId) {
+    super(
+        language,
+        IPSSecurityErrors.SESS_NOT_AUTHORIZED,
+        new Object[] {resourceType, resourceName, sessionId});
+  }
 
-   /**
-    * @param language   language string to use while lookingup for the
-    * message text in the resource bundle
-    * @param resourceType
-    * @param resourceName
-    * @param securityProvider
-    * @param userName
-    */
-   public PSAuthorizationException(String language, String resourceType,
-    String resourceName, String securityProvider, String userName)
-   {
-      super(language, IPSSecurityErrors.USER_NOT_AUTHORIZED,
-            new Object[] { resourceType, resourceName,
-            securityProvider, userName } );
-   }
+  /**
+   * @param language   language string to use while lookingup for the
+   * message text in the resource bundle
+   * @param resourceType
+   * @param resourceName
+   * @param securityProvider
+   * @param userName
+   */
+  public PSAuthorizationException(
+      String language,
+      String resourceType,
+      String resourceName,
+      String securityProvider,
+      String userName) {
+    super(
+        language,
+        IPSSecurityErrors.USER_NOT_AUTHORIZED,
+        new Object[] {resourceType, resourceName, securityProvider, userName});
+  }
 
-   /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param   msgCode         the error string to load
-    *
-    * @param   arrayArgs      the array of arguments to use as the arguments
-    *   in the error message
-    */
-   public PSAuthorizationException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
+  /**
+   * Construct an exception for messages taking an array of
+   * arguments. Be sure to store the arguments in the correct order in
+   * the array, where {0} in the string is array element 0, etc.
+   *
+   * @param   msgCode         the error string to load
+   *
+   * @param   arrayArgs      the array of arguments to use as the arguments
+   *   in the error message
+   */
+  public PSAuthorizationException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param language   language string to use while lookingup for the
-    * message text in the resource bundle
-    *
-    * @param   msgCode         the error string to load
-    *
-    * @param   arrayArgs      the array of arguments to use as the arguments
-    *   in the error message
-    */
-
-   public PSAuthorizationException(String language, int msgCode,
-    Object[] arrayArgs)
-   {
-      super(language, msgCode, arrayArgs);
-   }
+  /**
+   * Construct an exception for messages taking an array of
+   * arguments. Be sure to store the arguments in the correct order in
+   * the array, where {0} in the string is array element 0, etc.
+   *
+   * @param language   language string to use while lookingup for the
+   * message text in the resource bundle
+   *
+   * @param   msgCode         the error string to load
+   *
+   * @param   arrayArgs      the array of arguments to use as the arguments
+   *   in the error message
+   */
+  public PSAuthorizationException(String language, int msgCode, Object[] arrayArgs) {
+    super(language, msgCode, arrayArgs);
+  }
 }

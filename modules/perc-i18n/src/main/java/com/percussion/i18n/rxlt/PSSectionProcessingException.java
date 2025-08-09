@@ -20,27 +20,23 @@ package com.percussion.i18n.rxlt;
  * Exception thrown by the section processing implementation methods. This wraps
  * the message from any other exception thrown during processing.
  */
-public class PSSectionProcessingException extends RuntimeException
-{
-   /**
-    * Default constructor.
-    */
-   public PSSectionProcessingException()
-   {
-      super();
-   }
+public class PSSectionProcessingException extends RuntimeException {
+  /**
+   * Default constructor.
+   */
+  public PSSectionProcessingException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the error message.
-    * @param msg must not be <code>null</code>.
-    */
-   public PSSectionProcessingException(String msg)
-   {
-      super(msg);
-   }
+  /**
+   * Constructor that takes the error message.
+   * @param msg must not be <code>null</code>.
+   */
+  public PSSectionProcessingException(String msg) {
+    super(msg);
+  }
 
-   public PSSectionProcessingException(String msg, Throwable t)
-   {
-      super(msg,t);
-   }
+  public PSSectionProcessingException(String msg, Throwable t) {
+    super(msg, t);
+  }
 }

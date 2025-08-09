@@ -34,38 +34,34 @@ import com.percussion.data.PSExecutionData;
  *
  * @see IPSBuildContext
  */
-public interface IPSBuildStep
-{
-   /**
-    * Performs the sequence of operations needed for this step in the document
-    * building process. Any data needed by following steps is stored in the
-    * supplied context. The execution data may contain multiple result sets.
-    * If a step needs its own result set, it should save the current state
-    * of the exec data, pop the result set stack and set up the exec data
-    * for this step. Before it returns, it must restore the exec data to the
-    * previous state.
-    *
-    * @param ctx Information particular to this invocation. Never <code>null
-    *    </code>.
-    *
-    * @param data The data associated with this request. Never <code>null
-    *    </code>.
-    *
-    * @param isNewDoc A flag to indicate whether it is required to get data
-    *    from the backend. If <code>true</code>, the field should be left
-    *    blank if the extractor is a backend column (other extractors can
-    *    be executed).
-    *
-    * @throws IllegalArgumentException If ctx or data is <code>null</code>.
-    *
-    * @throws PSDataExtractionException If a failure occurs while trying to
-    *    process extractors.
-    *
-    * @see PSExecutionData
-    */
-   public void execute( IPSBuildContext ctx, PSExecutionData data, boolean
-         isNewDoc )
+public interface IPSBuildStep {
+  /**
+   * Performs the sequence of operations needed for this step in the document
+   * building process. Any data needed by following steps is stored in the
+   * supplied context. The execution data may contain multiple result sets.
+   * If a step needs its own result set, it should save the current state
+   * of the exec data, pop the result set stack and set up the exec data
+   * for this step. Before it returns, it must restore the exec data to the
+   * previous state.
+   *
+   * @param ctx Information particular to this invocation. Never <code>null
+   *    </code>.
+   *
+   * @param data The data associated with this request. Never <code>null
+   *    </code>.
+   *
+   * @param isNewDoc A flag to indicate whether it is required to get data
+   *    from the backend. If <code>true</code>, the field should be left
+   *    blank if the extractor is a backend column (other extractors can
+   *    be executed).
+   *
+   * @throws IllegalArgumentException If ctx or data is <code>null</code>.
+   *
+   * @throws PSDataExtractionException If a failure occurs while trying to
+   *    process extractors.
+   *
+   * @see PSExecutionData
+   */
+  public void execute(IPSBuildContext ctx, PSExecutionData data, boolean isNewDoc)
       throws PSDataExtractionException;
 }
-
-

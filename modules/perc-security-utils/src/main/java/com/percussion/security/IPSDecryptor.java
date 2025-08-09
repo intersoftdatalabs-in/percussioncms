@@ -17,54 +17,40 @@
 
 package com.percussion.security;
 
-
 /**
- * IPSDecryptor defines the interface for a decryption
- * algorithm which can be used within the product.
+ * IPSDecryptor defines the interface for a decryption algorithm which can be used within the
+ * product.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public interface IPSDecryptor
-{
-   /**
-    * Decrypt the data in the specified input stream.
-    *
-    * @param      in            the stream containing the encrypted data
-    *
-    * @param      out         the stream to store the plain text
-    *                           representation of the data
-    *
-    */
-   public abstract void decrypt(java.io.InputStream in, java.io.OutputStream out)
-           throws PSEncryptionException;
-
-   /**
-    * A convenidece method to decrypt data into a String.
-    *
-    * @param      in            the stream containing the encrypted data
-    *
-    * @return                  a string containing the plain text
-    *                           representation of the data
-    *
-    */
-   public abstract java.lang.String decrypt(java.io.InputStream in)
+public interface IPSDecryptor {
+  /**
+   * Decrypt the data in the specified input stream.
+   *
+   * @param in the stream containing the encrypted data
+   * @param out the stream to store the plain text representation of the data
+   */
+  public abstract void decrypt(java.io.InputStream in, java.io.OutputStream out)
       throws PSEncryptionException;
 
-   /**
-    * A convenidece method to decrypt data from a byte array into a String.
-    *
-    * @param      in            the byte array containing the encrypted data
-    *
-    * @return                  a string containing the plain text
-    *                           representation of the data
-    *
-    */
-   public abstract java.lang.String decrypt(byte[] in)
-      throws PSEncryptionException;
+  /**
+   * A convenidece method to decrypt data into a String.
+   *
+   * @param in the stream containing the encrypted data
+   * @return a string containing the plain text representation of the data
+   */
+  public abstract java.lang.String decrypt(java.io.InputStream in) throws PSEncryptionException;
 
-   public abstract String decryptWithPassword(String in, String password)
-           throws PSEncryptionException;
+  /**
+   * A convenidece method to decrypt data from a byte array into a String.
+   *
+   * @param in the byte array containing the encrypted data
+   * @return a string containing the plain text representation of the data
+   */
+  public abstract java.lang.String decrypt(byte[] in) throws PSEncryptionException;
+
+  public abstract String decryptWithPassword(String in, String password)
+      throws PSEncryptionException;
 }
-

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.deployer.objectstore.idtypes;
 
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
@@ -22,46 +22,47 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * Class to restore {@link PSApplicationIdContext} objects from their XML 
+ * Class to restore {@link PSApplicationIdContext} objects from their XML
  * state.
  */
-public class PSApplicationIDContextFactory
-{
-   /**
-    * Creates an application id context object from its xml representatation.
-    * 
-    * @param sourceNode the XML element node to populate from, may not  be
-    * <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>soureNode</code> is 
-    * <code>null</code>.
-    * @throws PSUnknownNodeTypeException if the XML element node does not 
-    * represent a type supported by the class.
-    */
-   public static PSApplicationIdContext fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
-      if (sourceNode == null) {
-         throw new IllegalArgumentException("sourceNode may not be null");
-      }
+public class PSApplicationIDContextFactory {
+  /**
+   * Creates an application id context object from its xml representatation.
+   *
+   * @param sourceNode the XML element node to populate from, may not  be
+   * <code>null</code>.
+   *
+   * @throws IllegalArgumentException if <code>soureNode</code> is
+   * <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not
+   * represent a type supported by the class.
+   */
+  public static PSApplicationIdContext fromXml(Element sourceNode)
+      throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+      throw new IllegalArgumentException("sourceNode may not be null");
+    }
 
-      var nodeName = sourceNode.getNodeName();
-      return switch (nodeName) {
-         case PSAppCEItemIdContext.XML_NODE_NAME -> new PSAppCEItemIdContext(sourceNode);
-         case PSAppConditionalIdContext.XML_NODE_NAME -> new PSAppConditionalIdContext(sourceNode);
-         case PSAppDataMappingIdContext.XML_NODE_NAME -> new PSAppDataMappingIdContext(sourceNode);
-         case PSAppDisplayMapperIdContext.XML_NODE_NAME -> new PSAppDisplayMapperIdContext(sourceNode);
-         case PSAppEntryIdContext.XML_NODE_NAME -> new PSAppEntryIdContext(sourceNode);
-         case PSAppExtensionCallIdContext.XML_NODE_NAME -> new PSAppExtensionCallIdContext(sourceNode);
-         case PSAppExtensionParamIdContext.XML_NODE_NAME -> new PSAppExtensionParamIdContext(sourceNode);
-         case PSAppIndexedItemIdContext.XML_NODE_NAME -> new PSAppIndexedItemIdContext(sourceNode);
-         case PSAppNamedItemIdContext.XML_NODE_NAME -> new PSAppNamedItemIdContext(sourceNode);
-         case PSAppUISetIdContext.XML_NODE_NAME -> new PSAppUISetIdContext(sourceNode);
-         case PSAppUrlRequestIdContext.XML_NODE_NAME -> new PSAppUrlRequestIdContext(sourceNode);
-         case PSBindingParamIdContext.XML_NODE_NAME -> new PSBindingParamIdContext(sourceNode);
-         case PSBindingIdContext.XML_NODE_NAME -> new PSBindingIdContext(sourceNode);
-         default -> throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
-            new Object[]{"PSXApplicationIDContext", nodeName}
-         );
-      };
-   }
+    var nodeName = sourceNode.getNodeName();
+    return switch (nodeName) {
+      case PSAppCEItemIdContext.XML_NODE_NAME -> new PSAppCEItemIdContext(sourceNode);
+      case PSAppConditionalIdContext.XML_NODE_NAME -> new PSAppConditionalIdContext(sourceNode);
+      case PSAppDataMappingIdContext.XML_NODE_NAME -> new PSAppDataMappingIdContext(sourceNode);
+      case PSAppDisplayMapperIdContext.XML_NODE_NAME -> new PSAppDisplayMapperIdContext(sourceNode);
+      case PSAppEntryIdContext.XML_NODE_NAME -> new PSAppEntryIdContext(sourceNode);
+      case PSAppExtensionCallIdContext.XML_NODE_NAME -> new PSAppExtensionCallIdContext(sourceNode);
+      case PSAppExtensionParamIdContext.XML_NODE_NAME ->
+          new PSAppExtensionParamIdContext(sourceNode);
+      case PSAppIndexedItemIdContext.XML_NODE_NAME -> new PSAppIndexedItemIdContext(sourceNode);
+      case PSAppNamedItemIdContext.XML_NODE_NAME -> new PSAppNamedItemIdContext(sourceNode);
+      case PSAppUISetIdContext.XML_NODE_NAME -> new PSAppUISetIdContext(sourceNode);
+      case PSAppUrlRequestIdContext.XML_NODE_NAME -> new PSAppUrlRequestIdContext(sourceNode);
+      case PSBindingParamIdContext.XML_NODE_NAME -> new PSBindingParamIdContext(sourceNode);
+      case PSBindingIdContext.XML_NODE_NAME -> new PSBindingIdContext(sourceNode);
+      default ->
+          throw new PSUnknownNodeTypeException(
+              IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+              new Object[] {"PSXApplicationIDContext", nodeName});
+    };
+  }
 }

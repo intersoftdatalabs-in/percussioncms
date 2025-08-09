@@ -32,7 +32,6 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.system.utils.IPSHtmlParameters;
-
 import java.io.File;
 import java.util.Iterator;
 
@@ -45,60 +44,47 @@ import java.util.Iterator;
  * relationships. If any are found, a list of the owner ids is returned in the
  * error message to enable the user to remove (if desired) slot content in the
  * given items.
- * 
+ *
  * @author dougrand
  */
-public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor
-{
+public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor {
 
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-         throws PSAuthorizationException, PSRequestValidationException,
-         PSParameterMismatchException, PSExtensionProcessingException
-   {
-      try
-      {
-         String variantid = (String) params[0];
-         IPSRelationshipProcessor rproc = PSRelationshipProcessor.getInstance();
-         PSRelationshipFilter filter = new PSRelationshipFilter();
-         filter.setProperty(IPSHtmlParameters.SYS_VARIANTID, variantid);
-         PSRelationshipSet results = rproc.getRelationships(filter);
-         if (results.size() > 0)
-         { 
-            StringBuilder ownerids = new StringBuilder();
-            Iterator iter = results.iterator();
-            int count = 0;
-            while(iter.hasNext())
-            {
-               count++;
-               PSRelationship rel = (PSRelationship) iter.next();
-               ownerids.append(Integer.toString(rel.getOwner().getId()));
-               if (count > 99) 
-               {
-                  ownerids.append("...");
-                  break;
-               }
-               else
-               {
-                  if (iter.hasNext()) ownerids.append(", ");
-               }
-            }
-            Object errorargs[] = new Object[] {
-               variantid, ownerids
-            };
-            throw new PSExtensionProcessingException(
-                  IPSExtensionErrors.VARIANT_HAS_RELATIONSHIPS_ERROR, errorargs);
-         }
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException,
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    try {
+      String variantid = (String) params[0];
+      IPSRelationshipProcessor rproc = PSRelationshipProcessor.getInstance();
+      PSRelationshipFilter filter = new PSRelationshipFilter();
+      filter.setProperty(IPSHtmlParameters.SYS_VARIANTID, variantid);
+      PSRelationshipSet results = rproc.getRelationships(filter);
+      if (results.size() > 0) {
+        StringBuilder ownerids = new StringBuilder();
+        Iterator iter = results.iterator();
+        int count = 0;
+        while (iter.hasNext()) {
+          count++;
+          PSRelationship rel = (PSRelationship) iter.next();
+          ownerids.append(Integer.toString(rel.getOwner().getId()));
+          if (count > 99) {
+            ownerids.append("...");
+            break;
+          } else {
+            if (iter.hasNext()) ownerids.append(", ");
+          }
+        }
+        Object errorargs[] = new Object[] {variantid, ownerids};
+        throw new PSExtensionProcessingException(
+            IPSExtensionErrors.VARIANT_HAS_RELATIONSHIPS_ERROR, errorargs);
       }
-      catch (PSCmsException e)
-      {
-         throw new PSExtensionProcessingException("Fatal error", e);
-      }
-   }
+    } catch (PSCmsException e) {
+      throw new PSExtensionProcessingException("Fatal error", e);
+    }
+  }
 
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      // Unused, no parameters
-   }
-
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // Unused, no parameters
+  }
 }

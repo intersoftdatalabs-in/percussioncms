@@ -15,116 +15,102 @@
  */
 package com.percussion.generickey.utils.services.rdbms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.generickey.data.IPSGenericKey;
 import com.percussion.generickey.services.IPSGenericKeyDao;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
-import org.junit.jupiter.api.Test;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.Root;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  * @author leonardohildt
- * 
  */
 @Transactional
 @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSGenericKeyDaoTest {
 
-    @Autowired
-    private IPSGenericKeyDao genericKeyDao;
+  @Autowired private IPSGenericKeyDao genericKeyDao;
 
-    @Autowired
-    private SessionFactory sessionFactory;
+  @Autowired private SessionFactory sessionFactory;
 
+  @BeforeEach
+  public void setUp() throws Exception {
 
-    @BeforeEach
-    public void setUp() throws Exception {
-
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSGenericKey> deleteQuery =
-                    builder.createCriteriaDelete(PSGenericKey.class);
-            Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        } finally {
-            // session.close();
-        }
-
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSGenericKey> deleteQuery = builder.createCriteriaDelete(PSGenericKey.class);
+      Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      // session.close();
     }
+  }
 
+  private Session getSession() {
 
-    private Session getSession() {
+    return sessionFactory.getCurrentSession();
+  }
 
-        return sessionFactory.getCurrentSession();
+  @AfterEach
+  public void tearDown() {}
 
-    }
+  @Test
+  public void testCreateResetKeyAndValidate() throws Exception {
+    // get a calendar instance
+    Calendar calendar = Calendar.getInstance();
+    Date currentDate = calendar.getTime();
+    currentDate = DateUtils.addMilliseconds(currentDate, (int) DAY_IN_MILLISECONDS);
 
-    @AfterEach
-    public void tearDown() {
+    // create the generic key
+    IPSGenericKey genericKey = new PSGenericKey();
+    genericKey.setExpirationDate(currentDate);
+    genericKey.setGenericKey(UUID.randomUUID().toString());
 
-    }
+    genericKeyDao.saveKey(genericKey);
 
+    IPSGenericKey foundGenericKey = genericKeyDao.findByResetKey(genericKey.getGenericKey());
 
-    @Test
-    public void testCreateResetKeyAndValidate() throws Exception {
-        // get a calendar instance
-        Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
-        currentDate = DateUtils.addMilliseconds(currentDate, (int) DAY_IN_MILLISECONDS);
+    assertNotNull(foundGenericKey);
+    assertEquals(genericKey, foundGenericKey);
+  }
 
-        // create the generic key
-        IPSGenericKey genericKey = new PSGenericKey();
-        genericKey.setExpirationDate(currentDate);
-        genericKey.setGenericKey(UUID.randomUUID().toString());
+  @Test
+  public void testCreateResetKeyAndDelete() throws Exception {
+    // get a calendar instance
+    Calendar calendar = Calendar.getInstance();
+    Date currentDate = calendar.getTime();
+    currentDate = DateUtils.addMilliseconds(currentDate, (int) DAY_IN_MILLISECONDS);
 
-        genericKeyDao.saveKey(genericKey);
+    // create the generic key
+    IPSGenericKey genericKey = new PSGenericKey();
+    genericKey.setExpirationDate(currentDate);
+    genericKey.setGenericKey(UUID.randomUUID().toString());
 
-        IPSGenericKey foundGenericKey = genericKeyDao.findByResetKey(genericKey.getGenericKey());
+    genericKeyDao.saveKey(genericKey);
 
-        assertNotNull(foundGenericKey);
-        assertEquals(genericKey, foundGenericKey);
-    }
+    assertNotNull(genericKey);
 
-    @Test
-    public void testCreateResetKeyAndDelete() throws Exception {
-        // get a calendar instance
-        Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
-        currentDate = DateUtils.addMilliseconds(currentDate, (int) DAY_IN_MILLISECONDS);
+    genericKeyDao.deleteKey(genericKey);
+  }
 
-        // create the generic key
-        IPSGenericKey genericKey = new PSGenericKey();
-        genericKey.setExpirationDate(currentDate);
-        genericKey.setGenericKey(UUID.randomUUID().toString());
-
-        genericKeyDao.saveKey(genericKey);
-
-        assertNotNull(genericKey);
-
-        genericKeyDao.deleteKey(genericKey);
-    }
-
-    /**
-     * Constant to set the duration time one day into milliseconds
-     */
-    private static final long DAY_IN_MILLISECONDS = 86400000;
+  /** Constant to set the duration time one day into milliseconds */
+  private static final long DAY_IN_MILLISECONDS = 86400000;
 }

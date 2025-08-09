@@ -19,7 +19,6 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
  * PSRoleNotDefinedException is thrown to indicate that a role reference
  * was made to a role the role security rovider does not know about.
@@ -28,35 +27,28 @@ import com.percussion.error.PSException;
  * @version      1.0
  * @since      1.0
  */
-public class PSRoleNotDefinedException extends PSException
-{
-   /**
-    * Constructs a role not defined exception with the default
-    * message.
-    *
-    * @param   appName            the app name (local prefix)
-    *
-    * @param   roleName            the name of the role
-    */
-   public PSRoleNotDefinedException(   java.lang.String appName,
-                                    java.lang.String roleName)
-   {
-      super(IPSSecurityErrors.LOCAL_ROLE_NOT_DEFINED,
-            new Object[] { roleName, appName });
-   }
+public class PSRoleNotDefinedException extends PSException {
+  /**
+   * Constructs a role not defined exception with the default
+   * message.
+   *
+   * @param   appName            the app name (local prefix)
+   *
+   * @param   roleName            the name of the role
+   */
+  public PSRoleNotDefinedException(java.lang.String appName, java.lang.String roleName) {
+    super(IPSSecurityErrors.LOCAL_ROLE_NOT_DEFINED, new Object[] {roleName, appName});
+  }
 
-   /**
-    * Constructs a role not defined exception for non-application ACLs
-    * with the default message. If an application ACL is throwing this
-    * exception, be sure to use the constructor which takes the name
-    * of the application.
-    *
-    * @param   roleName            the name of the role
-    */
-   public PSRoleNotDefinedException(java.lang.String roleName)
-   {
-      super(IPSSecurityErrors.GLOBAL_ROLE_NOT_DEFINED,
-            new Object[] { roleName });
-   }
+  /**
+   * Constructs a role not defined exception for non-application ACLs
+   * with the default message. If an application ACL is throwing this
+   * exception, be sure to use the constructor which takes the name
+   * of the application.
+   *
+   * @param   roleName            the name of the role
+   */
+  public PSRoleNotDefinedException(java.lang.String roleName) {
+    super(IPSSecurityErrors.GLOBAL_ROLE_NOT_DEFINED, new Object[] {roleName});
+  }
 }
-

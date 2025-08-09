@@ -20,10 +20,8 @@ package com.percussion.data;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSIllegalArgumentException;
-
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 /**
  * The PSOracleInsertBuilder class is used to build SQL INSERT statements.
@@ -34,79 +32,67 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see         PSUpdateOptimizer
  * @see         PSOracleUpdateBuilder
  */
-public class PSOracleInsertBuilder extends PSOracleUpdateBuilder
-{
-   /**
-    * Construct a SQL builder to build an INSERT for a
-    * single table.
-    *
-    * @param table  The table to insert into.
-    */
-   PSOracleInsertBuilder(PSBackEndTable table)
-      throws PSIllegalArgumentException
-   {
-      super(table);
-   }
+public class PSOracleInsertBuilder extends PSOracleUpdateBuilder {
+  /**
+   * Construct a SQL builder to build an INSERT for a
+   * single table.
+   *
+   * @param table  The table to insert into.
+   */
+  PSOracleInsertBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
+    super(table);
+  }
 
-   /**
-    * Add an INSERT column which is part of the lookup key. Since INSERTs
-    * do not use WHERE clauses for lookups, this is the same as calling
-    * addUpdateColumn.
-    *
-    * @param   col      the column to add
-    */
-   void addKeyColumn(PSBackEndColumn col)
-      throws PSIllegalArgumentException
-   {
-      addUpdateColumn(col);
-   }
+  /**
+   * Add an INSERT column which is part of the lookup key. Since INSERTs
+   * do not use WHERE clauses for lookups, this is the same as calling
+   * addUpdateColumn.
+   *
+   * @param   col      the column to add
+   */
+  void addKeyColumn(PSBackEndColumn col) throws PSIllegalArgumentException {
+    addUpdateColumn(col);
+  }
 
-   /**
-    * Generate the statement using the specified connection keys.
-    * If no LOB columns are present, this will call the default
-    * generateInsert method in PSSqlUpdateBuilder, otherwise create
-    * the Oracle-specific PSOracleUpadeStatement to process the insert.
-    *
-    * @param   logins   The list of logins.
-    *
-    * @param   connKeys The map of connection keys.
-    *
-    * @return  The PSUpdate-derived statement to process this insert.
-    *
-    * @throws PSIllegalArgumentException If there are multiple tables 
-    * or a PSDataExtractionException occurs.
-    */
-   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
-      throws PSIllegalArgumentException
-   {
-      HashMap dtHash = new HashMap();
+  /**
+   * Generate the statement using the specified connection keys.
+   * If no LOB columns are present, this will call the default
+   * generateInsert method in PSSqlUpdateBuilder, otherwise create
+   * the Oracle-specific PSOracleUpadeStatement to process the insert.
+   *
+   * @param   logins   The list of logins.
+   *
+   * @param   connKeys The map of connection keys.
+   *
+   * @return  The PSUpdate-derived statement to process this insert.
+   *
+   * @throws PSIllegalArgumentException If there are multiple tables
+   * or a PSDataExtractionException occurs.
+   */
+  PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
+      throws PSIllegalArgumentException {
+    HashMap dtHash = new HashMap();
 
-      int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
+    int iConnKey = validateBuilderConnection(dtHash, connKeys, logins);
 
-      PSBackEndLogin login = (PSBackEndLogin)logins.get(iConnKey);
+    PSBackEndLogin login = (PSBackEndLogin) logins.get(iConnKey);
 
-      /* check datatypes for LOB types */
-      if (m_lobColumnInitializer == null)
-      {
-         return generateInsert(dtHash, iConnKey, 
-            login);
-      }
+    /* check datatypes for LOB types */
+    if (m_lobColumnInitializer == null) {
+      return generateInsert(dtHash, iConnKey, login);
+    }
 
-      PSBackEndTable table = (PSBackEndTable)m_Tables.get(0);
+    PSBackEndTable table = (PSBackEndTable) m_Tables.get(0);
 
-      try {
-         return new PSOracleUpdateStatement(
-            iConnKey,
-            getInsertContext(table, login, dtHash, 
-               m_Columns).getBlocks(),
-            getRowRetrievalByRowidContext(table, login, dtHash).getBlocks(),
-            null,
-            PSUpdateStatement.TYPE_INSERT);
-      } catch (PSDataExtractionException e) {
-         throw new PSIllegalArgumentException(
-            e.getErrorCode(), e.getErrorArguments());
-      }
-   }
+    try {
+      return new PSOracleUpdateStatement(
+          iConnKey,
+          getInsertContext(table, login, dtHash, m_Columns).getBlocks(),
+          getRowRetrievalByRowidContext(table, login, dtHash).getBlocks(),
+          null,
+          PSUpdateStatement.TYPE_INSERT);
+    } catch (PSDataExtractionException e) {
+      throw new PSIllegalArgumentException(e.getErrorCode(), e.getErrorArguments());
+    }
+  }
 }
-
-

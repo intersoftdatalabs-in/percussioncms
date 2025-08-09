@@ -22,9 +22,13 @@ import com.percussion.delivery.polls.data.IPSPollAnswer;
 
 // REFACTORED: CP-JAVA11
 public interface IPSPollsDao {
-    IPSPoll find(String pollName);
-    IPSPoll findByQuestion(String pollQuestion);
-    IPSPoll createEmptyPoll();
-    IPSPollAnswer createEmptyAnswer();
-    void save(IPSPoll poll);
+  IPSPoll find(String pollName);
+
+  IPSPoll findByQuestion(String pollQuestion);
+
+  IPSPoll createEmptyPoll();
+
+  IPSPollAnswer createEmptyAnswer();
+
+  void save(IPSPoll poll);
 }

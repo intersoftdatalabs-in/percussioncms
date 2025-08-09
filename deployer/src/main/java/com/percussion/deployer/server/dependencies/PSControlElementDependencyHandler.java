@@ -21,71 +21,65 @@ import java.util.List;
 /**
  * Class to handle packaging and deploying a control element
  */
-public class PSControlElementDependencyHandler extends PSElementDependencyHandler
-{
+public class PSControlElementDependencyHandler extends PSElementDependencyHandler {
 
-   /**
-    * Construct this dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    */
-   public PSControlElementDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap)
-   {
-      super(def, dependencyMap);
-   }
+  /**
+   * Construct this dependency handler.
+   *
+   * @param def The def for the type supported by this handler.  May not be
+   * <code>null</code> and must be of the type supported by this class.  See
+   * {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map.  May not be
+   * <code>null</code>.
+   */
+  public PSControlElementDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
+    super(def, dependencyMap);
+  }
 
+  /**
+   * Provides the list of child dependency types this class can discover.
+   * The child types supported by this handler are:
+   * <ol>
+   * <li>Control</li>
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code>
+   * objects, never <code>null</code>, does not contain <code>null</code> or
+   * empty entries.
+   */
+  public Iterator<String> getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>Control</li>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   public Iterator<String> getChildTypes() {
-      return ms_childTypes.iterator();
-   }
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+  // see base class
+  protected PSDependencyHandler getChildHandler() {
+    if (m_childHandler == null)
+      m_childHandler = getDependencyHandler(PSControlDependencyHandler.DEPENDENCY_TYPE);
 
-   // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSControlDependencyHandler.DEPENDENCY_TYPE);
+    return m_childHandler;
+  }
 
-      return m_childHandler;
-   }
+  /**
+   * Constant for this handler's supported type
+   */
+  static final String DEPENDENCY_TYPE = "CEControl";
 
-   /**
-    * Constant for this handler's supported type
-    */
-   final static String DEPENDENCY_TYPE = "CEControl";
+  /**
+   * The content type definition handler, initialized by
+   * <code>getChildHandler()</code> if it is <code>null</code>, will never
+   * be <code>null</code> after that.
+   */
+  private PSDependencyHandler m_childHandler = null;
 
-   /**
-    * The content type definition handler, initialized by
-    * <code>getChildHandler()</code> if it is <code>null</code>, will never
-    * be <code>null</code> after that.
-    */
-   private PSDependencyHandler m_childHandler = null;
-
-   /**
-    * List of child types supported by this handler, never <code>null</code> or
-    * empty.
-    */
-   private static final List<String> ms_childTypes = List.of(PSControlDependencyHandler.DEPENDENCY_TYPE);
+  /**
+   * List of child types supported by this handler, never <code>null</code> or
+   * empty.
+   */
+  private static final List<String> ms_childTypes =
+      List.of(PSControlDependencyHandler.DEPENDENCY_TYPE);
 }

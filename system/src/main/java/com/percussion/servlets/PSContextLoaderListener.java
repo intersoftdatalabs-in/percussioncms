@@ -21,14 +21,12 @@ import com.percussion.server.PSServer;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
-
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 
 /**
  * This listener will start up the spring portion of
@@ -39,52 +37,51 @@ import javax.servlet.ServletContextEvent;
  */
 public class PSContextLoaderListener extends ContextLoaderListener {
 
+  public void contextDestroyed(ServletContextEvent event) {
+    PSServer.shutdown();
+    super.contextDestroyed(event);
+  }
 
-    public void contextDestroyed(ServletContextEvent event) {
-        PSServer.shutdown();
-        super.contextDestroyed(event);
-    }
+  public void contextInitialized(ServletContextEvent event) {
 
-    public void contextInitialized(ServletContextEvent event) {
-
-        ServletContext servletContext = event.getServletContext();
-        ms_log.info("Initializing Root Web Application Context");
-        // Setup rhythmyx dir information
-        /*
-        String rxDirParam = servletContext.getInitParameter("rxDir");
-        final File apath;
-
-
-        if (rxDirParam != null && rxDirParam.trim().length() > 0)
-        {
-            apath = new File(rxDirParam);
-        }
-        else
-        {
-            File spath = new File(servletContext.getRealPath("."));
-            apath = spath.getParentFile().getParentFile();
-        }
+    ServletContext servletContext = event.getServletContext();
+    ms_log.info("Initializing Root Web Application Context");
+    // Setup rhythmyx dir information
+    /*
+     String rxDirParam = servletContext.getInitParameter("rxDir");
+     final File apath;
 
 
-        PSEntityResolver.setResolutionHome(apath);
-       */
-        // initialize jndi prefix
-        String jndiLookupPrefix = servletContext.getInitParameter("jndiPrefix");
-        PSJndiObjectLocator.setPrefix(jndiLookupPrefix);
-        PSServletUtils.initialize(servletContext);
-        super.initWebApplicationContext(servletContext);
-    }
+     if (rxDirParam != null && rxDirParam.trim().length() > 0)
+     {
+         apath = new File(rxDirParam);
+     }
+     else
+     {
+         File spath = new File(servletContext.getRealPath("."));
+         apath = spath.getParentFile().getParentFile();
+     }
 
-    @Override
-    protected ApplicationContext loadParentContext(ServletContext servletContext) {
-        ms_log.info("Loading Service locators");
-        PSBaseServiceLocator.init(servletContext);
-        ms_log.info("Finished loading service locators");
-        return PSBaseServiceLocator.getCtx();
-    }
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger ms_log = LogManager.getLogger(PSContextLoaderListener.class);
 
+     PSEntityResolver.setResolutionHome(apath);
+    */
+    // initialize jndi prefix
+    String jndiLookupPrefix = servletContext.getInitParameter("jndiPrefix");
+    PSJndiObjectLocator.setPrefix(jndiLookupPrefix);
+    PSServletUtils.initialize(servletContext);
+    super.initWebApplicationContext(servletContext);
+  }
+
+  @Override
+  protected ApplicationContext loadParentContext(ServletContext servletContext) {
+    ms_log.info("Loading Service locators");
+    PSBaseServiceLocator.init(servletContext);
+    ms_log.info("Finished loading service locators");
+    return PSBaseServiceLocator.getCtx();
+  }
+
+  /**
+   * The log instance to use for this class, never <code>null</code>.
+   */
+  private static final Logger ms_log = LogManager.getLogger(PSContextLoaderListener.class);
 }

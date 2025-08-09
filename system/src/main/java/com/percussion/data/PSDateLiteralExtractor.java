@@ -17,27 +17,21 @@
 
 package com.percussion.data;
 
-
-
 /**
- * The PSDateLiteralExtractor class is used to extract data from 
+ * The PSDateLiteralExtractor class is used to extract data from
  * a pre-defined date literal.
- * 
+ *
  * @author     Tas Giakouminakis
  * @version    1.0
  * @since      1.0
  */
-public class PSDateLiteralExtractor extends PSLiteralExtractor
-{
-   /**
-    * Construct an object from its object store counterpart.
-    *
-    * @param   source      the object defining the source of this value
-    */
-   public PSDateLiteralExtractor(
-      com.percussion.design.objectstore.PSDateLiteral source)
-   {
-      super(source);
-   }
+public class PSDateLiteralExtractor extends PSLiteralExtractor {
+  /**
+   * Construct an object from its object store counterpart.
+   *
+   * @param   source      the object defining the source of this value
+   */
+  public PSDateLiteralExtractor(com.percussion.design.objectstore.PSDateLiteral source) {
+    super(source);
+  }
 }
-
