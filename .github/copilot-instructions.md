@@ -14,8 +14,6 @@ Use clear, concise communication with occasional humor.
 
 Important: Ensure backwards compatibility when modifying public methods/interfaces.
 Follow Google Java Style Guide for Java (https://google.github.io/styleguide/javaguide.html); reformat code as needed. 
-Convert .checkstyle files to use Google style or remove them, whichever is more efficient.
-Remove macker .nmk files when found in the source tree, they are not needed.
 Use camelCase, clear variable names, and Java 11 features (var, Optional, Streams).
 Write English-only code and comments.
 Fix any existing spelling/grammar issues in comments whenever you are working on code.
