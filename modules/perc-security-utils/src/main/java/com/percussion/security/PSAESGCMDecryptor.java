@@ -108,33 +108,25 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
 
   @Override
   public String decryptWithPassword(String in, String password) throws PSEncryptionException {
-
     try {
       byte[] decoded = Base64.getDecoder().decode(in.getBytes(StandardCharsets.UTF_8));
-
-      ByteBuffer bb = ByteBuffer.wrap(decoded);
-
-      byte[] iv = new byte[12];
-      bb.get(iv);
-
-      byte[] salt = new byte[16];
-      bb.get(salt);
-
-      byte[] encryptedText = new byte[bb.remaining()];
-      bb.get(encryptedText);
-
+      final int ivLength = 12;
+      final int saltLength = 16;
+      if (decoded.length <= ivLength + saltLength) {
+        throw new PSEncryptionException("Input too short for AES-GCM decryption with password");
+      }
+      byte[] iv = new byte[ivLength];
+      System.arraycopy(decoded, 0, iv, 0, ivLength);
+      byte[] salt = new byte[saltLength];
+      System.arraycopy(decoded, ivLength, salt, 0, saltLength);
+      byte[] encryptedText = new byte[decoded.length - ivLength - saltLength];
+      System.arraycopy(decoded, ivLength + saltLength, encryptedText, 0, encryptedText.length);
       SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-      // iterationCount = 65536
-      // keyLength = 256
       KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 256);
       SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-
       cipher.init(Cipher.DECRYPT_MODE, secret, new GCMParameterSpec(128, iv));
-
       return new String(cipher.doFinal(encryptedText), StandardCharsets.UTF_8);
-
     } catch (InvalidKeySpecException
         | NoSuchAlgorithmException
         | BadPaddingException
