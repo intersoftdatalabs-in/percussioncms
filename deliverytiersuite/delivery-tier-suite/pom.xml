@@ -901,15 +901,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                    <fork>true</fork>
-                    <debug>true</debug>
-                    <debuglevel>lines,vars,source</debuglevel>
-                    <meminitial>1024m</meminitial>
-                    <maxmem>2024m</maxmem>
-                </configuration>
             </plugin>
 
             <!--This plugin's configuration is used to store Eclipse
@@ -1056,11 +1047,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                   <!-- <argLine>-Xmx1356m</argLine>-->
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

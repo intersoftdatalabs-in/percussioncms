@@ -252,8 +252,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>${java.source.version}</source>
+                    <target>${java.version}</target>
                     <fork>true</fork>
                     <meminitial>1024m</meminitial>
                     <maxmem>2024m</maxmem>
@@ -571,6 +571,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
 
@@ -611,22 +616,16 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-
         </dependency>
         <!-- Needed to handle compression of SFTP -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jzlib</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-
         </dependency>
-
-
-        <!-- https://mvnrepository.com/artifact/org.apache.myfaces.core/myfaces-api -->
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-api</artifactId>
@@ -665,7 +664,6 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-            <version>3.3.0</version>
         </dependency>
 
         <dependency>
@@ -688,25 +686,14 @@
             <artifactId>owlapi-distribution</artifactId>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-model</artifactId>
-
-        </dependency>
--->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-
         </dependency>
-
-
 
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-
         </dependency>
 
 
@@ -717,7 +704,6 @@
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-
         </dependency>
 
         <dependency>
@@ -765,18 +751,6 @@
             <artifactId>commons-dbcp</artifactId>
         </dependency>
 
-     <!--  Re-enable for CMS-8062
-        <dependency>
-            <groupId>de.digitalcollections.imageio</groupId>
-            <artifactId>imageio-turbojpeg</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.digitalcollections.imageio</groupId>
-            <artifactId>imageio-openjpeg</artifactId>
-        </dependency>
-        -->
-
         <dependency>
             <groupId>com.twelvemonkeys.servlet</groupId>
             <artifactId>servlet</artifactId>
@@ -804,11 +778,11 @@
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-metadata</artifactId>
-        </dependency><dependency>
-        <groupId>com.twelvemonkeys.imageio</groupId>
-        <artifactId>imageio-psd</artifactId>
-    </dependency>
-
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-psd</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-pnm</artifactId>
@@ -924,53 +898,43 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-highlighter</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queries</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-test-framework -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-test-framework</artifactId>
-            <version>8.7.0</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-misc -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-misc</artifactId>
-            <version>8.7.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-suggest -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-suggest</artifactId>
-            <version>8.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -1044,57 +1008,31 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-            <version>0.5</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>axis</groupId>
-                    <artifactId>axis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>axis</groupId>
-                    <artifactId>axis-jaxrpc</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
-        <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.htmlparser/htmlparser -->
         <dependency>
             <groupId>org.htmlparser</groupId>
             <artifactId>htmlparser</artifactId>
 
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.help/javahelp -->
+ 
         <dependency>
             <groupId>javax.help</groupId>
             <artifactId>javahelp</artifactId>
 
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-jexl -->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl3</artifactId>
-
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl</artifactId>
-
         </dependency>
 
         <!-- Tools/ant build -->
@@ -1103,7 +1041,7 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ant/ant-apache-oro  old for perfoce tasks-->
+     
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant-apache-oro</artifactId>
@@ -1144,13 +1082,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Extra dependencies for Ant build remove when converted -->
-        <!-- https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor -->
-        <!--<dependency>
-            <groupId>com.yahoo.platform.yui</groupId>
-            <artifactId>yuicompressor</artifactId>
-
-        </dependency>-->
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -1168,14 +1100,7 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
 
-        <!-- not compile dependency for main
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-
-        </dependency>
--->
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+     
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -1184,14 +1109,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
-
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+      
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-
         </dependency>
        <!-- Used in Category Serialization -->
             <dependency>
@@ -1206,17 +1129,15 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mockrunner</groupId>
             <artifactId>mockrunner-jms</artifactId>
-            <version>1.0.6</version>
+
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -1252,7 +1173,6 @@
         <dependency>
             <groupId>com.github.dfabulich</groupId>
             <artifactId>sitemapgen4j</artifactId>
-            <version>1.1.2</version>
         </dependency>
 
         <dependency>
@@ -1276,7 +1196,6 @@
         <dependency>
             <groupId>org.mozilla</groupId>
             <artifactId>rhino</artifactId>
-
         </dependency>
 
         <dependency>
@@ -1309,28 +1228,19 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>${bc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-ext-jdk18on</artifactId>
-            <version>${bc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bctls-jdk18on</artifactId>
-            <version>${bc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
-            <version>${bc.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpg-jdk18on</artifactId>
-            <version>${bc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -1350,12 +1260,10 @@
         <dependency>
             <groupId>com.googlecode.htmlcompressor</groupId>
             <artifactId>htmlcompressor</artifactId>
-            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler</artifactId>
-            <version>r1043</version>
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
@@ -1366,7 +1274,6 @@
         <dependency>
             <groupId>com.yahoo.platform.yui</groupId>
             <artifactId>yuicompressor</artifactId>
-            <version>2.4.8</version>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -1399,10 +1306,10 @@
             <version>8.2.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.sejda.imageio</groupId>
-            <artifactId>webp-imageio</artifactId>
-            <version>0.1.6</version>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
         </dependency>
 
     </dependencies>

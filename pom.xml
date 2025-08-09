@@ -28,7 +28,6 @@
         <module>modules/perc-exceptions-spring</module>
         <module>modules/utils</module>
         <module>modules/perc-legacy</module>
-        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
         <!-- <module>modules/webservices</module> -->
@@ -36,12 +35,22 @@
         <module>modules/perc-auditlog</module>
         <module>modules/Simple</module>
         <module>modules/TableFactory</module>
+        <module>modules/servletutils</module>
+        <module>modules/perc-ant</module>
+        <module>delivery</module>
+        <module>modules/Help</module>
+        <module>modules/SSLTools</module>
+        <module>modules/tlsutils</module>
+        <module>modules/perc-rxapps</module>
+<!-- <module>deliverytiersuite/delivery-tier-suite</module> -->
+        <module>system</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
         <module>modules/perc-tinymce</module> 
-        <module>system</module>
+        <module>modules/CMLight-Main-cactus-tests</module>
+        <module>modules/perc-toolkit</module>
+        <module>modules/perc-taxonomy</module>
         <module>deployer</module>
-        <module>modules/Help</module>
         <module>modules/ContentUI</module>
         <module>modules/ServerUIComponents</module>
         <module>modules/extensions-default-template</module>
@@ -53,27 +62,22 @@
         <module>modules/extensions-serverutils</module>
         <module>PCM-PkgMgtUI</module>
         <module>WebUI</module>
-        <module>delivery</module>
+        <module>modules/perc-thumbnail</module>
         <module>modules/shindig-uber</module>
         <module>projects/sitemanage</module>
-        <module>modules/servletutils</module>
-        <module>modules/perc-rxapps</module>
+
         <module>modules/perc-checkboxtree</module>
         <!-- <module>modules/DesktopContentExplorer</module> -->
         <module>modules/perc-jetty</module>
 		<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
-     
+    
         <module>modules/perc-packages</module>
-        <module>modules/perc-ant</module>
-        <module>modules/perc-thumbnail</module>
-        <module>modules/SSLTools</module>
-        <module>modules/tlsutils</module>
-        <module>modules/perc-toolkit</module>
-        <module>modules/perc-taxonomy</module>
-        <module>modules/perc-distribution-tree</module>
-        <module>modules/CMLight-Main-cactus-tests</module>
+ 
 
+
+        <module>modules/perc-distribution-tree</module>
+       
     </modules>
    <properties>
        <build.profile.id>dev</build.profile.id>
@@ -81,20 +85,20 @@
         <jenkins.buildNumber>2024</jenkins.buildNumber>
        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
        <buildNumber>${maven.build.timestamp}</buildNumber>
-       <jdk.version>11</jdk.version>
-       <java.source.version>11</java.source.version>
-       <java.version>11</java.version>
-       <maven.compiler.source>11</maven.compiler.source>
-       <maven.compiler.target>11</maven.compiler.target>
+       <jdk.version>17</jdk.version>
+       <java.source.version>17</java.source.version>
+       <java.version>17</java.version>
+       <maven.compiler.source>17</maven.compiler.source>
+       <maven.compiler.target>17</maven.compiler.target>
        <slf4j.version>1.7.36</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
        <maven.version>[3.6,)</maven.version>
        <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
-       <versions.maven.plugin.version>2.7</versions.maven.plugin.version>
-       <maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
-       <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
-       <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
+       <versions.maven.plugin.version>2.18.0</versions.maven.plugin.version>
+       <maven.dependency.plugin.version>3.8.1</maven.dependency.plugin.version>
+       <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
+       <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
        <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
        <jdeps.fail.build>false</jdeps.fail.build>
        <jasypt.version>1.9.3</jasypt.version>
@@ -103,36 +107,36 @@
        <maven.bundle.plugin.version>4.2.1</maven.bundle.plugin.version>
        <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
        <maven.enforcer.plugin.version>3.6.1</maven.enforcer.plugin.version>
-       <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
-       <gwt.maven.plugin.version>2.8.2</gwt.maven.plugin.version>
+       <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
+       <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
 
-       <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
-       <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-       <maven.clean.plugin.version>3.2.0</maven.clean.plugin.version>
-       <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
-       <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
-       <maven.jarsigner.plugin.version>3.0.0</maven.jarsigner.plugin.version>
-       <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
-       <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+       <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
+       <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
+       <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
+       <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
+       <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
+       <maven.jarsigner.plugin.version>3.1.0</maven.jarsigner.plugin.version>
+       <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
+       <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
        <commons.digester.version>2.1</commons.digester.version>
        <commons.file.upload.version>1.6.0</commons.file.upload.version>
        <commons.validator.version>1.7</commons.validator.version>
        <maven.site.plugin.version>3.8.2</maven.site.plugin.version>
-       <maven.release.plugin.version>3.0.0-M1</maven.release.plugin.version>
-       <maven.scm.plugin.version>1.11.2</maven.scm.plugin.version>
-       <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-       <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
-       <maven.resources.plugin.version>3.2.0</maven.resources.plugin.version>
-       <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
+       <maven.release.plugin.version>3.1.1</maven.release.plugin.version>
+       <maven.scm.plugin.version>2.1.0</maven.scm.plugin.version>
+       <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
+       <maven.failsafe.plugin.version>3.5.3</maven.failsafe.plugin.version>
+       <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+       <maven.antrun.plugin.version>3.1.0</maven.antrun.plugin.version>
        <commons.rng.version>1.3</commons.rng.version>
-       <maven.execmaven.plugin.version>1.6.0</maven.execmaven.plugin.version>
+       <maven.execmaven.plugin.version>3.5.1</maven.execmaven.plugin.version>
        <batik.version>1.14</batik.version>
-       <maven.shade.plugin.version>3.2.1</maven.shade.plugin.version>
-       <maven.pmd.plugin.version>3.13.0</maven.pmd.plugin.version>
-       <maven.jxr.plugin.version>3.4.0</maven.jxr.plugin.version>
-       <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
-       <plexus.component.metadata.version>2.1.0</plexus.component.metadata.version>
-       <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
+       <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
+       <maven.pmd.plugin.version>3.27.0</maven.pmd.plugin.version>
+       <maven.jxr.plugin.version>3.6.0</maven.jxr.plugin.version>
+       <maven.war.plugin.version>3.4.0</maven.war.plugin.version>
+       <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
+       <jetty.maven.plugin.version>11.0.25</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
@@ -186,7 +190,8 @@
        <oracle.version>12.1.0.1</oracle.version>
        <jtds.version>1.3.1</jtds.version>
        <install.jre.version>8.222.10.1</install.jre.version>       
-       <httpcomponents.version>4.5.13</httpcomponents.version>
+       <httpcomponents.version>4.5.14</httpcomponents.version>
+        <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
        <tika.version>1.28.5</tika.version>
        <commons-cli.version>1.4</commons-cli.version>
        <opencsv.version>5.7.1</opencsv.version>
@@ -205,7 +210,7 @@
        <commons.codec.version>1.15</commons.codec.version>
        <tinymce.version>5.10.3</tinymce.version>
        <jfx.version>11.0.2</jfx.version>
-       <twelvemonkeys.version>3.9.4</twelvemonkeys.version>
+       <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
        <commons.beanutils.version>1.11.0</commons.beanutils.version>
        <xstream.version>1.4.21</xstream.version>
        <log4j2.version>2.18.0</log4j2.version>
@@ -237,7 +242,6 @@
    <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
     <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
     <jakarta.json.api.version>2.1.2</jakarta.json.api.version>  
-    <twelveMonkeys.version>3.10.1</twelveMonkeys.version>
     </properties>
 
 
@@ -563,8 +567,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
+                        <release>${jdk.version}</release>
                         <!-- Consider using release instead of source/target to lock stdlib: -->
                         <!-- <release>11</release> -->
                         <fork>true</fork>
@@ -572,6 +575,9 @@
                         <debuglevel>lines,vars,source</debuglevel>
                         <meminitial>1024m</meminitial>
                         <maxmem>2024m</maxmem>
+                        <compilerArgs>
+                            <arg>-proc:none</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
 
@@ -823,13 +829,38 @@
     </reporting>
   <dependencyManagement>
     <dependencies>
-      <!-- Keep exactly one jakarta.annotation-api entry -->
-      <dependency>
-        <groupId>jakarta.annotation</groupId>
-        <artifactId>jakarta.annotation-api</artifactId>
-        <version>${jakarta.annotation.api.version}</version>
-      </dependency>
+         <dependency>
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.3.0</version>
+        </dependency>
        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.htmlcompressor</groupId>
+            <artifactId>htmlcompressor</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.javascript</groupId>
+            <artifactId>closure-compiler</artifactId>
+            <version>v20230802</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta.annotation.api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet.api.version}</version>
@@ -879,6 +910,12 @@
              <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+             <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit5.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -2035,6 +2072,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.twelvemonkeys.imageio</groupId>
+                <artifactId>imageio-webp</artifactId>
+                <version>${twelvemonkeys.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.github.jai-imageio</groupId>
                 <artifactId>jai-imageio-jpeg2000</artifactId>
                 <version>1.4.0</version>
@@ -2236,7 +2279,7 @@
              <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>${httpcomponents.version}</version>
+                <version>${httpcomponents.core.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
