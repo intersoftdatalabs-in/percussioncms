@@ -2,7 +2,7 @@
 
 Documentation of repetitive tasks and workflows for the Percussion CMS modernization effort.
 
-## Java 11 Migration Sweep (Per Module)
+## Java 17 Migration Sweep (Per Module)
 
 Last performed: 2025-08-05
 
@@ -12,7 +12,7 @@ Files to modify:
 - Module-specific build/plugin sections (surefire, enforcer, axistools)
 
 Steps:
-1. Verify module compiles on Java 11 with javax.* compatibility.
+1. Verify module compiles on Java 17 with javax.* compatibility.
 2. Ensure no jakarta.* artifacts are introduced.
 3. Align test dependencies:
 - Prefer JUnit 5 Jupiter; keep Vintage if JUnit 4 tests remain.
@@ -40,7 +40,7 @@ Important considerations:
 - Pin junit-platform-launcher to 5.13.1 if 5.13.3 resolution is flaky.
 
 Example outcome:
-- Module compiles on Java 11, tests execute via surefire, no servlet API bundling, and no unresolved Axis artifacts.
+- Module compiles on Java 17, tests execute via surefire, no servlet API bundling, and no unresolved Axis artifacts.
 
 ---
 

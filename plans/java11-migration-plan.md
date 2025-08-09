@@ -1,17 +1,17 @@
-# Java 11 Migration Plan
+# Java 17 Migration Plan
 
-This plan completes and standardizes the repository migration to Java 11. It minimizes risk by aligning build configuration, consolidating dependencies, unifying the servlet/JAX-RS stack, and validating with local builds and lightweight CI.
+This plan completes and standardizes the repository migration to Java 17. It minimizes risk by aligning build configuration, consolidating dependencies, unifying the servlet/JAX-RS stack, and validating with local builds and lightweight CI.
 
 ## 1) Context Summary
 
 - Build: Maven multi-module reactor with parent POM at [`pom.xml`](pom.xml).
-- Java config: Parent properties already set to Java 11: [`pom.xml`](pom.xml:86), [`maven-compiler-plugin`](pom.xml:557). Most children inherit Java 11; one outlier uses Java 8: [`modules/perc-checkboxtree/pom.xml`](modules/perc-checkboxtree/pom.xml:32).
+- Java config: Parent properties already set to Java 17: [`pom.xml`](pom.xml:86), [`maven-compiler-plugin`](pom.xml:557). Most children inherit Java 17; one outlier uses Java 8: [`modules/perc-checkboxtree/pom.xml`](modules/perc-checkboxtree/pom.xml:32).
 - Servlet/JAX-RS:
   - Majority uses javax.* Servlet API (3.1/4.0) and JAX-RS via CXF 3.5.x or Jersey 2.x.
   - One module uses Jakarta 5 APIs: [`deliverytiersuite/delivery-tier-suite/membership/pom.xml`](deliverytiersuite/delivery-tier-suite/membership/pom.xml:47,53), which is incompatible with the javax-based stack.
-- Java 11 removed modules:
+- Java 17 removed modules:
   - No direct source imports found, but POMs add JAXB and Activation where needed: [`system/pom.xml`](system/pom.xml:416), etc.
-- Axis/JAX-RPC legacy: Axis 1.4 remains throughout (webservices/integrations/system). Works on Java 11 with explicit JAXB/Activation deps and codegen plugins, but is legacy.
+- Axis/JAX-RPC legacy: Axis 1.4 remains throughout (webservices/integrations/system). Works on Java 17 with explicit JAXB/Activation deps and codegen plugins, but is legacy.
 - Version drift:
   - CXF 3.5.11 in root [`pom.xml`](pom.xml:145,1023), CXF 3.3.5 in delivery-tier parent [`deliverytiersuite/delivery-tier-suite/pom.xml`](deliverytiersuite/delivery-tier-suite/pom.xml:58).
   - Jersey 2.33 across delivery-tier.
@@ -31,7 +31,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Create branch: `development-java-11-integration`.
 - Cherry-pick/merge any missing changes from your prior `development-java-11` branch.
 
-### Stage 1 — Enforce a consistent Java 11 toolchain
+### Stage 1 — Enforce a consistent Java 17 toolchain
 
 - Parent [`pom.xml`](pom.xml):
   - Ensure `maven-compiler-plugin` 3.11.0+ set with source/target 11 and optionally `release=11` in pluginManagement.
@@ -51,7 +51,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Annotation API:
   - Standardize to `javax.annotation:javax.annotation-api:1.3.2` (avoid jakarta.* until a future Jakarta migration).
 
-### Stage 3 — JAXB/Activation for Java 11
+### Stage 3 — JAXB/Activation for Java 17
 
 - Keep explicit dependencies where JAXB is used:
   - `javax.xml.bind:jaxb-api:2.3.1` and `org.glassfish.jaxb:jaxb-runtime:2.3.3` (already present e.g. [`system/pom.xml`](system/pom.xml:416-423)).
@@ -78,7 +78,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Standardize Surefire:
   - Parent pluginManagement: `maven-surefire-plugin 3.1.2` with `-Djava.awt.headless=true`, reasonable memory; many modules already 3.0.0–3.1.2.
 - Enforcer:
-  - Add rules to require Java 11 and to ban `jakarta.servlet*` and `jakarta.annotation*` until DTS tomcat 10 migration.
+  - Add rules to require Java 17 and to ban `jakarta.servlet*` and `jakarta.annotation*` until DTS tomcat 10 migration.
 
 ### Stage 7 — Build and runtime verification
 
@@ -145,7 +145,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Packaging checks:
   - Verify WebUI and delivery-tier resources assembled correctly; no `servlet-api`/`javax.*` duplication inside WARs.
 
-## 6) Future Roadmap (Post-Java 11)
+## 6) Future Roadmap (Post-Java 17)
 
 - Axis deprecation: Migrate SOAP clients/services to JAX-WS or REST; eliminate Axis toolchain and JAXB runtime coupling.
 - Jakarta migration (optional next major):

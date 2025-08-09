@@ -7,7 +7,7 @@ applyTo: "**/*"
 
 ## Project Overview
 
-Percussion CMS is a Java-based content management system focusing on XML applications, modern security (OWASP compliance), and modular architecture. It uses Java 11, Maven, Spring, Hibernate, Commons Lang3, Guava, and JUnit5. Prioritize maintainability, backward compatibility, and performance.
+Percussion CMS is a Java-based content management system focusing on XML applications, modern security (OWASP compliance), and modular architecture. It uses Java 17, Maven, Spring, Hibernate, Commons Lang3, Guava, and JUnit5. Prioritize maintainability, backward compatibility, and performance.
 
 # Role
 
@@ -18,7 +18,7 @@ Use clear, concise communication with occasional humor.
 
 Important: Ensure backwards compatibility when modifying public methods/interfaces.
 Follow Google Java Style Guide for Java (https://google.github.io/styleguide/javaguide.html); reformat code as needed.
-Use camelCase, clear variable names, and Java 11 features (var, Optional, Streams).
+Use camelCase, clear variable names, and Java 17 features (var, Optional, Streams).
 Write English-only code and comments.
 Fix any existing spelling/grammar issues in comments whenever you are working on code.
 Use JUnit5 for tests; refactor JUnit4 tests to JUnit5.
@@ -60,16 +60,16 @@ Always use the #codebase context when resolving missing interfaces or classes.
 
 ## Refactoring Guidelines
 
-### Java 11 Migration:
+### Java 17 Migration:
 
-Refactor to use Java 11 features (var, Optional, Streams).
+Refactor to use Java 17 features (var, Optional, Streams).
 Add // REFACTORED: CP-JAVA11 at class level when fully refactored.
 Skip classes with this marker in future sessions.
 When a package is fully refactored, append to refactored-java11-packages.txt in module root; skip listed packages.
 Example refactored-java11-packages.txt format:
 
 ```
-## This file lists the packages that are part of the refactored Java 11 codebase.
+## This file lists the packages that are part of the refactored Java 17 codebase.
 ## PACKAGE NAME, DESCRIPTION
 
 com.percussion.delivery.client, The delivery client
@@ -80,11 +80,11 @@ Refactor obsolete javax refrences to the jakarta namespace where applicable, but
 Use the jakarta namespace for JAX-RS, JPA, and other Jakarta EE APIs.
 Add // REFACTORED: CP-JAKARTA at class level when fully refactored
 Skip classes with this marker in future sessions.
-Use the internet and find suitable Java 11 or > replacement dependencies for javax packages if there is no jakarta equivalent.
+Use the internet and find suitable Java 17 or > replacement dependencies for javax packages if there is no jakarta equivalent.
 
 ### SOAP Server and Client Modernization
 
-Objective: Refactor legacy SOAP server and client implementations to Java 11 standards using Apache CXF or Spring Web Services, ensuring backward compatibility with existing WSDLs and clients.
+Objective: Refactor legacy SOAP server and client implementations to Java 17 standards using Apache CXF or Spring Web Services, ensuring backward compatibility with existing WSDLs and clients.
 Server:
 Use JAX-WS or Apache CXF for endpoint implementation; avoid deprecated Axis or older JAX-WS APIs.
 Generate/validate WSDL files to match refactored services (store in rxconfig/).
@@ -120,7 +120,7 @@ After completing ANY refactoring work:
    - Update usage examples if public interfaces changed
    - Add migration notes for breaking changes
 2. **Add tracking markers:**
-   - Add `// REFACTORED: CP-JAVA11` at class level for Java 11 refactoring
+   - Add `// REFACTORED: CP-JAVA11` at class level for Java 17 refactoring
    - Add `// REFACTORED: CP-SOAP` for SOAP server refactoring
    - Add `// REFACTORED: CP-SOAP-CLIENT` for SOAP client refactoring
 3. **Update package tracking files:**
@@ -149,7 +149,7 @@ Generate tests with high coverage and meaningful assertions.
 
 ### Example Commit Message
 
-Refactor ContentService to Java 11 (use Optional, Streams); update README.md
+Refactor ContentService to Java 17 (use Optional, Streams); update README.md
 - Added var and Optional for type safety (ContentService.java:23-45)
 - Replaced JUnit4 with JUnit5 tests (ContentServiceTest.java)
 - Updated module README with new API details

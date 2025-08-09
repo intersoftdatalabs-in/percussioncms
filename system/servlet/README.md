@@ -1,8 +1,8 @@
-# Java 11 Refactoring
+# Java 17 Refactoring
 
 ## Package: com.percussion.util.servlet
 
-All classes in this package have been refactored for Java 11 compliance:
+All classes in this package have been refactored for Java 17 compliance:
 - Generics and type safety improvements
 - Use of final fields and modern Java idioms
 - Google Java Style Guide formatting

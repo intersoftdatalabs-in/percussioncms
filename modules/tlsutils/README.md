@@ -24,10 +24,10 @@ This module contains three main components:
 
 ### Java Version Compatibility
 
-- **Java 11 or higher** is required (updated from Java 8)
-- Fully tested and compatible with Java 11, 17, and 21
+- **Java 17 or higher** is required (updated from Java 8)
+- Fully tested and compatible with Java 17, 17, and 21
 - Compatible with OpenJDK and Oracle JDK implementations
-- Uses Java 11 module system features with proper module exports
+- Uses Java 17 module system features with proper module exports
 
 ### Dependencies
 
@@ -73,12 +73,12 @@ mvn clean install -pl modules/tlsutils
 mvn clean install
 ```
 
-### Java 11 Specific Build Configuration
+### Java 17 Specific Build Configuration
 
-The module includes Java 11 specific configuration:
+The module includes Java 17 specific configuration:
 
 ```bash
-# Compile with Java 11 module system support
+# Compile with Java 17 module system support
 mvn clean compile -Dmaven.compiler.release=11
 
 # Run tests with module system arguments
@@ -104,7 +104,7 @@ mvn test -Dtest=TLSUtilsTest
 # Run tests and generate coverage report
 mvn clean test jacoco:report
 
-# Run tests with Java 11 module system support
+# Run tests with Java 17 module system support
 mvn test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
 ```
 
@@ -116,7 +116,7 @@ The test suite covers:
 - Error handling and edge cases
 - Console output verification (now using log4j2)
 - Mock object interactions
-- Java 11 specific features and compatibility
+- Java 17 specific features and compatibility
 
 ### Test Classes
 
@@ -128,7 +128,7 @@ The test suite covers:
 
 ### Version 8.1.6-SNAPSHOT Changes
 
-- **Java 11 Compatibility**: Complete refactoring for Java 11+ support
+- **Java 17 Compatibility**: Complete refactoring for Java 17+ support
 - **Logging Enhancement**: Replaced all System.out calls with proper log4j2 logging
 - **Dependency Updates**: Updated to latest compatible versions (JUnit 4.13.2, Mockito 4.11.0)
 - **Module System Support**: Added proper Java module system configuration
@@ -215,7 +215,7 @@ The module now uses log4j2 for all logging output. Configure logging levels:
 
 ### Common Issues
 
-1. **Java 11 Module System Issues**
+1. **Java 17 Module System Issues**
    - Add JVM arguments: `--add-opens java.base/java.lang=ALL-UNNAMED`
    - Ensure proper module path configuration
    - Check for illegal reflective access warnings
@@ -224,20 +224,20 @@ The module now uses log4j2 for all logging output. Configure logging levels:
    - Check certificate validity and chain
    - Verify system time is correct
 3. **Compilation Issues**
-   - Verify Java 11+ is being used
+   - Verify Java 17+ is being used
    - Ensure all dependencies are available
    - Check Maven configuration and version
 4. **Test Failures**
    - Some tests may require network connectivity
    - Firewall settings may affect SSL connection tests
-   - Ensure proper JVM security policies for Java 11+
+   - Ensure proper JVM security policies for Java 17+
 
 ### Debug Logging
 
 Enable debug logging for SSL/TLS operations:
 
 ```bash
-# Java 11+ SSL debugging
+# Java 17+ SSL debugging
 -Djavax.net.debug=ssl:handshake:verbose
 
 # Module system debugging
@@ -260,9 +260,9 @@ When contributing to this module:
 1. Maintain 100% test coverage
 2. Follow existing code style and patterns
 3. Add appropriate log4j2 logging instead of System.out
-4. Test with Java 11+ and ensure module system compatibility
+4. Test with Java 17+ and ensure module system compatibility
 5. Ensure backward compatibility where possible
-6. Document any Java 11+ specific features used
+6. Document any Java 17+ specific features used
 
 ## License
 

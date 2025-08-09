@@ -4,7 +4,7 @@ Concise reference for technologies, development setup, constraints, dependencies
 
 ## Technologies Used
 - Language and Runtime
-  - Java 11 target.
+  - Java 17 target.
 - Build System
   - Maven multi-module reactor with centralized dependencyManagement and pluginManagement in parent pom.xml
 - Frameworks and Libraries
@@ -26,7 +26,7 @@ Concise reference for technologies, development setup, constraints, dependencies
   - mvn -U -DskipTests -rf :artifactId validate  (resume from failure)
 
 ## Technical Constraints
-- Externalize JAXB and Activation for Java 11
+- Externalize JAXB and Activation for Java 17
 - Axis versions must be resolvable from Maven Central (1.4); avoid 1.4.1/1.4.2
 - Minimize legacy transitive drag via selective exclusions (e.g., commons-discovery Axis transitives)
 - Avoid bundling servlet APIs in WARs; use provided scope
@@ -104,11 +104,11 @@ The license header should look like this:
 ---
 applyTo: "**/*.java"
 ---
-# GitHub Copilot Instructions for Java 11 Features and Best Practices
+# GitHub Copilot Instructions for Java 17 Features and Best Practices
 
-These instructions guide GitHub Copilot in generating Java 11 code for the PercussionCMS project, emphasizing modern features and best practices.
+These instructions guide GitHub Copilot in generating Java 17 code for the PercussionCMS project, emphasizing modern features and best practices.
 
-## Java 11 Features
+## Java 17 Features
 1. **Local Variable Syntax for Lambda Parameters (`var` in Lambdas)**:
    - Use `var` in lambda expressions to improve readability when type inference is clear.
    - Example: `(var id, var name) -> id + ": " + name` instead of `(String id, String name) -> id + ": " + name`.
@@ -142,7 +142,7 @@ These instructions guide GitHub Copilot in generating Java 11 code for the Percu
    - Prefer asynchronous requests with `sendAsync` for non-blocking operations in CMS API calls.
 
 6. **Nest-Based Access Control**:
-   - Understand that Java 11 allows nested classes to access private members of enclosing classes without synthetic methods.
+   - Understand that Java 17 allows nested classes to access private members of enclosing classes without synthetic methods.
    - Use this for cleaner encapsulation in nested CMS component classes.
 
 7. **File API Enhancements**:
@@ -168,7 +168,7 @@ These instructions guide GitHub Copilot in generating Java 11 code for the Percu
 
 4. **Immutability**:
    - Prefer immutable objects and collections to reduce side effects.
-   - Example: Use `record` classes (introduced in Java 14 but backportable as POJOs in Java 11) for data carriers.
+   - Example: Use `record` classes (introduced in Java 14 but backportable as POJOs in Java 17) for data carriers.
      ```java
      public record ContentItem(String id, String title) {}
      ```
@@ -189,7 +189,7 @@ These instructions guide GitHub Copilot in generating Java 11 code for the Percu
    - Example: `HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();`.
 
 8. **Testing**:
-   - Write unit tests with JUnit 5, leveraging Java 11 features like `assertDoesNotThrow`.
+   - Write unit tests with JUnit 5, leveraging Java 17 features like `assertDoesNotThrow`.
    - Example:
      ```java
      @Test

@@ -13,34 +13,34 @@ The CMLight-Main-cactus-tests module provides comprehensive integration testing 
 - **Web Services**: REST API and SOAP service functionality
 - **Server Components**: Cache management and server-side operations
 
-## Java 11 Migration
+## Java 17 Migration
 
 ### Version 8.1.6-SNAPSHOT Changes
 
-This module has been completely refactored for Java 11 compatibility:
+This module has been completely refactored for Java 17 compatibility:
 
 #### **POM Configuration Updates**
 
-- **Java Version**: Updated from Java 8 to Java 11 (lines 19-21 in pom.xml)
-- **Maven Plugins**: Updated to latest Java 11 compatible versions
+- **Java Version**: Updated from Java 8 to Java 17 (lines 19-21 in pom.xml)
+- **Maven Plugins**: Updated to latest Java 17 compatible versions
 - **Dependencies**: Updated JUnit to 4.13.2, Cactus to 1.8.1, Spring to 5.3.23
-- **Module System**: Added proper `--add-opens` JVM arguments for Java 11 module system
+- **Module System**: Added proper `--add-opens` JVM arguments for Java 17 module system
 
 #### **Test Framework Enhancements**
 
 - **Generic Types**: Added proper generic type safety throughout test classes
 - **Assertions**: Improved assertion messages for better test failure diagnosis
 - **Code Quality**: Removed deprecated practices and warnings
-- **Modern Practices**: Applied Java 11 best practices and SOLID principles
+- **Modern Practices**: Applied Java 17 best practices and SOLID principles
 
 ## Requirements
 
 ### Java Version Compatibility
 
-- **Java 11 or higher** is required
+- **Java 17 or higher** is required
 - Fully tested with OpenJDK 11, 17, and 21
 - Compatible with Oracle JDK and other JVM implementations
-- Uses Java 11 module system features with proper module exports
+- Uses Java 17 module system features with proper module exports
 
 ### Dependencies
 
@@ -79,10 +79,10 @@ mvn clean package
 mvn clean install
 ```
 
-### Java 11 Specific Build Configuration
+### Java 17 Specific Build Configuration
 
 ```bash
-# Compile with Java 11 module system support
+# Compile with Java 17 module system support
 mvn clean compile -Dmaven.compiler.release=11
 
 # Run with module system arguments
@@ -122,7 +122,7 @@ The tests are organized using JUnit categories:
 - Search functionality tests
 - Workflow processing tests
 
-### Sample Test Classes (Updated for Java 11)
+### Sample Test Classes (Updated for Java 17)
 
 #### PSRoleManagerTest.java (lines 40-86)
 
@@ -136,7 +136,7 @@ public void testGetRoles()
 }
 ```
 
-**Key Java 11 Improvements:**
+**Key Java 17 Improvements:**
 - Generic type safety: `List<String>` instead of raw `List`
 - Descriptive assertion messages for better debugging
 - Modern Java practices following SOLID principles
@@ -150,7 +150,7 @@ public void testGetRoles()
 3. **Security Configuration**: Configure test users and roles
 4. **Logging**: Configure log4j2-tester.xml for test logging
 
-### JVM Arguments for Java 11
+### JVM Arguments for Java 17
 
 The module automatically configures these JVM arguments:
 
@@ -203,7 +203,7 @@ The module provides comprehensive test coverage for:
 
 ## Troubleshooting
 
-### Common Java 11 Issues
+### Common Java 17 Issues
 
 1. **Module System Conflicts**
 
@@ -253,17 +253,17 @@ mvn test -X -Dlog4j2.debug=true
 
 If upgrading from a Java 8 environment:
 
-1. **Update JDK**: Install Java 11 or higher
+1. **Update JDK**: Install Java 17 or higher
 2. **Rebuild Module**: Run `mvn clean install`
 3. **Update JVM Arguments**: Use new module system arguments
 4. **Test Configuration**: Review and update test configurations
-5. **Dependency Updates**: Verify all dependencies are Java 11 compatible
+5. **Dependency Updates**: Verify all dependencies are Java 17 compatible
 
 ## Performance Considerations
 
-### Java 11 Optimizations
+### Java 17 Optimizations
 
-- **G1 Garbage Collector**: Default in Java 11, optimized for large heaps
+- **G1 Garbage Collector**: Default in Java 17, optimized for large heaps
 - **Module System**: Reduced memory footprint and faster startup
 - **JIT Improvements**: Better runtime optimization
 - **String Optimization**: Compact strings and improved performance
@@ -282,7 +282,7 @@ mvn test -DargLine="-Xmx2g -XX:+UseG1GC"
 
 When contributing to this module:
 
-1. **Java 11 Compliance**: Ensure all code compiles with Java 11+
+1. **Java 17 Compliance**: Ensure all code compiles with Java 17+
 2. **Generic Types**: Use proper generic types throughout
 3. **Test Quality**: Write comprehensive integration tests
 4. **Documentation**: Update JavaDoc and README files
@@ -314,6 +314,6 @@ For issues and questions related to this module:
 
 1. Check the integration test logs for specific error messages
 2. Verify server configuration and connectivity
-3. Review Java 11 migration documentation
+3. Review Java 17 migration documentation
 4. Consult the main Percussion CMS documentation and support channels
 

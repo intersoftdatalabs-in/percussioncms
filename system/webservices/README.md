@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Web Services module provides SOAP-based web service endpoints for the Percussion CMS system. This module has been modernized to use Java 11 features and contemporary SOAP standards while maintaining backward compatibility with existing clients.
+The Web Services module provides SOAP-based web service endpoints for the Percussion CMS system. This module has been modernized to use Java 17 features and contemporary SOAP standards while maintaining backward compatibility with existing clients.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ The module follows a layered architecture:
    - Migrated from legacy Apache Axis to modern JAX-WS
    - Added `@WebService` annotations for contemporary endpoint configuration
    - Improved attachment handling using JAX-WS APIs
-2. **Java 11 Features**
+2. **Java 17 Features**
    - Replaced legacy collections with Stream API
    - Added `Optional<T>` for null-safe operations
    - Used `var` keyword for improved readability

@@ -15,7 +15,7 @@ If a page is set to be secure, then this service takes care of Authentication/Au
 
 ## Technology Stack
 
-- **Java 11** - Modern Java features including `var`, `Optional`, and `LocalDateTime`
+- **Java 17** - Modern Java features including `var`, `Optional`, and `LocalDateTime`
 - **Spring Boot 2.7+** - Application framework with auto-configuration
 - **Spring Security 5.8** - Authentication and authorization
 - **Spring Web MVC** - RESTful web services
@@ -35,7 +35,7 @@ If a page is set to be secure, then this service takes care of Authentication/Au
 
 ### Data Layer
 
-All data classes are **immutable** and follow modern Java 11 patterns:
+All data classes are **immutable** and follow modern Java 17 patterns:
 
 - `PSMembershipAccount` - Core membership account information
 - `PSLoginRequest/PSLoginResult` - Authentication request/response
@@ -67,7 +67,7 @@ The membership service provides RESTful endpoints for:
 
 ### Prerequisites
 
-- Java 11 or later
+- Java 17 or later
 - Maven 3.6+
 - Parent project dependencies
 
@@ -126,9 +126,9 @@ The module includes comprehensive security features:
 - **OWASP Compliance**: Protection against common vulnerabilities
 - **Secure Headers**: CSRF protection and secure cookie handling
 
-## Java 11 Refactoring Notes
+## Java 17 Refactoring Notes
 
-This module has been **fully refactored to Java 11** standards:
+This module has been **fully refactored to Java 17** standards:
 
 ### Modern Java Features Used
 
@@ -279,7 +279,7 @@ logging.level.org.springframework.security=DEBUG
 ### Code Style
 
 - Follow Google Java Style Guide
-- Use Java 11 features where appropriate
+- Use Java 17 features where appropriate
 - Maintain immutability in data classes
 - Include comprehensive unit tests
 - Document public APIs with Javadoc
@@ -294,4 +294,4 @@ logging.level.org.springframework.security=DEBUG
 
 ---
 
-**Note**: This module has been fully refactored to Java 11 standards as part of the Percussion CMS modernization initiative. All classes include the `// REFACTORED: CP-JAVA11` marker indicating completion of the refactoring process.
+**Note**: This module has been fully refactored to Java 17 standards as part of the Percussion CMS modernization initiative. All classes include the `// REFACTORED: CP-JAVA11` marker indicating completion of the refactoring process.

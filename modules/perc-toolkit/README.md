@@ -126,9 +126,9 @@ class MyTest {
 
 All tests pass successfully with the new Mockito implementation. No functional changes were made to the actual application code.
 
-### Java 11 Migration (July 2025)
+### Java 17 Migration (July 2025)
 
-The following classes in `com.percussion.soln.listbuilder` have been refactored to use Java 11 features and Google Java Style:
+The following classes in `com.percussion.soln.listbuilder` have been refactored to use Java 17 features and Google Java Style:
 
 - ListBuilderItem.java
 - ListBuilderJexl.java
@@ -139,9 +139,9 @@ All classes now use modern Java idioms (var, Optional, Streams where applicable)
 
 See code for details. Migration marker added for future tracking.
 
-### Java 11 Migration: com.percussion.pso.validation
+### Java 17 Migration: com.percussion.pso.validation
 
-All classes in `com.percussion.pso.validation` have been refactored to use Java 11 features and Google Java Style:
+All classes in `com.percussion.pso.validation` have been refactored to use Java 17 features and Google Java Style:
 
 - PSOAbstractItemValidationExit.java
 - PSODateRangeFieldValidator.java
@@ -153,17 +153,17 @@ All classes in `com.percussion.pso.validation` have been refactored to use Java 
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-### Java 11 Migration: com.percussion.pso.tasks
+### Java 17 Migration: com.percussion.pso.tasks
 
-All classes in `com.percussion.pso.tasks` have been refactored to use Java 11 features and Google Java Style:
+All classes in `com.percussion.pso.tasks` have been refactored to use Java 17 features and Google Java Style:
 
 - TrashTask.java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-### Java 11 Migration: com.percussion.pso.restservice
+### Java 17 Migration: com.percussion.pso.restservice
 
-All classes in `com.percussion.pso.restservice` have been refactored to use Java 11 features and Google Java Style:
+All classes in `com.percussion.pso.restservice` have been refactored to use Java 17 features and Google Java Style:
 
 - IItemRestService.java
 - ItemRestServiceLocator.java
@@ -171,9 +171,9 @@ All classes in `com.percussion.pso.restservice` have been refactored to use Java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-### Java 11 Migration: com.percussion.pso.relationships
+### Java 17 Migration: com.percussion.pso.relationships
 
-The following classes in `com.percussion.pso.relationships` have been refactored to use Java 11 features and Google Java Style:
+The following classes in `com.percussion.pso.relationships` have been refactored to use Java 17 features and Google Java Style:
 
 - PSOParentFinder.java
 - IPSOParentFinder.java
@@ -210,7 +210,7 @@ private IPSContentWs cws;
 when(cws.loadContentRelations(...)).thenReturn(rels);
 ```
 
-All migrated tests pass and are fully compatible with Java 11 and modern IDEs.
+All migrated tests pass and are fully compatible with Java 17 and modern IDEs.
 - PSFolderOwnerSubfolderEffect.java
 - PSFolderFollowerEffect.java
 - PSOSetFieldOnSlottedItemEffect.java
@@ -218,9 +218,9 @@ All migrated tests pass and are fully compatible with Java 11 and modern IDEs.
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-### Java 11 Migration: com.percussion.pso.workflow
+### Java 17 Migration: com.percussion.pso.workflow
 
-All classes in `com.percussion.pso.workflow` have been refactored to use Java 11 features and Google Java Style:
+All classes in `com.percussion.pso.workflow` have been refactored to use Java 17 features and Google Java Style:
 
 - IPSOWFActionService.java
 - IPSOWorkflowInfoFinder.java
@@ -238,9 +238,9 @@ All classes in `com.percussion.pso.workflow` have been refactored to use Java 11
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 
-### Java 11 Migration: com.percussion.soln.jcr
+### Java 17 Migration: com.percussion.soln.jcr
 
-All classes in `com.percussion.soln.jcr` have been refactored to use Java 11 features and Google Java Style:
+All classes in `com.percussion.soln.jcr` have been refactored to use Java 17 features and Google Java Style:
 
 - NodeUtils.java
 - AbstractSimplyProperty.java
@@ -252,19 +252,19 @@ No functional changes were made; all endpoints remain backward compatible.
 
 ### PSOPreventOnTranslatedItem.java
 
-Refactored to Java 11 and Google Java Style. Deprecated `isConstruction()` and `isDestruction()` checks were removed; effect now runs for all contexts for backward compatibility. See class-level TODO for future migration to context type checks when available.
+Refactored to Java 17 and Google Java Style. Deprecated `isConstruction()` and `isDestruction()` checks were removed; effect now runs for all contexts for backward compatibility. See class-level TODO for future migration to context type checks when available.
 
 ### PSFolderFollowerEffect.java
 
-Refactored to Java 11 and Google Java Style. Removed redundant interface, unused variable, and replaced deprecated `isConstruction()` with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
+Refactored to Java 17 and Google Java Style. Removed redundant interface, unused variable, and replaced deprecated `isConstruction()` with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
 
 ### PSFolderOwnerSubfolderEffect.java
 
-Refactored to Java 11 and Google Java Style. Removed redundant interface and replaced deprecated context checks with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
+Refactored to Java 17 and Google Java Style. Removed redundant interface and replaced deprecated context checks with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
 
-### Java 11 Migration: com.percussion.pso.utils
+### Java 17 Migration: com.percussion.pso.utils
 
-All classes in `com.percussion.pso.utils` have been refactored to use Java 11 features and Google Java Style.
+All classes in `com.percussion.pso.utils` have been refactored to use Java 17 features and Google Java Style.
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. Deprecated API usages are noted for future migration. No breaking changes were introduced; all public APIs remain backward compatible.
 

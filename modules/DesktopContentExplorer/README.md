@@ -6,15 +6,15 @@ The Desktop Content Explorer is a JavaFX-based desktop application for managing 
 
 ## Requirements
 
-- **Java 11** or higher
+- **Java 17** or higher
 - **JavaFX 21** (automatically included as Maven dependency)
 - **Maven 3.6+** for building
 
 ## Setup Instructions
 
-### Java 11 Setup
+### Java 17 Setup
 
-Ensure you have Java 11 or higher installed:
+Ensure you have Java 17 or higher installed:
 
 ```bash
 java -version
@@ -69,12 +69,12 @@ mvn test
 
 ## Modular Architecture
 
-The module is designed to work with Java 11's module system. The module descriptor (`module-info.java`) defines the required dependencies and exported packages.
+The module is designed to work with Java 17's module system. The module descriptor (`module-info.java`) defines the required dependencies and exported packages.
 
 ## Migration Notes
 
-This module has been upgraded from Java 8/JavaFX 11 to Java 11/JavaFX 21:
-- Updated compiler source and target to Java 11
+This module has been upgraded from Java 8/JavaFX 11 to Java 17/JavaFX 21:
+- Updated compiler source and target to Java 17
 - Upgraded JavaFX dependencies to version 21
 - Added JavaFX FXML support
 - Updated tests to use JUnit 5

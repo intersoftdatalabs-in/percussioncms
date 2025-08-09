@@ -8,12 +8,12 @@
 
 ## Requirements
 
-- Java 11 (JDK 11)
+- Java 17 (JDK 11)
 - Maven 3.6+
 
 ## Building
 
-To build the ContentUI module, ensure you have Java 11 installed and set as your JAVA_HOME.
+To build the ContentUI module, ensure you have Java 17 installed and set as your JAVA_HOME.
 
 ```
 mvn clean install
@@ -21,6 +21,6 @@ mvn clean install
 
 ## Notes
 
-- This module is configured for Java 11. Using other Java versions may result in build or runtime errors.
-- All dependencies and plugins are compatible with Java 11 as specified in the `pom.xml`
+- This module is configured for Java 17. Using other Java versions may result in build or runtime errors.
+- All dependencies and plugins are compatible with Java 17 as specified in the `pom.xml`
 

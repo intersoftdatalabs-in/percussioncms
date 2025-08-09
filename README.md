@@ -32,7 +32,7 @@ Yes.  The latest release will be featured in the [Releases page](https://github.
 
 ## Recent Changes
 
-* **Refactored `PSAssemblyService` for Java 11**: The `PSAssemblyService` class has been modernized to use Java 11 features, including `var`, streams, and improved exception handling. This enhances code readability and maintainability while ensuring backward compatibility.
+* **Refactored `PSAssemblyService` for Java 17**: The `PSAssemblyService` class has been modernized to use Java 17 features, including `var`, streams, and improved exception handling. This enhances code readability and maintainability while ensuring backward compatibility.
 
 ## Interested in Contributing?
 

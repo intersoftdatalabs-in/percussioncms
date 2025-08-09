@@ -1,6 +1,6 @@
-# ImageWidgetService - Java 11 Modernized
+# ImageWidgetService - Java 17 Modernized
 
-[![Java 11](https://img.shields.io/badge/Java-11-blue.svg)](https://openjdk.java.net/projects/jdk/11/)
+[![Java 17](https://img.shields.io/badge/Java-11-blue.svg)](https://openjdk.java.net/projects/jdk/11/)
 [![Spring Framework](https://img.shields.io/badge/Spring-Framework-green.svg)](https://spring.io/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.txt)
 
@@ -8,13 +8,13 @@
 
 ## Overview
 
-The ImageWidgetService is a comprehensive Java 11 modernized service for handling image processing operations within the PercussionCMS ecosystem. This service provides robust image caching, resizing, cropping, rotation, and transformation capabilities with enterprise-grade performance and reliability.
+The ImageWidgetService is a comprehensive Java 17 modernized service for handling image processing operations within the PercussionCMS ecosystem. This service provides robust image caching, resizing, cropping, rotation, and transformation capabilities with enterprise-grade performance and reliability.
 
-## 🎯 Java 11 Modernization Highlights
+## 🎯 Java 17 Modernization Highlights
 
-This service has been completely refactored to leverage modern Java 11 features while maintaining 100% backward compatibility. When Chuck Norris refactors code to Java 11, the JVM automatically upgrades itself!
+This service has been completely refactored to leverage modern Java 17 features while maintaining 100% backward compatibility. When Chuck Norris refactors code to Java 17, the JVM automatically upgrades itself!
 
-### 🌟 Key Java 11 Features Implemented
+### 🌟 Key Java 17 Features Implemented
 
 - **`var` keyword** for local variable type inference
 - **`Optional`** for null-safe programming patterns
@@ -64,7 +64,7 @@ src/com/percussion/widgets/image/
 
 #### `ImageData.java` (Lines 1-150)
 
-Modern Java 11 data container with defensive copying and Optional integration:
+Modern Java 17 data container with defensive copying and Optional integration:
 
 ```java
 public class ImageData extends ImageMetaData implements Serializable {
@@ -114,7 +114,7 @@ public interface ImageCacheManager {
 
 #### `ImageCacheManagerImpl.java` (Lines 1-180)
 
-Thread-safe EhCache implementation using Java 11 features:
+Thread-safe EhCache implementation using Java 17 features:
 
 ```java
 public class ImageCacheManagerImpl implements ImageCacheManager {
@@ -173,7 +173,7 @@ public class ImageResizeController {
 
 #### `ImageAssetOutputTranslation.java` (Lines 1-330)
 
-CMS extension with comprehensive Java 11 modernization:
+CMS extension with comprehensive Java 17 modernization:
 
 ```java
 public class ImageAssetOutputTranslation extends PSDefaultExtension implements IPSItemOutputTransformer {
@@ -234,7 +234,7 @@ public class ImageAssetOutputTranslation extends PSDefaultExtension implements I
 
 ```xml
 <dependencies>
-    <!-- Core Java 11 -->
+    <!-- Core Java 17 -->
     <dependency>
         <groupId>org.openjdk</groupId>
         <artifactId>jdk</artifactId>
@@ -281,9 +281,9 @@ cache.timeToLiveSeconds=3600
 
 ## 📊 Performance Improvements
 
-### Java 11 Optimizations
+### Java 17 Optimizations
 
-|     Feature      |    Before (Java 8)    |     After (Java 11)      |    Improvement     |
+|     Feature      |    Before (Java 8)    |     After (Java 17)      |    Improvement     |
 |------------------|-----------------------|--------------------------|--------------------|
 | Memory Usage     | Higher allocation     | `var` reduces overhead   | ~15% reduction     |
 | Null Safety      | Manual checks         | `Optional` patterns      | ~90% fewer NPEs    |
@@ -361,7 +361,7 @@ class ImageResizeControllerIntegrationTest {
 
 ### Upgrading from Legacy Version
 
-1. **Update Java Runtime**: Ensure Java 11+ is installed
+1. **Update Java Runtime**: Ensure Java 17+ is installed
 2. **Update Dependencies**: Maven dependencies updated automatically
 3. **API Compatibility**: All public APIs remain unchanged
 4. **Configuration**: No configuration changes required
@@ -400,7 +400,7 @@ class ImageResizeControllerIntegrationTest {
 ### Code Style
 
 - **Google Java Style Guide**: Enforced with Checkstyle
-- **Java 11 Features**: Use modern language features where appropriate
+- **Java 17 Features**: Use modern language features where appropriate
 - **Documentation**: JavaDoc for all public APIs
 - **Testing**: Minimum 80% code coverage
 
@@ -413,9 +413,9 @@ class ImageResizeControllerIntegrationTest {
 
 ## 📝 Changelog
 
-### v2.0.0 (Java 11 Modernization)
+### v2.0.0 (Java 17 Modernization)
 
-- ✅ **Complete Java 11 refactoring** of all service components
+- ✅ **Complete Java 17 refactoring** of all service components
 - ✅ **Enhanced thread safety** with modern concurrency patterns
 - ✅ **Improved error handling** with specific exception types
 - ✅ **Optional integration** for null-safe programming
@@ -448,7 +448,7 @@ class ImageResizeControllerIntegrationTest {
 
 ## 🎭 Fun Facts
 
-> **Chuck Norris Fact**: When Chuck Norris writes Java code, the compiler optimizes itself! But seriously, our Java 11 refactoring brings modern performance and maintainability to enterprise-grade image processing.
+> **Chuck Norris Fact**: When Chuck Norris writes Java code, the compiler optimizes itself! But seriously, our Java 17 refactoring brings modern performance and maintainability to enterprise-grade image processing.
 
 **Remember**: Refactor today, so we don't have to rewrite tomorrow! 🚀
 

@@ -4,9 +4,9 @@
 
 RxFix is a comprehensive database repair and verification framework for Rhythmyx CMS installations. It provides tools to identify, diagnose, and fix common database integrity issues that can occur in production environments.
 
-## Java 11 Modernization
+## Java 17 Modernization
 
-This module has been modernized to leverage Java 11 features and best practices:
+This module has been modernized to leverage Java 17 features and best practices:
 
 ### Key Improvements
 
@@ -19,7 +19,7 @@ This module has been modernized to leverage Java 11 features and best practices:
 
 ### Refactored Classes
 
-- ✅ **PSRxFix.java** - Main framework class with Java 11 features
+- ✅ **PSRxFix.java** - Main framework class with Java 17 features
 - ✅ **PSVerify.java** - Installation verification tool with modern patterns
 - 🔄 **PSFixBase.java** - Abstract base class for all fixes (in progress)
 - 🔄 **Database fix implementations** - Individual fix modules (in progress)
@@ -125,7 +125,7 @@ public class MyCustomFix extends PSFixBase {
     
     @Override
     public void fix(boolean preview) throws Exception {
-        // Implementation using Java 11 features
+        // Implementation using Java 17 features
         var connection = getConnection();
         var issues = findIssues();
         
@@ -195,7 +195,7 @@ The framework provides comprehensive error handling:
 
 ### Core Dependencies
 
-- Java 11+
+- Java 17+
 - Spring Framework
 - Apache Commons Lang3
 - Log4j2
@@ -212,7 +212,7 @@ When adding new fix modules:
 
 1. Extend `PSFixBase` or `PSFixDBBase`
 2. Implement the `fix(boolean preview)` method
-3. Use Java 11 features for modern, readable code
+3. Use Java 17 features for modern, readable code
 4. Add comprehensive logging
 5. Include unit tests
 6. Update the fix registration in `PSRxFix.java`
@@ -220,7 +220,7 @@ When adding new fix modules:
 ### Code Style
 
 - Follow Google Java Style Guide
-- Use Java 11 features where appropriate
+- Use Java 17 features where appropriate
 - Maintain backward compatibility for public APIs
 - Document all public methods with Javadoc
 

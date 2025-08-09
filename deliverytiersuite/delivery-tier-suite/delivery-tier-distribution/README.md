@@ -9,18 +9,18 @@ This module contains all the configuration files for DTS. For e.g.
 * DTS tomcat configurations
 etc...
 
-## Java 11 Refactoring Status
+## Java 17 Refactoring Status
 
-✅ **Fully refactored to Java 11** (August 4, 2025)
+✅ **Fully refactored to Java 17** (August 4, 2025)
 
 ### Refactored Classes:
 
-- `MainDTSPreInstall.java` - Java 11 features including var, lambda expressions, improved string handling
+- `MainDTSPreInstall.java` - Java 17 features including var, lambda expressions, improved string handling
 - `AntJobFailedException.java` - Updated formatting and copyright
 
 ### Key Improvements:
 
-- Applied modern Java 11 var keyword for better type inference
+- Applied modern Java 17 var keyword for better type inference
 - Used lambda expressions for cleaner, more readable code
 - Improved string comparisons and null checks
 - Enhanced code formatting and consistency

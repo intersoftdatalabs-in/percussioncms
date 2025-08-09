@@ -21,7 +21,7 @@ import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 
 import java.security.Principal;
-import com.percussion.security.Group;
+import com.percussion.security.shim.acl.Group;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;

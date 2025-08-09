@@ -1,6 +1,6 @@
 # Product
 
-Percussion CMS enables enterprises to author, manage, and deliver web content with strong XML capabilities, modular architecture, and security-first practices aligned with OWASP. It targets on-premise DTS tomcat deployments, prioritizing backward compatibility for existing customers while steadily modernizing the stack (e.g., Java 11 migration).
+Percussion CMS enables enterprises to author, manage, and deliver web content with strong XML capabilities, modular architecture, and security-first practices aligned with OWASP. It targets on-premise DTS tomcat deployments, prioritizing backward compatibility for existing customers while steadily modernizing the stack (e.g., Java 17 migration).
 
 ## Why it exists
 
@@ -25,6 +25,6 @@ Percussion CMS enables enterprises to author, manage, and deliver web content wi
 ## User experience goals
 
 - Stable upgrades with minimal breaking changes for customers.
-- Predictable builds and deployments on Java 11 and DTS tomcat.
+- Predictable builds and deployments on Java 17 and DTS tomcat.
 - Clear module boundaries and consistent dependency versions to simplify maintenance.
 

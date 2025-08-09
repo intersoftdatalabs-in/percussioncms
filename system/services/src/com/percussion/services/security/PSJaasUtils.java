@@ -33,7 +33,7 @@ import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSSecurityCatalogException;
 
 import java.security.Principal;
-import com.percussion.security.Group;
+import com.percussion.security.shim.acl.Group;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;

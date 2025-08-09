@@ -22,6 +22,10 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.utils.beans.IPSPropertyLoader;
 import com.percussion.utils.beans.PSPropertyWrapper;
 import com.percussion.utils.io.PSReaderInputStream;
+import com.percussion.utils.jsr170.IPSProperty;
+import com.percussion.utils.jsr170.IPSPropertyInterceptor;
+import com.percussion.utils.jsr170.PSValueConverter;
+import com.percussion.utils.jsr170.PSValueFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -57,6 +61,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/*
 /**
  * Represents a single property for a node. The actual data is held in loaded
  * instances where each instance holds multiple values. The mappings between the

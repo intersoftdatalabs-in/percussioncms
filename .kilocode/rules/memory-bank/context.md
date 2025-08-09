@@ -4,7 +4,7 @@ This document captures the current work focus, recent changes, and next steps fo
 
 ## Current Work Focus
 
-- Java 11 migration of the multi-module Maven monorepo.
+- Java 17 migration of the multi-module Maven monorepo.
 - Centralizing dependencyManagement and pluginManagement in the parent POM to ensure consistent versions.
 - Test stack alignment: support JUnit 5 with Vintage where legacy JUnit 4 tests remain.
 - Stabilizing dependency resolution (e.g., Axis 1.4, CXF 3.5.11, JAXB/Activation externalized) and cleaning duplicate/legacy declarations.
@@ -50,7 +50,7 @@ This document captures the current work focus, recent changes, and next steps fo
 ## Notes
 
 - Maintain backward compatibility for customers while modernizing. Avoid jakarta servlet/annotation artifacts.
-- Keep JAXB and Activation external on Java 11 (api and runtime versions managed centrally).
+- Keep JAXB and Activation external on Java 17 (api and runtime versions managed centrally).
 - Use -U and dependency:tree to diagnose resolution issues; adjust parent management and module exclusions accordingly.
 - DTS = Delivery Tier Suite, the target deployment environment for the delivery-tier-suite modules.  This is deployed seperate from the CMS. Typically on the web server.
 

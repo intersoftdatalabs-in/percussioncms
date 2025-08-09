@@ -18,7 +18,7 @@ package com.percussion.services.security.loginmods.data;
 
 import java.io.Serializable;
 import java.security.Principal;
-import com.percussion.security.Group;
+import com.percussion.security.shim.acl.Group;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,8 +26,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.iterators.IteratorEnumeration;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Implements a security group

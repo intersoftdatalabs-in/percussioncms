@@ -30,7 +30,7 @@ The only real way around this is to start a new Agent session and ask Co-Pilot t
 
 For example, say your prompt was:
 
-"Continue refactoring of the system/services modules to Java 11 following the guidelines starting with the contentmgr package"
+"Continue refactoring of the system/services modules to Java 17 following the guidelines starting with the contentmgr package"
 
 and then you got the error "Sorry, an error occurred while generating a response".
 
@@ -38,7 +38,7 @@ Accept any Pending Changes.
 
 Then, start a new Agent session and give it the following prompt:
 
-"Continue refactoring of the system/services modules to Java 11 following the guidelines resuming your refactoring of the contentmgr package"
+"Continue refactoring of the system/services modules to Java 17 following the guidelines resuming your refactoring of the contentmgr package"
 
 It should then continue where it left off.
 

@@ -1,8 +1,8 @@
-# Services Module - Java 11 Modernization
+# Services Module - Java 17 Modernization
 
 ## Overview
 
-The services module provides comprehensive business logic and data access services for the Percussion CMS system. This module has been modernized to leverage Java 11 features including `var` declarations, `Optional` wrappers, Stream API, and enhanced validation patterns.
+The services module provides comprehensive business logic and data access services for the Percussion CMS system. This module has been modernized to leverage Java 17 features including `var` declarations, `Optional` wrappers, Stream API, and enhanced validation patterns.
 
 ## Completed Packages
 
@@ -45,7 +45,7 @@ The catalog package provides foundational cataloging services for object enumera
 
 ### GUID Manager Package (`com.percussion.services.guidmgr`)
 
-The GUID manager package provides globally unique identifier generation and management services with modern Java 11 concurrency patterns.
+The GUID manager package provides globally unique identifier generation and management services with modern Java 17 concurrency patterns.
 
 **Key Components:**
 - **IPSGuidManager** - Main GUID service interface with Stream API and Optional support
@@ -176,35 +176,35 @@ The integrations package provides third-party service integration capabilities w
 
 **Key Components:**
 - **IPSIntegrationProviderService** - Integration provider interface with Optional-based operations and modern validation patterns
-- **PSSiteImproveProviderService** - SiteImprove integration service with Java 11 HTTP client, Stream-based retry logic, and CompletableFuture async operations
+- **PSSiteImproveProviderService** - SiteImprove integration service with Java 17 HTTP client, Stream-based retry logic, and CompletableFuture async operations
 
-**Major Java 11 Improvements:**
-- **Modern HTTP Client**: Migrated from legacy Apache Commons HttpClient to Java 11's built-in `java.net.http.HttpClient`
+**Major Java 17 Improvements:**
+- **Modern HTTP Client**: Migrated from legacy Apache Commons HttpClient to Java 17's built-in `java.net.http.HttpClient`
 - **Enhanced Retry Logic**: Implemented stream-based retry mechanism using `IntStream.range().anyMatch()` for elegant failure handling
 - **Async Operations**: Improved `CompletableFuture` usage with proper exception handling and resource management
 - **Type Safety**: Comprehensive `Optional` usage throughout for null-safe operations
 - **Resource Management**: Proper HTTP client configuration with automatic connection pooling and timeout handling
 
 **Performance Enhancements:**
-- **Stream Processing**: Efficient collection operations using Java 11 Stream API
+- **Stream Processing**: Efficient collection operations using Java 17 Stream API
 - **Connection Reuse**: Modern HTTP client with automatic connection pooling
 - **Memory Efficiency**: Reduced object creation through builder patterns and immutable configurations
 - **Error Recovery**: Intelligent retry strategies with exponential backoff using Duration API
 
 ### Schedule Package (`com.percussion.services.schedule`) ✅ **NEWLY COMPLETED**
 
-The schedule package provides comprehensive task scheduling, notification, and log management services, fully modernized to Java 11 standards. It integrates with Quartz for robust job scheduling and supports advanced notification workflows, including SMTP configuration caching and enhanced concurrency handling.
+The schedule package provides comprehensive task scheduling, notification, and log management services, fully modernized to Java 17 standards. It integrates with Quartz for robust job scheduling and supports advanced notification workflows, including SMTP configuration caching and enhanced concurrency handling.
 
 **Key Components:**
 - **IPSSchedulingService** – Main scheduling service interface with Optional return types, Stream API, and improved validation
 - **PSSchedulingService** – Implementation with var, Streams, and modern error handling
 - **PSScheduledTask/PSScheduledTaskLog** – Data entities with factory methods, Optional wrappers, and defensive serialization
 - **PSNotificationTemplate/PSNotifyWhen** – Notification template and enum with modern validation and Javadoc
-- **PSTaskAdapter** – Quartz job adapter with thread-safe execution, notification logic, and Java 11 concurrency utilities
+- **PSTaskAdapter** – Quartz job adapter with thread-safe execution, notification logic, and Java 17 concurrency utilities
 - **PSSchedulerBean** – Spring FactoryBean for Quartz scheduler with enhanced configuration and error handling
-- **PSRunCommand/PSRunEdition** – Task implementations using Java 11 features, Optional, and Streams
+- **PSRunCommand/PSRunEdition** – Task implementations using Java 17 features, Optional, and Streams
 
-**Major Java 11 Improvements:**
+**Major Java 17 Improvements:**
 - **var, Optional, Streams**: Used throughout for type safety, null-safety, and concise code
 - **Modern Concurrency**: Thread-safe job execution, synchronized access, and use of concurrency utilities
 - **Enhanced Notification**: SMTP config caching, improved email normalization, and robust notification logic
@@ -217,14 +217,14 @@ The schedule package provides comprehensive task scheduling, notification, and l
 - **Error Handling**: Improved exception handling, Optional-based error reporting, and detailed logging
 
 **Migration Notes:**
-- All classes now use Java 11 features and follow the Google Java Style Guide
+- All classes now use Java 17 features and follow the Google Java Style Guide
 - Notification and scheduling APIs remain backward compatible
 - No breaking changes to public interfaces; usage examples remain valid
 - All legacy org.apache.commons.lang imports updated to org.apache.commons.lang3
 
 ### Service Locator Classes (Top-Level)
 
-The following top-level service locator and utility classes have been fully refactored to Java 11 standards:
+The following top-level service locator and utility classes have been fully refactored to Java 17 standards:
 
 - **PSBaseServiceLocator**
   - Modernized to use explicit types, Streams, and Optional where appropriate
@@ -232,7 +232,7 @@ The following top-level service locator and utility classes have been fully refa
   - Follows Google Java Style Guide
   - Marked with `// REFACTORED: CP-JAVA11` at the class level
 - **PSContextLoader**
-  - Refactored for Java 11, explicit types, Optional, and improved null-safety
+  - Refactored for Java 17, explicit types, Optional, and improved null-safety
   - Follows Google Java Style Guide
   - Marked with `// REFACTORED: CP-JAVA11` at the class level
 - **PSResourceHelper**
@@ -244,7 +244,7 @@ The following top-level service locator and utility classes have been fully refa
 
 **Packages Refactored**: 19/19 ✅ COMPLETE
 
-The services module Java 11 modernization is now **100% complete** with all 19 packages successfully refactored to leverage modern Java features, enhanced performance, and improved maintainability.
+The services module Java 17 modernization is now **100% complete** with all 19 packages successfully refactored to leverage modern Java features, enhanced performance, and improved maintainability.
 
 ## Migration Benefits
 
@@ -326,5 +326,5 @@ All refactored packages include comprehensive JUnit5 test suites covering:
 ---
 
 **Last Updated**: July 2025  
-**Java 11 Migration Status**: 19/19 packages complete ✅  
+**Java 17 Migration Status**: 19/19 packages complete ✅  
 **Next Target**: Additional system modules or REST API modernization

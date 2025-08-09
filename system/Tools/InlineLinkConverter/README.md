@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Inline Link Converter Tool is a Java 11 modernized utility for processing and converting inline links in Rhythmyx CMS content items. This tool provides batch processing capabilities with XSL-based transformations and comprehensive workflow state management.
+The Inline Link Converter Tool is a Java 17 modernized utility for processing and converting inline links in Rhythmyx CMS content items. This tool provides batch processing capabilities with XSL-based transformations and comprehensive workflow state management.
 
 ## Key Features
 
@@ -11,7 +11,7 @@ The Inline Link Converter Tool is a Java 11 modernized utility for processing an
 - **Workflow Management**: Automatically handle content item checkout/checkin and state transitions
 - **Site Filtering**: Optional filtering by site root folder hierarchy
 - **Comprehensive Logging**: Detailed logging of conversion progress, successes, and failures
-- **Java 11 Modernized**: Utilizes modern Java features for improved performance and maintainability
+- **Java 17 Modernized**: Utilizes modern Java features for improved performance and maintainability
 
 ## Project Structure
 
@@ -30,7 +30,7 @@ InlineLinkConverter/
 
 ## Prerequisites
 
-- **Java 11** or higher
+- **Java 17** or higher
 - **Rhythmyx CMS** server access
 - Appropriate permissions for content item modification
 - Maven 3.6+ (for building)
@@ -109,9 +109,9 @@ mvn test
 mvn package
 ```
 
-## Java 11 Modernization Features
+## Java 17 Modernization Features
 
-This codebase has been modernized to leverage Java 11 features:
+This codebase has been modernized to leverage Java 17 features:
 
 ### Language Features
 
@@ -247,7 +247,7 @@ Enable detailed logging by setting log level to DEBUG in your logging configurat
 
 When contributing to this modernized codebase:
 
-1. **Follow Java 11 practices** - Use modern language features appropriately
+1. **Follow Java 17 practices** - Use modern language features appropriately
 2. **Maintain compatibility** - Don't break existing public APIs
 3. **Add comprehensive tests** - Include unit tests for new functionality
 4. **Update documentation** - Keep README and Javadoc current

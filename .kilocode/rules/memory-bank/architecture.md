@@ -14,7 +14,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 ## Source Code Paths and Major Modules
 
 - Root parent
-  - pom.xml manages Java 11, dependency versions, plugin versions, enforcer rules, and shared properties.
+  - pom.xml manages Java 17, dependency versions, plugin versions, enforcer rules, and shared properties.
 - Core and libraries
   - build-tools: Enforcer and build-time helpers.
   - perc-security-utils: Security utilities, ESAPI integration, Antisamy etc.
@@ -53,8 +53,8 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 
 ## Key Technical Decisions
 
-- Java 11 target.
-- Externalize JAXB and Activation for Java 11 using jakarta.xml.bind-api replacement with javax compat via vendor BOMs or explicit artifacts; runtime and API versions managed in parent.
+- Java 17 target.
+- Externalize JAXB and Activation for Java 17 using jakarta.xml.bind-api replacement with javax compat via vendor BOMs or explicit artifacts; runtime and API versions managed in parent.
 - Pin Apache CXF to 3.5.11 across delivery-tier modules to ensure consistent JAX-RS behavior.
 - Migrate Oracle JDBC from ojdbc6 to com.oracle.database.jdbc:ojdbc8; manage version centrally.
 - Keep Axis stack at resolvable versions (1.4) and align plugins (wsdl2java/axistools) accordingly.
@@ -74,7 +74,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 
 - Parent POM properties and dependencyManagement
   - Central pins for junit, cxf, jaxb, activation, commons-* libraries, slf4j, log4j.
-  - PluginManagement for surefire/failsafe, enforcer, maven-compiler (Java 11), toolchains.
+  - PluginManagement for surefire/failsafe, enforcer, maven-compiler (Java 17), toolchains.
 - Testing stack standardization
   - JUnit 5 BOM or explicit versions, Vintage engine presence for JUnit 4 tests, junit-platform-launcher pin to stable version.
 - Webservices Axis alignment
