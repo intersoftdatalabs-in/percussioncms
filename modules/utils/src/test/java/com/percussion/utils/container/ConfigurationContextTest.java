@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ConfigurationContextTest {
@@ -61,5 +60,4 @@ public class ConfigurationContextTest {
 
     Assertions.assertEquals("jdbc/RhythmyxData", containerUtils.getDatasources().get(0).getName());
   }
-
 }
