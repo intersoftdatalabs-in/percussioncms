@@ -44,27 +44,27 @@ public class PSColumnInfo implements Serializable
 
    static
    {
-      ms_typemap.put("BIT", new Integer(Types.BIT));
-      ms_typemap.put("TINYINT", new Integer(Types.TINYINT));
-      ms_typemap.put("SMALLINT", new Integer(Types.SMALLINT));
-      ms_typemap.put("INTEGER", new Integer(Types.INTEGER));
-      ms_typemap.put("BIGINT", new Integer(Types.BIGINT));
-      ms_typemap.put("FLOAT", new Integer(Types.FLOAT));
-      ms_typemap.put("REAL", new Integer(Types.REAL));
-      ms_typemap.put("DOUBLE", new Integer(Types.DOUBLE));
-      ms_typemap.put("NUMERIC", new Integer(Types.NUMERIC));
-      ms_typemap.put("DECIMAL", new Integer(Types.DECIMAL));
-      ms_typemap.put("CHAR", new Integer(Types.CHAR));
-      ms_typemap.put("VARCHAR", new Integer(Types.VARCHAR));
-      ms_typemap.put("LONGVARCHAR", new Integer(Types.LONGVARCHAR));
-      ms_typemap.put("DATE", new Integer(Types.DATE));
-      ms_typemap.put("TIME", new Integer(Types.TIME));
-      ms_typemap.put("TIMESTAMP", new Integer(Types.TIMESTAMP));
-      ms_typemap.put("BINARY", new Integer(Types.BINARY));
-      ms_typemap.put("VARBINARY", new Integer(Types.VARBINARY));
-      ms_typemap.put("LONGVARBINARY", new Integer(Types.LONGVARBINARY));
-      ms_typemap.put("BLOB", new Integer(Types.BLOB));
-      ms_typemap.put("CLOB", new Integer(Types.CLOB));
+      ms_typemap.put("BIT", Integer.valueOf(Types.BIT));
+      ms_typemap.put("TINYINT", Integer.valueOf(Types.TINYINT));
+      ms_typemap.put("SMALLINT", Integer.valueOf(Types.SMALLINT));
+      ms_typemap.put("INTEGER", Integer.valueOf(Types.INTEGER));
+      ms_typemap.put("BIGINT", Integer.valueOf(Types.BIGINT));
+      ms_typemap.put("FLOAT", Integer.valueOf(Types.FLOAT));
+      ms_typemap.put("REAL", Integer.valueOf(Types.REAL));
+      ms_typemap.put("DOUBLE", Integer.valueOf(Types.DOUBLE));
+      ms_typemap.put("NUMERIC", Integer.valueOf(Types.NUMERIC));
+      ms_typemap.put("DECIMAL", Integer.valueOf(Types.DECIMAL));
+      ms_typemap.put("CHAR", Integer.valueOf(Types.CHAR));
+      ms_typemap.put("VARCHAR", Integer.valueOf(Types.VARCHAR));
+      ms_typemap.put("LONGVARCHAR", Integer.valueOf(Types.LONGVARCHAR));
+      ms_typemap.put("DATE", Integer.valueOf(Types.DATE));
+      ms_typemap.put("TIME", Integer.valueOf(Types.TIME));
+      ms_typemap.put("TIMESTAMP", Integer.valueOf(Types.TIMESTAMP));
+      ms_typemap.put("BINARY", Integer.valueOf(Types.BINARY));
+      ms_typemap.put("VARBINARY", Integer.valueOf(Types.VARBINARY));
+      ms_typemap.put("LONGVARBINARY", Integer.valueOf(Types.LONGVARBINARY));
+      ms_typemap.put("BLOB", Integer.valueOf(Types.BLOB));
+      ms_typemap.put("CLOB", Integer.valueOf(Types.CLOB));
    }
 
    

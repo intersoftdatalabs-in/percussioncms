@@ -21,12 +21,12 @@ import static com.percussion.utils.request.PSRequestInfoBase.KEY_JSESSIONID;
 import static com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument;
 import static java.util.Arrays.asList;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.extensions.utils.PSExtensionParamsHelper;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.utils.request.PSRequestInfo;

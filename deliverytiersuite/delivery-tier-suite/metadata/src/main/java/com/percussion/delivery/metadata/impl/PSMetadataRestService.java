@@ -39,7 +39,7 @@ import com.percussion.delivery.metadata.data.PSVisitQuery;
 import com.percussion.delivery.metadata.data.PSVisitRestEntry;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;

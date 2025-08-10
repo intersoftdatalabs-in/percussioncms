@@ -64,6 +64,7 @@ public class PSAaRelationship extends PSRelationship {
    *             {@link #PSAaRelationship(PSLocator, PSLocator, IPSTemplateSlot, IPSAssemblyTemplate)}
    *             instead.
    */
+  @Deprecated
   public PSAaRelationship(
       PSLocator owner,
       PSLocator dependent,
@@ -90,6 +91,7 @@ public class PSAaRelationship extends PSRelationship {
    *             {@link #PSAaRelationship(PSRelationship, IPSTemplateSlot, IPSAssemblyTemplate)}
    *             instead.
    */
+  @Deprecated
   public PSAaRelationship(
       PSRelationship relationship, PSSlotType slot, PSContentTypeTemplate variant) {
     super(relationship.getId(), relationship);
@@ -198,6 +200,7 @@ public class PSAaRelationship extends PSRelationship {
    *
    * @deprecated use {@link #setSlot(PSSlotType)} instead.
    */
+  @Deprecated
   public void setSlot(PSSlotType slot, PSRelationshipConfig config) {
     if (slot == null) throw new IllegalArgumentException("slot must not be null");
 
@@ -222,6 +225,7 @@ public class PSAaRelationship extends PSRelationship {
    *
    * @deprecated use {@link #setSlot(IPSTemplateSlot)} instead.
    */
+  @Deprecated
   public void setSlot(PSSlotType slot) {
     if (slot == null) throw new IllegalArgumentException("slot must not be null");
 

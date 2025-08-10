@@ -18,7 +18,7 @@ package com.percussion.system.utils;
 
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.IOException;

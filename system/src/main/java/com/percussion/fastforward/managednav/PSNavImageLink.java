@@ -18,7 +18,7 @@ package com.percussion.fastforward.managednav;
 
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.cms.objectstore.PSContentTypeTemplate;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.util.PSPreparedStatement;

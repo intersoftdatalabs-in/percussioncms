@@ -17,7 +17,7 @@
  */
 package com.percussion.sitemanage.importer.dao;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;

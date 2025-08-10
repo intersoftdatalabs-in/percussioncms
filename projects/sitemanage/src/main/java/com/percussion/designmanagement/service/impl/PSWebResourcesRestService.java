@@ -21,7 +21,7 @@ import com.percussion.designmanagement.service.IPSFileSystemService.PSFileAlread
 import com.percussion.designmanagement.service.IPSFileSystemService.PSFileNameInUseByFolderException;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSFileOperationException;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSReservedFileNameException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;

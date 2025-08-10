@@ -19,7 +19,7 @@
 
 package com.percussion.rest.preferences;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Status;
 import com.percussion.system.utils.PSSiteManageBean;
 

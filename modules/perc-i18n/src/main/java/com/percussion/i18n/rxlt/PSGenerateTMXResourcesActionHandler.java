@@ -16,11 +16,11 @@
  */
 package com.percussion.i18n.rxlt;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.i18n.PSTmxResourceBundle;
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
 import com.percussion.i18n.tmxdom.IPSTmxHeader;
 import com.percussion.i18n.tmxdom.PSTmxDocument;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.InputStream;

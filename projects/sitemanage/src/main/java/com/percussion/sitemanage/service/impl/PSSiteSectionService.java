@@ -25,7 +25,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.comments.data.PSCommentsSummary;
 import com.percussion.comments.service.IPSCommentsService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.fastforward.managednav.IPSManagedNavService;

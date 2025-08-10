@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.share.data.PSEnumVals;

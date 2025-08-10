@@ -17,7 +17,7 @@
 
 package com.percussion.rest.assets;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.MainTest;
 
 import org.apache.logging.log4j.LogManager;

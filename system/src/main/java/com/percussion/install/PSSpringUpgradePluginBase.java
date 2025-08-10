@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.system.utils.PSDataSourceFactory;

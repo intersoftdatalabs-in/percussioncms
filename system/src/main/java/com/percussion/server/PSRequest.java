@@ -24,13 +24,13 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSErrorHandler;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.log.PSLogHandler;
 import com.percussion.security.PSRoleEntry;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.PSUserEntry;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.content.PSContentParser;
 import com.percussion.server.content.PSFormContentParser;
 import com.percussion.server.content.PSXmlContentParser;
@@ -1144,6 +1144,7 @@ public class PSRequest {
    *
    * @deprecated Use {@link #getBalancedParameters(String origParam) } instead.
    */
+  @Deprecated
   public Map<String, Object> getTruncatedParameters(String origParam) {
     if (origParam == null || origParam.trim().length() == 0)
       throw new IllegalArgumentException("origParam may not be null or empty");

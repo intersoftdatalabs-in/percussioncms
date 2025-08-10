@@ -16,11 +16,11 @@
  */
 package com.percussion.workflow.mail;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptProperties;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;

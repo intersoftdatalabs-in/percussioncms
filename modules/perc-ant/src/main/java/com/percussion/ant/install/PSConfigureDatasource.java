@@ -18,8 +18,8 @@
 package com.percussion.ant.install;
 
 import com.percussion.design.objectstore.PSJdbcDriverConfig;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.install.PSLogger;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.container.IPSContainerUtils;

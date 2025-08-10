@@ -18,7 +18,7 @@
 package com.percussion.delivery.client;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
 import com.percussion.proxyconfig.service.PSProxyConfigServiceLocator;

@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

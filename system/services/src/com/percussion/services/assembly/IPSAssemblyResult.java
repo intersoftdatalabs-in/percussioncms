@@ -61,6 +61,7 @@ public interface IPSAssemblyResult extends IPSAssemblyItem, IPSDeliveryItem
     * 
     * @deprecated use {@link IPSDeliveryItem#isSuccess()} instead.
     */
+   @Deprecated
    Status getStatus();
    
    /**

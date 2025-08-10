@@ -22,7 +22,7 @@ import com.percussion.delivery.integrations.ems.model.Building;
 import com.percussion.delivery.integrations.ems.model.EventType;
 import com.percussion.delivery.integrations.ems.model.GroupType;
 import com.percussion.delivery.integrations.ems.model.Status;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.apache.commons.lang3.time.FastDateFormat;

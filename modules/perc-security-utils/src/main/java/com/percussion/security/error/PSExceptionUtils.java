@@ -15,42 +15,48 @@
  * limitations under the License.
  */
 
-package com.percussion.error;
+package com.percussion.security.error;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-/***
- * A class for common exception utilities.
+// ...existing code...
+
+/**
+ * Provides common exception utilities for logging and message extraction.
+ *<p>
  */
 public class PSExceptionUtils {
 
-  private static final Logger log = LogManager.getLogger(PSExceptionUtils.class);
-
+  // Logger removed as it was unused.
+  /**
+   * Returns a formatted message for logging purposes, including class and line number.
+   *<p>
+   * If a cause exists, its message and location are appended.
+   *
+   * @param exception the exception to extract details from
+   * @return a formatted string for logging
+   */
   public static String getMessageForLog(Throwable exception) {
-
-    // Try localized message first and if there isn't one - just do default.
-    String message = exception.getLocalizedMessage();
-
+    // Try localized message first and if there isn't one, use default.
+    var message = exception.getLocalizedMessage();
     // Get line number and class
-    int line = exception.getStackTrace()[0].getLineNumber();
-    String c = exception.getStackTrace()[0].getClassName();
-
-    if (message == null || message.equals("")) {
+    var stackTrace = exception.getStackTrace();
+    int line = stackTrace.length > 0 ? stackTrace[0].getLineNumber() : -1;
+    String clazz = stackTrace.length > 0 ? stackTrace[0].getClassName() : "Unknown";
+    if (message == null || message.isEmpty()) {
       message = exception.getMessage();
     }
-
-    message = message + " C:" + c + ":L:" + line;
-
+    message = message + " C:" + clazz + ":L:" + line;
     // Add cause if there is one
     if (exception.getCause() != null) {
-      String cause = exception.getCause().getMessage();
-      line = exception.getCause().getStackTrace()[0].getLineNumber();
-      c = exception.getCause().getStackTrace()[0].getClassName();
-      message += " Cause:" + cause + " C:" + c + ":L:" + line;
+      var cause = exception.getCause();
+      var causeMessage = cause.getMessage();
+      var causeStack = cause.getStackTrace();
+      int causeLine = causeStack.length > 0 ? causeStack[0].getLineNumber() : -1;
+      String causeClass = causeStack.length > 0 ? causeStack[0].getClassName() : "Unknown";
+      message += " Cause:" + causeMessage + " C:" + causeClass + ":L:" + causeLine;
     }
     return message;
   }

@@ -18,7 +18,7 @@ package com.percussion.services.assembly.data;
 
 import com.percussion.cms.objectstore.PSContentTypeTemplate;
 import com.percussion.cms.objectstore.server.PSContentTypeVariantsMgr;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateBinding;

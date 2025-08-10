@@ -158,7 +158,8 @@ public class PSRelationship extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of
    *    the appropriate type
    */
-  public PSRelationship(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRelationship(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this(sourceNode, parentDoc, parentComponents, null);
   }
@@ -191,7 +192,10 @@ public class PSRelationship extends PSComponent {
    *    the appropriate type
    */
   public PSRelationship(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents, PSRelationshipConfig config)
+      Element sourceNode,
+      IPSDocument parentDoc,
+      List<IPSComponent> parentComponents,
+      PSRelationshipConfig config)
       throws PSUnknownNodeTypeException {
     m_config = config;
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -468,6 +472,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#useOwnerRevision() instead.
    */
+  @Deprecated
   public boolean useOwnerRevision() {
     return getConfig().useOwnerRevision();
   }
@@ -479,6 +484,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#useDependentRevision() instead.
    */
+  @Deprecated
   public boolean useDependentRevision() {
     return getConfig().useDependentRevision();
   }
@@ -491,6 +497,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#isCloningAllowed() instead.
    */
+  @Deprecated
   public boolean isCloningAllowed() {
     return getConfig().isCloningAllowed();
   }
@@ -502,6 +509,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#isPromotable() instead.
    */
+  @Deprecated
   public boolean isPromotable() {
     return getConfig().isPromotable();
   }
@@ -513,6 +521,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#isSkipPromotion() instead.
    */
+  @Deprecated
   public boolean isSkipPromotion() {
     return getConfig().isSkipPromotion();
   }
@@ -540,6 +549,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#isActiveAssemblyRelationship() instead.
    */
+  @Deprecated
   public boolean isActiveAssemblyRelationship() {
     return getConfig().isActiveAssemblyRelationship();
   }
@@ -553,6 +563,7 @@ public class PSRelationship extends PSComponent {
    *
    * @deprecated use PSRelationshipConfig#useServerId() instead.
    */
+  @Deprecated
   public boolean useServerId() {
     return getConfig().useServerId();
   }
@@ -742,7 +753,9 @@ public class PSRelationship extends PSComponent {
 
   /** @see IPSComponent */
   public void fromXml(
-      Element sourceNode, @SuppressWarnings("unused") IPSDocument parentDoc, List parentComponents)
+      Element sourceNode,
+      @SuppressWarnings("unused") IPSDocument parentDoc,
+      List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -967,7 +980,6 @@ public class PSRelationship extends PSComponent {
    * Note, we must to use {@link List} for the user properties; otherwise
    * the {@link #equals(Object)} method may not work correctly.
    */
-  @SuppressWarnings("unchecked")
   private List<PSRelationshipPropertyData> m_userProperties = Collections.emptyList();
 
   /**

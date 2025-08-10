@@ -17,9 +17,9 @@
 package com.percussion.extensions.i18n;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.i18n.PSI18nUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.util.ArrayList;
 import java.util.Arrays;

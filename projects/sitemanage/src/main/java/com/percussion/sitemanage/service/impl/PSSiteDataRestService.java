@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.services.error.PSNotFoundException;

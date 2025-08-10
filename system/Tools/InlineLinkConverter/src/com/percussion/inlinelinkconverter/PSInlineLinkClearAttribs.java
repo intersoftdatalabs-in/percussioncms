@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

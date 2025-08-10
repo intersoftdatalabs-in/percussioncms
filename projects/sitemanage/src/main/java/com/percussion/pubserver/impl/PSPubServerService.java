@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSAesCBC;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.pubserver.data.PSPublishServerInfo;

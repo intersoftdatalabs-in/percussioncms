@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.PSCloningOptions;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.itemmanagement.service.IPSItemService;

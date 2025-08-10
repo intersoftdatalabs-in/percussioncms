@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.restservice.utils;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pso.restservice.model.Item;
 import com.percussion.pso.restservice.model.Items;
 import org.apache.logging.log4j.LogManager;

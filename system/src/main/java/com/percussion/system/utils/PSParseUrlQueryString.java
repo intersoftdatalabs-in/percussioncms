@@ -16,7 +16,7 @@
  */
 package com.percussion.system.utils;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequestParsingException;
 import java.util.ArrayList;
 import java.util.HashMap;

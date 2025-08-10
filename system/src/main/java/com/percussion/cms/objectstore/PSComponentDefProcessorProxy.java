@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSRemoteRequester;
 import java.util.Iterator;
 import java.util.Properties;

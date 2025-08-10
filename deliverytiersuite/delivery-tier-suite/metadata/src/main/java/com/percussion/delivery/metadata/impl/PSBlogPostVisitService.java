@@ -24,7 +24,7 @@ import com.percussion.delivery.metadata.IPSCookieConsentService;
 import com.percussion.delivery.metadata.data.PSBlogPostVisit;
 import com.percussion.delivery.metadata.data.PSCookieConsentQuery;
 import com.percussion.delivery.metadata.data.PSVisitQuery;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,44 +17,15 @@
 package com.percussion.tools;
 
 /**
- * @deprecated use log4j.Logger instead.
+ * @deprecated Use log4j.Logger instead.
  */
 public interface LogSink {
-  /**
-   * Logs the message.
-   * @author  chadloder
-   *
-   * @version 1.2 1999/08/20
-   *
-   *
-   * @param   message
-   *
-   */
-  public void log(String message);
+  /** Logs a message. */
+  void log(String message);
 
-  /**
-   * Logs the exception, including a stack trace.
-   *
-   * @author  chadloder
-   *
-   * @version 1.2 1999/08/20
-   *
-   * @param   t
-   *
-   */
-  public void log(Throwable t);
+  /** Logs an exception. */
+  void log(Throwable t);
 
-  /**
-   * Logs the exception, including a stack trace, and a message.
-   * If the message is null, it will not be logged.
-   *
-   * @author  chadloder
-   *
-   * @version 1.2 1999/08/20
-   *
-   * @param   message
-   * @param   t
-   *
-   */
-  public void log(String message, Throwable t);
+  /** Logs an exception and a message. */
+  void log(String message, Throwable t);
 }

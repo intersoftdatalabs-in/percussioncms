@@ -19,7 +19,7 @@ package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.jsf.PSCategoryNodeBase;
 import com.percussion.rx.jsf.PSEditableNodeContainer;
 import com.percussion.rx.jsf.PSNavigation;

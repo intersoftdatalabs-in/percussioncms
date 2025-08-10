@@ -18,7 +18,7 @@ package com.percussion.pso.workflow;
 
 // REFACTORED: CP-JAVA11
 import com.percussion.error.PSNotFoundException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionManager;

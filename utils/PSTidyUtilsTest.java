@@ -17,7 +17,7 @@
 
 package com.percussion.testing;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSResourceUtils;
 
 import org.apache.commons.io.IOUtils;

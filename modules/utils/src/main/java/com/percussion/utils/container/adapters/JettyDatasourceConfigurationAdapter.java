@@ -17,10 +17,10 @@
 
 package com.percussion.utils.container.adapters;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConfigurationAdapter;

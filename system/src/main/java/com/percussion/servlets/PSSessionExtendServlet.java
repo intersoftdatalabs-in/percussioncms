@@ -1,7 +1,7 @@
 package com.percussion.servlets;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

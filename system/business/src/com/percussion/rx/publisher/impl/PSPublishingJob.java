@@ -21,7 +21,7 @@ package com.percussion.rx.publisher.impl;
  import com.google.common.collect.Iterators;
  import com.percussion.design.objectstore.PSLocator;
  import com.percussion.error.PSNotFoundException;
- import com.percussion.error.PSExceptionUtils;
+ import com.percussion.security.error.PSExceptionUtils;
  import com.percussion.extension.IPSExtensionManager;
  import com.percussion.extension.PSExtensionException;
  import com.percussion.extension.PSExtensionRef;

@@ -18,7 +18,7 @@
 
 package com.percussion.rest.contexts;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;

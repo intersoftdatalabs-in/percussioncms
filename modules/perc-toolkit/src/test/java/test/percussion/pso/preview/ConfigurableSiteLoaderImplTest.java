@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.preview;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pso.preview.ConfigurableSiteLoaderImpl;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;

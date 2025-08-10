@@ -1258,7 +1258,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
   /**
    * @deprecated use {@link #PDU_INLINERELATIONSHIP} instead.
    */
-  public static final String RS_INLINERELATIONSHIP = PDU_INLINERELATIONSHIP;
+  @Deprecated public static final String RS_INLINERELATIONSHIP = PDU_INLINERELATIONSHIP;
 
   /**
    * The keyword used to allow deep cloning in the "allowedTypes" system
@@ -1310,7 +1310,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * Assembly).
    * @deprecated use {@link #TYPE_ACTIVE_ASSEMBLY} instead.
    */
-  public static final String TYPE_RELATED_CONTENT = TYPE_ACTIVE_ASSEMBLY;
+  @Deprecated public static final String TYPE_RELATED_CONTENT = TYPE_ACTIVE_ASSEMBLY;
 
   /**
    * The specifier for the system relationship Translation.
@@ -1326,7 +1326,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * The specifier for the system relationship Translation.
    * @deprecated use {@link #TYPE_TRANSLATION} instead
    */
-  public static final String TRANSLATION = TYPE_TRANSLATION;
+  @Deprecated public static final String TRANSLATION = TYPE_TRANSLATION;
 
   /**
    * The specifier for the system relationship Promotable Version.

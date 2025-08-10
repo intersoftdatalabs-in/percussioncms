@@ -19,7 +19,7 @@
 package com.percussion.share.extension;
 
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptor;
 import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;

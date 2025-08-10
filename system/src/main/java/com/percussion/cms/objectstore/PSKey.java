@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Serializable;

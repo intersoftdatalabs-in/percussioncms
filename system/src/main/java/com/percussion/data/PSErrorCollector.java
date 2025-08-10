@@ -334,7 +334,7 @@ public class PSErrorCollector {
     }
 
     // this should never happen
-    return new Integer(0);
+    return Integer.valueOf(0);
   }
 
   /**

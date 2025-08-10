@@ -17,11 +17,11 @@
 package com.percussion.cms;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.io.File;
 import org.apache.logging.log4j.LogManager;

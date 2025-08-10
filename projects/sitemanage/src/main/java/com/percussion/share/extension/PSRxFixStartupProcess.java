@@ -19,7 +19,7 @@
 package com.percussion.share.extension;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rxfix.PSFixResult;
 import com.percussion.rxfix.PSRxFix;
 import com.percussion.rxfix.PSRxFix.Entry;

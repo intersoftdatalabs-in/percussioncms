@@ -16,7 +16,7 @@
  */
 package com.percussion.tablefactory.tools;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tablefactory.PSJdbcColumnDef;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;

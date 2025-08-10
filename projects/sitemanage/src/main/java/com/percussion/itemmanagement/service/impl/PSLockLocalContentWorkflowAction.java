@@ -17,7 +17,7 @@
 package com.percussion.itemmanagement.service.impl;
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
 import com.percussion.server.IPSRequestContext;

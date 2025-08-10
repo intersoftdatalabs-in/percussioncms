@@ -22,7 +22,7 @@ import static com.percussion.wrapper.JettyStartUtils.error;
 import static com.percussion.wrapper.JettyStartUtils.getRunningPid;
 import static com.percussion.wrapper.JettyStartUtils.info;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;

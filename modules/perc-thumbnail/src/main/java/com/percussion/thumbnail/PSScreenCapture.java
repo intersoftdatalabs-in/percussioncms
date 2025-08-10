@@ -17,7 +17,7 @@
 
 package com.percussion.thumbnail;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.tools.IPSUtilsConstants;

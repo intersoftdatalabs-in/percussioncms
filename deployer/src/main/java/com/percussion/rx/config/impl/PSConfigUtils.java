@@ -26,7 +26,7 @@ import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSReplacementValueFactory;
 import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSTextLiteral;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;

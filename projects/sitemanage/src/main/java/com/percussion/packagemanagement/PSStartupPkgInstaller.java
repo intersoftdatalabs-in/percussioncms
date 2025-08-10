@@ -20,7 +20,7 @@ package com.percussion.packagemanagement;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.deployer.server.IPSPackageInstaller;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.maintenance.service.IPSMaintenanceManager;
 import com.percussion.maintenance.service.IPSMaintenanceProcess;
 import com.percussion.packagemanagement.PSPackageFileEntry.PackageFileStatus;

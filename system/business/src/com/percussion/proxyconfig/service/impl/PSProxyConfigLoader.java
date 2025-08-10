@@ -21,7 +21,7 @@ import static com.percussion.share.dao.PSSerializerUtils.unmarshalWithValidation
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.Validate.notNull;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.impl.ProxyConfig.Password;
 import com.percussion.security.PSEncryptionException;

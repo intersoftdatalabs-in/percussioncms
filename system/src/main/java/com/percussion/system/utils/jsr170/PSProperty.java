@@ -18,7 +18,7 @@ package com.percussion.system.utils.jsr170;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.beans.IPSPropertyLoader;
 import com.percussion.utils.beans.PSPropertyWrapper;
 import com.percussion.utils.io.PSReaderInputStream;

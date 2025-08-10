@@ -17,7 +17,7 @@
  */
 package com.percussion.theme.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSDataService.DataServiceDeleteException;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;

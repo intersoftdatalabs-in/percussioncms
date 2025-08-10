@@ -1,3 +1,7 @@
+package com.percussion.security;
+
+import javax.crypto.SecretKey;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -14,47 +18,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.security;
-
-import javax.crypto.SecretKey;
-
 /**
- * IPSKey is a transparent interface for encryption/decryption algorithms which can be used within
- * the product.
- *
+ * Represents a key for encryption/decryption algorithms used within the product.
+ *<p>
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
 public interface IPSKey {
   /**
-   * Generate an IPSEncryptor object which can make use of this key.
+   * Generates an IPSEncryptor object which can make use of this key.
    *
-   * @return the associated encryptor
+   * @return the associated encryptor.
    */
-  public IPSEncryptor getEncryptor();
+  IPSEncryptor getEncryptor();
 
   /**
-   * Generate an IPSDecryptor object which can make use of this key.
+   * Generates an IPSDecryptor object which can make use of this key.
    *
-   * @return the associated decryptor
+   * @return the associated decryptor.
    */
-  public IPSDecryptor getDecryptor();
+  IPSDecryptor getDecryptor();
 
   /**
-   * Returns a byte aray containing the secret key
+   * Returns a byte array containing the secret key.
    *
-   * @return
+   * @return the secret key as a byte array.
    */
-  public byte[] getSecret();
+  byte[] getSecret();
 
   /**
    * Sets the secret to the specified byte array.
    *
-   * @param secret
+   * @param secret the secret key as a byte array.
    */
-  public void setSecret(byte[] secret);
+  void setSecret(byte[] secret);
 
   /**
    * Generates a new key.

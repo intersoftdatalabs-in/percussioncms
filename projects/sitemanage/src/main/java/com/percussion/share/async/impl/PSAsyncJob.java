@@ -17,7 +17,7 @@
  */
 package com.percussion.share.async.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.server.PSRequest;
 import com.percussion.share.async.IPSAsyncJob;

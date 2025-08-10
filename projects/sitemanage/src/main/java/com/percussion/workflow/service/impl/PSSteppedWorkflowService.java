@@ -17,7 +17,7 @@
  */
 package com.percussion.workflow.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.maintenance.service.IPSMaintenanceManager;
 import com.percussion.metadata.data.PSMetadata;

@@ -23,7 +23,7 @@ import com.ibm.cadf.model.Event;
 import com.ibm.cadf.util.Constants;
 import com.percussion.auditlog.util.AuditPropertyLoader;
 import com.percussion.auditlog.util.FileCreator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import java.io.File;
 import java.util.Properties;

@@ -20,7 +20,7 @@ package com.percussion.delivery.likes.services;
 import com.percussion.delivery.comments.services.PSCommentsService;
 import com.percussion.delivery.likes.data.IPSLikes;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;

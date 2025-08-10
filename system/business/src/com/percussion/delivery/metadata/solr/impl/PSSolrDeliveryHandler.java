@@ -20,7 +20,7 @@ package com.percussion.delivery.metadata.solr.impl;
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.delivery.IPSDeliveryErrors;
 import com.percussion.rx.delivery.PSDeliveryException;
 import com.percussion.util.PSPurgableTempFile;

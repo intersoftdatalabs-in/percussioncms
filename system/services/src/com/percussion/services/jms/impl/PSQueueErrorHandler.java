@@ -18,7 +18,7 @@
 package com.percussion.services.jms.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.PSNotificationEvent;

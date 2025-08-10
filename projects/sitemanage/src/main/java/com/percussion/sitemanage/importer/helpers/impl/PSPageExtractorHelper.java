@@ -21,7 +21,7 @@ import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.design.objectstore.PSRelationship;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.pagemanagement.data.IPSHtmlMetadata;

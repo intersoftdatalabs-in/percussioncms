@@ -20,7 +20,7 @@
  */
 package com.percussion.widgets.image.services.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.web.impl.ImageReader;

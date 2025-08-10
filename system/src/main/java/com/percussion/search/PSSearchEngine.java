@@ -17,8 +17,8 @@
 package com.percussion.search;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.search.lucene.PSSearchQueryImpl;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;

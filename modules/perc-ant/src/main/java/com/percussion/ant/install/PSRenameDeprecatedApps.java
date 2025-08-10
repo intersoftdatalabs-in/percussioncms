@@ -17,9 +17,9 @@
 
 package com.percussion.ant.install;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.install.PSLogger;
 import com.percussion.install.PSPreUpgradePluginDeprecatedSysApps;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSProperties;
 import java.io.File;
 import java.io.FileNotFoundException;

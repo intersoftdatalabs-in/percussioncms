@@ -17,7 +17,7 @@
 package com.percussion.services.filter.impl;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.error.PSNotFoundException;

@@ -17,10 +17,10 @@
 package com.percussion.cms.handlers;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.fastforward.globaltemplate.PSGlobalTemplate;
 import com.percussion.fastforward.globaltemplate.PSGlobalTemplateException;
 import com.percussion.fastforward.globaltemplate.PSRxGlobals;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSHandlerStateListener;
 import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.IPSLoadableRequestHandler;

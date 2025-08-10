@@ -16,7 +16,7 @@
  */
 package com.percussion.testing;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.xml.PSXmlTreeWalker;

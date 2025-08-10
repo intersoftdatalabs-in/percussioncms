@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.workflow.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.maintenance.service.IPSMaintenanceManager;
 import com.percussion.maintenance.service.IPSMaintenanceProcess;
 import com.percussion.services.workflow.IPSWorkflowService;

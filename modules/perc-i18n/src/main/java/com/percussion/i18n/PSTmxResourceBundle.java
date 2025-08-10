@@ -17,10 +17,10 @@
 
 package com.percussion.i18n;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
 import com.percussion.i18n.tmxdom.IPSTmxDtdConstants;
 import com.percussion.i18n.tmxdom.PSTmxDocument;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;

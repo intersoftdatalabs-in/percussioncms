@@ -26,7 +26,7 @@ import com.percussion.cms.objectstore.PSSlotType;
 import com.percussion.cms.objectstore.PSSlotTypeSet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.fastforward.managednav.PSNavSlotContents;
 import com.percussion.fastforward.managednav.PSNavSlotSet;
@@ -1071,7 +1071,7 @@ public class PSNavConfig
       {
          try
          {
-            AuthType = new Integer(sAuth);
+            AuthType = Integer.valueOf(sAuth);
          }
          catch (NumberFormatException nfe)
          {

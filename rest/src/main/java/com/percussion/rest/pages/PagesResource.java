@@ -19,7 +19,7 @@
 
 package com.percussion.rest.pages;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Status;
 import com.percussion.rest.assets.PSCSVStreamingOutput;
 import com.percussion.rest.errors.BackendException;

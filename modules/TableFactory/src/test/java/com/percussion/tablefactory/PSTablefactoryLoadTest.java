@@ -19,7 +19,7 @@ package com.percussion.tablefactory;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

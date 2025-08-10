@@ -21,7 +21,7 @@ package com.percussion.category.extension;
 
 import com.percussion.category.data.PSCategory;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionProcessingException;

@@ -18,9 +18,9 @@
 package com.percussion.ant.install;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.install.IPSUpgradeModule;
 import com.percussion.install.PSLogger;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSProperties;

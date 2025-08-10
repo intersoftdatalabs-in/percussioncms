@@ -71,12 +71,12 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    */
   public void logShutdown() {
     try {
-      if (null != m_outFile) {
-        m_outFile.flush();
-        m_outFile.close();
-        m_outFile = null;
+      if (null != outFile) {
+        outFile.flush();
+        outFile.close();
+        outFile = null;
       }
-      m_stdOut.flush();
+      stdOut.flush();
     } catch (IOException e) {
       m_loggerError = e.getLocalizedMessage();
       System.out.println("[Logger] Failure during logger shutdown: " + e.getLocalizedMessage());
@@ -92,7 +92,7 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    * so the caller should not close it.
    */
   public PrintStream getOutputStream() {
-    return m_stdOut;
+    return stdOut;
   }
 
   /**
@@ -110,12 +110,12 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    * @deprecated use log4j.Logger methods instead.
    */
   public void setOutputFile(File log) throws IOException {
-    if (m_outFile != null) {
-      m_outFile.flush();
-      m_outFile.close();
-      m_outFile = null;
+    if (outFile != null) {
+      outFile.flush();
+      outFile.close();
+      outFile = null;
     }
-    if (null != log) m_outFile = new FileWriter(log.getAbsolutePath(), true);
+    if (null != log) outFile = new FileWriter(log.getAbsolutePath(), true);
   }
 
   /**
@@ -128,7 +128,7 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    */
   public void setOutputStream(PrintStream stdOut) {
     if (null == stdOut) throw new IllegalArgumentException("PrintStream cannot be null.");
-    m_stdOut = stdOut;
+    // Removed redundant assignment
   }
 
   /**
@@ -209,21 +209,21 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
     else finalMsg = MessageFormat.format(msg, args);
 
     // when streamonly is true it goes to the console
-    if (streamOnly) m_stdOut.println(finalMsg);
+    if (streamOnly) stdOut.println(finalMsg);
 
-    if (m_outFile == null) {
+    if (outFile == null) {
       // no file set, means we are using log4j.
       super.debug(finalMsg);
       return;
     }
 
     try {
-      if ((!streamOnly) && (null != m_outFile)) {
-        m_outFile.write(finalMsg);
-        m_outFile.write(NEWLINE);
+      if ((!streamOnly) && (null != outFile)) {
+        outFile.write(finalMsg);
+        outFile.write(NEWLINE);
       } else {
         // Always write to the console
-        m_stdOut.println(finalMsg);
+        stdOut.println(finalMsg);
       }
     } catch (IOException e) {
       m_loggerError = e.getLocalizedMessage();
@@ -253,11 +253,12 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
   /*************** LogSink Interface *******************************/
   /**
    * Logs the message.
-   * @param message
+   *
+   * @param message the message to log
    * @deprecated use log4j.Logger methods instead.
    */
   public void log(String message) {
-    if (m_outFile == null) {
+    if (outFile == null) {
       // no file set, means we are using log4j.
       super.debug(message);
       return;
@@ -269,12 +270,11 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
   /**
    * Logs the exception, including a stack trace.
    *
-   * @param   t
+   * @param t the exception to log
    * @deprecated use log4j.Logger methods instead.
-   *
    */
   public void log(Throwable t) {
-    if (m_outFile == null) {
+    if (outFile == null) {
       // no file set, means we are using log4j.
       super.error(t.getLocalizedMessage(), t);
       return;
@@ -287,10 +287,9 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    * Logs the exception, including a stack trace, and a message.
    * If the message is null, it will not be logged.
    *
-   * @param   message
-   * @param   t
+   * @param message the message to log
+   * @param t the exception to log
    * @deprecated use log4j.Logger methods instead.
-   *
    */
   public void log(String message, Throwable t) {
     if (m_outFile == null) {
@@ -304,19 +303,18 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
   }
 
   /**
-   * The logging file, may be null. If not null, all messages get written to
-   * the file.
+   * The logging file, may be null. If not null, all messages get written to the file.
    */
-  private FileWriter m_outFile = null;
+  private FileWriter outFile = null;
 
   /**
    * The logging stream, never null. All messages get written to this stream.
    */
-  private PrintStream m_stdOut = System.out;
+  private PrintStream stdOut = System.out;
 
   /**
-   * Should debugging statements (those logged w/ logDebugMessage) be written?
-   * They will be if this flag is <code>true</code>.
+   * Should debugging statements (those logged with logDebugMessage) be written?
+   * They will be if this flag is true.
    */
   private boolean m_debug = false;
 

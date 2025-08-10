@@ -20,7 +20,7 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;

@@ -31,7 +31,7 @@ import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;

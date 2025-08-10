@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
  * @deprecated Use the assembly service to load and manipulate variant
  * information
  */
+@Deprecated
 public class PSContentTypeTemplate extends PSDbComponent {
   /**
    * Creates an instance from a previously serialized (using <code>toXml
@@ -105,6 +106,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
    * @return ContentTypeId value.
    * @deprecated
    */
+  @Deprecated
   public int getContentTypeId() {
     if (m_contentTypes == null || m_contentTypes.size() == 0) {
       return getKeyPartInt(KEY_CONTENTTYPEID, -1);

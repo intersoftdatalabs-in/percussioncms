@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONNull;

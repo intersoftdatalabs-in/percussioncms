@@ -16,9 +16,9 @@
  */
 package com.percussion.tablefactory;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSProperties;
 import com.percussion.util.PSSQLStatement;

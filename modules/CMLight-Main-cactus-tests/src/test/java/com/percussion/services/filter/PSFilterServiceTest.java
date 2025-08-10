@@ -16,7 +16,7 @@
  */
 package com.percussion.services.filter;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.filter.data.PSItemFilter;

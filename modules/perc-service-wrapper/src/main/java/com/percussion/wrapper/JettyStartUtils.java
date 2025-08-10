@@ -17,7 +17,7 @@
 
 package com.percussion.wrapper;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

@@ -19,7 +19,7 @@ package com.percussion.security.xml;
 
 import static com.percussion.security.xml.PSSecureXMLUtils.getNoOpSource;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import org.apache.logging.log4j.LogManager;

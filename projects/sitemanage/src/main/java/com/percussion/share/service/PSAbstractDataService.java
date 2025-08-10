@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.service;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.dao.IPSGenericDao.DeleteException;
 import com.percussion.share.dao.IPSGenericDao.LoadException;

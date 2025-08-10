@@ -18,7 +18,7 @@
 
 package com.percussion.queue.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.service.IPSPageCatalogService;
 import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.queue.PSAbstractEventQueue;

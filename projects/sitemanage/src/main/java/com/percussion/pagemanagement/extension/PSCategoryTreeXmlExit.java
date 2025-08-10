@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.extension;
 
 import com.percussion.category.extension.PSCategoryControlUtils;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionProcessingException;

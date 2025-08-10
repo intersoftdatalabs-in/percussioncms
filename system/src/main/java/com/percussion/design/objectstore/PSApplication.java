@@ -1217,6 +1217,7 @@ public class PSApplication implements IPSDocument {
    *
    * @deprecated  use the getPropertyTree to get the properties as an XML tree
    */
+  @Deprecated
   public java.util.Properties getUserProperties() {
     return m_userProperties;
   }
@@ -1238,6 +1239,7 @@ public class PSApplication implements IPSDocument {
    * @deprecated         use the setPropertyTree to store the properties
    *                     as an XML tree
    */
+  @Deprecated
   public void setUserProperties(java.util.Properties props) {
     m_userProperties = props;
     setModified(true);
@@ -1792,7 +1794,7 @@ public class PSApplication implements IPSDocument {
 
     // create the user properties
     if (m_userProperties != null) {
-      for (Enumeration e = m_userProperties.keys(); e.hasMoreElements(); ) {
+      for (Enumeration<Object> e = m_userProperties.keys(); e.hasMoreElements(); ) {
         sTemp = (String) e.nextElement();
         Element el =
             PSXmlDocumentBuilder.addElement(
@@ -1938,7 +1940,7 @@ public class PSApplication implements IPSDocument {
         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT | PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
 
     // now build the arraylist we'll use in the fromXml calls
-    java.util.List parentComponents = new java.util.ArrayList<>();
+    java.util.List<Object> parentComponents = new java.util.ArrayList<>();
 
     // now position the walker on the first child of the application
     tree.getNext(); // we don't actually care what it is
@@ -2193,7 +2195,7 @@ public class PSApplication implements IPSDocument {
    * @return application type evaluated as above.
    */
   private PSApplicationType guessAppType() {
-    Iterator iter = getDataSets().iterator();
+    Iterator<Object> iter = getDataSets().iterator();
     while (iter.hasNext()) {
       PSDataSet ds = (PSDataSet) iter.next();
       if (ds.getPipe() instanceof PSContentEditorPipe) return PSApplicationType.CONTENT_EDITOR;
@@ -2299,8 +2301,8 @@ public class PSApplication implements IPSDocument {
       }
 
       // to keep track of possible request page duplicates
-      Set requestKeys = new HashSet();
-      Map dsNames = new HashMap(m_dataSets.size());
+      Set<String> requestKeys = new HashSet<>();
+      Map<String, Object> dsNames = new HashMap<>(m_dataSets.size());
 
       for (int i = 0; i < m_dataSets.size(); i++) {
         Object o = m_dataSets.get(i);

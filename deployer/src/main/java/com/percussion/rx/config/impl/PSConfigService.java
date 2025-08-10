@@ -18,7 +18,7 @@
 
 package com.percussion.rx.config.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.config.IPSConfigChangeListener;
 import com.percussion.rx.config.IPSConfigHandler;
 import com.percussion.rx.config.IPSConfigRegistrationMgr;

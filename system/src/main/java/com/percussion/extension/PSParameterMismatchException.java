@@ -44,7 +44,7 @@ public class PSParameterMismatchException extends PSException {
   public PSParameterMismatchException(int expected, int actual) {
     super(
         IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH,
-        new Object[] {new Integer(expected), new Integer(actual)});
+        new Object[] {Integer.valueOf(expected), Integer.valueOf(actual)});
   }
 
   /**
@@ -68,7 +68,7 @@ public class PSParameterMismatchException extends PSException {
     super(
         language,
         IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH,
-        new Object[] {new Integer(expected), new Integer(actual)});
+        new Object[] {Integer.valueOf(expected), Integer.valueOf(actual)});
   }
 
   /**

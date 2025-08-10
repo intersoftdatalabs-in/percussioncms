@@ -18,7 +18,7 @@ package com.percussion.delivery.utils;
 
 import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;

@@ -26,7 +26,7 @@ import com.percussion.cms.objectstore.PSSlotType;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.data.macro.PSMacroUtils;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.system.utils.IPSHtmlParameters;

@@ -19,7 +19,7 @@ package com.percussion.servlet_utils.servlet;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.Validate.notNull;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;

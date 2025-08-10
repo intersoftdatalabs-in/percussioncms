@@ -20,7 +20,7 @@ package com.percussion.services.security.impl;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.design.objectstore.PSTextLiteral;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.IPSDirectoryCataloger;
 import com.percussion.security.IPSGroupProvider;
 import com.percussion.security.IPSInternalRoleCataloger;

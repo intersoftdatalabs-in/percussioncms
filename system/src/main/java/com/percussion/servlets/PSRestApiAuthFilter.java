@@ -17,7 +17,7 @@
 
 package com.percussion.servlets;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.utils.jspel.PSRoleUtilities;
 import java.io.IOException;
 import java.io.InputStream;

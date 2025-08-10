@@ -2076,6 +2076,7 @@
                         <maxmem>2024m</maxmem>
                         <compilerArgs>
                             <arg>-proc:none</arg>
+                            <arg>-Xlint</arg>
                         </compilerArgs>
                     </configuration>
                 </plugin>
@@ -2271,6 +2272,11 @@
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless.plugin.version}</version>
                     <configuration>
+                        <upToDateChecking>
+                            <enabled>false</enabled>
+                            <indexFile>${project.basedir}/spotless-index-file</indexFile>
+                            <!-- optional, default is ${project.build.directory}/spotless-index -->
+                        </upToDateChecking>
                         <java>
                             <includes>
                                 <include>src/main/java/**/*.java</include>

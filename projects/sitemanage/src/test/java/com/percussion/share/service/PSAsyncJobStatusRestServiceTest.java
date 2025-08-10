@@ -18,7 +18,7 @@
 
 package com.percussion.share.service;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.async.PSAsyncJobStatus;
 import com.percussion.share.test.PSRestTestCase;
 import org.apache.logging.log4j.LogManager;

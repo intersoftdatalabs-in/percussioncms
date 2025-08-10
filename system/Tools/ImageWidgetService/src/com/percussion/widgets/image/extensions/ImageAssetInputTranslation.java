@@ -18,7 +18,7 @@
 package com.percussion.widgets.image.extensions;
 import com.percussion.data.PSConversionException;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSItemInputTransformer;
 import com.percussion.extension.PSDefaultExtension;

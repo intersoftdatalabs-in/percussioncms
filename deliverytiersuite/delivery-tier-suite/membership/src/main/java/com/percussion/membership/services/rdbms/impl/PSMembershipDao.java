@@ -16,7 +16,7 @@
  */
 package com.percussion.membership.services.rdbms.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.membership.data.IPSMembership;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import com.percussion.membership.data.PSAccountSummary;

@@ -19,7 +19,7 @@
 package com.percussion.rest.assets;
 
 import com.percussion.data.PSInternalRequestCallException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.AssetNotFoundException;
 import com.percussion.rest.errors.BackendException;

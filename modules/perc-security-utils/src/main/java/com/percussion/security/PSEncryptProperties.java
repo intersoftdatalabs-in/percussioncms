@@ -25,13 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Class can be used to encrypt and decrypt specified properties in the specified properties file.
- * This class wraps the encrypted property in a prefix "ENC=(" and a suffix ")". Also includes a
- * decrypter which unwraps the prefix and suffix from the string and calls PSEncrypter to decrypt a
- * property.
- *
- * @see PSEncryptor
- * @author chriswright
+ * Utility for encrypting and decrypting properties in a file.
+ * Encrypted properties are wrapped with "ENC(" and ")".
  */
 public class PSEncryptProperties {
 
@@ -135,7 +130,7 @@ public class PSEncryptProperties {
   public static String decryptProperty(
       String str, String key, String secureDir, PSAbstractEncryptor legacyEncryptor) {
 
-    if (!StringUtils.startsWith(str, PREFIX)) {
+    if (!str.startsWith(PREFIX)) {
       return str;
     }
     String strTemp = StringUtils.substringAfter(str, PREFIX);
@@ -193,6 +188,6 @@ public class PSEncryptProperties {
    * @return <code>true</code> if the property is encrypted.
    */
   private static boolean isEncrypted(String str) {
-    return StringUtils.startsWith(str, PREFIX) && StringUtils.endsWith(str, SUFFIX);
+    return str.startsWith(PREFIX) && str.endsWith(SUFFIX);
   }
 }

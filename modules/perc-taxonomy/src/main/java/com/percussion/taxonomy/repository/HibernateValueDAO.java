@@ -16,7 +16,7 @@
  */
 package com.percussion.taxonomy.repository;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.taxonomy.domain.Attribute;
 import com.percussion.taxonomy.domain.Language;
 import com.percussion.taxonomy.domain.Node;

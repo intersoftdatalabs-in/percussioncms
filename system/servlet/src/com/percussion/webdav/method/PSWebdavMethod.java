@@ -24,7 +24,7 @@ import com.percussion.cms.objectstore.client.IPSRemoteErrors;
 import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.client.PSRemoteException;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSWorkflowInfo;
 import com.percussion.tools.PSCopyStream;
 import com.percussion.util.IPSRemoteRequester;

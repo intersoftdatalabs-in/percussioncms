@@ -17,7 +17,7 @@
 package com.percussion.delivery.utils.spring;
 
 import com.percussion.delivery.utils.security.PSSecureProperty;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

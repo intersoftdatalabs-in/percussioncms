@@ -16,7 +16,7 @@
  */
 package com.percussion.xml;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.IPSInternalRequestURIResolver;
 import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.security.xml.PSSecureXMLUtils;

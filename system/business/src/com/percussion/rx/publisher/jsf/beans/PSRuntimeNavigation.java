@@ -1,7 +1,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.beans;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.jsf.PSCategoryNodeBase;
 import com.percussion.rx.jsf.PSNavigation;
 import com.percussion.rx.jsf.PSNodeBase;

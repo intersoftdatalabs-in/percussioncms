@@ -20,7 +20,7 @@ package com.percussion.licensemanagement.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.licensemanagement.data.PSLicenseStatus;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 import com.percussion.licensemanagement.data.PSModuleLicenses;

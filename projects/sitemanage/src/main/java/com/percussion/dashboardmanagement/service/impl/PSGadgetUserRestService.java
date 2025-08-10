@@ -23,7 +23,7 @@ import com.percussion.dashboardmanagement.data.PSGadgetList;
 import com.percussion.dashboardmanagement.service.IPSGadgetUserService;
 import com.percussion.dashboardmanagement.service.IPSGadgetUserService.PSGadgetNotFoundException;
 import com.percussion.dashboardmanagement.service.IPSGadgetUserService.PSGadgetServiceException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.service.exception.PSDataServiceException;
 import org.apache.logging.log4j.LogManager;

@@ -16,7 +16,7 @@
  */
 package com.percussion.testing;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.util.PSStopwatch;
 import org.apache.logging.log4j.LogManager;

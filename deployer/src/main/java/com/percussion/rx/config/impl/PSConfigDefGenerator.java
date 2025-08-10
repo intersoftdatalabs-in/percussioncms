@@ -20,7 +20,7 @@ import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSExportDescriptor;
 import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.deployer.server.PSDeploymentHandler;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.tools.PSParseFragments;
 import org.apache.commons.lang.StringUtils;

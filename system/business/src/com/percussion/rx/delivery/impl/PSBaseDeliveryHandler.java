@@ -387,6 +387,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
        * 
        * @deprecated Use {@link #release()} instead.
        */
+      @Deprecated
       public void abort()
       {
          mi_file.delete();
@@ -1349,7 +1350,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       {
          try
          {
-            IPSPubServer pubServer = getPubServerDao().findPubServer(result.getPubServerId());
+            IPSPubServer pubServer = getPubServerDao().findPubServer(result.getPubServerId()).orElse(null);
             return getPublishRoot(pubServer, null);
          }
          catch (Exception e)

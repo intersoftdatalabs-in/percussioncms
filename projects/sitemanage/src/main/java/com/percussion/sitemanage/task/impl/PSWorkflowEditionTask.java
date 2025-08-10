@@ -16,7 +16,7 @@
  */
 package com.percussion.sitemanage.task.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.impl.PSAbstractWorkflowExtension;
 import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.rx.publisher.IPSEditionTaskStatusCallback;

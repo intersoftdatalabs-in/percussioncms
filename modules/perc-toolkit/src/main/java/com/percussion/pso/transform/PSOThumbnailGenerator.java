@@ -17,7 +17,7 @@
 package com.percussion.pso.transform;
 
 import com.percussion.design.objectstore.PSField;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSItemInputTransformer;
 import com.percussion.extension.IPSRequestPreProcessor;

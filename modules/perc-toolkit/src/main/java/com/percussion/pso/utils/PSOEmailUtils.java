@@ -17,7 +17,7 @@
 
 package com.percussion.pso.utils;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.server.PSServer;
 

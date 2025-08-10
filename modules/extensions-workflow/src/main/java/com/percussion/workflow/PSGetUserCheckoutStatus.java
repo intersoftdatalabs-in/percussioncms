@@ -18,7 +18,7 @@ package com.percussion.workflow;
 
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSDataExtractionException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 
 /**

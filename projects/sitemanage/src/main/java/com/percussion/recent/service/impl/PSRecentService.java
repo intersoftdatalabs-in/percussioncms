@@ -21,7 +21,7 @@ package com.percussion.recent.service.impl;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.data.PSWidgetContentType;

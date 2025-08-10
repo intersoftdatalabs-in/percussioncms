@@ -17,7 +17,7 @@
  */
 package com.percussion.theme.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.server.PSRequest;

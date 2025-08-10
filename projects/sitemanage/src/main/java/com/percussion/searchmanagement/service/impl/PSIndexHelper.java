@@ -19,7 +19,7 @@
 package com.percussion.searchmanagement.service.impl;
 
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.search.PSSearchIndexEventQueue;
 
 import org.apache.logging.log4j.LogManager;

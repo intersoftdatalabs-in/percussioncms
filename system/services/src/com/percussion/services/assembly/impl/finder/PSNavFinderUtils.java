@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.impl.finder;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;

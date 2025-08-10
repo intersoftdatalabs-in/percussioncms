@@ -17,7 +17,7 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.dao.IPSResourceDefinitionGroupDao;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResource;

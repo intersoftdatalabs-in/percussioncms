@@ -34,7 +34,7 @@ import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.design.PSDesignModelUtils;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.security.PSUserEntry;

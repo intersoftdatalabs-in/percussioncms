@@ -16,7 +16,7 @@
  */
 package com.percussion.data;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;

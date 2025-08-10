@@ -19,7 +19,7 @@ package com.percussion.delivery.feeds.services.rdbms;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
 import com.percussion.delivery.feeds.services.IPSFeedDao;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;

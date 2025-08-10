@@ -16,7 +16,7 @@
  */
 package com.percussion.role.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;

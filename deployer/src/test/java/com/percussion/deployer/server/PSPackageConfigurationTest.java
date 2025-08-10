@@ -18,7 +18,7 @@ package com.percussion.deployer.server;
 
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSResourceUtils;
 
 import com.percussion.xml.PSXmlDocumentBuilder;

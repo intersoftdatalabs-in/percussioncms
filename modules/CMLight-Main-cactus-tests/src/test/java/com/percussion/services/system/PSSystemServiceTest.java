@@ -18,7 +18,7 @@
 package com.percussion.services.system;
 
 import com.percussion.data.PSIdGenerator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.services.system.data.PSContentStatusHistory;

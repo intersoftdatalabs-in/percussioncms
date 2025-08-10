@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.demandpreview.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pso.demandpreview.service.impl.DemandPublisherBean;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
 import com.percussion.rx.publisher.IPSRxPublisherService;

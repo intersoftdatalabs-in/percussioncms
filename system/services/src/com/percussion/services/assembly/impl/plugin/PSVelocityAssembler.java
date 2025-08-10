@@ -21,7 +21,7 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor;
 import com.googlecode.htmlcompressor.compressor.YuiCssCompressor;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.PSServer;

@@ -22,7 +22,7 @@ import com.percussion.delivery.metadata.IPSCookieConsentDao;
 import com.percussion.delivery.metadata.IPSCookieConsentService;
 import com.percussion.delivery.metadata.data.PSCookieConsentQuery;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbCookieConsent;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;

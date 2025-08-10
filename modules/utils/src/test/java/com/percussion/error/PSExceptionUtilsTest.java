@@ -18,6 +18,7 @@ package com.percussion.error;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.tools.IPSUtilsConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

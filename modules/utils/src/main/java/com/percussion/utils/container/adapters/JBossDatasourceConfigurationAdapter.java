@@ -19,10 +19,10 @@ package com.percussion.utils.container.adapters;
 
 import static com.percussion.utils.jdbc.PSDatasourceResolver.DATASOURCE_RESOLVER_NAME;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.IPSJndiDatasource;

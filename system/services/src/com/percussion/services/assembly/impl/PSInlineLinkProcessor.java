@@ -16,7 +16,7 @@
  */
 package com.percussion.services.assembly.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.html.PSHtmlParsingException;
 import com.percussion.html.PSHtmlUtils;
 import com.percussion.i18n.PSI18nUtils;

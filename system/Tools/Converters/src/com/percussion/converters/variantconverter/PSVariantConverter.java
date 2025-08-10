@@ -19,7 +19,7 @@ package com.percussion.converters.variantconverter;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.client.PSRemoteException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.inlinelinkconverter.PSInlineLinkConverter;
 import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.tablefactory.PSJdbcDbmsDef;

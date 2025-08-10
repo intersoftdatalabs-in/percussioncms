@@ -252,7 +252,7 @@ public class PSWorkflowInfo extends PSComponent {
       if (o instanceof PSWorkflow) {
         // convert it to an Integer
         i.remove();
-        m_values.add(new Integer(((PSWorkflow) o).getDbId()));
+        m_values.add(Integer.valueOf(((PSWorkflow) o).getDbId()));
       } else if (!(o instanceof Integer)) i.remove();
     }
     m_values.addAll(values);
@@ -345,11 +345,11 @@ public class PSWorkflowInfo extends PSComponent {
   // DEBUG
   public static void main(String[] args) {
     ArrayList workflows = new ArrayList();
-    workflows.add(new Integer(5));
+    workflows.add(Integer.valueOf(5));
     PSWorkflowInfo me = new PSWorkflowInfo(TYPE_EXCLUSIONARY, workflows);
 
-    workflows.add(new Integer(1));
-    workflows.add(new Integer(7));
+    workflows.add(Integer.valueOf(1));
+    workflows.add(Integer.valueOf(7));
     PSWorkflowInfo meToo = new PSWorkflowInfo(TYPE_INCLUSIONARY, workflows);
 
     Document doc = PSXmlDocumentBuilder.createXmlDocument();

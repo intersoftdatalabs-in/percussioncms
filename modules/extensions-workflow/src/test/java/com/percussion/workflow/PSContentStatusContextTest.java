@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;

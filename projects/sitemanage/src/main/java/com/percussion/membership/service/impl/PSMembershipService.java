@@ -28,7 +28,7 @@ import com.percussion.delivery.client.PSDeliveryClient;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.PSUserGroup;
 import com.percussion.membership.data.PSUserSummaries;

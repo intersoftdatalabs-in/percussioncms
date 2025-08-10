@@ -18,7 +18,7 @@ package com.percussion.webservices.transformation.converter;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.webservices.system.RelationshipConfigSummary;
 import com.percussion.webservices.system.RelationshipConfigSummaryType;

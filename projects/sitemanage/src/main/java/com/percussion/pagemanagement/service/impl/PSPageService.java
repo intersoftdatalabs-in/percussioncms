@@ -29,7 +29,7 @@ import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.content.PSContentFactory;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService.PSItemWorkflowServiceException;
 import com.percussion.pagemanagement.dao.IPSPageDao;

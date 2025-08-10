@@ -18,11 +18,11 @@
 package com.percussion.extensions.general;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.util.ArrayList;
 import java.util.Map;

@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.dao.impl;
 
 import com.percussion.cms.objectstore.PSFolder;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pathmanagement.data.PSFolderProperties;

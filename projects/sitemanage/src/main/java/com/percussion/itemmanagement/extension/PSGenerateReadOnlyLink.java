@@ -18,7 +18,7 @@
 package com.percussion.itemmanagement.extension;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSExtensionException;

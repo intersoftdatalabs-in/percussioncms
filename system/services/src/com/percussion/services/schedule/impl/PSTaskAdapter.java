@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionRef;

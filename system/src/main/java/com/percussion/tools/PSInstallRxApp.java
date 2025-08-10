@@ -35,72 +35,61 @@ import java.util.zip.ZipEntry;
 public class PSInstallRxApp {
 
   /**
-   * Constructor that takes the JAR file that has all the application files. The
-   * file name paths MUST be relative to the Rhythmyx root directory.
+   * Constructor that takes the JAR file containing all application files. Paths must be relative to the Rhythmyx root directory.
    *
-   * @param JAR file (full path)
-   *
-   * @throws FileNotFoundException when the JAR file is not found.
-   *
-   * @throws IOException when the file could not be accessed.
-   *
+   * @param jarFilePath full path to the JAR file
+   * @throws FileNotFoundException if the JAR file is not found
+   * @throws IOException if the file could not be accessed
    */
-  public PSInstallRxApp(String sJarFilePath) throws FileNotFoundException, IOException {
-    File file = new File(sJarFilePath);
+  public PSInstallRxApp(String jarFilePath) throws FileNotFoundException, IOException {
+    File file = new File(jarFilePath);
     m_JF = new JarFile(file);
     file = null;
   }
 
   /**
-   * This method actually installs the applications. In the first part it copies
-   * the application file 'ObjectStore/<appName.xml> to target directory. In the
-   * later part, It copies all the application files (folder <appName>) to the
-   * target directory.
+   * Installs the application from the JAR file.
+   * Copies the application file 'ObjectStore/&lt;appName.xml&gt;' and all files in the app folder to the target directory.
    *
-   * @param target Rhythmyx root directory as String. e.g. c:/Rhythmyx.
-   *
-   * @param application name as String. e.g. WFEditor in
-   * (ObjectStore/WFEditor.xml)
-   *
+   * @param targetRoot Rhythmyx root directory (e.g., c:/Rhythmyx)
+   * @param appName application name (e.g., WFEditor)
    */
-  public void install(String sTargetRoot, String sAppName) {
-    String sAppFilePath = "ObjectStore/" + sAppName + ".xml";
+  public void install(String targetRoot, String appName) {
+    String appFilePath = "ObjectStore/" + appName + ".xml";
 
     ZipEntry entry = null;
     InputStream is = null;
-    String name = sAppFilePath;
+    String name = appFilePath;
 
-    entry = m_JF.getEntry(sAppFilePath);
-    if (null == entry) {
-      System.out.println("File <" + sAppFilePath + "> does not exist in the archive");
-
+    entry = m_JF.getEntry(appFilePath);
+    if (entry == null) {
+      System.out.println("File <" + appFilePath + "> does not exist in the archive");
       return;
     }
 
     try {
       is = m_JF.getInputStream(entry);
-      copyInputStreamToFile(is, sTargetRoot, name);
+      copyInputStreamToFile(is, targetRoot, name);
       is.close();
     } catch (IOException e) {
       System.out.println("Error: " + e.getMessage());
       return;
     }
 
-    String appFilter = sAppName + "/";
+    String appFilter = appName + "/";
 
-    Enumeration e = m_JF.entries();
-
+    Enumeration<?> e = m_JF.entries();
     while (e.hasMoreElements()) {
       entry = (ZipEntry) e.nextElement();
       name = entry.getName();
-
       // skip all files with name starting with 'com/'!
-      if (-1 == name.indexOf(appFilter)) continue;
-
+      if (name.indexOf(appFilter) == -1) {
+        continue;
+      }
       System.out.println("Extracting file: " + name + "...");
       try {
         is = m_JF.getInputStream(entry);
-        copyInputStreamToFile(is, sTargetRoot, name);
+        copyInputStreamToFile(is, targetRoot, name);
         is.close();
       } catch (IOException ioe) {
         System.out.println("Error: " + ioe.getMessage());

@@ -17,7 +17,7 @@
 
 package com.percussion.security;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owasp.csrfguard.log.LogLevel;

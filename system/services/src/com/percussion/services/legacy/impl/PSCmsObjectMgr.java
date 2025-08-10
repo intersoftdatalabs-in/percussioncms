@@ -39,7 +39,7 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSLocale;
 import com.percussion.search.PSSearchIndexEventQueue;
 import com.percussion.server.IPSHandlerInitListener;

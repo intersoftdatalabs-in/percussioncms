@@ -26,7 +26,7 @@ package com.percussion.widgetbuilder.service;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.deployer.server.PSLocalDeployerClient;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.widgetbuilder.IPSWidgetBuilderDefinitionDao;

@@ -19,7 +19,7 @@ package com.percussion.delivery.metadata.rdbms.impl;
 
 import com.percussion.delivery.metadata.IPSCookieConsent;
 import com.percussion.delivery.metadata.IPSCookieConsentDao;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;

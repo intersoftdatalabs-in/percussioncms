@@ -17,7 +17,7 @@
 package com.percussion.services.publisher.impl;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.publisher.PSPublisherUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyService;

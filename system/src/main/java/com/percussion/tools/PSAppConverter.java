@@ -75,10 +75,21 @@ public class PSAppConverter {
    * document
    *
    */
+  /**
+   * Converts the application using the provided properties.
+   *
+   * @param props Properties file with new field values.
+   * @param root Rhythmyx root directory name.
+   * @param appName Rhythmyx application name.
+   * @param modifyCredential true if credentials need to be modified.
+   * @param port new port number for workflow applications, can be null.
+   * @throws IOException if file is invalid or inaccessible.
+   * @throws SAXException if the application file is not parseable XML.
+   */
   public static void updateRxApp(
-      Properties props, String root, String appName, boolean bModifyCredential, String sPort)
+      Properties props, String root, String appName, boolean modifyCredential, String port)
       throws IOException, SAXException {
-    updateRxApp(props, root, appName, bModifyCredential, sPort, false);
+    updateRxApp(props, root, appName, modifyCredential, port, false);
   }
 
   /**
@@ -105,13 +116,25 @@ public class PSAppConverter {
    * document
    *
    */
+  /**
+   * Converts the application using the provided properties.
+   *
+   * @param props Properties file with new field values.
+   * @param root Rhythmyx root directory name.
+   * @param appName Rhythmyx application name.
+   * @param modifyCredential true if credentials need to be modified.
+   * @param port new port number for workflow applications, can be null.
+   * @param enable true if the app should be activated.
+   * @throws IOException if file is invalid or inaccessible.
+   * @throws SAXException if the application file is not parseable XML.
+   */
   public static void updateRxApp(
       Properties props,
       String root,
       String appName,
-      boolean bModifyCredential,
-      String sPort,
-      boolean bEnable)
+      boolean modifyCredential,
+      String port,
+      boolean enable)
       throws IOException, SAXException {
     String fileName = root + File.separator + "ObjectStore" + File.separator + appName + ".xml";
 
@@ -134,7 +157,7 @@ public class PSAppConverter {
     doc = db.parse(fileName);
 
     // enable if specified
-    if (bEnable) {
+    if (enable) {
       Element elemRoot = doc.getDocumentElement();
       if (elemRoot != null) {
         elemRoot.setAttribute("enabled", "yes");
@@ -154,7 +177,7 @@ public class PSAppConverter {
     RxAppConverter.setChildNode(doc, nl, database);
 
     // modify credentials if asked
-    if (bModifyCredential) {
+    if (modifyCredential) {
       nl = doc.getElementsByTagName("PSXBackEndCredential");
       if (null != nl && nl.getLength() > 0) {
         elem = (Element) nl.item(0);
@@ -182,7 +205,7 @@ public class PSAppConverter {
     // modify the port numbers if required
     // This is temporary fix till MakeLink is modfied - Ram
     // This can only search an replace and cannot insert if there is port specified!!!
-    RxAppConverter.modifyPort(sPort, doc);
+    RxAppConverter.modifyPort(port, doc);
 
     writer = new FileWriter(fileName);
     PrintNode.printNode(doc, " ", writer);

@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.impl;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.server.PSServer;
 import com.percussion.error.PSMissingBeanConfigurationException;

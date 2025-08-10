@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.securitydesign;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;

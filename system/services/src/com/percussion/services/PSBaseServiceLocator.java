@@ -18,7 +18,7 @@
 package com.percussion.services;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.util.PSOsTool;

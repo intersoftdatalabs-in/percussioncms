@@ -15,7 +15,7 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;

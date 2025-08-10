@@ -202,13 +202,12 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
      * check for requested message type in the map.  if not there,
      * create and add it for next time this message is requested
      */
-    Integer key = new Integer(typeFlag);
-    IPSTraceMessage message = (IPSTraceMessage) m_traceMessages.get(key);
+    Integer key = Integer.valueOf(typeFlag);
+    IPSTraceMessage message = m_traceMessages.get(key);
     if (message == null) {
       message = PSTraceMessageFactory.getTraceMessage(typeFlag);
       m_traceMessages.put(key, message);
     }
-
     return message;
   }
 
@@ -223,8 +222,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   public void traceStopped(PSTraceInfo traceInfo) {
     try {
       if (m_traceWriter != null) {
-        PSTraceFlag flag = m_traceInfo.getTraceOptionsFlag();
-
         // get message
         ResourceBundle bundle = getBundle();
 
@@ -321,7 +318,9 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * Disables tracing, freeing any associated resources.
+   * @deprecated Use alternative logging mechanisms or updated trace management APIs.
    */
+  @Deprecated
   public void shutdownTrace() {
 
     // if tracing is enabled, disable to trigger logging
@@ -498,10 +497,9 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * A list of currently instantiated IPSTraceMessage objects.  Stored using
-   * typeFlag
-   * as a key.
+   * typeFlag as a key.
    */
-  private HashMap m_traceMessages = new HashMap();
+  private HashMap<Integer, IPSTraceMessage> m_traceMessages = new HashMap<>();
 
   /**
    * Indicates if tracing is enabled for the application.

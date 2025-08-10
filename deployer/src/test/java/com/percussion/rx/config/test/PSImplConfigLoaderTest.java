@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.config.test;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.config.IPSConfigHandler;
 import com.percussion.rx.config.IPSPropertySetter;
 import com.percussion.rx.config.impl.PSConfigNormalizer;

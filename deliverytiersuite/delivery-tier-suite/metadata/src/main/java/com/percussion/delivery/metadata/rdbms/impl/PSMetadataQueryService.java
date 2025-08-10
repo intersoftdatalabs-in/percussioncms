@@ -27,7 +27,7 @@ import com.percussion.delivery.metadata.impl.PSMetadataQueryServiceHelper;
 import com.percussion.delivery.metadata.impl.PSPropertyDatatypeMappings;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.utils.PSHashCalculator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
 import java.sql.Connection;
 import java.sql.SQLException;

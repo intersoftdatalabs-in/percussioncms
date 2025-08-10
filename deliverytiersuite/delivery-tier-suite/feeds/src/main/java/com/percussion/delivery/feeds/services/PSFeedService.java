@@ -26,7 +26,7 @@ import com.percussion.delivery.feeds.data.PSFeedItem;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.security.PSHttpClient;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.SecureStringUtils;

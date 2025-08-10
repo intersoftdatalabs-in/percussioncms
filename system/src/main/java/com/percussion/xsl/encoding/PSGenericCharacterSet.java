@@ -17,7 +17,7 @@
 package com.percussion.xsl.encoding;
 
 import com.icl.saxon.charcode.PluggableCharacterSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.IOException;

@@ -17,7 +17,7 @@
 
 package com.percussion.html;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.xml.PSXmlUtils;
 import java.io.File;
 import java.io.FileInputStream;

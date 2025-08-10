@@ -36,7 +36,7 @@ import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.install.InstallUtil;
 import com.percussion.install.PSLogger;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.delivery.metadata.data.PSVisitQuery;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbBlogPostVisit;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;

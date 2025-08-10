@@ -20,7 +20,7 @@ package com.percussion.sitemanage.servlet;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.data.PSInlineLinkRequest;
 import com.percussion.pagemanagement.data.PSInlineRenderLink;
 import com.percussion.pagemanagement.service.impl.PSRenderLinkService;

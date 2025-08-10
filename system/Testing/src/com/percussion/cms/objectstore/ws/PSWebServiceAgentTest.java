@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore.ws;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSStopwatch;
 import com.percussion.util.PSXMLDomUtil;
 

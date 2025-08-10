@@ -18,7 +18,7 @@
 package com.percussion.delivery.exceptions;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

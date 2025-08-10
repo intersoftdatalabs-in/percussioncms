@@ -19,7 +19,7 @@ package com.percussion.sitemanage.dao.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.IPSNavigationErrors;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.pagemanagement.data.PSPage;

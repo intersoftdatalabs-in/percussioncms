@@ -17,13 +17,13 @@
 
 package com.percussion.ant.install;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionHandler;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.install.PSLogger;
 import com.percussion.install.RxInstallerProperties;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSExtensionInstallTool;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;

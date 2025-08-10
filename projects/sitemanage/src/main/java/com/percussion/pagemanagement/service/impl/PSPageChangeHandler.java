@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.assetmanagement.service.impl.PSWidgetAssetRelationshipService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.impl.PSItemWorkflowService;
 import com.percussion.pagemanagement.data.PSPageChangeEvent;

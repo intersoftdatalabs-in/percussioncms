@@ -21,7 +21,7 @@ import static com.percussion.wrapper.JettyStartUtils.debug;
 import static com.percussion.wrapper.JettyStartUtils.info;
 import static org.eclipse.jetty.start.StartLog.error;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

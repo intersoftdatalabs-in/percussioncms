@@ -17,7 +17,7 @@
 package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.IOException;
 import java.util.Date;
 import javax.servlet.Filter;

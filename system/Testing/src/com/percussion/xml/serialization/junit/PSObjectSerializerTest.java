@@ -16,7 +16,7 @@
  */
 package com.percussion.xml.serialization.junit;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.xml.serialization.PSObjectSerializer;
 import org.apache.logging.log4j.LogManager;

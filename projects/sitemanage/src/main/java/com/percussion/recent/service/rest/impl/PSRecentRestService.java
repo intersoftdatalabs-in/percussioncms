@@ -18,7 +18,7 @@
 
 package com.percussion.recent.service.rest.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.data.PSTemplateSummaryList;
 import com.percussion.pagemanagement.data.PSWidgetContentType;

@@ -20,7 +20,7 @@ package com.percussion.metadata.web.service;
 
 import com.percussion.dashboardmanagement.data.PSDashboardConfiguration;
 import com.percussion.dashboardmanagement.data.PSGadget;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.test.PSDataServiceRestClient;

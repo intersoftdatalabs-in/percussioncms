@@ -21,10 +21,6 @@ import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.utils.guid.IPSGuid;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import java.util.Objects;
 
 /**
@@ -98,6 +94,7 @@ public class PSContentListItem extends PSFilterItem
     * @return Returns the contentId.
     * @deprecated use {@link #getItemId()} instead.
     */
+   @Deprecated
    public IPSGuid getContentId()
    {
       return getItemId();

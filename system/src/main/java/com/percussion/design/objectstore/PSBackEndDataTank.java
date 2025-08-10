@@ -205,7 +205,7 @@ public class PSBackEndDataTank extends PSComponent {
           while (bFound) {
             // set the value
             // make an integer
-            Integer val = new Integer(iTableAliasRepeatIndex);
+            Integer val = Integer.valueOf(iTableAliasRepeatIndex);
             // get the table alias
             String newAlias = new String(tableAlias);
             // get the string representation
@@ -233,7 +233,7 @@ public class PSBackEndDataTank extends PSComponent {
                   String value = oldAlias.substring(startPos, oldAlias.length());
 
                   // make an integer of it
-                  val = new Integer(value);
+                  val = Integer.valueOf(value);
                   // get the integer rep
                   iTableAliasRepeatIndex = val.intValue();
 
@@ -241,7 +241,7 @@ public class PSBackEndDataTank extends PSComponent {
                   iTableAliasRepeatIndex++;
 
                   // convert it back to string
-                  val = new Integer(iTableAliasRepeatIndex);
+                  val = Integer.valueOf(iTableAliasRepeatIndex);
                   indexString = val.toString(); // here is done
                   bFound = true; // continue the loop
                   break; // break the for loop

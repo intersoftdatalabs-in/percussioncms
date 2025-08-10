@@ -47,11 +47,15 @@ public class PSMenuChild extends PSDbComponent {
    */
   public PSMenuChild(PSAction child) {
     super(getKey(null, null));
-    if (null == child) throw new IllegalArgumentException("Action cannot be null.");
+    if (null == child) {
+      throw new IllegalArgumentException("Action cannot be null.");
+    }
 
     PSKey key = child.getLocator();
-    if (!key.isAssigned()) throw new IllegalArgumentException("Key must be assigned.");
-    m_childId = key.getPart(PSAction.PRIMARY_KEY);
+    if (!key.isAssigned()) {
+      throw new IllegalArgumentException("Key must be assigned.");
+    }
+    childId = key.getPart(PSAction.PRIMARY_KEY);
   }
 
   /**
@@ -65,7 +69,7 @@ public class PSMenuChild extends PSDbComponent {
    *    </code> or empty.
    */
   public String getChildActionId() {
-    return m_childId;
+    return childId;
   }
 
   /**
@@ -74,7 +78,7 @@ public class PSMenuChild extends PSDbComponent {
    *   by the {@link #fromXml(Element)} or {@link #PSMenuChild(Element)}.
    */
   public String getChildActioName() {
-    return m_childName;
+    return childName;
   }
 
   /**
@@ -99,8 +103,8 @@ public class PSMenuChild extends PSDbComponent {
    */
   public PSMenuChild(long childId, String childName, long parentId) {
     super(getKey(String.valueOf(childId), String.valueOf(parentId)));
-    m_childId = String.valueOf(childId);
-    m_childName = childName;
+    this.childId = String.valueOf(childId);
+    this.childName = childName;
   }
 
   /**
@@ -116,22 +120,24 @@ public class PSMenuChild extends PSDbComponent {
    */
   public Element toXml(Document doc) {
     Element root = super.toXml(doc);
-    root.setAttribute(XML_ATTR_CHILDID, m_childId);
-    if (m_childName != null) root.setAttribute(XML_ATTR_CHILDNAME, m_childName);
+    root.setAttribute(XML_ATTR_CHILDID, childId);
+    if (childName != null) {
+      root.setAttribute(XML_ATTR_CHILDNAME, childName);
+    }
     return root;
   }
 
   // see interface/base class for description
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
     super.fromXml(source);
-    m_childId = PSXMLDomUtil.checkAttribute(source, XML_ATTR_CHILDID, true);
-    m_childName = PSXMLDomUtil.checkAttribute(source, XML_ATTR_CHILDNAME, false);
+    childId = PSXMLDomUtil.checkAttribute(source, XML_ATTR_CHILDID, true);
+    childName = PSXMLDomUtil.checkAttribute(source, XML_ATTR_CHILDNAME, false);
 
     // do some validation
     PSKey key = getLocator();
     if (key.isAssigned()) {
-      if (!m_childId.equals(key.getPart(CHILDACTIONID_COLNAME))) {
-        String[] args = {getComponentType(), m_childId, key.getPart(CHILDACTIONID_COLNAME)};
+      if (!childId.equals(key.getPart(CHILDACTIONID_COLNAME))) {
+        String[] args = {getComponentType(), childId, key.getPart(CHILDACTIONID_COLNAME)};
         throw new PSUnknownNodeTypeException(IPSCmsErrors.MISMATCH_BETWEEN_KEY_AND_DATA, args);
       }
     }
@@ -139,24 +145,31 @@ public class PSMenuChild extends PSDbComponent {
 
   // see interface/base class for description
   public boolean equalsFull(Object obj) {
-    if (!equals(obj)) return false;
-    else if (!super.equalsFull(obj)) return false;
+    if (!equals(obj)) {
+      return false;
+    } else if (!super.equalsFull(obj)) {
+      return false;
+    }
     return true;
   }
 
   // see interface/base class for description
   public boolean equals(Object obj) {
-    if (!super.equals(obj)) return false;
+    if (!super.equals(obj)) {
+      return false;
+    }
 
     PSMenuChild other = (PSMenuChild) obj;
 
-    if (!m_childId.equalsIgnoreCase(other.m_childId)) return false;
+    if (!childId.equalsIgnoreCase(other.childId)) {
+      return false;
+    }
 
     return true;
   }
 
   /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
+   * Generates code of the object. Overrides {@link Object#hashCode()}.
    */
   @Override
   public int hashCode() {
@@ -200,11 +213,11 @@ public class PSMenuChild extends PSDbComponent {
    * Set during construction, then never changed. The unique identifier for
    * the child PSAction associated with this mapping.
    */
-  private String m_childId;
+  private String childId;
 
   /**
    * The (internal) name of the object. It may be <code>null</code> if has
    * not been set.
    */
-  private String m_childName = null;
+  private String childName = null;
 }

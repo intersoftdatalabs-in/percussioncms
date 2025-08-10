@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.process.PSProcessAction;
 import com.percussion.process.PSProcessStatus;

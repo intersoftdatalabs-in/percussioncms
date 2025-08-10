@@ -19,7 +19,7 @@
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.data.PSNonSEOPagesRequest;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSPageChangeEvent;

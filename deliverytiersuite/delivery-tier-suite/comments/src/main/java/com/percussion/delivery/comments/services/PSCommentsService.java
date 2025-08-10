@@ -28,7 +28,7 @@ import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.comments.data.PSPageSummary;
 import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;

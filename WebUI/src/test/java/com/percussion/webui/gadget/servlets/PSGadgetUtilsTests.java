@@ -17,8 +17,9 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the PSGadgetUtils class.
@@ -26,10 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class PSGadgetUtilsTests {
 
-    @Test
-    public void testGetCompareFileName() {
-        var expected = "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml";
-        var actual = PSGadgetUtils.getGadgetFileNameForCompare("D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\repository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml");
-        assertEquals(expected, actual, "File name comparison should match expected normalized path");
-    }
+  @Test
+  public void testGetCompareFileName() {
+    var expected =
+        "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml";
+    var actual =
+        PSGadgetUtils.getGadgetFileNameForCompare(
+            "D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\r"
+                + "epository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml");
+    assertEquals(expected, actual, "File name comparison should match expected normalized path");
+  }
 }

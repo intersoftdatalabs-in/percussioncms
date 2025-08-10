@@ -20,7 +20,7 @@ package com.percussion.services.assembly.impl;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.assembly.IPSAssemblyItem;

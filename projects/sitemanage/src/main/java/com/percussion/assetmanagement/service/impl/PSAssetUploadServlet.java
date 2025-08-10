@@ -19,7 +19,7 @@
 package com.percussion.assetmanagement.service.impl;
 
 import com.percussion.assetmanagement.data.PSAsset;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.share.service.exception.PSExtractHTMLException;
 import com.percussion.sitemanage.importer.theme.PSAssetCreator;

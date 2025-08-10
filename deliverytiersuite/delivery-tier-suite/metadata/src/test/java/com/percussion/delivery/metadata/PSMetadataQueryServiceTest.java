@@ -32,7 +32,7 @@ import com.percussion.delivery.metadata.impl.PSMetadataTagsHelper;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

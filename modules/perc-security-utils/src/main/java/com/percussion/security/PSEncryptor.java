@@ -17,7 +17,7 @@
 
 package com.percussion.security;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
@@ -73,19 +73,29 @@ public class PSEncryptor extends PSAbstractEncryptor {
   }
 
   /**
-   * Initializes a new instance with the specified algorithm and keyLocation
+   * Initializes a new instance with the specified algorithm and key location.
    *
-   * @param algorithm
-   * @param keyLocation
+   * @param algorithm encryption algorithm
+   * @param keyLocation location of the key file
    */
   public PSEncryptor(String algorithm, String keyLocation) {
     init(algorithm, keyLocation);
   }
 
+  /**
+   * Adds a property change listener.
+   *
+   * @param pcl listener to add
+   */
   public void addPropertyChangeListener(PropertyChangeListener pcl) {
     pcs.addPropertyChangeListener(pcl);
   }
 
+  /**
+   * Removes a property change listener.
+   *
+   * @param pcl listener to remove
+   */
   public void removePropertyChangeListener(PropertyChangeListener pcl) {
     pcs.removePropertyChangeListener(pcl);
   }
@@ -93,18 +103,17 @@ public class PSEncryptor extends PSAbstractEncryptor {
   /**
    * Replaces the current key file with the specified bytes.
    *
-   * @param newKey a byte array containing the replacement key
-   * @param notifyListeners when true listeners will be notified, when false they will not.
+   * @param newKey replacement key bytes
+   * @param notifyListeners notify listeners if true
    */
   public void forceReplaceKeyFile(byte[] newKey, boolean notifyListeners) {
-    // If No change in key then no need to do anything.
     if (secretKey != null) {
       byte[] oldKey = secretKey.getSecret();
       if (Arrays.equals(newKey, oldKey)) {
         return;
       }
     }
-    File installDir = getRxDir(null);
+    // Removed unused local variable installDir
     generateNewKeyFile(
         this.secretKey, Paths.get(this.secureDir.concat(SECURE_KEY_FILE)), newKey, notifyListeners);
   }
@@ -140,7 +149,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
               + ")"
               + ") :"
               + e.getMessage());
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      log.debug(com.percussion.security.error.PSExceptionUtils.getDebugMessageForLog(e));
     }
     return secureKey;
   }
@@ -160,7 +169,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
     }
 
     IPSKey key = PSEncryptionKeyFactory.getKeyGenerator(algorithm);
-    File installDir = getRxDir(null);
+    // Removed unused local variable installDir
     Path secureKeyFile = Paths.get(keyLocation + SECURE_KEY_FILE);
     byte[] secureKey = null;
     Path rotateFlag = Paths.get(keyLocation + ROTATE_FLAG_FILE);
@@ -174,7 +183,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
             "Error reading instance secure key file ({}): {}",
             secureKeyFile.toAbsolutePath().toString(),
             PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        log.debug(com.percussion.security.error.PSExceptionUtils.getDebugMessageForLog(e));
       }
       Path oldSecureKeyFile = Paths.get(keyLocation + OLD_SECURE_KEY_FILE);
       if (Files.exists(oldSecureKeyFile)) {
@@ -190,7 +199,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
               "Error reading instance Oldsecure key file ({}): {}",
               oldSecureKeyFile.toAbsolutePath().toString(),
               PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+          log.debug(com.percussion.security.error.PSExceptionUtils.getDebugMessageForLog(e));
         }
       }
     } else {
@@ -203,7 +212,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
             "Unable to remove the encryption key rotation flag file: {} .  They key will be rotated"
                 + " on restart unless this file is removed. Error was: {} ",
             rotateFlag.toAbsolutePath(),
-            PSExceptionUtils.getMessageForLog(e));
+            com.percussion.security.error.PSExceptionUtils.getMessageForLog(e));
       }
     }
     key.setSecret(secureKey);
@@ -289,15 +298,15 @@ public class PSEncryptor extends PSAbstractEncryptor {
   }
 
   private static void storeInVault(String propertyFilePath, String keyName, String value) {
-    List props = (List) propertyFilesWithPassword.get(propertyFilePath);
+    List<String> props = propertyFilesWithPassword.get(propertyFilePath);
     if (props == null) {
-      props = new ArrayList();
+      props = new ArrayList<>();
     }
     // Keep encrypted String in Map such that it can be replaced at the time of rotation
     if (keyName == null) {
-      props = (List) xmlFilesWithPassword.get(propertyFilePath);
+      props = xmlFilesWithPassword.get(propertyFilePath);
       if (props == null) {
-        props = new ArrayList();
+        props = new ArrayList<>();
       }
       // keeping EncryptedString
       props.add(value);
@@ -313,7 +322,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
   /** Use this method when creating PasswordVault */
   private static void rotatePropertyFileKeys() {
     for (Object propertyFile : propertyFilesWithPassword.keySet()) {
-      List encPwds = (List) propertyFilesWithPassword.get(propertyFile);
+      List<String> encPwds = propertyFilesWithPassword.get(propertyFile);
       File propFile = new File(propertyFile.toString());
       try (FileInputStream in = new FileInputStream(propFile)) {
         Properties props = new Properties();
@@ -330,7 +339,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
       } catch (IOException | PSEncryptionException e) {
         log.error(
             "Rotation of decrypted property Values Failed. ERROR: {} ",
-            PSExceptionUtils.getMessageForLog(e));
+            com.percussion.security.error.PSExceptionUtils.getMessageForLog(e));
       }
     }
   }
@@ -338,7 +347,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
   private static void rotateXMLFileKeys() {
     for (Object propertyFile : xmlFilesWithPassword.keySet()) {
       try {
-        List<String> encPwds = (List) xmlFilesWithPassword.get(propertyFile);
+        List<String> encPwds = xmlFilesWithPassword.get(propertyFile);
 
         File absFile = new File(propertyFile.toString());
 
@@ -425,7 +434,9 @@ public class PSEncryptor extends PSAbstractEncryptor {
         }
       }
     } catch (IOException e) {
-      log.warn("Unable to rotate Key ERROR: {} .", PSExceptionUtils.getMessageForLog(e));
+      log.warn(
+          "Unable to rotate Key ERROR: {} .",
+          com.percussion.security.error.PSExceptionUtils.getMessageForLog(e));
       log.debug("Unable to rotate Key ERROR: {} .", e.getMessage(), e);
     }
   }

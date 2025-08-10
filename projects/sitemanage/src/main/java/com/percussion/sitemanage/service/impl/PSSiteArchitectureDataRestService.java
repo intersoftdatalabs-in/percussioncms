@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import com.percussion.share.service.exception.PSValidationException;

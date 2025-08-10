@@ -17,11 +17,11 @@
 package com.percussion.cas;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSHtmlParameters;

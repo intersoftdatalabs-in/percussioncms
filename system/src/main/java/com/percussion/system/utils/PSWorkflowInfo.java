@@ -128,8 +128,8 @@ public class PSWorkflowInfo {
    * @return List of {@link StateInfo} objects in the supplied workflow
    *     may be <code>null</code> or empty if the workflow does not exist.
    */
-  private List getStates(String workflowID) {
-    return (List) m_states.get(workflowID);
+  private List<StateInfo> getStates(String workflowID) {
+    return m_states.get(workflowID);
   }
 
   /**
@@ -140,8 +140,8 @@ public class PSWorkflowInfo {
    * @return List of PSTransitionInfo objects in the supplied workflow.
    *     may be <code>null</code> or empty if the workflow does not exist.
    */
-  private List getTransitions(String workflowID) {
-    return (List) m_transitions.get(workflowID);
+  private List<TransitionInfo> getTransitions(String workflowID) {
+    return m_transitions.get(workflowID);
   }
 
   /**
@@ -159,11 +159,11 @@ public class PSWorkflowInfo {
    *         supplied token list. false otherwise.
    */
   private boolean isValidState(String workflow, String stateId, String tokens) {
-    List stateList = (List) m_states.get(workflow);
-    Iterator i = stateList.iterator();
-    while (i.hasNext()) {
-      StateInfo info = (StateInfo) i.next();
-      if (info.getID().equalsIgnoreCase(stateId)) return checkValidFlag(info.getValid(), tokens);
+    List<StateInfo> stateList = m_states.get(workflow);
+    for (StateInfo info : stateList) {
+      if (info.getID().equalsIgnoreCase(stateId)) {
+        return checkValidFlag(info.getValid(), tokens);
+      }
     }
     return false;
   }
@@ -200,11 +200,11 @@ public class PSWorkflowInfo {
    *          It may be <code>null</code> if cannot find the specified state.
    */
   private StateInfo getState(String stateId, String workflowId) {
-    List states = getStates(workflowId);
-    Iterator it = states.iterator();
-    while (it.hasNext()) {
-      StateInfo state = (StateInfo) it.next();
-      if (state.getID().equalsIgnoreCase(stateId)) return state;
+    List<StateInfo> states = getStates(workflowId);
+    for (StateInfo state : states) {
+      if (state.getID().equalsIgnoreCase(stateId)) {
+        return state;
+      }
     }
     return null;
   }
@@ -220,13 +220,15 @@ public class PSWorkflowInfo {
    *         supplied list of PSAutoTransition objects.
    *         may not be <code>null</code>
    */
-  private SortOrderTransition findLeast(List list) {
-    if (list == null) throw new IllegalArgumentException("List of autoTransitions may not be null");
-    Iterator it = list.iterator();
-    SortOrderTransition least = (SortOrderTransition) it.next();
-    while (it.hasNext()) {
-      SortOrderTransition trans = (SortOrderTransition) it.next();
-      if (trans.getSortOrder() < least.getSortOrder()) least = trans;
+  private SortOrderTransition findLeast(List<SortOrderTransition> list) {
+    if (list == null) {
+      throw new IllegalArgumentException("List of autoTransitions may not be null");
+    }
+    SortOrderTransition least = list.get(0);
+    for (SortOrderTransition trans : list) {
+      if (trans.getSortOrder() < least.getSortOrder()) {
+        least = trans;
+      }
     }
     return least;
   }
@@ -239,8 +241,8 @@ public class PSWorkflowInfo {
    *    see {@link #PSWorkflowInfo(Document)} for its DTD.
    */
   private void fromXML(Element el) {
-    List allStates = new ArrayList();
-    List allTrans = new ArrayList();
+    List<StateInfo> allStates = new ArrayList<>();
+    List<TransitionInfo> allTrans = new ArrayList<>();
 
     NodeList snodes = el.getElementsByTagName(ELEM_STATEINFO);
     NodeList tnodes = el.getElementsByTagName(ELEM_TRANSITIONINFO);
@@ -285,8 +287,8 @@ public class PSWorkflowInfo {
         }
       }
     }
-    BuildCache(allStates, m_states);
-    BuildCache(allTrans, m_transitions);
+    buildCache(allStates, m_states);
+    buildCache(allTrans, m_transitions);
   }
 
   /**
@@ -298,16 +300,14 @@ public class PSWorkflowInfo {
    *           HashMap to fill - either state or transition not
    *           <code>null</code>
    */
-  private void BuildCache(List list, HashMap map) {
-    Iterator it = list.iterator();
-    while (it.hasNext()) {
-      IPSWorkflowId info = (IPSWorkflowId) it.next();
+  private <T extends IPSWorkflowId> void buildCache(List<T> list, HashMap<String, List<T>> map) {
+    for (T info : list) {
       if (map.containsKey(info.getWorkflow())) {
-        List l = (List) map.get(info.getWorkflow());
+        List<T> l = map.get(info.getWorkflow());
         l.add(info);
         map.put(info.getWorkflow(), l);
       } else {
-        List l = new ArrayList();
+        List<T> l = new ArrayList<>();
         l.add(info);
         map.put(info.getWorkflow(), l);
       }
@@ -333,32 +333,37 @@ public class PSWorkflowInfo {
    * @return List PSAutoTransition of the transitions matching the token
    *         criteria may be emtpy but never <code>null</code>
    */
-  private List getAutoTransitionId(
+  private List<SortOrderTransition> getAutoTransitionId(
       int workflowId, int stateId, String tokens, boolean bUseDefaults) {
     String workflow = Integer.toString(workflowId);
-    List transitions = getTransitions(workflow);
-    List states = getStates(workflow);
+    List<TransitionInfo> transitions = getTransitions(workflow);
+    List<StateInfo> states = getStates(workflow);
 
-    Iterator it = transitions.iterator();
-    List entries = new ArrayList();
-    List defaults = new ArrayList();
-    while (it.hasNext()) {
-      TransitionInfo ti = (TransitionInfo) it.next();
-      String stateID = Integer.toString(stateId);
-      if (ti.getTransitionFrom().equalsIgnoreCase(stateID)) {
+    List<SortOrderTransition> entries = new ArrayList<>();
+    List<SortOrderTransition> defaults = new ArrayList<>();
+    for (TransitionInfo ti : transitions) {
+      String stateIdStr = Integer.toString(stateId);
+      if (ti.getTransitionFrom().equalsIgnoreCase(stateIdStr)) {
         StateInfo state = getState(ti.getTransitionTo(), workflow);
         if (isValidState(workflow, state.getID(), tokens)) {
           SortOrderTransition entry = new SortOrderTransition(state, ti);
           entries.add(entry);
         } else {
-          if (ti.isDefault()) defaults.add(new SortOrderTransition(state, ti));
+          if (ti.isDefault()) {
+            defaults.add(new SortOrderTransition(state, ti));
+          }
         }
       }
     }
 
-    if (!entries.isEmpty()) return entries;
-    if (bUseDefaults) return defaults;
-    else return new ArrayList();
+    if (!entries.isEmpty()) {
+      return entries;
+    }
+    if (bUseDefaults) {
+      return defaults;
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   /**
@@ -703,13 +708,13 @@ public class PSWorkflowInfo {
    * Map containing PSStateInfo list indexed by String workflowID
    * never <code>null</code>.
    */
-  private HashMap m_states = new HashMap();
+  private HashMap<String, List<StateInfo>> m_states = new HashMap<>();
 
   /**
    * Map containing PSTransitionInfo list indexed by String workflowID
    * never <code>null</code>.
    */
-  private HashMap m_transitions = new HashMap();
+  private HashMap<String, List<TransitionInfo>> m_transitions = new HashMap<>();
 
   /**
    * Logger for use with log4j

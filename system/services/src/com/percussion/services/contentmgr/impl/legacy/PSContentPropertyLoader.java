@@ -16,7 +16,7 @@
  */
 package com.percussion.services.contentmgr.impl.legacy;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.contentmgr.impl.IPSContentRepository;
 import com.percussion.services.contentmgr.impl.PSContentInternalLocator;
 import com.percussion.utils.beans.IPSPropertyLoader;

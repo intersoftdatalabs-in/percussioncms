@@ -17,12 +17,12 @@
 package com.percussion.deployer.install;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.install.IPSUpgradeModule;
 import com.percussion.install.IPSUpgradePlugin;
 import com.percussion.install.PSPluginResponse;
 import com.percussion.install.PSUpgradePluginRelationship;
 import com.percussion.install.RxUpgrade;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.utils.PSIdNameHelper;

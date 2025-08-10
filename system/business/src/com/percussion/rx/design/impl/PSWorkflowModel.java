@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.design.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.design.PSDesignModelUtils;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.workflow.IPSWorkflowService;

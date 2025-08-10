@@ -17,7 +17,7 @@
  */
 package com.percussion.share.dao;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import org.apache.commons.io.FileUtils;

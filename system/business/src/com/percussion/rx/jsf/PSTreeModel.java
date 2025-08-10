@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.jsf;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

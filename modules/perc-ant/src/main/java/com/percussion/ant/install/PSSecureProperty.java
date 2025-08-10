@@ -17,11 +17,11 @@
 
 package com.percussion.ant.install;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.ToDoVulnerability;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import java.io.File;
 import java.io.FileInputStream;

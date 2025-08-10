@@ -18,7 +18,7 @@
 package com.percussion.delivery.integrations.ems.model;
 
 import com.percussion.delivery.integrations.ems.IPSEMSEventService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

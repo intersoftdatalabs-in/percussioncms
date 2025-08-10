@@ -16,8 +16,8 @@
  */
 package com.percussion.xmldom;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.PSExtensionProcessingException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.services.general.IPSRhythmyxInfo;

@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

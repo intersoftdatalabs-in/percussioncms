@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integritymanagement.service.rest.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
 import com.percussion.integritymanagement.data.PSIntegrityStatus.Status;
 import com.percussion.integritymanagement.data.PSIntegrityStatusList;

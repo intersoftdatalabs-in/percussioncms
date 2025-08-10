@@ -23,7 +23,7 @@ import com.percussion.assetmanagement.data.PSAbstractAssetRequest.AssetType;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSBinaryAssetRequest;
 import com.percussion.assetmanagement.service.IPSAssetService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
 import com.percussion.integritymanagement.data.PSIntegrityStatus.Status;
 import com.percussion.integritymanagement.data.PSIntegrityTask;

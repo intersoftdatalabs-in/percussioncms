@@ -33,7 +33,7 @@ import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRole;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSLocale;
 import com.percussion.search.objectstore.PSWSSearchField;
 import com.percussion.search.objectstore.PSWSSearchParams;

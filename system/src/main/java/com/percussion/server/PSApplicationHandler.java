@@ -48,7 +48,6 @@ import com.percussion.design.objectstore.server.IPSObjectStoreHandler;
 import com.percussion.error.PSErrorHandler;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSLargeApplicationRequestQueueError;
 import com.percussion.error.PSNotFoundException;
@@ -74,6 +73,7 @@ import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthenticationRequiredException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSDataEncryptionHandler;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.cache.IPSCacheHandler;
 import com.percussion.server.cache.PSCacheContext;
 import com.percussion.server.cache.PSCacheManager;
@@ -1372,7 +1372,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
 
     // trace app security
     if (m_LogHandler.isTraceEnabled(PSTraceMessageFactory.APP_SECURITY_FLAG)) {
-      Object[] args = {new Integer(reqiredAcessLevel), new Integer(accessLevel)};
+      Object[] args = {Integer.valueOf(reqiredAcessLevel), Integer.valueOf(accessLevel)};
       m_LogHandler.printTrace(PSTraceMessageFactory.APP_SECURITY_FLAG, args);
     }
 

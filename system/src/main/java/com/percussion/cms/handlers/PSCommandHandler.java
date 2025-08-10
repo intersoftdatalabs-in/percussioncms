@@ -273,7 +273,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
   public static void setWorkflowAppId(PSRequest req, int workflowAppId) {
     if (null == req) throw new IllegalArgumentException("request can't be null");
 
-    req.setParameter(WORKFLOW_APP_ID_PARAM_NAME, new Integer(workflowAppId));
+    req.setParameter(WORKFLOW_APP_ID_PARAM_NAME, Integer.valueOf(workflowAppId));
   }
 
   /**
@@ -952,7 +952,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
     }
 
     // add a map entry for each page, even if its empty
-    m_fieldEvaluatorMap.put(new Integer(pageId), fieldEvaluators);
+    m_fieldEvaluatorMap.put(Integer.valueOf(pageId), fieldEvaluators);
   }
 
   /**
@@ -1116,7 +1116,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
       pageId = PSEditCommandHandler.ROOT_PARENT_PAGE_ID;
     else pageId = Integer.parseInt(o.toString());
 
-    return new Integer(pageId);
+    return Integer.valueOf(pageId);
   }
 
   /**
@@ -1134,7 +1134,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
     Object o = extractor.extract(data);
     Integer cacheId = null;
     if (o != null && o.toString().trim().length() != 0)
-      cacheId = new Integer(Integer.parseInt(o.toString()));
+      cacheId = Integer.valueOf(Integer.parseInt(o.toString()));
 
     return cacheId;
   }
@@ -1153,7 +1153,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
     Object o = extractor.extract(data);
     Integer transitionId = null;
     if (o != null && o.toString().trim().length() != 0)
-      transitionId = new Integer(Integer.parseInt(o.toString()));
+      transitionId = Integer.valueOf(Integer.parseInt(o.toString()));
 
     return transitionId;
   }

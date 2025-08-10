@@ -16,7 +16,7 @@
  */
 package com.percussion.rxfix;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.util.PSStringTemplate;
 import com.percussion.utils.jdbc.PSJdbcUtils;

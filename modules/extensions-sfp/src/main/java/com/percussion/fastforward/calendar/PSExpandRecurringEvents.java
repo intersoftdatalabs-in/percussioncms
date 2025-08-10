@@ -16,13 +16,13 @@
  */
 package com.percussion.fastforward.calendar;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.fastforward.utils.PSUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.xml.PSXmlDocumentBuilder;

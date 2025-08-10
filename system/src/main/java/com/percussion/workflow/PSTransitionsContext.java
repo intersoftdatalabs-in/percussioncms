@@ -17,8 +17,8 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionErrors;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

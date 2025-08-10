@@ -25,7 +25,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.designmanagement.service.IPSFileSystemService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSJexlMethod;

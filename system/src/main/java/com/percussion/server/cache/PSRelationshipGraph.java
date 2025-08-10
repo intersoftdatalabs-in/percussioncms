@@ -18,7 +18,7 @@ package com.percussion.server.cache;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

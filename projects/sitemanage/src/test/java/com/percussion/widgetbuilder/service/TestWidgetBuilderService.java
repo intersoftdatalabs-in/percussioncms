@@ -18,7 +18,7 @@
 
 package com.percussion.widgetbuilder.service;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.utils.request.PSRequestInfo;

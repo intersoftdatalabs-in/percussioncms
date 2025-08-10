@@ -17,7 +17,7 @@
 
 package com.percussion.xml;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;

@@ -17,7 +17,7 @@
 
 package com.percussion.install;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
 import com.percussion.util.PSProperties;

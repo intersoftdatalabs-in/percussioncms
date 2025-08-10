@@ -17,7 +17,7 @@
 package com.percussion.pagemanagement.assembler.impl;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.EditType;
 import com.percussion.pagemanagement.assembler.PSPageAssemblyContextFactory;

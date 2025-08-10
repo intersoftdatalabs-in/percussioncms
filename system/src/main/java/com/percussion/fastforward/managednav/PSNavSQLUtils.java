@@ -16,8 +16,8 @@
  */
 package com.percussion.fastforward.managednav;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.services.PSDatabasePool;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSSqlHelper;
 import java.sql.Connection;
 import java.sql.ResultSet;

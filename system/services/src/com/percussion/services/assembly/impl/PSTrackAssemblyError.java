@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.utils.codec.PSXmlEncoder;

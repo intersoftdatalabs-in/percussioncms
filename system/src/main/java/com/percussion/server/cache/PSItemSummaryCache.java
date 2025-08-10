@@ -41,7 +41,7 @@ import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSUpdateColumn;
 import com.percussion.design.objectstore.PSUpdatePipe;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestHandler;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;

@@ -42,7 +42,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pso.restservice.IItemRestService;
 import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.exception.ItemRestNotModifiedException;

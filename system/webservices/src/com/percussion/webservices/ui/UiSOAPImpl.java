@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.ui;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.webservices.PSBaseSOAPImpl;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.faults.PSContractViolationFault;

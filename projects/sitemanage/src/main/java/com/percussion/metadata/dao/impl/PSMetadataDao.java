@@ -17,7 +17,7 @@
 package com.percussion.metadata.dao.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.system.utils.PSSiteManageBean;

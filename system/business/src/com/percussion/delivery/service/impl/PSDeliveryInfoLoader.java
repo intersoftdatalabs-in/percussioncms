@@ -21,7 +21,7 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.impl.DeliveryServer.Password;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.config.PSServerConfigException;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.security.PSEncryptionException;

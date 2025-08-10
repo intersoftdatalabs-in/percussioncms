@@ -15,7 +15,7 @@
 
                 if(edtn.getPubServerId().longValue() == pubServer.getGUID().longValue()) {
 import com.amazonaws.regions.Regions;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
             } catch (Exception e) {
 import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.services.catalog.PSTypeEnum;

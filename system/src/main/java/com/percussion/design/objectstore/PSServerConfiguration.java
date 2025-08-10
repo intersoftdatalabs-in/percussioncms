@@ -239,7 +239,7 @@ public class PSServerConfiguration implements IPSDocument {
 
     int adminAccess = PSAclEntry.SACE_ADMINISTER_SERVER;
 
-    ConcurrentHashMap names = new ConcurrentHashMap();
+    ConcurrentHashMap<String, IPSGroupProviderInstance> names = new ConcurrentHashMap<>();
     boolean hasAdminAccess = false;
     PSAclEntry ace;
     String key;
@@ -1069,7 +1069,7 @@ public class PSServerConfiguration implements IPSDocument {
       Element authentications =
           PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_AUTHENTICATIONS_ELEM);
 
-      Iterator sources = m_authentications.iterator();
+      Iterator<PSAuthentication> sources = m_authentications.iterator();
       while (sources.hasNext()) {
         PSAuthentication source = (PSAuthentication) sources.next();
         authentications.appendChild(source.toXml(doc, m_encryptPassword));
@@ -1078,7 +1078,7 @@ public class PSServerConfiguration implements IPSDocument {
 
     // set directory services
     if (!m_directories.isEmpty() || !m_directorySets.isEmpty()) {
-      Set groupProviderNames = new HashSet();
+      Set<String> groupProviderNames = new HashSet<>();
       Element directoryServices =
           PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_DIRECTORY_SERVICES_ELEM);
 
@@ -1086,7 +1086,7 @@ public class PSServerConfiguration implements IPSDocument {
         Element directories =
             PSXmlDocumentBuilder.addEmptyElement(doc, directoryServices, XML_DIRECTORIES_ELEM);
 
-        Iterator sources = m_directories.iterator();
+        Iterator<PSDirectory> sources = m_directories.iterator();
         while (sources.hasNext()) {
           PSDirectory source = (PSDirectory) sources.next();
           directories.appendChild(source.toXml(doc));
@@ -1116,7 +1116,7 @@ public class PSServerConfiguration implements IPSDocument {
         Element directorySets =
             PSXmlDocumentBuilder.addEmptyElement(doc, directoryServices, XML_DIRECTORY_SETS_ELEM);
 
-        Iterator sources = m_directorySets.iterator();
+        Iterator<PSDirectorySet> sources = m_directorySets.iterator();
         while (sources.hasNext()) {
           PSDirectorySet source = (PSDirectorySet) sources.next();
           directorySets.appendChild(source.toXml(doc));
@@ -1129,7 +1129,7 @@ public class PSServerConfiguration implements IPSDocument {
       Element roleServices =
           PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_ROLE_SERVICES_ELEM);
 
-      Iterator sources = m_roleProviders.iterator();
+      Iterator<PSRoleProvider> sources = m_roleProviders.iterator();
       while (sources.hasNext()) {
         PSRoleProvider source = (PSRoleProvider) sources.next();
         roleServices.appendChild(source.toXml(doc));
@@ -1139,7 +1139,7 @@ public class PSServerConfiguration implements IPSDocument {
     // set the JNDI connection pool configuration
     Element jndiConnectionPool =
         PSXmlDocumentBuilder.addEmptyElement(doc, root, JNDI_CONNECTION_POOL_ELEM);
-    Enumeration keys = m_jndiConnectionPool.keys();
+    Enumeration<Object> keys = m_jndiConnectionPool.keys();
     while (keys.hasMoreElements()) {
       String key = (String) keys.nextElement();
       String value = m_jndiConnectionPool.getProperty(key);
@@ -1481,7 +1481,7 @@ public class PSServerConfiguration implements IPSDocument {
 
     IPSGroupProviderInstance result = null;
 
-    Iterator i = m_groupProviders.iterator();
+    Iterator<IPSGroupProviderInstance> i = m_groupProviders.iterator();
     while (i.hasNext() && result == null) {
       IPSGroupProviderInstance gp = (IPSGroupProviderInstance) i.next();
       if (name.equals(gp.getName()) && type == gp.getType()) result = gp;
@@ -1542,7 +1542,7 @@ public class PSServerConfiguration implements IPSDocument {
   public PSCollection getGroupProviderInstances(int type) {
     PSCollection result = new PSCollection(IPSGroupProviderInstance.class);
 
-    Iterator i = m_groupProviders.iterator();
+    Iterator<IPSGroupProviderInstance> i = m_groupProviders.iterator();
     while (i.hasNext()) {
       IPSGroupProviderInstance gp = (IPSGroupProviderInstance) i.next();
       if (type == gp.getType()) result.add(gp);
@@ -1564,7 +1564,7 @@ public class PSServerConfiguration implements IPSDocument {
     name = name.trim();
     if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
 
-    Iterator authentications = m_authentications.iterator();
+    Iterator<PSAuthentication> authentications = m_authentications.iterator();
     while (authentications.hasNext()) {
       PSAuthentication authentication = (PSAuthentication) authentications.next();
       if (authentication.getName().equals(name)) return authentication;
@@ -1579,7 +1579,7 @@ public class PSServerConfiguration implements IPSDocument {
    * @return all available authentications, never <code>null</code>, may be
    *    empty.
    */
-  public Iterator getAuthentications() {
+  public Iterator<PSAuthentication> getAuthentications() {
     return m_authentications.iterator();
   }
 
@@ -1639,7 +1639,7 @@ public class PSServerConfiguration implements IPSDocument {
     name = name.trim();
     if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
 
-    Iterator directories = m_directories.iterator();
+    Iterator<PSDirectory> directories = m_directories.iterator();
     while (directories.hasNext()) {
       PSDirectory directory = (PSDirectory) directories.next();
       if (directory.getName().equals(name)) return directory;
@@ -1654,7 +1654,7 @@ public class PSServerConfiguration implements IPSDocument {
    * @return all available directories, never <code>null</code>, may be
    *    empty.
    */
-  public Iterator getDirectories() {
+  public Iterator<PSDirectory> getDirectories() {
     return m_directories.iterator();
   }
 
@@ -1714,7 +1714,7 @@ public class PSServerConfiguration implements IPSDocument {
     name = name.trim();
     if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
 
-    Iterator directorySets = m_directorySets.iterator();
+    Iterator<PSDirectorySet> directorySets = m_directorySets.iterator();
     while (directorySets.hasNext()) {
       PSDirectorySet directorySet = (PSDirectorySet) directorySets.next();
       if (directorySet.getName().equals(name)) return directorySet;
@@ -1729,7 +1729,7 @@ public class PSServerConfiguration implements IPSDocument {
    * @return all available directory sets, never <code>null</code>, may be
    *    empty.
    */
-  public Iterator getDirectorySets() {
+  public Iterator<PSDirectorySet> getDirectorySets() {
     return m_directorySets.iterator();
   }
 
@@ -1789,7 +1789,7 @@ public class PSServerConfiguration implements IPSDocument {
     name = name.trim();
     if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
 
-    Iterator roleProviders = m_roleProviders.iterator();
+    Iterator<PSRoleProvider> roleProviders = m_roleProviders.iterator();
     while (roleProviders.hasNext()) {
       PSRoleProvider roleProvider = (PSRoleProvider) roleProviders.next();
       if (roleProvider.getName().equals(name)) return roleProvider;
@@ -1802,7 +1802,7 @@ public class PSServerConfiguration implements IPSDocument {
    * @return all available role providers, never <code>null</code>, may be
    *    empty.
    */
-  public Iterator getRoleProviders() {
+  public Iterator<PSRoleProvider> getRoleProviders() {
     return m_roleProviders.iterator();
   }
 
@@ -2041,6 +2041,7 @@ public class PSServerConfiguration implements IPSDocument {
    * removed when <code>PSQueryCacheHandler</code> is removed. Should remove
    * the constant for default value also.
    */
+  @Deprecated
   public int getMaxCacheSizePerApp() {
     return DEFAULT_APP_CACHE_SIZE;
   }
@@ -2062,6 +2063,7 @@ public class PSServerConfiguration implements IPSDocument {
    * removed when <code>PSQueryCacheHandler</code> is removed. Should remove
    * the constant for default value also.
    */
+  @Deprecated
   public int getMaxCacheSizeOnServer() {
     return DEFAULT_SERVER_CACHE_SIZE;
   }

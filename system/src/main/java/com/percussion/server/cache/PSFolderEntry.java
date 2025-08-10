@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSFolderAcl;
 import com.percussion.cms.objectstore.PSFolderProperty;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.legacy.data.PSItemEntry;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;

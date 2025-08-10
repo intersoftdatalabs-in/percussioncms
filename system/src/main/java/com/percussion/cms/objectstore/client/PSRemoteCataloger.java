@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.IPSCataloger;
 import com.percussion.cms.objectstore.PSRelationshipInfoSet;
 import com.percussion.design.objectstore.PSSearchConfig;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.IPSRemoteRequester;
 import com.percussion.xml.PSXmlDocumentBuilder;

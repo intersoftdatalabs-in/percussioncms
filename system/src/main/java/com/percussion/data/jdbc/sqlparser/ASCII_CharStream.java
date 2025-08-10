@@ -176,6 +176,7 @@ public final class ASCII_CharStream {
    * @deprecated
    * @see #getEndLine
    */
+  @Deprecated
   public static final int getLine() {
     return bufline[bufpos];
   }

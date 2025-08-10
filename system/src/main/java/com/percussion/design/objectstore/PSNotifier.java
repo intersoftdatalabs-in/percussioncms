@@ -54,7 +54,8 @@ public class PSNotifier extends PSComponent {
    *                              if the XML element node is not of the
    *                              appropriate type
    */
-  public PSNotifier(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSNotifier(
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -121,7 +122,7 @@ public class PSNotifier extends PSComponent {
 
   private static PSIllegalArgumentException validateProviderType(int provider) {
     if (provider != MP_TYPE_SMTP) {
-      Object[] args = {new Integer(provider)};
+      Object[] args = {Integer.valueOf(provider)};
       return new PSIllegalArgumentException(
           IPSObjectStoreErrors.NOTIFIER_PROVIDER_TYPE_INVALID, args);
     }
@@ -161,7 +162,7 @@ public class PSNotifier extends PSComponent {
     if ((null == name) || (name.length() == 0))
       return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_SERVER_NULL);
     else if (name.length() > SERVER_NAME_MAX_LEN) {
-      Object[] args = {new Integer(SERVER_NAME_MAX_LEN), new Integer(name.length())};
+      Object[] args = {Integer.valueOf(SERVER_NAME_MAX_LEN), Integer.valueOf(name.length())};
       return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_SERVER_TOO_BIG, args);
     }
 
@@ -201,7 +202,7 @@ public class PSNotifier extends PSComponent {
 
   private static PSIllegalArgumentException validateFrom(String from) {
     if (from.length() > FROM_NAME_MAX_LEN) {
-      Object[] args = {new Integer(FROM_NAME_MAX_LEN), new Integer(from.length())};
+      Object[] args = {Integer.valueOf(FROM_NAME_MAX_LEN), Integer.valueOf(from.length())};
       return new PSIllegalArgumentException(IPSObjectStoreErrors.NOTIFIER_FROM_TOO_BIG, args);
     }
 
@@ -355,7 +356,8 @@ public class PSNotifier extends PSComponent {
    * @exception   PSUnknownNodeTypeException if the XML element node is not
    *                                        of type PSXNotifier
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

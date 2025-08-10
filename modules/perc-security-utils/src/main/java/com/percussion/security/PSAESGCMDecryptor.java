@@ -36,21 +36,27 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * AES-GCM decryptor implementation for IPSDecryptor.
+ *<p>
+ * Sunny Sal says: Decrypt with confidence—no decoder ring required!
+ */
 public class PSAESGCMDecryptor implements IPSDecryptor {
 
-  private PSAESGCMKey m_key = null;
+  private PSAESGCMKey key;
 
   /**
-   * Construct a AES decryptor using the specified DES key.
+   * Constructs an AES decryptor using the specified AES key.
    *
    * @param key the AES key to use for decryption
-   * @throws IllegalArgumentException if <code>key</code> is <code>null</code>
+   * @throws IllegalArgumentException if {@code key} is {@code null}
    */
   public PSAESGCMDecryptor(PSAESGCMKey key) throws IllegalArgumentException {
-    if (key == null) throw new IllegalArgumentException("key cannot be null");
-
-    // store key for later use
-    m_key = key;
+    if (key == null) {
+      throw new IllegalArgumentException("key cannot be null");
+    }
+    // Store key for later use
+    this.key = key;
   }
 
   /**
@@ -92,7 +98,7 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
     System.arraycopy(in, ivLength, cipherText, 0, cipherText.length);
     try {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      PSAESGCMKey aesKey = m_key;
+      PSAESGCMKey aesKey = key;
       cipher.init(Cipher.DECRYPT_MODE, aesKey.getSecretKey(), new GCMParameterSpec(128, iv));
       byte[] plainText = cipher.doFinal(cipherText);
       return new String(plainText, StandardCharsets.UTF_8);

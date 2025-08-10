@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.assembler.impl.finder;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.assembler.PSWidgetInstance;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.assembly.IPSAssemblyItem;

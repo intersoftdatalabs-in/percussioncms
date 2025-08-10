@@ -8,6 +8,7 @@ memory-bank/*
 .idea/sonarlint.xml
 .idea/sonarlint-state.xml
 .idea/sonarlint/issuestore/index.pb
+spotless-index-file
 
 derby.log
 null

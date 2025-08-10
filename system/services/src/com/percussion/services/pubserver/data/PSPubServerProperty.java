@@ -16,7 +16,7 @@
  */
 package com.percussion.services.pubserver.data;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.server.PSServer;

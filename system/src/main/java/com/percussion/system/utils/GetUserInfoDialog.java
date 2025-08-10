@@ -16,7 +16,7 @@
  */
 package com.percussion.system.utils;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSProperties;
 import java.awt.*;
 import java.awt.event.ActionEvent;

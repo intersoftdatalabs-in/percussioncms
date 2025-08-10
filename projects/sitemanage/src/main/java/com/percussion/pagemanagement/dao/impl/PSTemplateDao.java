@@ -17,7 +17,7 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.dao.IPSTemplateDao;
 import com.percussion.pagemanagement.dao.IPSWidgetItemIdGenerator;
 import com.percussion.pagemanagement.data.PSMetadataDocType;

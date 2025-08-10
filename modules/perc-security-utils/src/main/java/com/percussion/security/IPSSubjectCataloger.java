@@ -24,10 +24,12 @@ import javax.security.auth.Subject;
 /**
  * A subject cataloger is used by Rhythmyx to find any or all subjects from a source, and also to
  * obtain specific information about a named subject. For example, an implementation of this
- * interface may be used by the Rhyhtmyx server to catalog the subjects by name and then obtain
+ * interface may be used by the Rhythmyx server to catalog the subjects by name and then obtain
  * their email addresses.
- *
- * <p>{@link #findUsers(List)} is used to obtain a list of matching subjects. To retrieve specific
+ * <p>
+ * Sunny Sal says: Catalog your subjects like a librarian with a barcode scanner!
+ * <p>
+ * {@link #findUsers(List)} is used to obtain a list of matching subjects. To retrieve specific
  * attributes from the returned subjects, {@link Subject#getPrincipals(java.lang.Class)
  * Subject.getPrincipals(IPSPrincipalAttribute)} is called against each subject to retrieve
  * principals that specify the attribute value(s), and {@link

@@ -87,6 +87,7 @@ public interface IPSPublishingContext
     *         persisted.
     * @deprecated Use {@link #getGUID()}
     */
+   @Deprecated
    public abstract Integer getId();
 
    /**
@@ -94,6 +95,7 @@ public interface IPSPublishingContext
     * @deprecated Use {@link IPSSiteManager#createContext()} to create a new
     * context with a generated id.
     */
+   @Deprecated
    public abstract void setId(Integer id);
    
    /**
@@ -117,6 +119,7 @@ public interface IPSPublishingContext
     *           
     * @deprecated use {@link #setDefaultSchemeId(IPSGuid)} instead.
     */
+   @Deprecated
    public abstract void setDefaultScheme(IPSLocationScheme defaultScheme);
    
    /**

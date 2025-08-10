@@ -227,10 +227,9 @@ public class PSItemRelatedItem extends PSItemComponent {
    * Adds a key field to use for the search.
    *
    * @param key a field name to use for searching for a content item, this may
-   * be a system, shared, or local field name, must not be <code>null</code> or
-   * empty
-   *
-   * @param el
+   *     be a system, shared, or local field name, must not be <code>null</code> or
+   *     empty
+   * @param el the element to associate with the key
    */
   public void addKeyField(String key, Element el) {
     m_keyFieldsMap.put(key, el);
@@ -240,7 +239,7 @@ public class PSItemRelatedItem extends PSItemComponent {
    * Removes the specified key field from the map to use for the search.
    *
    * @param key the field name to remove from the search map, must not be
-   * <code>null</code> or empty
+   *     <code>null</code> or empty
    */
   public void removeKeyField(String key) {
     m_keyFieldsMap.remove(key);
@@ -251,23 +250,26 @@ public class PSItemRelatedItem extends PSItemComponent {
    * item.
    *
    * @param key the key to get the data for, must not be <code>null</code>
-   * or empty
-   *
+   *     or empty
    * @return the value for the specified key, may be empty
    */
   public Element getKeyField(String key) {
-    return (Element) m_keyFieldsMap.get(key);
+    Node node = m_keyFieldsMap.get(key);
+    if (node instanceof Element) {
+      return (Element) node;
+    }
+    return null;
   }
 
   /**
    * Returns all of the <code>keys</code> of the keyfieldmap as
-   * <code>Strings</code>
+   * <code>Strings</code>.
    *
    * @return unmodifiable <code>Iterator</code> of all of the
-   * <code>key</code> names as <code>Strings</code>.
-   * May be empty but not <code>null</code>.
+   *     <code>key</code> names as <code>Strings</code>.
+   *     May be empty but not <code>null</code>.
    */
-  public Iterator getAllKeyFields() {
+  public Iterator<String> getAllKeyFields() {
     return Collections.unmodifiableCollection(m_keyFieldsMap.keySet()).iterator();
   }
 
@@ -290,9 +292,9 @@ public class PSItemRelatedItem extends PSItemComponent {
       root.appendChild(importNode);
     }
 
-    Iterator propIter = m_propertyMap.keySet().iterator();
+    Iterator<String> propIter = m_propertyMap.keySet().iterator();
     while (propIter.hasNext()) {
-      String key = (String) propIter.next();
+      String key = propIter.next();
       String val = m_propertyMap.get(key);
 
       Element property = createStandardItemElement(doc, EL_PROPERTY);
@@ -306,12 +308,13 @@ public class PSItemRelatedItem extends PSItemComponent {
     if (!m_keyFieldsMap.isEmpty()) {
       Element keyFields = createStandardItemElement(doc, EL_KEY_FIELDS);
 
-      Iterator iter = m_keyFieldsMap.keySet().iterator();
+      Iterator<String> iter = m_keyFieldsMap.keySet().iterator();
       while (iter.hasNext()) {
-        String key = (String) iter.next();
-        Element searchField = (Element) m_keyFieldsMap.get(key);
-
-        keyFields.appendChild(searchField);
+        String key = iter.next();
+        Node node = m_keyFieldsMap.get(key);
+        if (node instanceof Element) {
+          keyFields.appendChild((Element) node);
+        }
       }
       root.appendChild(keyFields);
     }
@@ -342,9 +345,9 @@ public class PSItemRelatedItem extends PSItemComponent {
 
     if (m_propertyMap != null) {
       copy.m_propertyMap = new HashMap<>();
-      Iterator i = m_propertyMap.keySet().iterator();
+      Iterator<String> i = m_propertyMap.keySet().iterator();
       while (i.hasNext()) {
-        String key = (String) i.next();
+        String key = i.next();
         String val = m_propertyMap.get(key);
         copy.m_propertyMap.put(key, val);
       }
@@ -352,11 +355,13 @@ public class PSItemRelatedItem extends PSItemComponent {
 
     if (m_keyFieldsMap != null) {
       copy.m_keyFieldsMap = new HashMap<>();
-      Iterator i = m_keyFieldsMap.keySet().iterator();
+      Iterator<String> i = m_keyFieldsMap.keySet().iterator();
       while (i.hasNext()) {
-        String key = (String) i.next();
-        Element el = (Element) m_keyFieldsMap.get(key);
-        copy.m_keyFieldsMap.put(key, el.cloneNode(true));
+        String key = i.next();
+        Node node = m_keyFieldsMap.get(key);
+        if (node instanceof Element) {
+          copy.m_keyFieldsMap.put(key, ((Element) node).cloneNode(true));
+        }
       }
     }
     return copy;
@@ -365,20 +370,36 @@ public class PSItemRelatedItem extends PSItemComponent {
   // see interface for description
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(getClass().isInstance(obj))) return false;
+    if (obj == null || !(getClass().isInstance(obj))) {
+      return false;
+    }
 
     PSItemRelatedItem compMeta = (PSItemRelatedItem) obj;
 
     // checking references:
-    if (!compare(m_propertyMap, compMeta.m_propertyMap)) return false;
-    if (!compare(m_keyFieldsMap, compMeta.m_keyFieldsMap)) return false;
-    if (!equalXmlElements(m_relatedItemData, compMeta.m_relatedItemData)) return false;
-    if (!compare(m_action, compMeta.m_action)) return false;
-    if (!compare(m_relatedType, compMeta.m_relatedType)) return false;
+    if (!compare(m_propertyMap, compMeta.m_propertyMap)) {
+      return false;
+    }
+    if (!compare(m_keyFieldsMap, compMeta.m_keyFieldsMap)) {
+      return false;
+    }
+    if (!equalXmlElements(m_relatedItemData, compMeta.m_relatedItemData)) {
+      return false;
+    }
+    if (!compare(m_action, compMeta.m_action)) {
+      return false;
+    }
+    if (!compare(m_relatedType, compMeta.m_relatedType)) {
+      return false;
+    }
 
     // check primitives:
-    if (m_relationshipId != compMeta.m_relationshipId) return false;
-    if (m_dependentId != compMeta.m_dependentId) return false;
+    if (m_relationshipId != compMeta.m_relationshipId) {
+      return false;
+    }
+    if (m_dependentId != compMeta.m_dependentId) {
+      return false;
+    }
 
     return true;
   }

@@ -22,7 +22,7 @@ import com.percussion.dashboardmanagement.data.PSDashboardConfiguration;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.dashboardmanagement.service.IPSDashboardDataService;
 import com.percussion.dashboardmanagement.service.IPSDashboardService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.webservices.PSWebserviceUtils;
 import org.apache.logging.log4j.LogManager;

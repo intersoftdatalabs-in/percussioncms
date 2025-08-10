@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.integrations.siteimprove;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.integrations.IPSIntegrationProviderService;
 import com.percussion.util.PSURLEncoder;

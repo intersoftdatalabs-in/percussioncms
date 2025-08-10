@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.util.PSProperties;

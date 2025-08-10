@@ -24,14 +24,17 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * AES-GCM key implementation for IPSSecretKey.
+ */
 public class PSAESGCMKey implements IPSSecretKey {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMKey.class);
   private static final int DEFAULT_KEY_SIZE = 256;
-  private SecretKey key = null;
+  private SecretKey key;
 
   /**
-   * Generate an IPSEncryptor object which can make use of this key.
+   * Returns an encryptor for this key.
    *
    * @return the associated encryptor
    */
@@ -43,7 +46,6 @@ public class PSAESGCMKey implements IPSSecretKey {
       }
       return new PSAESGCMEncryptor(this);
     } catch (IllegalArgumentException e) {
-      // only throws on null key, which clearly can't happen here
       return null;
     }
   }

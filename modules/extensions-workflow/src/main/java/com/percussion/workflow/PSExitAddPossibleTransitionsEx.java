@@ -19,7 +19,6 @@ package com.percussion.workflow;
 
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.data.PSDataExtractionException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
@@ -28,6 +27,7 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.i18n.PSI18nUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.server.webservices.PSSearchHandler;

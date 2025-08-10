@@ -16,7 +16,7 @@
  */
 package com.percussion.services.utils.xml;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.services.catalog.PSTypeEnum;

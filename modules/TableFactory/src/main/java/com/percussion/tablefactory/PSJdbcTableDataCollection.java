@@ -19,7 +19,7 @@ package com.percussion.tablefactory;
 
 import static com.percussion.tablefactory.IPSLogger.LOG_CATEGORY;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;

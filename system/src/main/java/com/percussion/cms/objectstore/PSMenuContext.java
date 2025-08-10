@@ -68,8 +68,9 @@ public class PSMenuContext extends PSName {
    * @return the UUID of the guid.
    */
   public static int getIdFromGuid(IPSGuid guid) {
-    if (guid.getType() != PSTypeEnum.MENU_CONTEXT.getOrdinal())
+    if (guid.getType() != PSTypeEnum.MENU_CONTEXT.getOrdinal()) {
       throw new IllegalArgumentException("guid must be PSTypeEnum.MENU_CONTEXT type.");
+    }
 
     return (int) guid.getUUID();
   }

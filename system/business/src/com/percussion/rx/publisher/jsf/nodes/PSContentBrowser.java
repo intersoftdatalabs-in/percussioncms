@@ -20,7 +20,7 @@ package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.utils.guid.IPSGuid;

@@ -17,9 +17,9 @@
 
 package com.percussion.ant.install;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.install.PSLogger;
 import com.percussion.install.RxUpgrade;
+import com.percussion.security.error.PSExceptionUtils;
 
 /**
  * The execute method of this called when it is an upgrade.

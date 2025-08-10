@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.publisher.jsf.nodes;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionManager;
 import com.percussion.extension.PSExtensionRef;

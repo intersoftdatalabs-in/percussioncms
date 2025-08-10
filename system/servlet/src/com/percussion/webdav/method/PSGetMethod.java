@@ -25,7 +25,7 @@ import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.ws.PSClientItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSCharSets;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;

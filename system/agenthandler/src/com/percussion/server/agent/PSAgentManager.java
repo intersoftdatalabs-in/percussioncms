@@ -17,7 +17,7 @@
 
 package com.percussion.server.agent;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;

@@ -46,7 +46,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSLocale;
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.PSWSSearchResponse;

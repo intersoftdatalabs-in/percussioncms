@@ -16,8 +16,8 @@
  */
 package com.percussion.fastforward.managednav;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSRuntimeException;
+import com.percussion.security.error.PSExceptionUtils;
 
 /**
  * A general purpose exception for the Navigation package.

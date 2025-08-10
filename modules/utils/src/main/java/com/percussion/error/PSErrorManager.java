@@ -18,6 +18,7 @@
 package com.percussion.error;
 
 import com.percussion.log.PSLogInformation;
+import com.percussion.security.error.PSExceptionUtils;
 import java.net.URL;
 import java.util.Locale;
 import java.util.MissingResourceException;

@@ -23,7 +23,7 @@ import com.percussion.HTTPClient.HTTPResponse;
 import com.percussion.HTTPClient.ModuleException;
 import com.percussion.HTTPClient.NVPair;
 import com.percussion.HTTPClient.ProtocolNotSuppException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSCryptographer;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;

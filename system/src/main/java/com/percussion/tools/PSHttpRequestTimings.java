@@ -18,43 +18,24 @@ package com.percussion.tools;
 
 /**
  * Timing statistics for an HTTP request.
- * <P>
- * All timing values specify the actual system time for that event, <B>not</B>
- * durations. It is important for us to keep actual times so that we may
- * compile request statistics from multiple sources, correlating the times.
- *
  */
 public class PSHttpRequestTimings implements Cloneable {
   public PSHttpRequestTimings() {}
 
   /**
-   * Gets the before connect time. The before connect time
-   * is the time before the socket has been opened.
-   *
-   * @author	chad loder
-   *
-   * @version 1.0 1999/10/25
-   *
-   * @return	long The before connect time in milliseconds elapsed since
-   * midnight, January 1, 1970 UTC.
+   * Returns the time before the socket is opened.
+   * @return time in milliseconds since epoch
    */
   public long beforeConnect() {
-    return m_beforeConnect;
+    return beforeConnectTime;
   }
 
   /**
-   * Sets the before connect time. The before connect time
-   * is the time before the socket has been opened.
-   *
-   * @author	chad loder
-   *
-   * @version 1.0 1999/10/25
-   *
-   * @param	time The before connect time in milliseconds elapsed since
-   * midnight, January 1, 1970 UTC.
+   * Sets the time before the socket is opened.
+   * @param time time in milliseconds since epoch
    */
   public void beforeConnect(long time) {
-    m_beforeConnect = time;
+    beforeConnectTime = time;
   }
 
   /**
@@ -68,7 +49,7 @@ public class PSHttpRequestTimings implements Cloneable {
    * midnight, January 1, 1970 UTC.
    */
   public long afterConnect() {
-    return m_afterConnect;
+    return afterConnectTime;
   }
 
   /**
@@ -84,77 +65,71 @@ public class PSHttpRequestTimings implements Cloneable {
    * midnight, January 1, 1970 UTC.
    */
   public void afterConnect(long time) {
-    m_afterConnect = time;
+    afterConnectTime = time;
   }
 
   public long afterRequest() {
-    return m_afterRequest;
+    return afterRequestTime;
   }
 
   public void afterRequest(long time) {
-    m_afterRequest = time;
+    afterRequestTime = time;
   }
 
   public long afterHeaders() {
-    return m_afterHeaders;
+    return afterHeadersTime;
   }
 
   public void afterHeaders(long time) {
-    m_afterHeaders = time;
+    afterHeadersTime = time;
   }
 
   public long afterContent() {
-    return m_afterContent;
+    return afterContentTime;
   }
 
   public void afterContent(long time) {
-    m_afterContent = time;
+    afterContentTime = time;
   }
 
   public long headerBytes() {
-    return m_headerBytes;
+    return headerBytesCount;
   }
 
   public void headerBytes(long bytes) {
-    m_headerBytes = bytes;
+    headerBytesCount = bytes;
   }
 
   public long contentBytes() {
-    return m_contentBytes;
+    return contentBytesCount;
   }
 
   public void contentBytes(long bytes) {
-    m_contentBytes = bytes;
+    contentBytesCount = bytes;
   }
 
   public Object clone() throws CloneNotSupportedException {
     return super.clone();
   }
 
-  /** this is set before the socket is opened */
-  private long m_beforeConnect = 0L;
+  /** Set before the socket is opened. */
+  private long beforeConnectTime = 0L;
 
-  /** this is set after the socket is opened, before any data
-   *  has been sent or received */
-  private long m_afterConnect = 0L;
+  /** Set after the socket is opened, before any data has been sent or received. */
+  private long afterConnectTime = 0L;
 
-  /** this is set after the request has been sent, before any
-   *  data has been received */
-  private long m_afterRequest = 0L;
+  /** Set after the request has been sent, before any data has been received. */
+  private long afterRequestTime = 0L;
 
-  /** this is set after all the response headers have been
-   *  received, before any body data has been received */
-  private long m_afterHeaders = 0L;
+  /** Set after all the response headers have been received, before any body data has been received. */
+  private long afterHeadersTime = 0L;
 
-  /** this is set after all of the response content has
-   *  been read */
-  private long m_afterContent = 0L;
+  /** Set after all of the response content has been read. */
+  private long afterContentTime = 0L;
 
-  /** this is the number of header bytes returned,
-   *  including the HTTP status line */
-  private long m_headerBytes = 0L;
+  /** Number of header bytes returned, including the HTTP status line. */
+  private long headerBytesCount = 0L;
 
-  /** this is the number of content bytes returned after
-   *  the last header */
-  private long m_contentBytes = 0L;
+  /** Number of content bytes returned after the last header. */
+  private long contentBytesCount = 0L;
 }

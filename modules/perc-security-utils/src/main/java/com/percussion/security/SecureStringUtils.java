@@ -19,7 +19,7 @@ package com.percussion.security;
 
 import com.github.javafaker.Faker;
 import com.ibm.icu.text.Normalizer2;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

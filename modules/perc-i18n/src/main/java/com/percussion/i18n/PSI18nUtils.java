@@ -17,7 +17,7 @@
 
 package com.percussion.i18n;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.util.PSStringOperation;
 import java.text.DateFormat;

@@ -17,7 +17,7 @@
 package com.percussion.util;
 
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
 import java.io.StringReader;

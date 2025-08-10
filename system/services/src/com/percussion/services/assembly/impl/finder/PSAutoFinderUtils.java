@@ -18,7 +18,7 @@ package com.percussion.services.assembly.impl.finder;
 
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItem;
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItemOrder;

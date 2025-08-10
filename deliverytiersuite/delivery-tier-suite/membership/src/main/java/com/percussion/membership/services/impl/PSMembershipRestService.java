@@ -17,7 +17,7 @@
 package com.percussion.membership.services.impl;
 
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.membership.data.PSAccountCreateResult;
 import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.PSGetUserResult;

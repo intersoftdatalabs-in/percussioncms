@@ -17,11 +17,11 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.PSSecurityProvider;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;

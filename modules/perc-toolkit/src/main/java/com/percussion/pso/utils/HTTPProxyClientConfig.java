@@ -17,7 +17,7 @@
 package com.percussion.pso.utils;
 
 // REFACTORED: CP-JAVA11
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

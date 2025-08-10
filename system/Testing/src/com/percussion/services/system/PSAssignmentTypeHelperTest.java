@@ -19,7 +19,7 @@ package com.percussion.services.system;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSServerConfiguration;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSThreadRequestUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.catalog.PSTypeEnum;

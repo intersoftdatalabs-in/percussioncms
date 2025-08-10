@@ -29,7 +29,7 @@ import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.filestorage.IPSFileStorageService;
 import com.percussion.services.filestorage.IPSHashedFieldCataloger;

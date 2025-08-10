@@ -21,50 +21,50 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName("gadget")
 public final class GadgetEntry {
-    private final String name;
-    private final String baseuri;
-    private final String file;
+  private final String name;
+  private final String baseuri;
+  private final String file;
 
-    private GadgetEntry(Builder builder) {
-        this.name = builder.name;
-        this.baseuri = builder.baseuri;
-        this.file = builder.file;
+  private GadgetEntry(Builder builder) {
+    this.name = builder.name;
+    this.baseuri = builder.baseuri;
+    this.file = builder.file;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getBaseuri() {
+    return baseuri;
+  }
+
+  public String getFile() {
+    return file;
+  }
+
+  public static class Builder {
+    private String name;
+    private String baseuri;
+    private String file;
+
+    public Builder withName(String name) {
+      this.name = name;
+      return this;
     }
 
-    public String getName() {
-        return name;
+    public Builder withBaseuri(String baseuri) {
+      this.baseuri = baseuri;
+      return this;
     }
 
-    public String getBaseuri() {
-        return baseuri;
+    public Builder withFile(String file) {
+      this.file = file;
+      return this;
     }
 
-    public String getFile() {
-        return file;
+    public GadgetEntry build() {
+      return new GadgetEntry(this);
     }
-
-    public static class Builder {
-        private String name;
-        private String baseuri;
-        private String file;
-
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder withBaseuri(String baseuri) {
-            this.baseuri = baseuri;
-            return this;
-        }
-
-        public Builder withFile(String file) {
-            this.file = file;
-            return this;
-        }
-
-        public GadgetEntry build() {
-            return new GadgetEntry(this);
-        }
-    }
+  }
 }

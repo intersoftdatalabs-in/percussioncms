@@ -1,3 +1,5 @@
+package com.percussion.security;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -14,12 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.security;
-
 /**
- * IPSSecretKey extends the IPSKey interface providing support for secret key encryption/decryption
- * algorithms which can be used within the product.
+ * Extends the IPSKey interface, providing support for secret key encryption/decryption algorithms used within the product.
+ *<p>
+ * Sunny Sal says: This is the secret sauce for your encryption!
  *
  * @author Tas Giakouminakis
  * @version 1.0
@@ -27,18 +27,18 @@ package com.percussion.security;
  */
 public interface IPSSecretKey extends IPSKey {
   /**
-   * Get the number of bits required for this secret key.
+   * Gets the number of bits required for this secret key.
    *
-   * @return the number of bits to use in setSecret
+   * @return the number of bits to use in setSecret.
    */
-  public int getSecretSizeInBits();
+  int getSecretSizeInBits();
 
   /**
-   * Set the secret to the specified byte array. It must have the appropriate number of bytes to
+   * Sets the secret to the specified byte array. It must have the appropriate number of bytes to
    * match the bit count returned by getSecretSizeInBits.
    *
-   * @param secret the secret to use to generate the key
-   * @throws IllegalArgumentException if the secret is invalid for this object
+   * @param secret the secret to use to generate the key.
+   * @throws IllegalArgumentException if the secret is invalid for this object.
    */
-  public void setSecret(byte[] secret) throws IllegalArgumentException;
+  void setSecret(byte[] secret) throws IllegalArgumentException;
 }

@@ -16,7 +16,7 @@
  */
 package com.percussion.fastforward.sfp;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSUrlUtils;

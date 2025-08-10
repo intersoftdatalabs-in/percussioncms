@@ -20,7 +20,7 @@ import com.percussion.analytics.data.PSAnalyticsProviderConfig;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
 import com.percussion.analytics.error.PSAnalyticsProviderException.CAUSETYPE;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.PSGAEntries;
 import com.percussion.share.service.exception.PSValidationException;

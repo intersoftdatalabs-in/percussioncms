@@ -21,7 +21,7 @@ import com.percussion.cloudservice.IPSCloudService;
 import com.percussion.cloudservice.data.PSCloudLicenseType;
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
 import com.percussion.cloudservice.data.PSCloudServicePageData;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 import com.percussion.licensemanagement.error.PSLicenseServiceException;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;

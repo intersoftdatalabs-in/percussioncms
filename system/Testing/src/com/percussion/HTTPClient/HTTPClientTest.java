@@ -17,7 +17,7 @@
 package com.percussion.HTTPClient;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.testing.PSClientTestCase;
 
 import com.percussion.xml.PSXmlDocumentBuilder;

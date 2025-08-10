@@ -17,7 +17,7 @@
 
 package com.percussion.tablefactory;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tablefactory.tools.PSCatalogTableData;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.util.PSLogger;

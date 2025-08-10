@@ -17,7 +17,7 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.cms.objectstore.IPSCmsComponent;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

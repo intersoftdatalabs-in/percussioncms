@@ -26,126 +26,125 @@ import java.util.Set;
  * Used for the tmx tag libs.
  */
 public class TmxCache {
-    /**
-     * Private ctor to prevent instantiation.
-     */
-    private TmxCache() {
+  /**
+   * Private ctor to prevent instantiation.
+   */
+  private TmxCache() {}
+
+  /**
+   * Returns the singleton instance of the TmxCache object.
+   *
+   * @return the singleton object, never <code>null</code>.
+   */
+  public static TmxCache getInstance() {
+    if (msInstance == null) {
+      msInstance = new TmxCache();
     }
+    return msInstance;
+  }
 
-    /**
-     * Returns the singleton instance of the TmxCache object.
-     *
-     * @return the singleton object, never <code>null</code>.
-     */
-    public static TmxCache getInstance() {
-        if (msInstance == null) {
-            msInstance = new TmxCache();
-        }
-        return msInstance;
+  /**
+   * Sets the lang/prefixes that have been indexed.
+   *
+   * @param lang     cannot be <code>null</code> or empty.
+   * @param prefixes cannot be <code>null</code> but may be
+   *                 empty.
+   */
+  public void setIndexed(String lang, String prefixes) {
+    if (lang == null || lang.isEmpty()) {
+      throw new IllegalArgumentException("lang cannot be null or empty.");
     }
-
-    /**
-     * Sets the lang/prefixes that have been indexed.
-     *
-     * @param lang     cannot be <code>null</code> or empty.
-     * @param prefixes cannot be <code>null</code> but may be
-     *                 empty.
-     */
-    public void setIndexed(String lang, String prefixes) {
-        if (lang == null || lang.isEmpty()) {
-            throw new IllegalArgumentException("lang cannot be null or empty.");
-        }
-        if (prefixes == null) {
-            throw new IllegalArgumentException("prefixes cannot be null");
-        }
-        miCachedIndex.computeIfAbsent(lang, k -> new HashSet<>());
-        miCachedIndex.get(lang).add(prefixes);
+    if (prefixes == null) {
+      throw new IllegalArgumentException("prefixes cannot be null");
     }
+    miCachedIndex.computeIfAbsent(lang, k -> new HashSet<>());
+    miCachedIndex.get(lang).add(prefixes);
+  }
 
-    /**
-     * Add a new entry to the cache.
-     *
-     * @param lang cannot be <code>null</code> or empty.
-     * @param key  cannot be <code>null</code> or empty.
-     * @param val  may be <code>null</code> or empty.
-     */
-    public void addEntry(String lang, String key, String val) {
-        if (lang == null || lang.isEmpty()) {
-            throw new IllegalArgumentException("lang cannot be null or empty.");
-        }
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("key cannot be null or empty.");
-        }
-        miCache.computeIfAbsent(lang, k -> new HashMap<>());
-        miCache.get(lang).put(key, val);
+  /**
+   * Add a new entry to the cache.
+   *
+   * @param lang cannot be <code>null</code> or empty.
+   * @param key  cannot be <code>null</code> or empty.
+   * @param val  may be <code>null</code> or empty.
+   */
+  public void addEntry(String lang, String key, String val) {
+    if (lang == null || lang.isEmpty()) {
+      throw new IllegalArgumentException("lang cannot be null or empty.");
     }
-
-    /**
-     * Retrieve a set of all keys for a specified language.
-     *
-     * @param lang cannot be <code>null</code> or empty.
-     * @return set of keys, never <code>null</code>, may
-     * be empty.
-     */
-    public Set<String> getKeys(String lang) {
-        if (lang == null || lang.isEmpty()) {
-            throw new IllegalArgumentException("lang cannot be null or empty.");
-        }
-        return miCache.getOrDefault(lang, new HashMap<>()).keySet();
+    if (key == null || key.isEmpty()) {
+      throw new IllegalArgumentException("key cannot be null or empty.");
     }
+    miCache.computeIfAbsent(lang, k -> new HashMap<>());
+    miCache.get(lang).put(key, val);
+  }
 
-    /**
-     * Retrieve the value based on the lang/key.
-     *
-     * @param lang cannot be <code>null</code> or empty.
-     * @param key  cannot be <code>null</code> or empty.
-     * @return the value or <code>null</code> if no found.
-     */
-    public String getValue(String lang, String key) {
-        if (lang == null || lang.isEmpty()) {
-            throw new IllegalArgumentException("lang cannot be null or empty.");
-        }
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("key cannot be null or empty.");
-        }
-        return miCache.getOrDefault(lang, new HashMap<>()).get(key);
+  /**
+   * Retrieve a set of all keys for a specified language.
+   *
+   * @param lang cannot be <code>null</code> or empty.
+   * @return set of keys, never <code>null</code>, may
+   * be empty.
+   */
+  public Set<String> getKeys(String lang) {
+    if (lang == null || lang.isEmpty()) {
+      throw new IllegalArgumentException("lang cannot be null or empty.");
     }
+    return miCache.getOrDefault(lang, new HashMap<>()).keySet();
+  }
 
-    public boolean isIndexed(String lang, String prefixes) {
-        Set<String> prefixSet = miCachedIndex.get(lang);
-        return prefixSet != null && prefixSet.contains(prefixes);
+  /**
+   * Retrieve the value based on the lang/key.
+   *
+   * @param lang cannot be <code>null</code> or empty.
+   * @param key  cannot be <code>null</code> or empty.
+   * @return the value or <code>null</code> if no found.
+   */
+  public String getValue(String lang, String key) {
+    if (lang == null || lang.isEmpty()) {
+      throw new IllegalArgumentException("lang cannot be null or empty.");
     }
-
-    /**
-     * Clear cache per lang or if no lang specified then
-     * clear all.
-     *
-     * @param lang may be <code>null</code> in which case everything
-     *             will be cleared.
-     */
-    public void clear(String lang) {
-        if (lang != null) {
-            miCachedIndex.remove(lang);
-            miCache.remove(lang);
-        } else {
-            miCachedIndex.clear();
-            miCache.clear();
-        }
+    if (key == null || key.isEmpty()) {
+      throw new IllegalArgumentException("key cannot be null or empty.");
     }
+    return miCache.getOrDefault(lang, new HashMap<>()).get(key);
+  }
 
-    /**
-     * The singleton instance of the tmx cache.
-     */
-    private static TmxCache msInstance;
+  public boolean isIndexed(String lang, String prefixes) {
+    Set<String> prefixSet = miCachedIndex.get(lang);
+    return prefixSet != null && prefixSet.contains(prefixes);
+  }
 
-    /**
-     * The cached index used to keep track of which lang/prefixes have
-     * been cached.
-     */
-    private final Map<String, Set<String>> miCachedIndex = new HashMap<>();
+  /**
+   * Clear cache per lang or if no lang specified then
+   * clear all.
+   *
+   * @param lang may be <code>null</code> in which case everything
+   *             will be cleared.
+   */
+  public void clear(String lang) {
+    if (lang != null) {
+      miCachedIndex.remove(lang);
+      miCache.remove(lang);
+    } else {
+      miCachedIndex.clear();
+      miCache.clear();
+    }
+  }
 
-    /**
-     * The cache holding the key/values for each lang indexed.
-     */
-    private final Map<String, Map<String, String>> miCache = new HashMap<>();
+  /**
+   * The singleton instance of the tmx cache.
+   */
+  private static TmxCache msInstance;
+
+  /**
+   * The cached index used to keep track of which lang/prefixes have
+   * been cached.
+   */
+  private final Map<String, Set<String>> miCachedIndex = new HashMap<>();
+
+  /**
+   * The cache holding the key/values for each lang indexed.
+   */
+  private final Map<String, Map<String, String>> miCache = new HashMap<>();
 }

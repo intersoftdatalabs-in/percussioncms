@@ -19,7 +19,7 @@
 package com.percussion.security;
 
 import com.percussion.design.objectstore.*;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.security.PSTypedPrincipal;
 
 import com.percussion.xml.PSXmlDocumentBuilder;

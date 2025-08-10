@@ -22,7 +22,7 @@ import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.IPSJavaPlugin;
 import com.percussion.design.objectstore.IPSJavaPluginConfig;
 import com.percussion.design.objectstore.PSServerConfiguration;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;

@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResource;

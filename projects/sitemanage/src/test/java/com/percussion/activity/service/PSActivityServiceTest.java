@@ -17,7 +17,7 @@
 
 package com.percussion.activity.service;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSStopwatch;
 
 import org.apache.logging.log4j.LogManager;

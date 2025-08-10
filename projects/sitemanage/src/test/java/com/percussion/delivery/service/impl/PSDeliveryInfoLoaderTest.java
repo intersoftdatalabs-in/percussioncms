@@ -18,7 +18,7 @@
 package com.percussion.delivery.service.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.delivery.IPSDeliveryErrors;
 import com.percussion.server.config.PSServerConfigException;
 import com.percussion.share.dao.PSSerializerUtils;

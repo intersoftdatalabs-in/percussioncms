@@ -16,7 +16,7 @@
  */
 package com.percussion.i18n.rxlt;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.BufferedReader;
 import java.io.File;

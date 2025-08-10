@@ -19,11 +19,11 @@ package com.percussion.design.catalog;
 
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.conn.PSServerException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;

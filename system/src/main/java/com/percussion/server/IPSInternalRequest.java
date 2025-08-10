@@ -39,6 +39,7 @@ public interface IPSInternalRequest {
    *             requests that generate no results (for example, updates), use
    *             {@link #performUpdate()}.
    */
+  @Deprecated
   public void makeRequest()
       throws PSInternalRequestCallException,
           PSAuthorizationException,

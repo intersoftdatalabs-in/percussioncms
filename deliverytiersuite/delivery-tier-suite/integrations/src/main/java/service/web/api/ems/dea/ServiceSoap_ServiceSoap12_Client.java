@@ -23,7 +23,7 @@ package service.web.api.ems.dea;
  * This class is not complete
  */
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

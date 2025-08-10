@@ -19,7 +19,7 @@ package com.percussion.build;
 
 // java
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tools.simple.PSCETemplateGenerator;
 import com.percussion.utils.xml.PSEntityResolver;
 import java.io.File;

@@ -17,7 +17,7 @@
 
 package com.percussion.util;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;

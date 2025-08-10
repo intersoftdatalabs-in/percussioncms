@@ -17,7 +17,7 @@
 
 package com.percussion.services.security.loginmods;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.security.PSJaasUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

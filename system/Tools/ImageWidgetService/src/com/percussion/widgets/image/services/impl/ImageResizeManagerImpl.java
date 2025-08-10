@@ -17,7 +17,7 @@
 
 package com.percussion.widgets.image.services.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.services.ImageResizeManager;
 import org.apache.commons.lang.Validate;

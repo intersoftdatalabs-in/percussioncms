@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.extension;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.cache.PSAutotuneCache;

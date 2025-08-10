@@ -17,7 +17,7 @@
 package com.percussion.services.utils.jexl;
 
 import com.percussion.error.PSNotFoundException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.*;
 import com.percussion.server.PSServer;
 import com.percussion.servlet_utils.servlet.PSServletUtils;

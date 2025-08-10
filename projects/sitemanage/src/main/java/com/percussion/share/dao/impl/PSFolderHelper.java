@@ -26,7 +26,7 @@ import com.percussion.cms.objectstore.PSObjectAclEntry;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCharacterInFolderNameException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSFolderPermission;

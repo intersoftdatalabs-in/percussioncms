@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.EditType;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.RootRenderType;
 import com.percussion.pagemanagement.assembler.PSRegionResult.PSRegionResultType;

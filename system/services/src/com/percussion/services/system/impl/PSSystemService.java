@@ -19,7 +19,7 @@ package com.percussion.services.system.impl;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSRoleManager;
 import com.percussion.server.PSServer;
 import com.percussion.services.catalog.PSTypeEnum;

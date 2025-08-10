@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.Status;

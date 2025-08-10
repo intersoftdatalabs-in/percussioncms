@@ -17,7 +17,7 @@
 package com.percussion.rx.publisher.impl;
 
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.delivery.PSConnectivityCheck;
 import com.percussion.rx.publisher.IPSPublisherItemStatus;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;

@@ -16,7 +16,7 @@
  */
 package com.percussion.webdav;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.hooks.PSServletBase;
 import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.webdav.error.IPSWebdavErrors;

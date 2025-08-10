@@ -17,7 +17,7 @@
  */
 package com.percussion.metadata.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.data.PSMetadataList;
 import com.percussion.metadata.service.IPSMetadataService;

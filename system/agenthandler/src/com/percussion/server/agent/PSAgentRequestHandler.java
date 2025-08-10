@@ -18,7 +18,7 @@ package com.percussion.server.agent;
 
 import com.percussion.conn.PSServerException;
 import com.percussion.data.PSXslStyleSheetMerger;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.*;
 import com.percussion.tools.Base64;
 import org.apache.commons.lang3.StringUtils;

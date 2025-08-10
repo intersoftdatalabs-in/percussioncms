@@ -17,8 +17,8 @@
 
 package com.percussion.server.cache;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.util.PSPreparedStatement;

@@ -68,8 +68,9 @@ public class PSMenuMode extends PSName {
    * @return the UUID of the guid.
    */
   public static int getIdFromGuid(IPSGuid guid) {
-    if (guid.getType() != PSTypeEnum.MENU_MODE.getOrdinal())
+    if (guid.getType() != PSTypeEnum.MENU_MODE.getOrdinal()) {
       throw new IllegalArgumentException("guid must be PSTypeEnum.MENU_MODE type.");
+    }
 
     return (int) guid.getUUID();
   }

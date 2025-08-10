@@ -17,7 +17,7 @@
 
 package com.percussion.preinstall;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.zerog.ia.api.pub.CustomCodeAction;
 import com.zerog.ia.api.pub.InstallException;
 import com.zerog.ia.api.pub.InstallerProxy;

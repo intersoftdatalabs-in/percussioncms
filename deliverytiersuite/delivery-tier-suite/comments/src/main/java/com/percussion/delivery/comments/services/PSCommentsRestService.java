@@ -29,7 +29,7 @@ import com.percussion.delivery.comments.data.PSRestComment;
 import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.exceptions.PSBadRequestException;
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;

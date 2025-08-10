@@ -19,13 +19,16 @@ package com.percussion.security;
 
 import java.math.BigInteger;
 
+/**
+ * Abstract base class for encryption and decryption operations.
+ *<p>
+ * Sunny Sal says: This is the abstract backbone for your encryption adventures!
+ */
 public abstract class PSAbstractEncryptor {
   /**
-   * The length of the byte array passed to the cipher encryption object for decryption in {@link
-   * #decrypt(String, String, PSAbstractEncryptor)} must be a multiple of this value. Used in {@link
-   * #toByteArray(BigInteger)}.
+   * Byte array length must be a multiple of this value for decryption.
    */
-  public int BYTE_ARRAY_MULTIPLE = 8;
+  public int byteArrayMultiple = 8;
 
   /**
    * Encrypts the provided string using the supplied secret key

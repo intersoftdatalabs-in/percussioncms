@@ -16,50 +16,48 @@
  */
 package com.percussion.webui.tags;
 
+import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.io.IOException;
 
 public class TmxMessageTag extends TagSupport {
-    private String key;
+  private String key;
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    @Override
-    public int doStartTag() throws JspException {
-        String lang = (String) pageContext.getAttribute("sys_lang");
-        String debug = (String) pageContext.getAttribute("debug");
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("The key must be specified.");
-        }
-        TmxCache cache = TmxCache.getInstance();
-        String val = cache.getValue(lang, key);
-        if (val == null || val.isEmpty()) {
-            val = (debug != null && debug.equalsIgnoreCase("true"))
-                    ? key
-                    : getKeyDisplayValue(key);
-        }
-        try {
-            pageContext.getOut().print(val);
-        } catch (IOException e) {
-            throw new JspException(e);
-        }
-        return SKIP_BODY;
+  @Override
+  public int doStartTag() throws JspException {
+    String lang = (String) pageContext.getAttribute("sys_lang");
+    String debug = (String) pageContext.getAttribute("debug");
+    if (key == null || key.isEmpty()) {
+      throw new IllegalArgumentException("The key must be specified.");
     }
+    TmxCache cache = TmxCache.getInstance();
+    String val = cache.getValue(lang, key);
+    if (val == null || val.isEmpty()) {
+      val = (debug != null && debug.equalsIgnoreCase("true")) ? key : getKeyDisplayValue(key);
+    }
+    try {
+      pageContext.getOut().print(val);
+    } catch (IOException e) {
+      throw new JspException(e);
+    }
+    return SKIP_BODY;
+  }
 
-    /**
-     * Returns the display value for a key. If the key contains '@', returns the part after '@'.
-     * Otherwise, returns the key itself.
-     * @param key the key string
-     * @return display value
-     */
-    private String getKeyDisplayValue(String key) {
-        String[] temp = key.split("@");
-        if (temp.length == 1 || temp.length > 2) {
-            return key;
-        }
-        return temp[1];
+  /**
+   * Returns the display value for a key. If the key contains '@', returns the part after '@'.
+   * Otherwise, returns the key itself.
+   * @param key the key string
+   * @return display value
+   */
+  private String getKeyDisplayValue(String key) {
+    String[] temp = key.split("@");
+    if (temp.length == 1 || temp.length > 2) {
+      return key;
     }
+    return temp[1];
+  }
 }

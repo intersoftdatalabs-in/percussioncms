@@ -17,7 +17,7 @@
 
 package com.percussion.auditlog.util;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;

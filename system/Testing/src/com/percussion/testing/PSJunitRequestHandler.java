@@ -17,7 +17,7 @@
 package com.percussion.testing;
 
 import com.percussion.conn.PSServerException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSLoadableRequestHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;

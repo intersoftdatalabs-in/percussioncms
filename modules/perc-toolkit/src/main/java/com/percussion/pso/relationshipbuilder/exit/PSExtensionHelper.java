@@ -23,7 +23,7 @@ import com.percussion.cms.handlers.PSModifyCommandHandler;
 import com.percussion.cms.handlers.PSQueryCommandHandler;
 import com.percussion.data.PSConversionException;
 import com.percussion.error.PSException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.pso.relationshipbuilder.IPSRelationshipBuilder;

@@ -17,7 +17,7 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.cms.objectstore.PSKey;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Serializable;
 import org.apache.logging.log4j.LogManager;

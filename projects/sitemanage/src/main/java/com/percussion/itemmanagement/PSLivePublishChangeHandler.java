@@ -25,7 +25,7 @@ import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper.PSItemTypeEnum;
 import com.percussion.pagemanagement.service.IPSPageService;

@@ -19,7 +19,7 @@ package com.percussion.linkmanagement.service.impl;
 
 import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.*;
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.server.IPSRequestContext;

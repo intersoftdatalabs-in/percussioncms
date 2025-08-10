@@ -17,7 +17,7 @@
 package com.percussion.server.command;
 
 import com.percussion.error.PSErrorManager;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.cache.PSCacheProxy;

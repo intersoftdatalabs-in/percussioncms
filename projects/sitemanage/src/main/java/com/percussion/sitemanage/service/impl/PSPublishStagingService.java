@@ -17,7 +17,7 @@
 
 package com.percussion.sitemanage.service.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.share.dao.IPSGenericDao;

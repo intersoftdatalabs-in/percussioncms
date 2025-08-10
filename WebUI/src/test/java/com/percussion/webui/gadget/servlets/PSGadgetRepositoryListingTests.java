@@ -17,20 +17,21 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Sunny Sal says: "Repository listing ka test, registry ka best!"
  */
 public class PSGadgetRepositoryListingTests {
 
-    @Test
-    public void testGetRegistry() {
-        var servlet = new GadgetRepositoryListingServlet();
-        var typeMap = servlet.loadGadgetTypeMap();
-        assertNotNull(typeMap, "Type map should not be null");
-        assertTrue(typeMap.size() > 0, "Type map should have at least one entry");
-    }
+  @Test
+  public void testGetRegistry() {
+    var servlet = new GadgetRepositoryListingServlet();
+    var typeMap = servlet.loadGadgetTypeMap();
+    assertNotNull(typeMap, "Type map should not be null");
+    assertTrue(typeMap.size() > 0, "Type map should have at least one entry");
+  }
 }

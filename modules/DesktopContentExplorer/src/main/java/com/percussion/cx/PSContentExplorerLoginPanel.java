@@ -21,7 +21,7 @@ package com.percussion.cx;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cx.guitools.UTMnemonicLabel;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.guitools.ErrorDialogs;
 import com.percussion.util.PSProperties;
 import com.percussion.webservices.faults.PSContractViolationFault;

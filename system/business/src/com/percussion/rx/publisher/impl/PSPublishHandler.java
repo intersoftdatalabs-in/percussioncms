@@ -17,7 +17,7 @@
 package com.percussion.rx.publisher.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.delivery.IPSDeliveryHandler;
 import com.percussion.rx.delivery.IPSDeliveryManager;
 import com.percussion.rx.delivery.IPSDeliveryResult;

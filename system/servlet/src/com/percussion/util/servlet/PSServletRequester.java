@@ -19,7 +19,7 @@ package com.percussion.util.servlet;
 
 import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.IPSRemoteRequesterEx;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;

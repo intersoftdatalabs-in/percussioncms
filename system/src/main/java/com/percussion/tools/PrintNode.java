@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+/**
+ * Utility for printing XML DOM nodes as formatted XML.
+ */
 package com.percussion.tools;
 
 import java.io.IOException;
@@ -36,41 +39,36 @@ public class PrintNode {
   public PrintNode() {}
 
   /**
-   * Prints the supplied node to the supplied writer. Empty elements are written
-   * using the empty element tag format. See the method by the same name that
-   * takes more parameters for a more detailed description.
-   **/
+   * Prints the supplied node to the writer. Empty elements use the empty element tag format.
+   *
+   * @param node the node to print
+   * @param indent indentation string
+   * @param out output writer
+   *
+   * @throws IOException if writing fails
+   */
   public static void printNode(Node node, String indent, Writer out) throws IOException {
     printNode(node, indent, out, true);
   }
 
   /**
-   * Writes the supplied node and all its children as a nicely formatted XML
-   * document to the supplied writer.
+   * Writes the supplied node and all its children as formatted XML to the writer.
    *
-   * @param node The node to print. To print a whole document, pass in the
-   * document. If null, nothing is done.
+   * @param node the node to print
+   * @param indent indentation string
+   * @param out output writer
+   * @param useEmptyElementTag true to use empty element tag format
    *
-   * @param indent A String containing white space. Comments and elements
-   * are prepended with this string when they are being written. Children are
-   * automatically indented from their parents. <p/>
-   * When passing in a document, this should typically be the empty string.
-   * This may be null to mean the empty string.
-   *
-   * @param out The target for the output. If null, nothing is done.
-   *
-   * @param useEmptyElementTag If <code>true</code>, when an element has no
-   * data, the empty element tag form is used (example: <foo/>. If <code>false
-   * </code>, a start and end tag is used, even when no content is present
-   * (example: <foo></foo>). This flag has no effect if an element has content.
-   *
-   * @throws IOException If a failure occurs while navigating the node.
-   **/
+   * @throws IOException if writing fails
+   */
   public static void printNode(Node node, String indent, Writer out, boolean useEmptyElementTag)
       throws IOException {
-    if (node == null || null == out) return;
-
-    if (null == indent) indent = "";
+    if (node == null || out == null) {
+      return;
+    }
+    if (indent == null) {
+      indent = "";
+    }
 
     switch (node.getNodeType()) {
       case Node.ATTRIBUTE_NODE:
@@ -97,60 +95,59 @@ public class PrintNode {
         /* go through the doc's children, which should be
          * the PI nodes, DTD nodes and then the root data node
          */
-        for (Node kid = dNode.getFirstChild(); kid != null; kid = kid.getNextSibling())
+        for (Node kid = dNode.getFirstChild(); kid != null; kid = kid.getNextSibling()) {
           printNode(kid, indent, out, useEmptyElementTag);
+        }
         break;
 
       case Node.ELEMENT_NODE:
-        Element eNode = (Element) node;
-        //      out.write("\n");
-        String strName = eNode.getTagName();
-        out.write(indent + "<" + eNode.getTagName());
+        Element elementNode = (Element) node;
+        out.write(indent + "<" + elementNode.getTagName());
 
         /* print any attributes in the tag */
-        NamedNodeMap attrList = eNode.getAttributes();
-        if (attrList != null) {
-          Attr aNode;
-          for (int i = 0; i < attrList.getLength(); i++) {
-            aNode = (Attr) attrList.item(i);
-            out.write(" " + aNode.getName() + "=\"" + aNode.getValue() + "\"");
+        NamedNodeMap attributeList = elementNode.getAttributes();
+        if (attributeList != null) {
+          for (int i = 0; i < attributeList.getLength(); i++) {
+            Attr attributeNode = (Attr) attributeList.item(i);
+            out.write(" " + attributeNode.getName() + "=\"" + attributeNode.getValue() + "\"");
           }
         }
 
-        /* if there are children, close the tag, print the kids
-         * and print the end tag
-         */
-        if (eNode.hasChildNodes()) {
-          /* close the start tag */
+        /* if there are children, close the tag, print the kids and print the end tag */
+        if (elementNode.hasChildNodes()) {
           out.write(">");
-
-          /* print the kids */
-          Node kid = null;
-          Text text = null;
-          String str = "";
-          boolean bElementPresent = false, bTextPresent = false;
-          for (kid = eNode.getFirstChild(); kid != null; kid = kid.getNextSibling()) {
-            if (kid instanceof Element) {
-              bElementPresent = true;
+          Node childNode;
+          String textValue = "";
+          boolean elementPresent = false;
+          boolean textPresent = false;
+          for (childNode = elementNode.getFirstChild();
+              childNode != null;
+              childNode = childNode.getNextSibling()) {
+            if (childNode instanceof Element) {
+              elementPresent = true;
               out.write(NEWLINE);
             }
-            if (kid instanceof Text) {
-              text = (Text) kid;
-              str = text.getNodeValue();
-              if (null != str && !(str.trim().equals(""))) bTextPresent = true;
+            if (childNode instanceof Text) {
+              textValue = ((Text) childNode).getNodeValue();
+              if (textValue != null && !textValue.trim().equals("")) {
+                textPresent = true;
+              }
             }
-            printNode(kid, indent + "   ", out, useEmptyElementTag);
+            printNode(childNode, indent + "   ", out, useEmptyElementTag);
           }
-
-          /* and the end tag */
-          if (bElementPresent) out.write(NEWLINE + indent);
-
-          out.write("</" + eNode.getTagName() + ">");
-          if (!bTextPresent) out.write(NEWLINE);
+          if (elementPresent) {
+            out.write(NEWLINE + indent);
+          }
+          out.write("</" + elementNode.getTagName() + ">");
+          if (!textPresent) {
+            out.write(NEWLINE);
+          }
         } else {
-          /* close this tag with the end tag */
-          if (useEmptyElementTag) out.write(" />");
-          else out.write("></" + eNode.getTagName() + ">");
+          if (useEmptyElementTag) {
+            out.write(" />");
+          } else {
+            out.write("></" + elementNode.getTagName() + ">");
+          }
         }
         break;
 
@@ -161,8 +158,12 @@ public class PrintNode {
 
       case Node.TEXT_NODE:
         String str = node.getNodeValue();
-        if (null != str) str = str.trim();
-        if (null != str && !str.equals("")) out.write(convertToXmlEntities(str));
+        if (null != str) {
+          str = str.trim();
+        }
+        if (null != str && !str.equals("")) {
+          out.write(convertToXmlEntities(str));
+        }
         break;
       case Node.ENTITY_REFERENCE_NODE:
         EntityReference er = (EntityReference) node;
@@ -191,39 +192,38 @@ public class PrintNode {
           XHTML comes into use). If the value is a single char, we treat it as a
           char entity, otherwise we treat it as a regular entity. */
           /*
-          			NamedNodeMap map = dt.getEntities();
+                NamedNodeMap map = dt.getEntities();
 
-          			int entities = map.getLength();
-          			if ( entities > 0 )
-          				out.write( "<!DOCTYPE "+dt.getName() + " [\n" );
+                int entities = map.getLength();
+                if (entities > 0) {
+                  out.write("<!DOCTYPE " + dt.getName() + " [\n");
+                }
 
-          			Node ent = map.item(0);
-          			if ( !(ent instanceof com.ibm.xml.parser.EntityDecl ))
-          				throw new RuntimeException( "Expected class com.ibm.xml.parser.EntityDecl, found "
-          					+ ent.getClass().getName() + ". This new class is not supported." );
+                Node ent = map.item(0);
+                if (!(ent instanceof com.ibm.xml.parser.EntityDecl)) {
+                  throw new RuntimeException("Expected class com.ibm.xml.parser.EntityDecl, found "
+                    + ent.getClass().getName() + ". This new class is not supported.");
+                }
 
-          			for(int i=0; i < entities; i++)
-          			{
-          				EntityDecl entity =  (com.ibm.xml.parser.EntityDecl) map.item(i);
-          				String name = entity.getNodeName();
-          				String value = entity.getValue();
-          				if ( 1 == value.length())
-          				{
-          					// for regular character entities, the node value is the character
-          					int charVal = (value.toCharArray())[0];
-          					value = Integer.toString( charVal );
-          					out.write( "\t<!ENTITY " + name + " '&#" + value + ";'>\n" );
-          				}
-          				else if ( name.equals( "amp" ) || name.equals( "lt" ) || name.equals( "gt" )
-          					|| name.equals( "quot" ) || name.equals( "apos" ))
-          				{
-          					// for the 5 XML special entities, the value is the entity value,
-          					// in the form &#nnn, where nnn is the character value
-          					out.write( "\t<!ENTITY " + name + " '" + value + "'>\n" );
-          				}
-          			}
-          			if ( entities > 0 )
-          				out.write( "]>\n" );
+                for (int i = 0; i < entities; i++) {
+                  EntityDecl entity = (com.ibm.xml.parser.EntityDecl) map.item(i);
+                  String name = entity.getNodeName();
+                  String value = entity.getValue();
+                  if (1 == value.length()) {
+                    // for regular character entities, the node value is the character
+                    int charVal = (value.toCharArray())[0];
+                    value = Integer.toString(charVal);
+                    out.write("\t<!ENTITY " + name + " '&#" + value + ";'>\n");
+                  } else if (name.equals("amp") || name.equals("lt") || name.equals("gt")
+                      || name.equals("quot") || name.equals("apos")) {
+                    // for the 5 XML special entities, the value is the entity value,
+                    // in the form &#nnn, where nnn is the character value
+                    out.write("\t<!ENTITY " + name + " '" + value + "'>\n");
+                  }
+                }
+                if (entities > 0) {
+                  out.write("]>\n");
+                }
           */
           return;
         }
@@ -257,7 +257,9 @@ public class PrintNode {
     int i = 0;
     while (true) {
       if (i == len) {
-        if (startNormal != i) buf.append(chars, startNormal, i - startNormal);
+        if (startNormal != i) {
+          buf.append(chars, startNormal, i - startNormal);
+        }
         break;
       }
       c = chars[i];

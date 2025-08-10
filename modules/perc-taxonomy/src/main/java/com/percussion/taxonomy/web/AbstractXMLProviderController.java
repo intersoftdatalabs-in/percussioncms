@@ -17,7 +17,7 @@
 
 package com.percussion.taxonomy.web;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.taxonomy.domain.Language;
 import com.percussion.taxonomy.domain.Node;
 import com.percussion.taxonomy.domain.Node_status;

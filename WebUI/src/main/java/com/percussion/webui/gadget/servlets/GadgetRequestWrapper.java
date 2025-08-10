@@ -17,68 +17,71 @@
 
 package com.percussion.webui.gadget.servlets;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public final class GadgetRequestWrapper extends HttpServletRequestWrapper {
-    private final String body;
+  private final String body;
 
-    public GadgetRequestWrapper(HttpServletRequest request) throws IOException {
-        super(request);
-        var stringBuilder = new StringBuilder();
-        try (var inputStream = request.getInputStream();
-             var bufferedReader = inputStream != null ? new BufferedReader(new InputStreamReader(inputStream)) : null) {
-            if (bufferedReader != null) {
-                var charBuffer = new char[128];
-                int bytesRead;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                    stringBuilder.append(charBuffer, 0, bytesRead);
-                }
-            }
+  public GadgetRequestWrapper(HttpServletRequest request) throws IOException {
+    super(request);
+    var stringBuilder = new StringBuilder();
+    try (var inputStream = request.getInputStream();
+        var bufferedReader =
+            inputStream != null ? new BufferedReader(new InputStreamReader(inputStream)) : null) {
+      if (bufferedReader != null) {
+        var charBuffer = new char[128];
+        int bytesRead;
+        while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+          stringBuilder.append(charBuffer, 0, bytesRead);
         }
-        body = stringBuilder.toString();
+      }
     }
+    body = stringBuilder.toString();
+  }
 
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
-        var byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
-        return new ServletInputStream() {
-            @Override
-            public boolean isFinished() {
-                return byteArrayInputStream.available() == 0;
-            }
-            @Override
-            public boolean isReady() {
-                return true;
-            }
-            @Override
-            public void setReadListener(ReadListener readListener) {
-                // No-op for this implementation
-            }
-            @Override
-            public int read() throws IOException {
-                return byteArrayInputStream.read();
-            }
-        };
-    }
+  @Override
+  public ServletInputStream getInputStream() throws IOException {
+    var byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
+    return new ServletInputStream() {
+      @Override
+      public boolean isFinished() {
+        return byteArrayInputStream.available() == 0;
+      }
 
-    @Override
-    public BufferedReader getReader() throws IOException {
-        return new BufferedReader(new InputStreamReader(this.getInputStream()));
-    }
+      @Override
+      public boolean isReady() {
+        return true;
+      }
 
-    /**
-     * Returns the cached request body for repeated access.
-     * @return request body as String
-     */
-    public String getBody() {
-        return this.body;
-    }
+      @Override
+      public void setReadListener(ReadListener readListener) {
+        // No-op for this implementation
+      }
+
+      @Override
+      public int read() throws IOException {
+        return byteArrayInputStream.read();
+      }
+    };
+  }
+
+  @Override
+  public BufferedReader getReader() throws IOException {
+    return new BufferedReader(new InputStreamReader(this.getInputStream()));
+  }
+
+  /**
+   * Returns the cached request body for repeated access.
+   * @return request body as String
+   */
+  public String getBody() {
+    return this.body;
+  }
 }

@@ -27,7 +27,7 @@ import com.percussion.cms.objectstore.PSVersionableDbComponent;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.data.PSTableChangeEvent;
 import com.percussion.data.utils.PSTableUpdateHandlerBase;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.server.PSRequest;

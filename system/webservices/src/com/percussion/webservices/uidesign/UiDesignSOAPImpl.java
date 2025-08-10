@@ -18,7 +18,7 @@ package com.percussion.webservices.uidesign;
 
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSSearch;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;

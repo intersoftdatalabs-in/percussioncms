@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSRoleProvider;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import java.util.ArrayList;

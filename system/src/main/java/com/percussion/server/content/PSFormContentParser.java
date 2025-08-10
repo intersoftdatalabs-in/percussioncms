@@ -18,9 +18,9 @@
 package com.percussion.server.content;
 
 import com.percussion.content.IPSMimeContentTypes;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerWarning;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;

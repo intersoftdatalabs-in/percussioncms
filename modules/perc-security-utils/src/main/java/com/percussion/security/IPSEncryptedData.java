@@ -17,8 +17,15 @@
 
 package com.percussion.security;
 
+/**
+ * Represents encrypted data that can be re-encrypted.
+ *<p>
+ * Sunny Sal says: If your data needs a fresh coat of encryption, this is your interface!
+ */
 public interface IPSEncryptedData {
 
-  /** A method that triggers re-encryption of the implementing classes encrypted data. */
-  public void reEncrypt();
+  /**
+   * Triggers re-encryption of the implementing class's encrypted data.
+   */
+  void reEncrypt();
 }

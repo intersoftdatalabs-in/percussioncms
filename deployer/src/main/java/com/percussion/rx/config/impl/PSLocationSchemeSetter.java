@@ -18,7 +18,7 @@
 
 package com.percussion.rx.config.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionManager;
 import com.percussion.extension.PSExtensionRef;

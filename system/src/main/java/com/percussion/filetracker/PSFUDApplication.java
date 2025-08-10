@@ -18,7 +18,7 @@
 package com.percussion.filetracker;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tools.PSHttpRequest;
 import com.percussion.tools.PrintNode;
 import java.io.File;

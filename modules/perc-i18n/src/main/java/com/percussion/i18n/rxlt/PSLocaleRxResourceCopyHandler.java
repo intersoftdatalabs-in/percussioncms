@@ -16,8 +16,8 @@
  */
 package com.percussion.i18n.rxlt;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.i18n.PSI18nUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tools.PSCopyStream;
 import com.percussion.util.PSFileFilter;
 import com.percussion.util.PSFilteredFileList;

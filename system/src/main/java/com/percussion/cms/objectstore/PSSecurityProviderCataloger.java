@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.net.URL;
 import java.util.ArrayList;

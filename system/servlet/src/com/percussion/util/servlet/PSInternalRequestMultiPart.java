@@ -17,7 +17,7 @@
 
 package com.percussion.util.servlet;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSStringOperation;
 import org.apache.logging.log4j.LogManager;

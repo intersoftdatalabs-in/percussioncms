@@ -18,6 +18,7 @@
 package com.percussion.error;
 
 import com.percussion.log.PSLogInformation;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSMapClassToObject;
 import java.net.URL;
 import java.text.MessageFormat;

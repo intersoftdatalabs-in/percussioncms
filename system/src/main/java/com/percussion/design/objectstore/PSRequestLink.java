@@ -250,7 +250,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
 
   private static PSIllegalArgumentException validateXmlField(String name) {
     if ((name != null) && (name.length() > MAX_XML_FIELD_NAME_LEN)) {
-      Object[] args = {new Integer(MAX_XML_FIELD_NAME_LEN), new Integer(name.length())};
+      Object[] args = {Integer.valueOf(MAX_XML_FIELD_NAME_LEN), Integer.valueOf(name.length())};
       return new PSIllegalArgumentException(IPSObjectStoreErrors.REQLINK_XML_FIELD_TOO_BIG, args);
     }
 

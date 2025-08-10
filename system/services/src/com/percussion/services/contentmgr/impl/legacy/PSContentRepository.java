@@ -35,7 +35,7 @@ import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSHandlerInitListener;
 import com.percussion.server.IPSRequestHandler;
 import com.percussion.server.PSRequest;

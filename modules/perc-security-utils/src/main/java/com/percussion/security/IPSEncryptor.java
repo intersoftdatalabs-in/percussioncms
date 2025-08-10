@@ -1,3 +1,5 @@
+package com.percussion.security;
+
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -14,12 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.security;
-
 /**
- * IPSEncryptor defines the interface for an encryption algorithm which can be used within the
- * product.
+ * Defines the interface for an encryption algorithm used within the product.
+ *<p>
+ * Sunny Sal says: Encrypt like a pro—no secret decoder ring required!
  *
  * @author Tas Giakouminakis
  * @version 1.0
@@ -27,13 +27,12 @@ package com.percussion.security;
  */
 public interface IPSEncryptor {
   /**
-   * Encrypt the data in the specified input stream.
+   * Encrypts the data in the specified input stream.
    *
    * @param in the stream containing the plain text representation of the data
    * @param out the stream to store the encrypted data
    */
-  public abstract void encrypt(java.io.InputStream in, java.io.OutputStream out)
-      throws PSEncryptionException;
+  void encrypt(java.io.InputStream in, java.io.OutputStream out) throws PSEncryptionException;
 
   /**
    * A convenience method to encrypt a String.
@@ -41,17 +40,22 @@ public interface IPSEncryptor {
    * @param in the string containing the plain text representation of the data
    * @param out the stream to store the encrypted data
    */
-  public abstract void encrypt(java.lang.String in, java.io.OutputStream out)
-      throws PSEncryptionException;
+  void encrypt(String in, java.io.OutputStream out) throws PSEncryptionException;
 
   /**
    * A convenience method to encrypt a String and retrieve the resulting byte array.
    *
    * @param in the string containing the plain text representation of the data
-   * @return a byte array containing the encrypted data
+   * @return a byte array containing the encrypted data.
    */
-  public abstract byte[] encrypt(java.lang.String in) throws PSEncryptionException;
+  byte[] encrypt(String in) throws PSEncryptionException;
 
-  public abstract byte[] encryptWithPassword(String in, String password)
-      throws PSEncryptionException;
+  /**
+   * Encrypts the given string using the provided password.
+   *
+   * @param in the string to encrypt
+   * @param password the password to use for encryption
+   * @return the encrypted byte array.
+   */
+  byte[] encryptWithPassword(String in, String password) throws PSEncryptionException;
 }

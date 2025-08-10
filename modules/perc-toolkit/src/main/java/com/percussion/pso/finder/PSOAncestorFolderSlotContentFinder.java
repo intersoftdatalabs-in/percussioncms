@@ -17,7 +17,7 @@
 package com.percussion.pso.finder;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;

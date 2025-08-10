@@ -17,8 +17,8 @@
 package com.percussion.cas;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.text.MessageFormat;

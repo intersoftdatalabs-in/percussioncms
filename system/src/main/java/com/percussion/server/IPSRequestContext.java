@@ -151,7 +151,7 @@ public interface IPSRequestContext {
    * Get the headers from the request
    * @return an enumeration, never <code>null</code>
    */
-  public Enumeration getHeaders();
+  public Enumeration<String> getHeaders();
 
   /**
    * Get value of a parameter that was passed in with the request.
@@ -237,6 +237,7 @@ public interface IPSRequestContext {
    * @deprecated Use {@link #getParametersIterator() } for walking through the
    * parameters.
    */
+  @Deprecated
   public Map<String, Object> getParameters();
 
   /**
@@ -300,7 +301,7 @@ public interface IPSRequestContext {
    *
    * @return the request parameters, never <code>null</code>, may be empty.
    */
-  public Iterator getParametersIterator();
+  public Iterator<Map.Entry<String, Object>> getParametersIterator();
 
   /**
    * Get the character set associated with the request.  The value
@@ -352,6 +353,7 @@ public interface IPSRequestContext {
    * @deprecated Use {@link #setParameter } and {@link #removeParameter} for
    * modifying the parameters.
    */
+  @Deprecated
   void setParameters(Map<String, Object> params);
 
   /**
@@ -406,7 +408,7 @@ public interface IPSRequestContext {
    * Object, usually a String, but possibly something else (e.g. a File
    * object), but no entries should have List objects for their values.
    */
-  public Map getTruncatedParameters();
+  public Map<String, Object> getTruncatedParameters();
 
   /**
    * Get a CGI variable associated with the request.
@@ -514,7 +516,7 @@ public interface IPSRequestContext {
    *
    * @return      the cookies;
    */
-  public HashMap getResponseCookies();
+  public HashMap<String, String> getResponseCookies();
 
   /**
    * Sets the cookies which will be sent along with the response to the
@@ -523,7 +525,7 @@ public interface IPSRequestContext {
    * @param      cookies   the cookies to be send with the response (may be
    *                       <code>null</code>)
    */
-  public void setResponseCookies(HashMap cookies);
+  public void setResponseCookies(HashMap<String, String> cookies);
 
   /**
    * Gets the XML document sent as input for the request.  If an XML
@@ -671,7 +673,8 @@ public interface IPSRequestContext {
    *
    * @deprecated use {@link #getSubjectRoles(PSSubject)} instead.
    */
-  public List getUserRoles(String provider, String providerInstance, String name);
+  @Deprecated
+  public List<String> getUserRoles(String provider, String providerInstance, String name);
 
   /**
    * Re-added for custom exit backwards compatibility. Calls
@@ -683,6 +686,7 @@ public interface IPSRequestContext {
    * @deprecated use {@link #getSubjectGlobalAttributes(String, int, String,
    *    String, boolean, String)} instead.
    */
+  @Deprecated
   List<PSSubject> getSubjectGlobalAttributes(
       String subjectNameFilter,
       int subjectType,
@@ -701,6 +705,7 @@ public interface IPSRequestContext {
    * @deprecated use {@link #getSubjectRoleAttributes(String, int, String,
    *    String)} instead.
    */
+  @Deprecated
   List<PSSubject> getSubjectRoleAttributes(
       String subjectNameFilter,
       int subjectType,
@@ -726,7 +731,7 @@ public interface IPSRequestContext {
    * @throws IllegalArgumentException If any argument is invalid.
    * @since 4.0
    */
-  public List getSubjectRoles(PSSubject subject);
+  public List<String> getSubjectRoles(PSSubject subject);
 
   /**
    * Convenience method that gets the role names to which the subject making
@@ -757,7 +762,7 @@ public interface IPSRequestContext {
    *    or empty.
    * @since 4.0
    */
-  public List getSubjectRoles(String subjectName);
+  public List<String> getSubjectRoles(String subjectName);
 
   /**
    * Gets all role names on the system, as a List of Strings.
@@ -767,7 +772,7 @@ public interface IPSRequestContext {
    *    in ascending alpha order.
    * @since 4.0
    */
-  public List getRoles();
+  public List<String> getRoles();
 
   /**
    * Convenience method that gets all the subjects for the specified role,
@@ -825,7 +830,7 @@ public interface IPSRequestContext {
    * <code>null</code> or empty.
    * @since 4.0
    */
-  public List getRoleAttributes(String roleName);
+  public List<String> getRoleAttributes(String roleName);
 
   /**
    * Gets only the global attributes for a set of subjects.
@@ -965,7 +970,7 @@ public interface IPSRequestContext {
    *    empty.
    * @since 4.0
    */
-  public List getSubjectRoleAttributes(PSSubject subject, String roleName);
+  public List<String> getSubjectRoleAttributes(PSSubject subject, String roleName);
 
   /**
    * Get all email addresses from all subjects that belong to the supplied
@@ -973,7 +978,8 @@ public interface IPSRequestContext {
    * Convenience method that calls {@link #getRoleEmailAddresses(String,
    * String, String, Set) roleName, emailAttributeName, community, null}.
    */
-  public Set getRoleEmailAddresses(String roleName, String emailAttributeName, String community);
+  public Set<String> getRoleEmailAddresses(
+      String roleName, String emailAttributeName, String community);
 
   /**
    * Get all email addresses from all subjects that belong to the supplied
@@ -994,8 +1000,11 @@ public interface IPSRequestContext {
    * @return a set of email addresses as <code>String</code> objects in alpha
    *    ascending order, never <code>null</code>, may be empty.
    */
-  public Set getRoleEmailAddresses(
-      String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail);
+  public Set<String> getRoleEmailAddresses(
+      String roleName,
+      String emailAttributeName,
+      String community,
+      Set<String> subjectsWithoutEmail);
 
   /**
    * Get all email addresses from the supplied subject.
@@ -1023,7 +1032,8 @@ public interface IPSRequestContext {
    * @deprecated use {@link #getRoleSubjects(String, int, String)} to obtain
    * information on role members
    */
-  public List getRoleMembers(String roleName, int flags, int memberFlags);
+  @Deprecated
+  public List<String> getRoleMembers(String roleName, int flags, int memberFlags);
 
   /**
    * Retrieve user context information from the current request context.
@@ -1252,7 +1262,7 @@ public interface IPSRequestContext {
    * <code>null</code>, empty, or not in the correct format.
    */
   public IPSInternalRequest getInternalRequest(
-      String resource, Map extraParams, boolean inheritCurrentParams);
+      String resource, Map<String, Object> extraParams, boolean inheritCurrentParams);
 
   /**
    * Gets the content header override string.  If this value is

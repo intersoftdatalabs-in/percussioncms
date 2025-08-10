@@ -17,7 +17,7 @@
 
 package com.percussion.webdav.objectstore;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;

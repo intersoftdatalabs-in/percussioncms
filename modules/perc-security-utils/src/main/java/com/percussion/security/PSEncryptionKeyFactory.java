@@ -18,13 +18,7 @@
 package com.percussion.security;
 
 /**
- * This factory class determines which encryptor is available for use by the system. It is the
- * callers responsibility to understand the key generation scheme, etc. and use the returned object
- * appropriately.
- *
- * @author Tas Giakouminakis
- * @version 1.0
- * @since 1.0
+ * Factory for encryption key generation.
  */
 public abstract class PSEncryptionKeyFactory {
 

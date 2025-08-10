@@ -20,7 +20,7 @@ import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.PSTextValue;
 import com.percussion.cms.objectstore.server.PSBinaryFileValue;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPurgableTempFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

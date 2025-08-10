@@ -16,8 +16,8 @@
  */
 package com.percussion.pso.assembler;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;

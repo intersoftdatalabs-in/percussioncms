@@ -23,7 +23,7 @@ import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.assembler.impl.finder.PSRelationshipWidgetContentFinder;
 import com.percussion.pagemanagement.assembler.impl.finder.PSRelationshipWidgetContentFinder.WidgetCriteria;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;

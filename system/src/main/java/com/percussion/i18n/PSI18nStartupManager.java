@@ -16,9 +16,9 @@
  */
 package com.percussion.i18n;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.i18n.rxlt.PSCommandLineProcessor;
 import com.percussion.i18n.rxlt.PSRxltMain;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.IPSNotificationService;

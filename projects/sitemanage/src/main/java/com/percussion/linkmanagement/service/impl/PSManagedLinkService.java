@@ -20,7 +20,7 @@ package com.percussion.linkmanagement.service.impl;
 import com.percussion.cms.PSSingleValueBuilder;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.pagemanagement.assembler.PSRenderAsset;

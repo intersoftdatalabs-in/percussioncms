@@ -18,9 +18,9 @@ package com.percussion.fastforward.managednav.sql;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.services.PSDatabasePool;
 import com.percussion.fastforward.managednav.PSNavException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

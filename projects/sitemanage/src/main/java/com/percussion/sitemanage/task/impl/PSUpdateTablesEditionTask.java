@@ -17,7 +17,7 @@
 package com.percussion.sitemanage.task.impl;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.rx.delivery.impl.PSDatabaseDeliveryHandler;

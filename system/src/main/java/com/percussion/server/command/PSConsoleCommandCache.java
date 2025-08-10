@@ -18,7 +18,7 @@ package com.percussion.server.command;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSServerCacheSettings;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.cache.PSCacheManager;
 import com.percussion.server.cache.PSCacheStatisticsSnapshot;
 import com.percussion.services.memory.IPSCacheAccess;

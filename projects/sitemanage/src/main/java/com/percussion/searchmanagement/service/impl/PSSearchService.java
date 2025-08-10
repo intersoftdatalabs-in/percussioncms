@@ -19,7 +19,7 @@ package com.percussion.searchmanagement.service.impl;
 
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;

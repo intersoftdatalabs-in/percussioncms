@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.tools;
 
 import java.io.BufferedWriter;
@@ -42,37 +43,21 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Construct a request to the given URL with the given method. If request
-   * content is non-null, then the request content will be after the request
-   * and the request headers.
-   * <p>
-   * If you happen to know the length (in bytes) of the content, you may want
-   * to set the "Content-length" request header to that value. We will not do it
-   * automatically, and we will <B>not</B> consider the setting of this header
-   * when reading the content stream.
-   * <p>
-   * Also, if you happen to know the character encoding that the content uses,
-   * you may want to set the "Char-encoding" request header. Again, we will not
-   * consider this value when sending the content.
+   * Constructs a request to the given URL with the given method.
+   * If request content is non-null, it will be sent after the request headers.
    *
-   * @author	chad loder
-   *
-   * @version 1.0 1999/8/20
-   *
-   *
-   * @param	URL
-   * @param	reqMethod
-   * @param	content May be null if no POST data is needed.
-   *
+   * @param url the URL as a string
+   * @param reqMethod the HTTP method
+   * @param reqContent request content, may be null
    */
-  public PSHttpRequest(String URL, String reqMethod, InputStream reqContent) {
-    init(URL, reqMethod, reqContent);
+  public PSHttpRequest(String url, String reqMethod, InputStream reqContent) {
+    init(url, reqMethod, reqContent);
   }
 
-  private void init(String URL, String reqMethod, InputStream reqContent) {
-    m_reqURL = URL;
-    m_reqMethod = reqMethod;
-    m_reqContent = reqContent;
+  private void init(String url, String reqMethod, InputStream reqContent) {
+    reqUrl = url;
+    reqMethod = reqMethod;
+    reqContent = reqContent;
   }
 
   /**
@@ -89,14 +74,14 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void setRequestContent(InputStream content) {
-    if (m_reqContent != null && content != m_reqContent) {
+    if (reqContent != null && content != reqContent) {
       try {
-        m_reqContent.close();
+        reqContent.close();
       } catch (IOException e) {
         /* ignore */
       }
     }
-    m_reqContent = content;
+    reqContent = content;
   }
 
   /**
@@ -115,7 +100,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void setRequestHost(String hostName) {
-    m_reqHost = hostName;
+    reqHost = hostName;
   }
 
   /**
@@ -134,7 +119,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void setRequestPort(int port) {
-    m_reqPort = port;
+    reqPort = port;
   }
 
   /**
@@ -147,7 +132,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	String
    */
   public String getRequestMethod() {
-    return m_reqMethod;
+    return reqMethod;
   }
 
   /**
@@ -162,7 +147,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void enableTrace(LogSink logger) {
-    m_logger = logger;
+    logger = logger;
   }
 
   /**
@@ -178,7 +163,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void setRequestHttpVersion(int major, int minor) {
-    m_reqHttpVersion = "" + major + "." + minor;
+    reqHttpVersion = "" + major + "." + minor;
   }
 
   /**
@@ -192,11 +177,11 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void setRequestURL(String URL) {
-    m_reqURL = URL;
+    reqUrl = URL;
   }
 
   public void addRequestHeaders(PSHttpHeaders headers) {
-    m_reqHeaders.addAll(headers);
+    reqHeaders.addAll(headers);
   }
 
   /**
@@ -212,7 +197,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void addRequestHeader(String headerName, String headerValue) {
-    m_reqHeaders.replaceHeader(headerName, headerValue);
+    reqHeaders.replaceHeader(headerName, headerValue);
   }
 
   /**
@@ -227,7 +212,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   protected void addResponseHeader(String headerName, String headerValue) {
-    m_respHeaders.addHeader(headerName, headerValue);
+    respHeaders.addHeader(headerName, headerValue);
   }
 
   /**
@@ -240,7 +225,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	Iterator
    */
   public PSHttpHeaders getResponseHeaders() {
-    return m_respHeaders;
+    return respHeaders;
   }
 
   /**
@@ -261,7 +246,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
   public void sendRequest() throws IOException {
     PSHttpRequestTimings timings = new PSHttpRequestTimings();
     sendRequest(timings);
-    m_timings = timings;
+    timingsStats = timings;
   }
 
   /**
@@ -284,19 +269,19 @@ public class PSHttpRequest implements IPSHTTPConstants {
   private void sendRequest(PSHttpRequestTimings timings) throws IOException {
     try {
       // TODO: don't do this if we support keep-alive connections
-      if (m_sock != null) {
+      if (sock != null) {
         disconnect();
       }
 
-      String host = m_reqHost;
+      String host = reqHost;
       if (host == null) {
-        URL u = new URL(m_reqURL);
+        URL u = new URL(reqUrl);
         host = u.getHost();
       }
 
-      int port = m_reqPort;
+      int port = reqPort;
       if (port <= 0) {
-        URL u = new URL(m_reqURL);
+        URL u = new URL(reqUrl);
         port = u.getPort();
       }
 
@@ -311,46 +296,46 @@ public class PSHttpRequest implements IPSHTTPConstants {
 
       timings.afterConnect(System.currentTimeMillis());
 
-      OutputStream out = m_sock.getOutputStream();
+      OutputStream out = sock.getOutputStream();
 
-      m_reqWriter = new BufferedWriter(new OutputStreamWriter(out));
+      reqWriter = new BufferedWriter(new OutputStreamWriter(out));
 
       // send the request line
-      sendRequestLine(m_reqWriter);
+      sendRequestLine(reqWriter);
 
       // send the request headers
-      sendRequestHeaders(m_reqWriter);
+      sendRequestHeaders(reqWriter);
 
-      m_reqWriter.flush();
+      reqWriter.flush();
 
       // if applicable, send the additional content
-      if (m_reqContent != null) {
-        sendReqContent(m_reqContent, out);
-        m_reqContent.close();
-        m_reqContent = null;
+      if (reqContent != null) {
+        sendReqContent(reqContent, out);
+        reqContent.close();
+        reqContent = null;
       }
 
       timings.afterRequest(System.currentTimeMillis());
 
       // prepare to read the response
-      m_respIn = new PSInputStreamReader(m_sock.getInputStream());
+      respIn = new PSInputStreamReader(sock.getInputStream());
 
       // read the response header
-      long hdrBytes = parseResponse(m_respIn);
+      long hdrBytes = parseResponse(respIn);
 
       timings.afterHeaders(System.currentTimeMillis());
       timings.headerBytes(hdrBytes);
     } finally {
-      if (m_reqContent != null) {
-        m_reqContent.close();
-        m_reqContent = null;
+      if (reqContent != null) {
+        reqContent.close();
+        reqContent = null;
       }
     }
   }
 
   protected void connect(String host, int port) throws IOException {
     log("Connecting...");
-    m_sock = new Socket(host, port);
+    sock = new Socket(host, port);
   }
 
   protected void sendReqContent(InputStream in, OutputStream out) throws IOException {
@@ -370,11 +355,11 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	long
    */
   public long getResponseLatency() {
-    return m_respLatencyMs;
+    return respLatencyMs;
   }
 
   public PSHttpRequestTimings getTimings() throws CloneNotSupportedException {
-    return (PSHttpRequestTimings) m_timings.clone();
+    return (PSHttpRequestTimings) timingsStats.clone();
   }
 
   /**
@@ -392,7 +377,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	InputStream
    */
   public InputStream getResponseContent() {
-    return m_respIn;
+    return respIn;
   }
 
   /**
@@ -405,7 +390,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	int
    */
   public int getResponseCode() {
-    return m_respHttpCode;
+    return respHttpCode;
   }
 
   /**
@@ -421,16 +406,20 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    */
   public void disconnect() throws IOException {
-    if (m_respIn != null || m_sock != null) {
+    if (respIn != null || sock != null) {
       log("Disconnecting...");
     }
 
-    if (m_respIn != null) m_respIn.close();
+    if (respIn != null) {
+      respIn.close();
+    }
 
-    if (m_sock != null) m_sock.close();
+    if (sock != null) {
+      sock.close();
+    }
 
-    m_respIn = null;
-    m_sock = null;
+    respIn = null;
+    sock = null;
   }
 
   protected void finalize() throws Throwable {
@@ -449,21 +438,21 @@ public class PSHttpRequest implements IPSHTTPConstants {
    * @return	String
    */
   public String getResponseMessage() {
-    return m_respMsg;
+    return respMsg;
   }
 
   /** send the HTTP request line to the given writer */
   protected void sendRequestLine(Writer writer) throws IOException {
     // this logic allows us to send invalid URLs
-    String sendURL = m_reqURL;
+    String sendUrl = reqUrl;
     try {
-      URL u = new URL(m_reqURL);
-      sendURL = u.getFile();
+      URL u = new URL(reqUrl);
+      sendUrl = u.getFile();
     } catch (MalformedURLException e) {
-      // ignrore, just send the invalid URL as is
+      // ignore, just send the invalid URL as is
     }
 
-    String reqLine = m_reqMethod + " " + sendURL + " HTTP/" + m_reqHttpVersion;
+    String reqLine = reqMethod + " " + sendUrl + " HTTP/" + reqHttpVersion;
     writer.write(reqLine + "\r\n");
 
     log("Sent request line " + reqLine);
@@ -472,13 +461,13 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /** sends the request headers to the given writer, followed by a blank line */
   protected void sendRequestHeaders(Writer writer) throws IOException {
     log("Sending request headers...");
-    Collection keySet = m_reqHeaders.getHeaderNames();
-    for (Iterator i = keySet.iterator(); i.hasNext(); ) {
-      String headerName = i.next().toString();
-      for (Iterator j = m_reqHeaders.getHeaders(headerName); j.hasNext(); ) {
-        String val = headerName + ": " + j.next().toString();
+    Collection<String> keySet = reqHeaders.getHeaderNames();
+    for (Iterator<String> i = keySet.iterator(); i.hasNext(); ) {
+      String headerName = i.next();
+      for (Iterator<String> j = reqHeaders.getHeaders(headerName); j.hasNext(); ) {
+        String val = headerName + ": " + j.next();
         writer.write(val + "\r\n");
-        log("\tSent header " + val);
+        log("  Sent header " + val);
       }
     }
 
@@ -514,8 +503,8 @@ public class PSHttpRequest implements IPSHTTPConstants {
 
       int startCode = spacePos + 1; // points at first char of code
       int endCode = startCode + 3; // points one past the code
-      m_respHttpCode = Integer.parseInt(statusLine.substring(startCode, endCode));
-      m_respMsg = statusLine.substring(endCode).trim();
+      respHttpCode = Integer.parseInt(statusLine.substring(startCode, endCode));
+      respMsg = statusLine.substring(endCode).trim();
     }
 
     // status line is ASCII bytes (don't forget 2 bytes for CR+LF)
@@ -565,33 +554,37 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   public void logException(Throwable t) {
-    if (m_logger != null) m_logger.log(t);
+    if (logger != null) {
+      logger.log(t);
+    }
   }
 
   public void log(String message) {
-    if (m_logger != null) m_logger.log(message);
+    if (logger != null) {
+      logger.log(message);
+    }
   }
 
-  protected Socket m_sock;
-  protected LogSink m_logger;
+  protected Socket sock;
+  protected LogSink logger;
 
   /* response */
-  protected long m_respLatencyMs;
-  protected String m_respMsg;
-  protected PSInputStreamReader m_respIn;
-  protected int m_respHttpCode = -1;
-  protected PSHttpHeaders m_respHeaders = new PSHttpHeaders();
+  protected long respLatencyMs;
+  protected String respMsg;
+  protected PSInputStreamReader respIn;
+  protected int respHttpCode = -1;
+  protected PSHttpHeaders respHeaders = new PSHttpHeaders();
 
   /* request */
-  protected String m_reqHost;
-  protected int m_reqPort = -1;
-  protected String m_reqMethod;
-  protected InputStream m_reqContent;
-  protected Writer m_reqWriter;
-  protected PSHttpHeaders m_reqHeaders = new PSHttpHeaders();
-  protected String m_reqHttpVersion = "1.0";
-  protected String m_reqURL;
+  protected String reqHost;
+  protected int reqPort = -1;
+  protected String reqMethod;
+  protected InputStream reqContent;
+  protected Writer reqWriter;
+  protected PSHttpHeaders reqHeaders = new PSHttpHeaders();
+  protected String reqHttpVersion = "1.0";
+  protected String reqUrl;
 
   /* statistics */
-  protected PSHttpRequestTimings m_timings;
+  protected PSHttpRequestTimings timingsStats;
 }

@@ -16,7 +16,7 @@
  */
 package com.percussion.data;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.ByteArrayInputStream;

@@ -19,7 +19,7 @@ package com.percussion.services.assembly.impl.plugin;
 import com.percussion.data.PSCachedStylesheet;
 import com.percussion.data.PSInternalRequestURIResolver;
 import com.percussion.data.PSTransformErrorListener;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyItem;

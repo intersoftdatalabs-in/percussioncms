@@ -26,7 +26,7 @@ import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSDescriptor;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSArchiveFiles;
 import com.percussion.xml.PSXmlDocumentBuilder;
