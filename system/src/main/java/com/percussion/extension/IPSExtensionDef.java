@@ -191,9 +191,9 @@ public interface IPSExtensionDef {
    * extension.
    *
    * @return An Iterator over zero or more non-{@code null}
-   * PSExtensionResourceLocation objects. Never {@code null}.
+   * java.net.URL objects. Never {@code null}.
    */
-  Iterator<PSExtensionResourceLocation> getResourceLocations();
+  Iterator<java.net.URL> getResourceLocations();
 
   /**
    * Returns the supplied resources for this extension.

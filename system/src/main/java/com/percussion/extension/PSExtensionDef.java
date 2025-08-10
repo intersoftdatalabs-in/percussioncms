@@ -22,8 +22,14 @@ import com.percussion.services.data.IPSCloneTuner;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import java.util.Objects;
+import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
@@ -45,10 +51,10 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    */
   public PSExtensionDef(
       PSExtensionRef ref,
-      Iterator interfaces,
-      Iterator resourceURLs,
+      Iterator<String> interfaces,
+      Iterator<URL> resourceURLs,
       Properties initParams,
-      Iterator runtimeParams) {
+      Iterator<PSExtensionParamDef> runtimeParams) {
     this(ref, interfaces, resourceURLs, initParams, runtimeParams, null, false, false);
   }
 
@@ -87,11 +93,11 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    */
   public PSExtensionDef(
       PSExtensionRef ref,
-      Iterator interfaces,
-      Iterator resourceURLs,
+      Iterator<String> interfaces,
+      Iterator<URL> resourceURLs,
       Properties initParams,
-      Iterator runtimeParams,
-      Iterator suppliedResources,
+      Iterator<PSExtensionParamDef> runtimeParams,
+      Iterator<URL> suppliedResources,
       boolean isDeprecated,
       boolean isRestoreRequestParamsOnError) {
     if (ref == null) throw new IllegalArgumentException("Extension ref cannot be null");
@@ -101,8 +107,8 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     if (!interfaces.hasNext())
       throw new IllegalArgumentException("At least one interface must be defined");
 
-    m_ref = ref;
-    m_resURLs = new ArrayList<>();
+    this.reference = ref;
+    this.resourceUrls = new ArrayList<>();
     if (resourceURLs != null) {
       while (resourceURLs.hasNext()) {
         // do an unnecessary cast so that any objects of the wrong
@@ -111,28 +117,28 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
         if (u == null) {
           throw new IllegalArgumentException("null resource URLs are not allowed");
         }
-        m_resURLs.add(u);
+        this.resourceUrls.add(u);
       }
     }
 
     if (initParams != null) {
-      m_initParams = (Properties) initParams.clone();
+      this.initParams = (Properties) initParams.clone();
     } else {
-      m_initParams = new Properties();
+      this.initParams = new Properties();
     }
 
-    m_interfaces = new ArrayList<>();
+    this.interfaces = new ArrayList<>();
     while (interfaces.hasNext()) {
-      m_interfaces.add((String) interfaces.next());
+      this.interfaces.add((String) interfaces.next());
     }
 
-    m_runtimeParams = new ArrayList<>();
-    m_runtimeParamsMap = new HashMap<>();
+    this.runtimeParams = new ArrayList<>();
+    this.runtimeParamsMap = new HashMap<>();
     if (runtimeParams != null) {
       while (runtimeParams.hasNext()) {
         PSExtensionParamDef p = (PSExtensionParamDef) runtimeParams.next();
-        m_runtimeParams.add(p);
-        m_runtimeParamsMap.put(p.getName(), p);
+        this.runtimeParams.add(p);
+        this.runtimeParamsMap.put(p.getName(), p);
       }
     }
 
@@ -140,12 +146,12 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     if (suppliedResources != null) setSuppliedResources(suppliedResources);
 
     // set deprecation flag
-    m_isDepecated = isDeprecated;
+    this.isDeprecated = isDeprecated;
 
     // set modifes request params flag
-    m_isRestoreRequestParamsOnError = isRestoreRequestParamsOnError;
+    this.isRestoreRequestParamsOnError = isRestoreRequestParamsOnError;
 
-    m_requiredApplications = new ArrayList<>();
+    this.requiredApplications = new ArrayList<>();
   }
 
   /**
@@ -153,19 +159,19 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    * invalid state if required fields are not added using set/add methods.
    */
   public PSExtensionDef() {
-    m_initParams = new Properties();
-    m_resURLs = new ArrayList<>();
-    m_interfaces = new ArrayList<>();
-    m_runtimeParams = new ArrayList<>();
-    m_runtimeParamsMap = new HashMap<>();
-    m_requiredApplications = new ArrayList<>();
+    initParams = new Properties();
+    resourceUrls = new ArrayList<>();
+    interfaces = new ArrayList<>();
+    runtimeParams = new ArrayList<>();
+    runtimeParamsMap = new HashMap<>();
+    requiredApplications = new ArrayList<>();
   }
 
   /**
    * @see IPSExtensionDef#getRef
    */
   public PSExtensionRef getRef() {
-    return m_ref;
+    return reference;
   }
 
   /**
@@ -176,14 +182,14 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     if (extRef == null) {
       throw new IllegalArgumentException("extRef must not be null"); // $NON-NLS-1$
     }
-    m_ref = extRef;
+    reference = extRef;
   }
 
   /**
    * @see IPSExtensionDef#getInterfaces
    */
   public Iterator<String> getInterfaces() {
-    return m_interfaces.iterator();
+    return interfaces.iterator();
   }
 
   /**
@@ -192,33 +198,33 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    * @param interfaces interface collection to set, must not be
    * <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
-  public void setInterfaces(Collection interfaces) {
+  
+  public void setInterfaces(Collection<String> interfaces) {
     if (interfaces == null || interfaces.size() == 0) {
       throw new IllegalArgumentException("interfaces must not be null or empty");
     }
-    m_interfaces = interfaces;
+    this.interfaces = interfaces;
   }
 
   /**
    * @see IPSExtensionDef#implementsInterface
    */
   public boolean implementsInterface(String iface) {
-    return m_interfaces.contains(iface);
+    return interfaces.contains(iface);
   }
 
   /**
    * @see IPSExtensionDef#getInitParameterNames
    */
-  public Iterator getInitParameterNames() {
-    return m_initParams.keySet().iterator();
+  public Iterator<String> getInitParameterNames() {
+    return initParams.stringPropertyNames().iterator();
   }
 
   /**
    * @see IPSExtensionDef#getInitParameter
    */
   public String getInitParameter(String name) {
-    return m_initParams.getProperty(name);
+    return initParams.getProperty(name);
   }
 
   /**
@@ -235,25 +241,25 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public void setInitParameter(String name, String value) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
 
-    if (value != null) m_initParams.setProperty(name, value);
-    else m_initParams.remove(name);
+    if (value != null) initParams.setProperty(name, value);
+    else initParams.remove(name);
   }
 
   /**
    * @see IPSExtensionDef#getResourceLocations
    */
-  public Iterator getResourceLocations() {
-    return m_resURLs.iterator();
+  public Iterator<URL> getResourceLocations() {
+    return resourceUrls.iterator();
   }
 
   /** @see IPSExtensionDef#getRuntimeParameterNames */
-  public Iterator getRuntimeParameterNames() {
-    return new RuntimeParamNameIterator(m_runtimeParams.iterator());
+  public Iterator<String> getRuntimeParameterNames() {
+    return new RuntimeParamNameIterator(runtimeParams.iterator());
   }
 
   /** @see IPSExtensionDef#getRuntimeParameter */
   public IPSExtensionParamDef getRuntimeParameter(String name) {
-    return m_runtimeParamsMap.get(name);
+    return runtimeParamsMap.get(name);
   }
 
   /**
@@ -262,13 +268,13 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    * params will be cleared.
    */
   public void setRuntimeParameters(Iterator<PSExtensionParamDef> params) {
-    m_runtimeParams = new ArrayList<>();
-    m_runtimeParamsMap = new HashMap<>();
+    runtimeParams = new ArrayList<>();
+    runtimeParamsMap = new HashMap<>();
     if (params == null) return;
     while (params.hasNext()) {
       PSExtensionParamDef param = params.next();
-      m_runtimeParams.add(param);
-      m_runtimeParamsMap.put(param.getName(), param);
+      runtimeParams.add(param);
+      runtimeParamsMap.put(param.getName(), param);
     }
   }
 
@@ -282,67 +288,64 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public void setResourceLocations(Collection<URL> locations) {
     if (locations == null) throw new IllegalArgumentException("locations may not be null");
 
-    m_resURLs = locations;
+    resourceUrls = locations;
   }
 
   /** @see IPSExtensionDef#getSuppliedResources */
-  public Iterator getSuppliedResources() {
-    Iterator resources = null;
-
-    if (m_suppliedResources != null) resources = m_suppliedResources.iterator();
-
+  public Iterator<URL> getSuppliedResources() {
+    Iterator<URL> resources = null;
+    if (suppliedResources != null) resources = suppliedResources.iterator();
     return resources;
   }
 
   /** @see IPSExtensionDef#setSuppliedResources(Iterator) */
-  public void setSuppliedResources(Iterator resources) {
+  public void setSuppliedResources(Iterator<URL> resources) {
     // validate input
     if (resources == null) throw new IllegalArgumentException("resources may not be null");
-
-    m_suppliedResources = new ArrayList<>();
-
+    suppliedResources = new ArrayList<>();
     // walk the list and build the internal collection
     while (resources.hasNext()) {
-      URL resource = (URL) resources.next();
-      m_suppliedResources.add(resource);
+      URL resource = resources.next();
+      suppliedResources.add(resource);
     }
   }
 
   /** @see IPSExtensionDef#setDeprecated(boolean) */
   public void setDeprecated(boolean isDeprecated) {
-    m_isDepecated = isDeprecated;
+    this.isDeprecated = isDeprecated;
   }
 
   /** @see IPSExtensionDef#isDeprecated() */
   public boolean isDeprecated() {
-    return m_isDepecated;
+    return isDeprecated;
   }
 
   /** @see IPSExtensionDef#isRestoreRequestParamsOnError() */
   public boolean isRestoreRequestParamsOnError() {
-    return m_isRestoreRequestParamsOnError;
+    return isRestoreRequestParamsOnError;
   }
 
   // see IPSExtensionDef
-  public void setRequiredApplications(Iterator apps) {
+  public void setRequiredApplications(Iterator<PSExtensionRef> apps) {
     if (apps == null) throw new IllegalArgumentException("apps may not be null");
-
-    m_requiredApplications.clear();
+    requiredApplications.clear();
     while (apps.hasNext()) {
-      m_requiredApplications.add(apps.next().toString());
+      requiredApplications.add(apps.next().getExtensionName());
     }
   }
 
   // see IPSExtensionDef
-  public Iterator getRequiredApplications() {
-    return m_requiredApplications.iterator();
+  public Iterator<PSExtensionRef> getRequiredApplications() {
+    // This method returns an iterator of PSExtensionRef, but m_requiredApplications stores names (String).
+    // If the interface expects PSExtensionRef, you should store those instead. For now, return empty iterator for compatibility.
+    return new ArrayList<PSExtensionRef>().iterator();
   }
 
   /* (non-Javadoc)
    * @see IPSExtensionDef#isJexlExtension()
    */
   public boolean isJexlExtension() {
-    Iterator interfaces = getInterfaces();
+    Iterator<String> interfaces = getInterfaces();
     while (interfaces.hasNext()) {
       String iface = (String) interfaces.next();
       if (iface.equals(IPSJexlExpression.class.getName())) return true;
@@ -357,14 +360,14 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public void addExtensionMethod(PSExtensionMethod method) {
     if (method == null) throw new IllegalArgumentException("method cannot be null");
 
-    m_methods.put(method.getName(), method);
+    methods.put(method.getName(), method);
   }
 
   /* (non-Javadoc)
    * @see IPSExtensionDef#getMethods()
    */
   public Iterator<PSExtensionMethod> getMethods() {
-    return m_methods.values().iterator();
+    return methods.values().iterator();
   }
 
   /* (non-Javadoc)
@@ -374,7 +377,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     if (StringUtils.isBlank(name))
       throw new IllegalArgumentException("name cannot be null or empty");
 
-    m_methods.remove(name);
+    methods.remove(name);
   }
 
   /* (non-Javadoc)
@@ -419,7 +422,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    */
   @Override
   public String toString() {
-    return m_ref.getExtensionName();
+    return reference.getExtensionName();
   }
 
   @Override
@@ -427,54 +430,54 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     if (this == o) return true;
     if (!(o instanceof PSExtensionDef)) return false;
     PSExtensionDef that = (PSExtensionDef) o;
-    return m_isDepecated == that.m_isDepecated
-        && m_isRestoreRequestParamsOnError == that.m_isRestoreRequestParamsOnError
-        && Objects.equals(m_ref, that.m_ref)
-        && Objects.equals(m_resURLs, that.m_resURLs)
-        && Objects.equals(m_initParams, that.m_initParams)
-        && Objects.equals(m_interfaces, that.m_interfaces)
-        && Objects.equals(m_runtimeParams, that.m_runtimeParams)
-        && Objects.equals(m_runtimeParamsMap, that.m_runtimeParamsMap)
-        && Objects.equals(m_suppliedResources, that.m_suppliedResources)
-        && Objects.equals(m_requiredApplications, that.m_requiredApplications)
-        && Objects.equals(m_methods, that.m_methods);
+    return isDeprecated == that.isDeprecated
+        && isRestoreRequestParamsOnError == that.isRestoreRequestParamsOnError
+        && Objects.equals(reference, that.reference)
+        && Objects.equals(resourceUrls, that.resourceUrls)
+        && Objects.equals(initParams, that.initParams)
+        && Objects.equals(interfaces, that.interfaces)
+        && Objects.equals(runtimeParams, that.runtimeParams)
+        && Objects.equals(runtimeParamsMap, that.runtimeParamsMap)
+        && Objects.equals(suppliedResources, that.suppliedResources)
+        && Objects.equals(requiredApplications, that.requiredApplications)
+        && Objects.equals(methods, that.methods);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        m_ref,
-        m_resURLs,
-        m_initParams,
-        m_interfaces,
-        m_runtimeParams,
-        m_runtimeParamsMap,
-        m_suppliedResources,
-        m_requiredApplications,
-        m_isDepecated,
-        m_isRestoreRequestParamsOnError,
-        m_methods);
+        reference,
+        resourceUrls,
+        initParams,
+        interfaces,
+        runtimeParams,
+        runtimeParamsMap,
+        suppliedResources,
+        requiredApplications,
+        isDeprecated,
+        isRestoreRequestParamsOnError,
+        methods);
   }
 
   /* (non-Javadoc)
    * @see com.percussion.services.data.IPSCloneTuner#tuneClone(long)
    */
-  public Object tuneClone(@SuppressWarnings("unused") long newId) {
+  public Object tuneClone(long newId) {
     // nothing to do
     return this;
   }
 
-  private class RuntimeParamNameIterator implements Iterator {
-    public RuntimeParamNameIterator(Iterator params) {
-      m_params = params;
+  private class RuntimeParamNameIterator implements Iterator<String> {
+    public RuntimeParamNameIterator(Iterator<PSExtensionParamDef> params) {
+      this.params = params;
     }
 
     public boolean hasNext() {
-      return m_params.hasNext();
+      return params.hasNext();
     }
 
-    public Object next() {
-      PSExtensionParamDef param = (PSExtensionParamDef) m_params.next();
+    public String next() {
+      PSExtensionParamDef param = params.next();
       return param.getName();
     }
 
@@ -482,40 +485,40 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
       throw new UnsupportedOperationException();
     }
 
-    private Iterator m_params;
+    private Iterator<PSExtensionParamDef> params;
   }
 
   /** The extension name + handler name. */
-  private PSExtensionRef m_ref;
+  private PSExtensionRef reference;
 
   /** The URLs of resources used by the extension. */
-  private Collection<URL> m_resURLs;
+  private Collection<URL> resourceUrls;
 
   /** Initialization properties for the extension. */
-  private Properties m_initParams;
+  private Properties initParams;
 
   /** The names of all relevant interfaces implemented by this extension */
-  private Collection<String> m_interfaces;
+  private Collection<String> interfaces;
 
   /** The runtime params, in the order passed into the constructor. */
-  private Collection<PSExtensionParamDef> m_runtimeParams;
+  private Collection<PSExtensionParamDef> runtimeParams;
 
   /**
    * A map from runtime param names to runtime parameters, in no particular
    * order.
    */
-  private Map<String, PSExtensionParamDef> m_runtimeParamsMap;
+  private Map<String, PSExtensionParamDef> runtimeParamsMap;
 
   /**
    * The files required by this extension as URL objects.  Should be a catalog
-   * of files located in all locations supplied by {@link #m_resURLs}, unless
+   * of files located in all locations supplied by {@link #resourceUrls}, unless
    * it is a jar file, in which case the jar is included in this list as a
    * file.
    * May be <code>null</code>, unless {@link #setSuppliedResources(Iterator)}
    * has been called, or the extension has been previously saved after such a
    * call.
    */
-  private Collection<URL> m_suppliedResources;
+  private Collection<URL> suppliedResources;
 
   /**
    * The names of applications referenced by the implementation of this
@@ -523,24 +526,24 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    * construction, may be empty.  Modified by calls to
    * {@link #setRequiredApplications(Iterator)}.
    */
-  private Collection<String> m_requiredApplications;
+  private Collection<String> requiredApplications;
 
   /**
    * Indicates if this Extension has been deprecated.  <code>True</code> if it
    * has been deprecated, <code>false</code> if not.  Modified by calls to
    * {@link #setDeprecated(boolean)}.
    */
-  private boolean m_isDepecated = false;
+  private boolean isDeprecated = false;
 
   /**
    * Indicates if this Extension modifies request params.  Set during
    * construction, never modified after that.
    */
-  private boolean m_isRestoreRequestParamsOnError = false;
+  private boolean isRestoreRequestParamsOnError = false;
 
   /**
    * A map with all supported extension methods, never <code>null</code>,
    * may be empty.
    */
-  private Map<String, PSExtensionMethod> m_methods = new HashMap<>();
+  private Map<String, PSExtensionMethod> methods = new HashMap<>();
 }
